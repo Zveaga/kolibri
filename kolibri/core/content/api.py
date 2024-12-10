@@ -826,6 +826,8 @@ class OptionalPagination(ValuesViewsetCursorPagination):
 
 
 class OptionalContentNodePagination(OptionalPagination):
+    use_deprecated_channels_labels = False
+
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
@@ -834,12 +836,17 @@ class OptionalContentNodePagination(OptionalPagination):
         )
 
     def get_paginated_response(self, data):
+        labels = (
+            get_available_metadata_labels(self.queryset)
+            if self.use_deprecated_channels_labels
+            else {}
+        )
         return Response(
             OrderedDict(
                 [
                     ("more", self.get_more()),
                     ("results", data),
-                    ("labels", get_available_metadata_labels(self.queryset)),
+                    ("labels", labels),
                 ]
             )
         )
@@ -862,6 +869,10 @@ class OptionalContentNodePagination(OptionalPagination):
                 },
             },
         }
+
+
+class PublicContentNodePagination(OptionalContentNodePagination):
+    use_deprecated_channels_labels = True
 
 
 @method_decorator(remote_metadata_cache, name="dispatch")
