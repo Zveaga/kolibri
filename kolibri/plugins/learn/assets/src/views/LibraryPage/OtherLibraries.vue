@@ -4,18 +4,24 @@
     <KGrid
       gutter="0"
       class="grid"
-      style="margin-bottom:-25px ;"
+      style="margin-bottom: -25px"
     >
       <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout12="{ span: 10 }"
+        :layout8="{ span: 6 }"
+        :layout4="{ span: 4}"
       >
         <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
-     
-        <div class="sync-status" >
+
+        <KGridItem
+        :layout12="{ span:8 }"
+        :layout8="{ span:5 }"
+        :layout4="{span:4 }"
+      class="connection-status">
+
+        <div class="sync-status">
           <span
             v-show="searchingOtherLibraries"
             data-test="searching"
@@ -32,6 +38,7 @@
           <span
             v-show="!searchingOtherLibraries && devicesWithChannelsExist"
             data-test="showing-all"
+            class="otherLib"
           >
             <span>
               <KIcon
@@ -39,7 +46,7 @@
                 icon="wifi"
                 class="wifi-svg"
               />
-            </span> 
+            </span>
             &nbsp;&nbsp;
             <span data-test="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
             &nbsp;&nbsp;
@@ -51,24 +58,21 @@
               />
             </span>
           </span>
-          <div class="a" v-show="!searchingOtherLibraries && !devicesWithChannelsExist" >
           <span
-            
+            v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
             data-test="no-other"
-            
-          > <div  >
-            <span >
-              <KIcon class="disco"  icon="disconnected" />
-            </span >
-          </div>
+            class="noOtherLib"
+          >
+            <span>
+              <KIcon icon="disconnected" />
+            </span>
             &nbsp;&nbsp;
-            <div class="b">
-            <span   data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
-          </div>
+            <span  data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
           </span>
         </div>
-        </div>
       </KGridItem>
+    </KGridItem>
+
     </KGrid>
 
     <h2
@@ -98,7 +102,7 @@
       class="other-libraries-grid"
     >
       <KGridItem
-        :layout12="{ span: 10 }"
+        :layout12="{ span: 6 }"
         :layout8="{ span: 6 }"
         :layout4="{ span: 2 }"
       >
@@ -236,37 +240,16 @@
 <style lang="scss" scoped>
 
 .sync-status {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -20px;
-  margin-left: 0px;
-  padding-left: 10px;
-  margin-bottom: 25px;
-  min-width: 400px;
- 
-  .a {
-    display: flex; 
-    align-items: center; 
-    margin-top: -5px; 
-     margin-left: 100px; }
-    
-  .b {
-      margin-left: 500px;
-      padding-left: 00px;
-      min-width: 200px;
-    }
-    .disco {
-      margin-left: 1000px;    
-    }
+    display: flex;
+    justify-content: flex-end;
+    margin: 30px 0 0px;
 
-  span {
-    margin-bottom: 10px;
-    vertical-align: bottom;
-    margin-top: 10px;
-    display: inline-flex;
-    margin-left: -8px;
+    span {
+      display: inline-flex;
+      vertical-align: bottom;
+      
+    }
   }
-}
 
   .wifi-svg {
     top: 0;
@@ -275,90 +258,27 @@
 
   .grid {
     margin: 8px;
-    
   }
 
   .other-libraries-grid {
     margin-left: 0.75em;
   }
 
-@media screen  and (max-width: 600px)  {
-  .sync-status {
-  
-   max-width: 400px;
-   
-   .a {
-     margin-right: 13px;
-    }
-    .disco {
-      margin-right: -640px; 
-    }
-
-   
-
-   span {
-      margin-left: -191px;
-      word-wrap: break-word;
-
-      
-    }
-  }
-  .wifi-svg {
+  .connection-status{
+    margin-top: -15px;
+    margin-bottom:20px;
+    padding-top: 0px;
+    margin-left:  -8px;
+    margin-right: 250px;
     
-    margin-left: -213px;
   }
-}
-@media screen and (min-width: 600px) and (max-width:1100px)  {
-  .sync-status {
- 
-
-   .a {
-
-     margin-right: 13px;
-    }
-    .disco {
-      margin-right: -640px; 
-    }
-
-
-    span {
-      margin-left: -190px;
-   
-    }
+  .noOtherLib{
+    padding-right: 194px;
+    margin-top: -30px;
   }
-  .wifi-svg {
-   
-    margin-left: -160px;
-  }
-}
-
-@media screen and (min-width: 1100px)  {
-  .sync-status {
- 
-    span {
-      margin-left: -220px;
-      padding-left: -50px;
-      
-      
-    }
-    .a {
-
-     margin-right: 50px;
-    
-    }
-    .disco {
-      margin-right: -610px; 
-    
-    }
-
-    
-   
-  }
-  .wifi-svg {
-   
-    margin-left: -140px;
-  }
-  
-}
+  .otherLib{
+    margin-top: -30px;
+    margin-right: 170px;
+     }
 
 </style>
