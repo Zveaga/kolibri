@@ -371,6 +371,7 @@
         'getExamStatusTally',
         'getLearnersForExam',
         'getRecipientNamesForExam',
+        'getGroupNames',
       ]),
       ...mapState('classSummary', { className: 'name' }),
       practiceQuizzesExist() {
@@ -446,13 +447,14 @@
               exam.groups.includes(recipientsFilter) || exam.learner_ids.includes(recipientsFilter),
           );
         }
-
         return selectedExams.map(quiz => {
           const learnersForQuiz = this.getLearnersForExam(quiz);
           quiz.tally = this.getExamStatusTally(quiz.id, learnersForQuiz);
           quiz.avgScore = this.getExamAvgScore(quiz.id, learnersForQuiz);
-          quiz.recipientNames = this.getRecipientNamesForExam(quiz);
           quiz.totalLearners = this.getLearnersForExam(quiz).length;
+          quiz.recipientNames = this.getRecipientNamesForExam(quiz);
+          quiz.hasAssignments = quiz.assignments.length > 0;
+          quiz.groupNames = this.getGroupNames(quiz.groups);
           return quiz;
         });
       },
@@ -526,9 +528,9 @@
       exportCSV() {
         const columns = [
           ...csvFields.title(),
+          ...csvFields.recipients(this.className),
           ...csvFields.avgScore(),
           ...csvFields.allLearners('totalLearners'),
-          ...csvFields.recipients(this.className),
           ...csvFields.tally(),
         ];
 
