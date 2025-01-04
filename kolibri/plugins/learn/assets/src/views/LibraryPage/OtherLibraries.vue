@@ -7,17 +7,17 @@
       style="margin-bottom: -25px"
     >
       <KGridItem
-        :layout12="{ span: 10 }"
-        :layout8="{ span: 6 }"
-        :layout4="{ span: 4}"
+        :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 4 }"
       >
         <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
 
         <KGridItem
-        :layout12="{ span:8 }"
-        :layout8="{ span:5 }"
+        :layout12="{ span:12}"
+        :layout8="{ span:8}"
         :layout4="{span:4 }"
       class="connection-status">
 
@@ -38,7 +38,6 @@
           <span
             v-show="!searchingOtherLibraries && devicesWithChannelsExist"
             data-test="showing-all"
-            class="otherLib"
           >
             <span>
               <KIcon
@@ -61,7 +60,6 @@
           <span
             v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
             data-test="no-other"
-            class="noOtherLib"
           >
             <span>
               <KIcon icon="disconnected" />
@@ -102,7 +100,7 @@
       class="other-libraries-grid"
     >
       <KGridItem
-        :layout12="{ span: 6 }"
+        :layout12="{ span: 10 }"
         :layout8="{ span: 6 }"
         :layout4="{ span: 2 }"
       >
@@ -241,8 +239,6 @@
 
 .sync-status {
     display: flex;
-    justify-content: flex-end;
-    margin: 30px 0 0px;
 
     span {
       display: inline-flex;
@@ -265,20 +261,10 @@
   }
 
   .connection-status{
+    margin-bottom: 30px;
     margin-top: -15px;
-    margin-bottom:20px;
-    padding-top: 0px;
-    margin-left:  -8px;
-    margin-right: 250px;
-    
+    margin-left: -8px;
   }
-  .noOtherLib{
-    padding-right: 194px;
-    margin-top: -30px;
-  }
-  .otherLib{
-    margin-top: -30px;
-    margin-right: 170px;
-     }
+  
 
 </style>
