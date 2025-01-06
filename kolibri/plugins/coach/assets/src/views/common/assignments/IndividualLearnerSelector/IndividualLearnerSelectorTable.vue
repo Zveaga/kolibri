@@ -8,54 +8,43 @@
     @pageChanged="currentPageLearners = $event.items"
   >
     <template #default="{ items }">
-      <CoreTable
-        :selectable="true"
+      <KTable
+        :rows="getTableRows(items)"
+        :headers="tableHeaders"
         :emptyMessage="emptyMessage"
+        :caption="$tr('tableCaption')"
       >
-        <template #headers>
-          <th class="table-checkbox-header">
-            <KCheckbox
-              key="selectAllOnPage"
-              :label="$tr('selectAllLabel')"
-              :checked="selectAllCheckboxProps.checked"
-              :indeterminate="selectAllCheckboxProps.indeterminate"
-              :disabled="selectAllCheckboxProps.disabled"
-              @change="selectVisiblePage"
-            />
-          </th>
-          <th class="table-header">
-            {{ coreString('usernameLabel') }}
-          </th>
-          <th class="table-header">
-            {{ coachString('groupsLabel') }}
-          </th>
+        <template #header="{ header, colIndex }">
+          <KCheckbox
+            v-if="colIndex === 0"
+            key="selectAllOnPage"
+            :label="$tr('selectAllLabel')"
+            :checked="selectAllCheckboxProps.checked"
+            :indeterminate="selectAllCheckboxProps.indeterminate"
+            :disabled="selectAllCheckboxProps.disabled"
+            @change="selectVisiblePage"
+          />
+          <span
+            v-else
+            class="table-header"
+          >{{ header.label }}</span>
         </template>
-
-        <template #tbody>
-          <tbody>
-            <tr
-              v-for="learner in items"
-              :key="learner.id"
-            >
-              <td>
-                <KCheckbox
-                  :key="`select-learner-${learner.id}`"
-                  :label="learner.name"
-                  :checked="learnerIsSelected(learner)"
-                  :disabled="learnerIsNotSelectable(learner)"
-                  @change="toggleLearner($event, learner)"
-                />
-              </td>
-              <td class="table-data">
-                {{ learner.username }}
-              </td>
-              <td class="table-data">
-                {{ groupNamesForLearner(learner) }}
-              </td>
-            </tr>
-          </tbody>
+        <template #cell="{ content, colIndex }">
+          <KCheckbox
+            v-if="colIndex === 0"
+            :label="content.name"
+            :checked="learnerIsSelected(content)"
+            :disabled="learnerIsNotSelectable(content)"
+            @change="toggleLearner($event, content)"
+          />
+          <span
+            v-else
+            class="table-data"
+          >
+            {{ content }}
+          </span>
         </template>
-      </CoreTable>
+      </KTable>
     </template>
   </PaginatedListContainer>
 
@@ -66,7 +55,6 @@
 
   import { mapState } from 'vuex';
   import { formatList } from 'kolibri/utils/i18n';
-  import CoreTable from 'kolibri/components/CoreTable';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -81,7 +69,7 @@
 
   export default {
     name: 'IndividualLearnerSelector',
-    components: { CoreTable, PaginatedListContainer },
+    components: { PaginatedListContainer },
     mixins: [commonCoreStrings, commonCoachStrings],
     setup() {
       const { noLearnersEnrolled$ } = enhancedQuizManagementStrings;
@@ -188,6 +176,25 @@
           ? this.$tr('noUsersMatch')
           : this.noLearnersEnrolled$({ className: this.className });
       },
+      tableHeaders() {
+        return [
+          {
+            label: this.$tr('selectAllLabel'),
+            dataType: 'undefined',
+            columnId: 'selectAll',
+          },
+          {
+            label: this.coreString('usernameLabel'),
+            dataType: 'string',
+            columnId: 'username',
+          },
+          {
+            label: this.coachString('groupsLabel'),
+            dataType: 'string',
+            columnId: 'groups',
+          },
+        ];
+      },
     },
     methods: {
       fetchOutsideClassroom() {
@@ -201,6 +208,13 @@
           this.learnersFromOtherClass = summary.learners;
           this.fetchingOutside = false;
         });
+      },
+      getTableRows(learners) {
+        return learners.map(learner => [
+          learner,
+          learner.username,
+          this.groupNamesForLearner(learner),
+        ]);
       },
       // Event handlers
       toggleLearner(checked, { id }) {
@@ -267,6 +281,10 @@
         message: 'No users match',
         context:
           "When searching for individual learner to add to a lesson, if no search term matches a learner's name this message is displayed.",
+      },
+      tableCaption: {
+        message: 'Select individual learners',
+        context: 'Caption for the table containing the list of individual learners.',
       },
     },
   };
