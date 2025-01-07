@@ -15,12 +15,12 @@
         </h1>
       </KGridItem>
 
-        <KGridItem
-        :layout12="{ span:12}"
-        :layout8="{ span:8}"
-        :layout4="{span:4 }"
-      class="connection-status">
-
+      <KGridItem
+        :layout12="{ span: 12 }"
+        :layout8="{ span: 8 }"
+        :layout4="{ span: 4 }"
+        class="connection-status"
+      >
         <div class="sync-status">
           <span
             v-show="searchingOtherLibraries"
@@ -65,11 +65,10 @@
               <KIcon icon="disconnected" />
             </span>
             &nbsp;&nbsp;
-            <span  data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
+            <span data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
           </span>
         </div>
       </KGridItem>
-
     </KGrid>
 
     <h2
@@ -236,12 +235,12 @@
 
 <style lang="scss" scoped>
 
-.sync-status {
+  .sync-status {
     display: flex;
 
     span {
       display: inline-flex;
-      vertical-align: bottom;     
+      vertical-align: bottom;
     }
   }
 
@@ -258,10 +257,9 @@
     margin-left: 0.75em;
   }
 
-  .connection-status{
-    margin-left: -8px;
+  .connection-status {
     margin-bottom: 10px;
+    margin-left: -8px;
   }
-  
 
 </style>
