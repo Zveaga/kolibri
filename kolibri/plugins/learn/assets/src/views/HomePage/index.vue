@@ -36,7 +36,7 @@
         v-if="hasActiveClassesQuizzes"
         class="section"
         :quizzes="activeClassesQuizzes"
-        displayClassName
+         displayClassName
         recent
         data-test="recentQuizzes"
       />

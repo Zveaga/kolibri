@@ -4,7 +4,6 @@
     <KGrid
       gutter="0"
       class="grid"
-      style="margin-bottom: -25px"
     >
       <KGridItem
         :layout12="{ span: 6 }"
@@ -14,6 +13,7 @@
         <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
+      </KGridItem>
 
         <KGridItem
         :layout12="{ span:12}"
@@ -69,7 +69,6 @@
           </span>
         </div>
       </KGridItem>
-    </KGridItem>
 
     </KGrid>
 
@@ -242,8 +241,7 @@
 
     span {
       display: inline-flex;
-      vertical-align: bottom;
-      
+      vertical-align: bottom;     
     }
   }
 
@@ -261,9 +259,8 @@
   }
 
   .connection-status{
-    margin-bottom: 30px;
-    margin-top: -15px;
     margin-left: -8px;
+    margin-bottom: 10px;
   }
   
 
