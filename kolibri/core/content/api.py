@@ -827,7 +827,6 @@ class OptionalPagination(ValuesViewsetCursorPagination):
 
 class OptionalContentNodePagination(OptionalPagination):
     use_deprecated_channels_labels = False
-    ordering = ("lft", "id")
 
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
