@@ -106,7 +106,7 @@ class SQLiteBitwiseORAggregate(Aggregate):
 
 
 def get_available_metadata_labels(  # noqa: C901
-    base_queryset, use_deprecated_channels_labels
+    base_queryset, use_deprecated_channels_labels=False
 ):
     from kolibri.core.device.models import ContentCacheKey
 
