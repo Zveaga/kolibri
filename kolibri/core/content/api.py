@@ -827,6 +827,7 @@ class OptionalPagination(ValuesViewsetCursorPagination):
 
 class OptionalContentNodePagination(OptionalPagination):
     use_deprecated_channels_labels = False
+    ordering = ("lft", "id")
 
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
@@ -836,17 +837,17 @@ class OptionalContentNodePagination(OptionalPagination):
         )
 
     def get_paginated_response(self, data):
-        labels = (
-            get_available_metadata_labels(self.queryset)
-            if self.use_deprecated_channels_labels
-            else {}
-        )
         return Response(
             OrderedDict(
                 [
                     ("more", self.get_more()),
                     ("results", data),
-                    ("labels", labels),
+                    (
+                        "labels",
+                        get_available_metadata_labels(
+                            self.queryset, self.use_deprecated_channels_labels
+                        ),
+                    ),
                 ]
             )
         )
