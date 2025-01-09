@@ -16,7 +16,6 @@
           :label="className"
         />
       </h1>
-
       <AssignedLessonsCards :lessons="activeLessons" />
       <AssignedQuizzesCards
         :quizzes="activeQuizzes"
@@ -57,11 +56,11 @@
       LearnAppBarPage,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
-    setup(_, { root }) {
+    setup(props) {
       const { fetchClass, getClass, getClassActiveLessons, getClassActiveQuizzes } =
         useLearnerResources();
 
-      const classId = root.$router.currentRoute.params.classId;
+      const classId = computed(() => props.classId);
       const classroom = computed(() => getClass(classId));
       const className = computed(() => (get(classroom) ? get(classroom).name : ''));
       const activeLessons = computed(() => getClassActiveLessons(get(classId)));
@@ -98,6 +97,10 @@
         type: Boolean,
         default: false,
       },
+      classId: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       breadcrumbs() {
@@ -112,6 +115,7 @@
           },
           {
             text: this.className,
+            link: { name: ClassesPageNames.CLASS_ASSIGNMENTS },
           },
         ];
       },
