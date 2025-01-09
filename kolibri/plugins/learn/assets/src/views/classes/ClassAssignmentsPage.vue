@@ -30,7 +30,6 @@
 <script>
 
   import { computed, onBeforeMount, onBeforeUnmount } from 'vue';
-  import { get } from '@vueuse/core';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
@@ -62,10 +61,9 @@
 
       const classId = computed(() => props.classId);
       const classroom = computed(() => getClass(classId.value));
-      const className = computed(() => (get(classroom) ? get(classroom).name : ''));
-      const activeLessons = computed(() => getClassActiveLessons(get(classId.value)));
-      const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId.value)));
-
+      const className = computed(() => (classroom.value ? classroom.value.name : ''));
+      const activeLessons = computed(() => getClassActiveLessons(classId.value));
+      const activeQuizzes = computed(() => getClassActiveQuizzes(classId.value));
       let pollTimeoutId;
 
       function schedulePoll() {
