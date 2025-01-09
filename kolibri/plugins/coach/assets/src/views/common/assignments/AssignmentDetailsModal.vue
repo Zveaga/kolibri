@@ -277,6 +277,15 @@
       iconName() {
         return this.assignmentIsQuiz ? 'quiz' : 'lesson';
       },
+      submitObject() {
+        return {
+          title: this.title,
+          description: this.description,
+          assignments: this.selectedCollectionIds,
+          active: this.activeIsSelected,
+          learner_ids: this.adHocLearners,
+        };
+      },
     },
     watch: {
       title() {
@@ -290,6 +299,13 @@
       },
       adHocLearners() {
         this.$emit('update', { learner_ids: this.adHocLearners });
+      },
+      submitObject() {
+        if (this.showServerError) {
+          this.$nextTick(() => {
+            this.validate(false);
+          });
+        }
       },
     },
     methods: {
@@ -314,13 +330,7 @@
 
         if (this.formIsValid) {
           this.formIsSubmitted = true;
-          this.$emit('submit', {
-            title: this.title,
-            description: this.description,
-            assignments: this.selectedCollectionIds,
-            active: this.activeIsSelected,
-            learner_ids: this.adHocLearners,
-          });
+          this.$emit('submit', this.submitObject);
         } else {
           this.formIsSubmitted = false;
         }
@@ -352,11 +362,14 @@
       /**
        * @public
        */
-      validate() {
+      validate(handleFailure = true) {
         let error = '';
+        this.showServerError = false;
         // Validate title
         if (this.title === '') {
-          this.handleSubmitTitleFailure();
+          if (handleFailure) {
+            this.handleSubmitTitleFailure();
+          }
           error = this.coreString('requiredFieldError');
         }
 
@@ -364,7 +377,9 @@
         const recipientsError = this.$refs.recipientsSelector?.validate();
         if (!error && recipientsError) {
           error = recipientsError;
-          this.$refs.recipientsSelector?.handleSubmitRecipientsFailure();
+          if (handleFailure) {
+            this.$refs.recipientsSelector?.handleSubmitRecipientsFailure();
+          }
         }
 
         if (error) {

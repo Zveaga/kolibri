@@ -14,6 +14,7 @@
         />
       </KRadioButton>
       <KRadioButton
+        v-if="learners.length > 0"
         ref="groupOrIndividualRadioButton"
         v-model="selectedRecipients"
         :buttonValue="ClassRecipients.GROUP_OR_INDIVIDUAL"
@@ -134,7 +135,7 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['getRecipientNamesForExam']),
+      ...mapGetters('classSummary', ['getRecipientNamesForExam', 'learners']),
       hasGroupOrIndividualRecipients() {
         return (
           this.selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL &&
