@@ -61,10 +61,10 @@
         useLearnerResources();
 
       const classId = computed(() => props.classId);
-      const classroom = computed(() => getClass(classId));
+      const classroom = computed(() => getClass(classId.value));
       const className = computed(() => (get(classroom) ? get(classroom).name : ''));
-      const activeLessons = computed(() => getClassActiveLessons(get(classId)));
-      const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId)));
+      const activeLessons = computed(() => getClassActiveLessons(get(classId.value)));
+      const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId.value)));
 
       let pollTimeoutId;
 
