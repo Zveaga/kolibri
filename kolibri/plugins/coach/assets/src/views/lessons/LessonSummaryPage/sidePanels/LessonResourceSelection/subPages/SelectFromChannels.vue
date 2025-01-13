@@ -36,7 +36,7 @@
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
-      :noSelectableResourcesIds="noSelectableResourcesIds"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -114,7 +114,7 @@
         type: Array,
         required: true,
       },
-      noSelectableResourcesIds: {
+      unselectableResourceIds: {
         type: Array,
         required: false,
         default: null,

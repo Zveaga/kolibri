@@ -85,7 +85,7 @@
         type: Array,
         required: true,
       },
-      noSelectableResourcesIds: {
+      unselectableResourceIds: {
         type: Array,
         required: false,
         default: null,
@@ -160,13 +160,13 @@
         }
       },
       contentCheckboxDisabled(resource) {
-        if (this.disabled || this.noSelectableResourcesIds?.includes(resource.id)) {
+        if (this.disabled || this.unselectableResourceIds?.includes(resource.id)) {
           return true;
         }
         return !this.selectionRules.every(rule => rule(resource) === true);
       },
       contentIsChecked(resource) {
-        if (this.noSelectableResourcesIds?.includes(resource.id)) {
+        if (this.unselectableResourceIds?.includes(resource.id)) {
           return true;
         }
         return this.selectedResources.some(res => res.id === resource.id);

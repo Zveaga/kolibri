@@ -8,7 +8,7 @@
     <DragContainer
       v-if="selectedResources.length > 0"
       :items="selectedResources"
-      @sort="$emit('sortedResources', $event)"
+      @sort="$emit('setSelectedResources', $event.newArray)"
     >
       <transition-group
         tag="div"
@@ -103,7 +103,7 @@
   import { PageNames } from '../../../../../../constants/index.js';
 
   export default {
-    name: 'SelectedResources',
+    name: 'ManageSelectedResources',
     components: {
       DragSortWidget,
       DragContainer,
