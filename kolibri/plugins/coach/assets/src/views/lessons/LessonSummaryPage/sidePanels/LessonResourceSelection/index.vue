@@ -52,7 +52,7 @@
           <KButton
             primary
             :text="saveAndFinishAction$()"
-            @click="closeSidePanel"
+            @click="saveAndClose"
           />
         </KButtonGroup>
       </div>
@@ -64,9 +64,14 @@
 
 <script>
 
+  import uniqBy from 'lodash/uniqBy';
+  import { mapState, mapActions, mapMutations } from 'vuex';
+
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import notificationStrings from 'kolibri/uiText/notificationStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
@@ -90,6 +95,13 @@
         setSelectedResources,
       } = useResourceSelection();
 
+      const { createSnackbar } = useSnackbar();
+
+      const { resourcesAddedWithCount$ } = notificationStrings;
+      function notifyResourcesAdded(count) {
+        createSnackbar(resourcesAddedWithCount$({ count }));
+      }
+
       const { saveAndFinishAction$ } = coreStrings;
 
       return {
@@ -103,6 +115,7 @@
         selectResources,
         deselectResources,
         setSelectedResources,
+        notifyResourcesAdded,
         saveAndFinishAction$,
       };
     },
@@ -114,6 +127,7 @@
       };
     },
     computed: {
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
       selectedResourcesSize() {
         let size = 0;
         this.selectedResources.forEach(resource => {
@@ -133,6 +147,47 @@
       },
     },
     methods: {
+      ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
+      ...mapMutations('lessonSummary', {
+        setWorkingResources: 'SET_WORKING_RESOURCES',
+      }),
+      async saveAndClose() {
+        if (this.selectedResources.length > 0) {
+          await this.save();
+        }
+        this.closeSidePanel();
+      },
+      async save() {
+        const newResources = uniqBy(
+          [
+            ...this.workingResources,
+            ...this.selectedResources.map(resource => ({
+              contentnode_id: resource.id,
+              content_id: resource.content_id,
+              channel_id: resource.channel_id,
+            })),
+          ],
+          'contentnode_id',
+        );
+
+        // As we are just adding resources, we can rely on the difference in length
+        // to determine if there are new resources to save.
+        const countNewResources = newResources.length - this.workingResources.length;
+        if (countNewResources > 0) {
+          await this.saveLessonResources({
+            lessonId: this.currentLesson.id,
+            resources: newResources,
+          });
+          for (const resource of this.selectedResources) {
+            this.addToResourceCache({ node: resource });
+          }
+          this.setWorkingResources(newResources);
+          // Notify the lesson summary page that the working resources have been updated
+          // so that it can update the backup resources.
+          this.$emit('workingResourcesUpdated');
+          this.notifyResourcesAdded(countNewResources);
+        }
+      },
       closeSidePanel() {
         this.$router.push({
           name: PageNames.LESSON_SUMMARY_BETTER,
