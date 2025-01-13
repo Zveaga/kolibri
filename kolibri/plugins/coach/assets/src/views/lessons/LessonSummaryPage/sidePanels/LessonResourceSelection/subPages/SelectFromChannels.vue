@@ -29,6 +29,7 @@
     <UpdatedResourceSelection
       canSelectAll
       :topic="topic"
+      :disabled="disabled"
       :contentList="contentList"
       :hasMore="hasMore"
       :fetchMore="fetchMore"
@@ -111,6 +112,10 @@
       selectedResources: {
         type: Array,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     beforeRouteEnter(to, _, next) {

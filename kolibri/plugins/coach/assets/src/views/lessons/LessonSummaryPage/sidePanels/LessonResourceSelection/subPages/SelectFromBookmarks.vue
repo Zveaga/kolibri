@@ -5,6 +5,7 @@
       canSelectAll
       :contentList="contentList"
       :hasMore="hasMore"
+      :disabled="disabled"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
@@ -78,6 +79,10 @@
       selectedResources: {
         type: Array,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
   };

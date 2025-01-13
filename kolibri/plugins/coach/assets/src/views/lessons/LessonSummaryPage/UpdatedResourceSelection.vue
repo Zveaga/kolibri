@@ -85,6 +85,10 @@
         type: Array,
         required: true,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       channelsLink() {
@@ -151,6 +155,9 @@
         }
       },
       contentCheckboxDisabled(resource) {
+        if (this.disabled) {
+          return true;
+        }
         return !this.selectionRules.every(rule => rule(resource) === true);
       },
       contentIsChecked(resource) {

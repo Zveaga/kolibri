@@ -23,7 +23,7 @@
             :style="lessonOrderListButtonBorder"
           >
             <div class="row-content">
-              <DragHandle v-if="selectedResources.length > 1">
+              <DragHandle v-if="selectedResources.length > 1 && !disabled">
                 <DragSortWidget
                   :moveUpText="upLabel$"
                   :moveDownText="downLabel$"
@@ -63,6 +63,7 @@
                 icon="emptyTopic"
                 :ariaLabel="$tr('openParentFolderLabel')"
                 :tooltip="$tr('openParentFolderLabel')"
+                :disabled="disabled"
                 @click="navigateToParent(resource)"
               />
 
@@ -70,6 +71,7 @@
                 icon="minus"
                 :ariaLabel="$tr('removeResourceLabel')"
                 :tooltip="$tr('removeResourceLabel')"
+                :disabled="disabled"
                 @click="removeResource(resource)"
               />
             </span>
@@ -164,6 +166,10 @@
       selectedResourcesSize: {
         type: Number,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
 
