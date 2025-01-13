@@ -26,6 +26,7 @@
       :setTitle="setTitle"
       :setGoBack="setGoBack"
       :topic="topic"
+      :disabled="isSaving"
       :channelsFetch="channelsFetch"
       :bookmarksFetch="bookmarksFetch"
       :treeFetch="treeFetch"
@@ -51,12 +52,25 @@
           </KRouterLink>
           <KButton
             primary
+            :disabled="isSaving"
             :text="saveAndFinishAction$()"
-            @click="saveAndClose"
+            @click="save"
           />
         </KButtonGroup>
       </div>
     </template>
+
+    <KModal
+      v-if="isCloseConfirmationOpen"
+      appendToOverlay
+      :submitText="continueAction$()"
+      :cancelText="cancelAction$()"
+      :title="$tr('closeConfirmationTitle')"
+      @cancel="isCloseConfirmationOpen = false"
+      @submit="closeSidePanel(false)"
+    >
+      {{ $tr('closeConfirmationMessage') }}
+    </KModal>
   </SidePanelModal>
 
 </template>
@@ -101,8 +115,12 @@
       function notifyResourcesAdded(count) {
         createSnackbar(resourcesAddedWithCount$({ count }));
       }
+      const { saveLessonError$ } = coachStrings;
+      function notifySaveLessonError() {
+        createSnackbar(saveLessonError$());
+      }
 
-      const { saveAndFinishAction$ } = coreStrings;
+      const { saveAndFinishAction$, continueAction$, cancelAction$ } = coreStrings;
 
       return {
         loading,
@@ -116,6 +134,9 @@
         deselectResources,
         setSelectedResources,
         notifyResourcesAdded,
+        notifySaveLessonError,
+        cancelAction$,
+        continueAction$,
         saveAndFinishAction$,
       };
     },
@@ -123,6 +144,8 @@
       return {
         title: '',
         goBack: null,
+        isSaving: false,
+        isCloseConfirmationOpen: false,
         PageNames,
       };
     },
@@ -151,14 +174,8 @@
       ...mapMutations('lessonSummary', {
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
-      async saveAndClose() {
-        if (this.selectedResources.length > 0) {
-          await this.save();
-        }
-        this.closeSidePanel();
-      },
-      async save() {
-        const newResources = uniqBy(
+      getNewResources() {
+        return uniqBy(
           [
             ...this.workingResources,
             ...this.selectedResources.map(resource => ({
@@ -169,15 +186,29 @@
           ],
           'contentnode_id',
         );
+      },
+      async save() {
+        if (!this.selectedResources.length) {
+          this.closeSidePanel(false);
+          return;
+        }
+        this.isSaving = true;
+        const newResources = this.getNewResources();
 
         // As we are just adding resources, we can rely on the difference in length
         // to determine if there are new resources to save.
         const countNewResources = newResources.length - this.workingResources.length;
         if (countNewResources > 0) {
-          await this.saveLessonResources({
-            lessonId: this.currentLesson.id,
-            resources: newResources,
-          });
+          try {
+            await this.saveLessonResources({
+              lessonId: this.currentLesson.id,
+              resources: newResources,
+            });
+          } catch (error) {
+            this.notifySaveLessonError();
+            this.isSaving = false;
+            throw error;
+          }
           for (const resource of this.selectedResources) {
             this.addToResourceCache({ node: resource });
           }
@@ -187,17 +218,36 @@
           this.$emit('workingResourcesUpdated');
           this.notifyResourcesAdded(countNewResources);
         }
+        this.closeSidePanel(false);
       },
-      closeSidePanel() {
-        this.$router.push({
-          name: PageNames.LESSON_SUMMARY_BETTER,
-        });
+      closeSidePanel(verifyHasNewResources = true) {
+        const newResources = this.getNewResources();
+        const hasNewResources = newResources.length > this.workingResources.length;
+        if (hasNewResources && verifyHasNewResources) {
+          this.isCloseConfirmationOpen = true;
+        } else {
+          this.$router.push({
+            name: PageNames.LESSON_SUMMARY_BETTER,
+          });
+        }
       },
       setTitle(title) {
         this.title = title;
       },
       setGoBack(goBack) {
         this.goBack = goBack;
+      },
+    },
+    $trs: {
+      closeConfirmationTitle: {
+        message: 'Are you sure you want to leave this page?',
+        context:
+          'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
+      },
+      closeConfirmationMessage: {
+        message: 'You will lose any unsaved edits to your work',
+        context:
+          'Warning message for the user that they will lose their work if they leave the page without saving.',
       },
     },
   };
