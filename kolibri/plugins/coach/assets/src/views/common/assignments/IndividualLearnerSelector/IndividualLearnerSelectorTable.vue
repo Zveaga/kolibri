@@ -1,7 +1,7 @@
 <template>
 
   <PaginatedListContainer
-    :items="allLearners"
+    :items="sortedAllLearners"
     :filterPlaceholder="$tr('searchPlaceholder')"
     :itemsPerPage="itemsPerPage"
     :searchFieldBlock="searchFieldBlock"
@@ -136,6 +136,10 @@
           // Falls into the default vuex state.
           return this.learners;
         }
+      },
+      sortedAllLearners() {
+        const allLearners = [...this.allLearners];
+        return allLearners.sort((a, b) => a.name.localeCompare(b.name));
       },
       currentGroupMap() {
         return this.groupMapFromOtherClass || this.groupMap;

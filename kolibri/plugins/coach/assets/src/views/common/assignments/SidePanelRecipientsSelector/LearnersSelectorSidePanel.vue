@@ -18,7 +18,7 @@
           {{ coachString('groupsLabel') }}
         </h2>
         <KCheckbox
-          v-for="group in groups"
+          v-for="group in sortedGroups"
           :key="group.id"
           :checked="groupIsSelected(group)"
           :disabled="disabled"
@@ -119,6 +119,10 @@
     computed: {
       ...mapGetters('classSummary', ['learners']),
       ...mapState('classSummary', ['groupMap']),
+      sortedGroups() {
+        const groups = [...this.groups];
+        return groups.sort((a, b) => a.name.localeCompare(b.name));
+      },
       ungroupedLearnersIds() {
         return this.learners
           .filter(learner => {
@@ -175,7 +179,7 @@
     },
     $trs: {
       allUngroupedLearnres: {
-        message: 'All Ungrouped Learners',
+        message: 'All ungrouped Learners',
         context: 'Option to select all learners that are not in a group',
       },
       selectGroupsAndIndividualLearnersTitle: {
