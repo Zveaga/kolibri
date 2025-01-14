@@ -163,10 +163,21 @@
     watch: {
       selectedRecipients(newVal) {
         if (newVal === ClassRecipients.ENTIRE_CLASS) {
+          // Backup data in case user selects group or individual again.
+          this.selectedGroupsBackedUp = this.selectedGroupIds;
+          this.adHocLearnersBackedUp = this.adHocLearners;
+
           this.selectedGroupIds = [this.classId];
           this.updateAdHocLearners([]);
         } else {
-          this.selectedGroupIds = this.selectedCollectionIds.filter(id => id !== this.classId);
+          if (this.adHocLearnersBackedUp) {
+            this.updateAdHocLearners(this.adHocLearnersBackedUp);
+          }
+          if (this.selectedGroupsBackedUp) {
+            this.selectedGroupIds = this.selectedGroupsBackedUp;
+          } else {
+            this.selectedGroupIds = this.selectedCollectionIds.filter(id => id !== this.classId);
+          }
         }
       },
       selectedGroupIds(newVal) {
