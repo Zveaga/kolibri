@@ -71,10 +71,9 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return {
-        windowBreakpoint,
         windowIsSmall,
         isAppContext,
       };
@@ -146,20 +145,17 @@
         return show;
       },
     },
-    watch: {
-      windowBreakpoint() {
-        //Update the the app bar height at every breakpoint
-        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
-      },
+    beforeUpdate() {
+      // Update appBarHeight after AppBar is rerendered and updated
+      this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
     },
     mounted() {
-      this.$nextTick(() => {
-        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
-      });
       this.addScrollListener();
+      window.addEventListener('resize', this.handleWindowResize);
     },
-    beforeUnmount() {
+    beforeDestroy() {
       this.removeScrollListener();
+      window.removeEventListener('resize', this.handleWindowResize);
     },
     methods: {
       addScrollListener() {
@@ -189,6 +185,10 @@
           this.throttledHandleScroll.cancel();
           this.throttledHandleScroll = null;
         }
+      },
+      handleWindowResize() {
+        // Update the app bar height when window is resized
+        this.appBarHeight = this.$refs.appBar.$el.offsetHeight || 0;
       },
     },
   };
