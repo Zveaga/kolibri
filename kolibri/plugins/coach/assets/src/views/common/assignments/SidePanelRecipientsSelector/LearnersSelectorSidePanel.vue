@@ -179,7 +179,7 @@
     },
     $trs: {
       allUngroupedLearnres: {
-        message: 'All ungrouped Learners',
+        message: 'All ungrouped learners',
         context: 'Option to select all learners that are not in a group',
       },
       selectGroupsAndIndividualLearnersTitle: {
