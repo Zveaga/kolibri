@@ -31,6 +31,7 @@
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
+      :getTopicLink="getTopicLink"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -131,14 +132,27 @@
         type: Boolean,
         required: true,
       },
+      topic: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       resultsCountMessage() {
         const count = this.contentList.length;
-        if (this.hasMore) {
-          return this.$tr('overresultsCount', { count });
+        if (this.topic) {
+          const params = {
+            count,
+            folder: this.topic.title,
+          };
+          return this.hasMore
+            ? this.$tr('overResultsCountInFolder', params)
+            : this.$tr('resultsCountInFolder', params);
         }
-        return this.$tr('resultsCount', { count });
+        return this.hasMore
+          ? this.$tr('overResultsCount', { count })
+          : this.$tr('resultsCount', { count });
       },
     },
     methods: {
@@ -158,15 +172,35 @@
           this.redirectBack();
         }
       },
+      getTopicLink(topicId) {
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          query: {
+            ...this.$route.query,
+            topicId,
+            searchResultTopicId: topicId,
+            searchTopicId: this.$route.query.topicId,
+          },
+        };
+      },
     },
     $trs: {
       resultsCount: {
         message: '{count, number} {count, plural, one {result} other {results}}',
         context: 'Number of search results when we have an exact count',
       },
-      overresultsCount: {
+      resultsCountInFolder: {
+        message: "{count, number} {count, plural, one {result} other {results}} in '{folder}'",
+        context: 'Number of search results when we have an exact count in a specific folder',
+      },
+      overResultsCount: {
         message: 'Over {count, number} results',
         context: 'Number of search results when we know there are more than the count',
+      },
+      overResultsCountInFolder: {
+        message: "Over {count, number} results in '{folder}'",
+        context:
+          'Number of search results when we know there are more than the count in a specific folder',
       },
     },
   };
