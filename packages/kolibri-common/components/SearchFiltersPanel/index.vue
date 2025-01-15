@@ -118,10 +118,12 @@
         <SearchBox
           key="channel-search"
           ref="searchBox"
+          emitOnInputChange
           style="margin-bottom: 1em"
           :placeholder="$tr('searchByKeyword')"
           :value="value.keywords || ''"
-          @change="val => $emit('input', { ...value, keywords: val })"
+          @change="onSearchChange"
+          @searchClick="onSearchClick"
         />
 
         <ActivityButtonsGroup
@@ -396,6 +398,16 @@
         if (this.$refs.searchBox) {
           this.$refs.searchBox.focusSearchBox();
         }
+      },
+      onSearchChange(val) {
+        if (this.value.keywords === val) {
+          return;
+        }
+        this.$emit('input', { ...this.value, keywords: val });
+      },
+      async onSearchClick() {
+        await this.$nextTick();
+        this.$emit('searchClick');
       },
     },
     $trs: {

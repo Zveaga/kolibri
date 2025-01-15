@@ -20,6 +20,7 @@
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
         :showRadioButtons="!multi"
+        :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMore"
@@ -93,6 +94,10 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
       },
     },
     computed: {

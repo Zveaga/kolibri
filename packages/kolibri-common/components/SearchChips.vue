@@ -13,7 +13,7 @@
           icon="delete"
           size="mini"
           class="filter-chip-button"
-          @click="$emit('removeItem', item)"
+          @click="$emit('removeItem', item, { isLast: items.length === 1 })"
         />
       </span>
     </div>

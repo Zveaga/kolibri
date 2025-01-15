@@ -8,6 +8,7 @@
       <KButton
         icon="filter"
         :text="searchLabel$()"
+        @click="onSearchClick"
       />
     </div>
 
@@ -58,7 +59,7 @@
    */
 
   export default {
-    name: 'SelectFromChannels',
+    name: 'SelectFromTopicTree',
     components: {
       UpdatedResourceSelection,
     },
@@ -135,6 +136,14 @@
         });
       }
       return next();
+    },
+    methods: {
+      onSearchClick() {
+        this.$router.push({
+          name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+          query: this.$route.query,
+        });
+      },
     },
   };
 

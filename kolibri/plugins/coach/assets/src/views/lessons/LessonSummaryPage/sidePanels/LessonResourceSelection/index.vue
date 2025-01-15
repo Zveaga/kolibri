@@ -17,7 +17,7 @@
         <h1 class="side-panel-title">{{ title }}</h1>
       </div>
     </template>
-    <div v-if="loading">
+    <div v-if="subpageLoading">
       <KCircularLoader />
     </div>
 
@@ -27,19 +27,27 @@
       :setGoBack="setGoBack"
       :topic="topic"
       :disabled="isSaving"
+      :treeFetch="treeFetch"
+      :searchFetch="searchFetch"
       :channelsFetch="channelsFetch"
       :bookmarksFetch="bookmarksFetch"
-      :treeFetch="treeFetch"
+      :searchTerms.sync="searchTerms"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
+      :displayingSearchResults="displayingSearchResults"
+      @clearSearch="clearSearch"
       @selectResources="selectResources"
       @deselectResources="deselectResources"
       @setSelectedResources="setSelectedResources"
+      @removeSearchFilterTag="removeSearchFilterTag"
     />
 
-    <template #bottomNavigation>
+    <template
+      v-if="$route.name !== PageNames.LESSON_SELECT_RESOURCES_SEARCH"
+      #bottomNavigation
+    >
       <div class="bottom-nav-container">
         <KButtonGroup>
           <KRouterLink
@@ -81,7 +89,7 @@
 
   import uniqBy from 'lodash/uniqBy';
   import { mapState, mapActions, mapMutations } from 'vuex';
-
+  import { computed, getCurrentInstance } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -97,17 +105,23 @@
       SidePanelModal,
     },
     setup() {
+      const instance = getCurrentInstance();
       const {
         loading,
         topic,
+        treeFetch,
+        searchFetch,
         channelsFetch,
         bookmarksFetch,
-        treeFetch,
+        searchTerms,
         selectionRules,
         selectedResources,
+        displayingSearchResults,
+        clearSearch,
         selectResources,
         deselectResources,
         setSelectedResources,
+        removeSearchFilterTag,
       } = useResourceSelection();
 
       const { createSnackbar } = useSnackbar();
@@ -123,19 +137,29 @@
 
       const { saveAndFinishAction$, continueAction$, cancelAction$ } = coreStrings;
 
+      const subpageLoading = computed(() => {
+        const skipLoading = PageNames.LESSON_SELECT_RESOURCES_SEARCH;
+        return loading.value && instance.proxy.$route.name !== skipLoading;
+      });
+
       return {
-        loading,
+        subpageLoading,
         selectedResources,
         topic,
+        treeFetch,
+        searchFetch,
         channelsFetch,
         bookmarksFetch,
-        treeFetch,
+        searchTerms,
         selectionRules,
+        displayingSearchResults,
+        clearSearch,
         selectResources,
         deselectResources,
         setSelectedResources,
         notifyResourcesAdded,
         notifySaveLessonError,
+        removeSearchFilterTag,
         cancelAction$,
         continueAction$,
         saveAndFinishAction$,

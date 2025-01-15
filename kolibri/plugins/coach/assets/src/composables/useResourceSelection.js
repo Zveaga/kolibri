@@ -2,6 +2,7 @@ import uniqBy from 'lodash/uniqBy';
 import { ref, computed, getCurrentInstance, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
 import useFetch from './useFetch';
 
 /**
@@ -26,6 +27,10 @@ import useFetch from './useFetch';
  *   fetching bookmarks. Fetching more bookmarks is supported.
  * @property {FetchObject} treeFetch Topic tree fetch object to manage the process of
  *   fetching topic trees and their resources. Fetching more resources is supported.
+ * @property {FetchObject} searchFetch Search fetch object to manage the process of
+ *   fetching search results. Fetching more search results is supported.
+ * @property {Array<string>} searchTerms The search terms used to filter the search results.
+ * @property {boolean} displayingSearchResults Indicates whether we currently have search terms.
  * @property {Array<(node: Object) => boolean>} selectionRules An array of functions that determine
  *   whether a node can be selected.
  * @property {Array<Object>} selectedResources An array of currently selected resources.
@@ -35,6 +40,9 @@ import useFetch from './useFetch';
  *   from the `selectedResources` array.
  * @property {(resources: Array<Object>) => void} setSelectedResources Replaces the current
  *   `selectedResources` array with the provided resources array.
+ * @property {() => void} clearSearch Clears the current search terms and results.
+ * @property {(tag: Object) => void} removeSearchFilterTag Removes the specified tag from the
+ *  search terms.
  *
  * @returns {UseResourceSelectionResponse}
  */
@@ -67,6 +75,19 @@ export default function useResourceSelection() {
       }),
   });
 
+  const useSearchObject = useBaseSearch({
+    descendant: topic,
+  });
+  const searchFetch = {
+    data: useSearchObject.results,
+    loading: useSearchObject.searchLoading,
+    hasMore: computed(() => !!useSearchObject.more.value),
+    loadingMore: useSearchObject.moreLoading,
+    fetchData: useSearchObject.search,
+    fetchMore: useSearchObject.searchMore,
+  };
+  const { displayingSearchResults } = useSearchObject;
+
   const fetchTree = async (params = {}) => {
     topic.value = await ContentNodeResource.fetchTree(params);
     return topic.value.children;
@@ -80,11 +101,13 @@ export default function useResourceSelection() {
   watch(topicId, () => {
     if (topicId.value) {
       treeFetch.fetchData();
+    } else {
+      topic.value = null;
     }
   });
 
   const loading = computed(() => {
-    const sources = [bookmarksFetch, channelsFetch, treeFetch];
+    const sources = [bookmarksFetch, channelsFetch, treeFetch, searchFetch];
 
     return sources.some(sourceFetch => sourceFetch.loading.value);
   });
@@ -94,6 +117,9 @@ export default function useResourceSelection() {
     channelsFetch.fetchData();
     if (topicId.value) {
       treeFetch.fetchData();
+    }
+    if (displayingSearchResults) {
+      searchFetch.fetchData();
     }
   };
 
@@ -129,13 +155,18 @@ export default function useResourceSelection() {
   return {
     topic,
     loading,
+    treeFetch,
     channelsFetch,
     bookmarksFetch,
-    treeFetch,
+    searchFetch,
     selectionRules,
     selectedResources,
+    searchTerms: useSearchObject.searchTerms,
+    displayingSearchResults: useSearchObject.displayingSearchResults,
     selectResources,
     deselectResources,
     setSelectedResources,
+    clearSearch: useSearchObject.clearSearch,
+    removeSearchFilterTag: useSearchObject.removeFilterTag,
   };
 }

@@ -13,7 +13,8 @@
         :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
         :style="{ color: $themeTokens.text }"
       >
-        <h3
+        <component
+          :is="headingElement"
           class="title"
           dir="auto"
         >
@@ -21,7 +22,7 @@
             :text="content.title"
             :maxLines="2"
           />
-        </h3>
+        </component>
       </div>
       <KTextTruncator
         v-if="!windowIsSmall"
@@ -101,10 +102,17 @@
         type: String,
         default: '',
       },
+      headingLevel: {
+        type: Number,
+        default: 3,
+      },
     },
     computed: {
       isTopic() {
         return !this.content.isLeaf;
+      },
+      headingElement() {
+        return this.headingLevel ? `h${this.headingLevel}` : 'h3';
       },
     },
   };
@@ -151,6 +159,7 @@
 
   .title {
     margin-bottom: 0.5em;
+    font-size: 1em;
   }
 
   .message {
