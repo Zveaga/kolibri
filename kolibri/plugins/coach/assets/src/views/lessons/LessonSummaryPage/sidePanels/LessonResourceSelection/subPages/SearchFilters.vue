@@ -1,13 +1,21 @@
 <template>
 
-  <SearchFiltersPanel
-    v-model="searchTermsComputed"
-    accordion
-    showChannels
-    showActivities
-    @close="showSearch = true"
-    @searchClick="onSearchClick"
-  />
+  <div>
+    <div
+      v-if="topic"
+      class="side-panel-subtitle"
+    >
+      {{ $tr('searchInTitle', { folder: topic.title }) }}
+    </div>
+    <SearchFiltersPanel
+      v-model="searchTermsComputed"
+      accordion
+      showChannels
+      showActivities
+      @close="showSearch = true"
+      @searchClick="onSearchClick"
+    />
+  </div>
 
 </template>
 
@@ -64,6 +72,11 @@
         type: Object,
         required: true,
       },
+      topic: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       searchTermsComputed: {
@@ -89,6 +102,12 @@
         });
       },
     },
+    $trs: {
+      searchInTitle: {
+        message: "Search in '{folder}'",
+        context: 'Title for search resources in folder',
+      },
+    },
   };
 
 </script>
@@ -96,8 +115,19 @@
 
 <style lang="scss" scoped>
 
+  .side-panel-subtitle {
+    margin-bottom: 24px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
   /deep/ .search-box-row {
     max-width: unset !important;
+  }
+
+  /deep/ h2 {
+    font-size: 16px;
+    font-weight: 600;
   }
 
 </style>
