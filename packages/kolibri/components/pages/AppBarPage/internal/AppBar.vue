@@ -49,7 +49,7 @@
         </template>
 
         <template
-          v-if="showNavigation && windowIsLarge"
+          v-if="showNavigation && showTopNavBar"
           #navigation
         >
           <slot name="sub-nav">
@@ -116,7 +116,7 @@
       </KToolbar>
     </header>
     <div
-      v-if="showNavigation && !windowIsLarge && !showAppNavView"
+      v-show="showNavigation && !showAppNavView && !showTopNavBar"
       class="subpage-nav"
     >
       <slot name="sub-nav">
@@ -160,7 +160,7 @@
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const $route = computed(() => store.state.route);
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
@@ -178,8 +178,8 @@
       });
       return {
         themeConfig,
-        windowIsLarge,
         windowIsSmall,
+        windowBreakpoint,
         topBarHeight,
         links,
         isUserLoggedIn,
@@ -207,6 +207,8 @@
     data() {
       return {
         pointsDisplayed: false,
+        breakpointLimit: 4,
+        showTopNavBar: false,
       };
     },
     computed: {
@@ -222,9 +224,18 @@
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
+    beforeUpdate() {
+      // Essential for title updates after data finishes loading
+      this.breakpointLimit = this.title && this.title.length >= 20 ? 4 : 3;
+      this.showTopNavBar = this.windowBreakpoint > this.breakpointLimit;
+    },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
+      window.removeEventListener('resize', this.handleWindowResize);
+    },
+    mounted() {
+      window.addEventListener('resize', this.handleWindowResize);
     },
     methods: {
       handleWindowClick(event) {
@@ -245,6 +256,9 @@
         if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
         }
+      },
+      handleWindowResize() {
+        this.showTopNavBar = this.windowBreakpoint >= this.breakpointLimit;
       },
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
