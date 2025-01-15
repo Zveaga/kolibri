@@ -4,6 +4,7 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :immersive="isImmersivePage"
     @closePanel="closeSidePanel"
     @shouldFocusFirstEl="() => null"
   >
@@ -197,6 +198,12 @@
       },
       unselectableResourceIds() {
         return this.workingResources.map(resource => resource.contentnode_id);
+      },
+      isImmersivePage() {
+        return (
+          this.$route.name === PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE &&
+          this.$route.query.searchResultTopicId
+        );
       },
     },
     methods: {
