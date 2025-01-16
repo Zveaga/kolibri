@@ -141,17 +141,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'A warning message that appears when the user tries to leave the page without saving their work',
   },
-  closeConfirmationTitle: {
-    message: 'Are you sure you want to leave this page?',
-    context:
-      'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
-  },
-  closeConfirmationMessage: {
-    message: 'You will lose any unsaved edits to your work',
-    context:
-      'Warning message for the user that they will lose their work if they leave the page without saving.',
-  },
-
   numberOfSelectedReplacements: {
     message:
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',

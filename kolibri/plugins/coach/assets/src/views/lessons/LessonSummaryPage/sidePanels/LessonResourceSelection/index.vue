@@ -61,15 +61,15 @@
     </template>
 
     <KModal
-      v-if="isCloseConfirmationOpen"
+      v-if="isCloseConfirmationModalOpen"
       appendToOverlay
       :submitText="continueAction$()"
       :cancelText="cancelAction$()"
-      :title="$tr('closeConfirmationTitle')"
-      @cancel="isCloseConfirmationOpen = false"
+      :title="closeConfirmationTitle$()"
+      @cancel="isCloseConfirmationModalOpen = false"
       @submit="closeSidePanel(false)"
     >
-      {{ $tr('closeConfirmationMessage') }}
+      {{ closeConfirmationMessage$() }}
     </KModal>
   </SidePanelModal>
 
@@ -115,7 +115,7 @@
       function notifyResourcesAdded(count) {
         createSnackbar(resourcesAddedWithCount$({ count }));
       }
-      const { saveLessonError$ } = coachStrings;
+      const { saveLessonError$, closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
       function notifySaveLessonError() {
         createSnackbar(saveLessonError$());
       }
@@ -138,6 +138,8 @@
         cancelAction$,
         continueAction$,
         saveAndFinishAction$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
       };
     },
     data() {
@@ -145,7 +147,7 @@
         title: '',
         goBack: null,
         isSaving: false,
-        isCloseConfirmationOpen: false,
+        isCloseConfirmationModalOpen: false,
         PageNames,
       };
     },
@@ -224,7 +226,7 @@
         const newResources = this.getNewResources();
         const hasNewResources = newResources.length > this.workingResources.length;
         if (hasNewResources && verifyHasNewResources) {
-          this.isCloseConfirmationOpen = true;
+          this.isCloseConfirmationModalOpen = true;
         } else {
           this.$router.push({
             name: PageNames.LESSON_SUMMARY_BETTER,
@@ -236,18 +238,6 @@
       },
       setGoBack(goBack) {
         this.goBack = goBack;
-      },
-    },
-    $trs: {
-      closeConfirmationTitle: {
-        message: 'Are you sure you want to leave this page?',
-        context:
-          'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
-      },
-      closeConfirmationMessage: {
-        message: 'You will lose any unsaved edits to your work',
-        context:
-          'Warning message for the user that they will lose their work if they leave the page without saving.',
       },
     },
   };

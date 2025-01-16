@@ -99,6 +99,7 @@
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../constants/index';
+  import { coachStrings } from '../../common/commonCoachStrings.js';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';
 
@@ -112,13 +113,9 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
-      const {
-        applySettings$,
-        sectionOrderLabel$,
-        currentSection$,
-        closeConfirmationMessage$,
-        closeConfirmationTitle$,
-      } = enhancedQuizManagementStrings;
+      const { applySettings$, sectionOrderLabel$, currentSection$ } = enhancedQuizManagementStrings;
+
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       const { activeSectionIndex, activeSection, allSections, updateQuiz } = injectQuizCreation();
 

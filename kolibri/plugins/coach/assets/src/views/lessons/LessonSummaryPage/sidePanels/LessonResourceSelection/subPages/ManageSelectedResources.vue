@@ -61,16 +61,16 @@
             <span class="row-actions">
               <KIconButton
                 icon="emptyTopic"
-                :ariaLabel="$tr('openParentFolderLabel')"
-                :tooltip="$tr('openParentFolderLabel')"
+                :ariaLabel="openParentFolderLabel$()"
+                :tooltip="openParentFolderLabel$()"
                 :disabled="disabled"
                 @click="navigateToParent(resource)"
               />
 
               <KIconButton
                 icon="minus"
-                :ariaLabel="$tr('removeResourceLabel')"
-                :tooltip="$tr('removeResourceLabel')"
+                :ariaLabel="removeResourceLabel$()"
+                :tooltip="removeResourceLabel$()"
                 :disabled="disabled"
                 @click="removeResource(resource)"
               />
@@ -80,7 +80,7 @@
       </transition-group>
     </DragContainer>
     <p v-else>
-      {{ $tr('emptyResourceList') }}
+      {{ emptyResourceList$() }}
     </p>
   </div>
 
@@ -114,7 +114,14 @@
     setup(props) {
       const prevRoute = ref(null);
 
-      const { upLabel$, downLabel$, numberOfSelectedResources$ } = searchAndFilterStrings;
+      const {
+        upLabel$,
+        downLabel$,
+        emptyResourceList$,
+        removeResourceLabel$,
+        openParentFolderLabel$,
+        numberOfSelectedResources$,
+      } = searchAndFilterStrings;
       const { lessonLabel$, sizeLabel$ } = coachStrings;
 
       const instance = getCurrentInstance();
@@ -148,6 +155,9 @@
         downLabel$,
         sizeLabel$,
         lessonLabel$,
+        emptyResourceList$,
+        removeResourceLabel$,
+        openParentFolderLabel$,
       };
     },
     props: {
@@ -201,20 +211,6 @@
           name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: resource.parent },
         });
-      },
-    },
-    $trs: {
-      openParentFolderLabel: {
-        message: 'Open parent folder',
-        context: 'Button label to open the parent folder of a resource',
-      },
-      removeResourceLabel: {
-        message: 'Remove resource',
-        context: 'Button label to remove a resource from the selected resources',
-      },
-      emptyResourceList: {
-        message: 'No resources selected',
-        context: 'Message displayed when no resources are selected',
       },
     },
   };

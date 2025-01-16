@@ -157,6 +157,7 @@
   import useAccordion from 'kolibri-common/components/useAccordion';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import { PageNames } from '../../../constants/index';
 
   export default {
@@ -175,8 +176,6 @@
         replaceQuestions$,
         replaceAction$,
         selectAllLabel$,
-        closeConfirmationMessage$,
-        closeConfirmationTitle$,
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
         numberOfSelectedReplacements$,
@@ -186,6 +185,8 @@
         collapseAll$,
         expandAll$,
       } = enhancedQuizManagementStrings;
+
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       const {
         // Computed

@@ -123,6 +123,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
@@ -158,8 +159,6 @@
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
-        closeConfirmationTitle$,
-        closeConfirmationMessage$,
         changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
@@ -167,6 +166,8 @@
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
       } = enhancedQuizManagementStrings;
+
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       return {
         closeConfirmationTitle$,
