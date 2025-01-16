@@ -3,6 +3,7 @@ import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyn
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';
@@ -47,8 +48,9 @@ const routes = [
     // fetch the facilities if redirecting from /welcome, since the WelcomeModal
     // needs it
     beforeEnter(to, from, next) {
+      const { getFacilities } = useFacilities();
       if (to.redirectedFrom === '/welcome') {
-        store.dispatch('getFacilities').then(next, next);
+        getFacilities().then(next, next);
       } else {
         next();
       }

@@ -38,6 +38,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
@@ -96,13 +97,14 @@
       },
     },
     created() {
+      const { getFacilities } = useFacilities();
       const initClassInfoPromise = this.$store.dispatch(
         'initClassInfo',
         this.$route.params.classId,
       );
       const getFacilitiesPromise =
         this.isSuperuser && this.$store.state.core.facilities.length === 0
-          ? this.$store.dispatch('getFacilities').catch(() => {})
+          ? getFacilities().catch(() => {})
           : Promise.resolve();
 
       Promise.all([initClassInfoPromise, getFacilitiesPromise])

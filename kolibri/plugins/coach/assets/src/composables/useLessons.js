@@ -1,10 +1,12 @@
 import { ref } from 'vue';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../constants';
 
 // Place outside the function to keep the state
 const lessonsAreLoading = ref(false);
+const { getFacilities } = useFacilities();
 
 export function useLessons() {
   function setLessonsLoading(loading) {
@@ -16,7 +18,7 @@ export function useLessons() {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && store.state.core.facilities.length === 0
-        ? store.dispatch('getFacilities').catch(() => {})
+        ? getFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

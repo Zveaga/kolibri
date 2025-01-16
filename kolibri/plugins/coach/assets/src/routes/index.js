@@ -2,6 +2,7 @@ import store from 'kolibri/store';
 import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';
@@ -20,9 +21,11 @@ import groupsRoutes from './groupsRoutes';
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
   const { isSuperuser } = useUser();
+  const { getFacilities } = useFacilities();
+
   const getFacilitiesPromise =
     get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   return Promise.all([initClassInfoPromise, getFacilitiesPromise]);

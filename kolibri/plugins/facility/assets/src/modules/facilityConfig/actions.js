@@ -2,6 +2,7 @@ import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDataset
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 
 export function saveFacilityName(store, payload) {
   return FacilityResource.saveModel({
@@ -11,8 +12,9 @@ export function saveFacilityName(store, payload) {
     },
   }).then(
     facility => {
+      const { getFacilities } = useFacilities();
       // Refresh facility list to get new name
-      store.dispatch('getFacilities', null, { root: true });
+      getFacilities(null);
       store.commit('UPDATE_FACILITIES', {
         oldName: store.state.facilityName,
         newName: facility.name,

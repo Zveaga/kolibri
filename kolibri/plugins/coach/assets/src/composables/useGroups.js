@@ -3,9 +3,11 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);
+const { getFacilities } = useFacilities();
 
 export function useGroups() {
   function setGroupsLoading(loading) {
@@ -16,7 +18,7 @@ export function useGroups() {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && store.state.core.facilities.length === 0
-        ? store.dispatch('getFacilities').catch(() => {})
+        ? getFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
