@@ -75,17 +75,41 @@ export default function useResourceSelection() {
       }),
   });
 
+  const waitForTopicLoad = () => {
+    const { searchTopicId } = route.value.query;
+    const topicToWaitFor = searchTopicId || topicId.value;
+    if (!topicToWaitFor || topicToWaitFor === topic.value?.id) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      const unwatch = watch(topic, () => {
+        if (topic.value?.id === topicToWaitFor) {
+          unwatch();
+          resolve();
+        }
+      });
+    });
+  };
+
   const useSearchObject = useBaseSearch({
     descendant: topic,
+    // As we dont always show the search filters, we dont need to reload the search results
+    // each time the topic changes if not needed
+    reloadOnDescendantChange: false,
   });
   const searchFetch = {
     data: useSearchObject.results,
     loading: useSearchObject.searchLoading,
     hasMore: computed(() => !!useSearchObject.more.value),
     loadingMore: useSearchObject.moreLoading,
-    fetchData: useSearchObject.search,
+    fetchData: async () => {
+      // Make sure that the topic is loaded before searching
+      await waitForTopicLoad();
+      return useSearchObject.search();
+    },
     fetchMore: useSearchObject.searchMore,
   };
+
   const { displayingSearchResults } = useSearchObject;
 
   const fetchTree = async (params = {}) => {

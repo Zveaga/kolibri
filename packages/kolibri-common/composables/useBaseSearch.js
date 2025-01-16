@@ -1,5 +1,6 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
+import isEqual from 'lodash/isEqual';
 import logger from 'kolibri-logging';
 import { computed, getCurrentInstance, inject, provide, ref, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -157,6 +158,7 @@ export default function useBaseSearch({
   store,
   router,
   baseurl,
+  reloadOnDescendantChange = true,
   fetchContentNodeProgress,
 }) {
   // Get store and router references from the curent instance
@@ -325,9 +327,13 @@ export default function useBaseSearch({
     set(searchTerms, {});
   }
 
-  watch(searchTerms, search);
+  watch(searchTerms, (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      search();
+    }
+  });
 
-  if (descendant) {
+  if (descendant && reloadOnDescendantChange) {
     watch(descendant, newValue => {
       if (newValue) {
         search();

@@ -56,6 +56,9 @@
         });
       });
 
+      // Fetch first available labels of the selected topic
+      props.searchFetch.fetchData();
+
       const { searchInFolder$ } = searchAndFilterStrings;
 
       return {
@@ -74,6 +77,14 @@
         default: () => {},
       },
       searchTerms: {
+        type: Object,
+        required: true,
+      },
+      /**
+       * Fetch object for fetching search results.
+       * @type {FetchObject}
+       */
+      searchFetch: {
         type: Object,
         required: true,
       },
