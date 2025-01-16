@@ -1,6 +1,6 @@
 {
   "name": "kolibri-tools",
-  "version": "0.16.1-dev.1",
+  "version": "0.18.0",
   "description": "Tools for building Kolibri frontend plugins",
   "main": "lib/cli.js",
   "repository": {
