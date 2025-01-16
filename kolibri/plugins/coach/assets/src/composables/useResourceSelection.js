@@ -118,7 +118,7 @@ export default function useResourceSelection() {
     if (topicId.value) {
       treeFetch.fetchData();
     }
-    if (displayingSearchResults) {
+    if (displayingSearchResults.value) {
       searchFetch.fetchData();
     }
   };
