@@ -5,7 +5,7 @@
       v-if="topic"
       class="side-panel-subtitle"
     >
-      {{ $tr('searchInTitle', { folder: topic.title }) }}
+      {{ searchInFolder$({ folder: topic.title }) }}
     </div>
     <SearchFiltersPanel
       v-model="searchTermsComputed"
@@ -26,6 +26,7 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
 
   /**
@@ -55,9 +56,12 @@
         });
       });
 
+      const { searchInFolder$ } = searchAndFilterStrings;
+
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        searchInFolder$,
       };
     },
     props: {
@@ -100,12 +104,6 @@
           name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
           query: this.$route.query,
         });
-      },
-    },
-    $trs: {
-      searchInTitle: {
-        message: "Search in '{folder}'",
-        context: 'Title for search resources in folder',
       },
     },
   };

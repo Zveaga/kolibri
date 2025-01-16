@@ -41,7 +41,7 @@
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :channelsLink="breadcrumbChannelsLink"
-      :hideBreadcrumbs="computedTopic.ancestors.length === 0"
+      :hideBreadcrumbs="hideBreadcrumbs"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -55,6 +55,7 @@
 
   import { computed, getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../constants';
@@ -71,14 +72,13 @@
     setup(props) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
+      const { backToSearchResultsLabel$ } = searchAndFilterStrings;
       const instance = getCurrentInstance();
       const routeQuery = instance.proxy.$route.query;
       const isTopicFromSearchResult = computed(() => !!routeQuery.searchResultTopicId);
 
       props.setTitle(
-        isTopicFromSearchResult.value
-          ? instance.proxy.$tr('backToSearchResultsLabel')
-          : manageLessonResourcesTitle$(),
+        isTopicFromSearchResult.value ? backToSearchResultsLabel$() : manageLessonResourcesTitle$(),
       );
 
       props.setGoBack(() => {
@@ -182,6 +182,9 @@
           name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
         };
       },
+      hideBreadcrumbs() {
+        return this.isTopicFromSearchResult && this.computedTopic.ancestors.length === 0;
+      },
     },
     beforeRouteEnter(to, _, next) {
       const { topicId } = to.query;
@@ -201,12 +204,6 @@
           name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
           query: this.$route.query,
         });
-      },
-    },
-    $trs: {
-      backToSearchResultsLabel: {
-        message: 'Back to search results',
-        context: 'Button to go back to search results',
       },
     },
   };

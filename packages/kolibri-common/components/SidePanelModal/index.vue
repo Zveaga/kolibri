@@ -238,6 +238,7 @@
     height: 100vh;
 
     .side-panel-header {
+      z-index: 1;
       width: 100%;
       min-height: 60px;
       padding: 0 1em;

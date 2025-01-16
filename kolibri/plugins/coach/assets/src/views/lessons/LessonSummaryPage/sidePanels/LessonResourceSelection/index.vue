@@ -204,7 +204,7 @@
           // When we are searching in the topic tree a topic that was
           // found in the search results, show the side panel in immersive mode
           this.$route.name === PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE &&
-          this.$route.query.searchResultTopicId
+          !!this.$route.query.searchResultTopicId
         );
       },
     },

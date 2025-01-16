@@ -46,9 +46,10 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../constants';
+  import { coachStrings } from '../../../../../common/commonCoachStrings';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -140,19 +141,22 @@
     },
     computed: {
       resultsCountMessage() {
+        const {
+          resultsCount$,
+          overResultsCount$,
+          resultsCountInFolder$,
+          overResultsCountInFolder$,
+        } = searchAndFilterStrings;
+
         const count = this.contentList.length;
         if (this.topic) {
           const params = {
             count,
             folder: this.topic.title,
           };
-          return this.hasMore
-            ? this.$tr('overResultsCountInFolder', params)
-            : this.$tr('resultsCountInFolder', params);
+          return this.hasMore ? overResultsCountInFolder$(params) : resultsCountInFolder$(params);
         }
-        return this.hasMore
-          ? this.$tr('overResultsCount', { count })
-          : this.$tr('resultsCount', { count });
+        return this.hasMore ? overResultsCount$({ count }) : resultsCount$({ count });
       },
     },
     methods: {
@@ -182,25 +186,6 @@
             searchTopicId: this.$route.query.topicId,
           },
         };
-      },
-    },
-    $trs: {
-      resultsCount: {
-        message: '{count, number} {count, plural, one {result} other {results}}',
-        context: 'Number of search results when we have an exact count',
-      },
-      resultsCountInFolder: {
-        message: "{count, number} {count, plural, one {result} other {results}} in '{folder}'",
-        context: 'Number of search results when we have an exact count in a specific folder',
-      },
-      overResultsCount: {
-        message: 'Over {count, number} results',
-        context: 'Number of search results when we know there are more than the count',
-      },
-      overResultsCountInFolder: {
-        message: "Over {count, number} results in '{folder}'",
-        context:
-          'Number of search results when we know there are more than the count in a specific folder',
       },
     },
   };

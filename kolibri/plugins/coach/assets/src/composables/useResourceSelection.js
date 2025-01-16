@@ -89,7 +89,10 @@ export default function useResourceSelection() {
   const { displayingSearchResults } = useSearchObject;
 
   const fetchTree = async (params = {}) => {
-    topic.value = await ContentNodeResource.fetchTree(params);
+    const newTopic = await ContentNodeResource.fetchTree(params);
+    if (topic.value?.id !== newTopic.id) {
+      topic.value = newTopic;
+    }
     return topic.value.children;
   };
 
