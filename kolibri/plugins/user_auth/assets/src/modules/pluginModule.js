@@ -3,6 +3,7 @@ import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
+import { getFacilityConfig } from '../../../../../core/assets/src/state/modules/core/actions';
 import signIn from './signIn';
 
 export default {
@@ -19,9 +20,9 @@ export default {
       store.commit('CORE_SET_ERROR', null);
     },
     setFacilitiesAndConfig(store) {
-      const { getFacilities } = useFacilities();
+      const { getFacilities, getFacilityConfig } = useFacilities();
       return getFacilities().then(() => {
-        return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
+        return getFacilityConfig(store.getters.selectedFacility.id);
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -35,7 +36,7 @@ export default {
     },
     setFacilityId(store, { facilityId }) {
       store.commit('SET_FACILITY_ID', facilityId);
-      return store.dispatch('getFacilityConfig', facilityId);
+      return getFacilityConfig(facilityId);
     },
   },
   getters: {

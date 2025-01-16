@@ -70,6 +70,7 @@
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import partition from 'lodash/partition';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
@@ -116,13 +117,14 @@
     },
     methods: {
       setFacility(facilityId) {
+        const { getFacilityConfig } = useFacilities();
         const whereToNext = { ...this.whereToNext };
         if (this.$route.query.next) {
           whereToNext.query.next = this.$route.query.next;
         }
         // Save the selected facility, get its config, then move along to next route
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
-          this.$store.dispatch('getFacilityConfig', facilityId).then(() => {
+          getFacilityConfig(facilityId).then(() => {
             this.$router.push(whereToNext);
           });
         });
