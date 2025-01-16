@@ -119,6 +119,8 @@
       },
       searchBarDisabled() {
         if (this.$listeners.searchClick) {
+          // If the parent component is listening for the searchClick event, then we dont disable
+          // the search button to allow clicking on search even if the search input is empty
           return false;
         }
         // Disable the search bar if it has been cleared or has not been changed

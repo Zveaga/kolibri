@@ -122,7 +122,7 @@
           style="margin-bottom: 1em"
           :placeholder="$tr('searchByKeyword')"
           :value="value.keywords || ''"
-          @change="onSearchChange"
+          @change="onSearchKeywordsChange"
           @searchClick="onSearchClick"
         />
 
@@ -399,14 +399,13 @@
           this.$refs.searchBox.focusSearchBox();
         }
       },
-      onSearchChange(val) {
+      onSearchKeywordsChange(val) {
         if (this.value.keywords === val) {
           return;
         }
         this.$emit('input', { ...this.value, keywords: val });
       },
-      async onSearchClick() {
-        await this.$nextTick();
+      onSearchClick() {
         this.$emit('searchClick');
       },
     },

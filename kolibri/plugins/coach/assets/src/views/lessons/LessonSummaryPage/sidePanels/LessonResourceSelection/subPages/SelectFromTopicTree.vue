@@ -103,7 +103,9 @@
         if (!isTopicFromSearchResult.value) {
           return props.topic;
         }
-        // Slice ancestors to show only ancestors from search result topic
+        // When we are showing the topic tree of a folder that was found in search results,
+        // we want to show just the ancestors starting from the search result topic. So lets
+        // slice the ancestors array to start from the search result topic.
         const { searchResultTopicId } = routeQuery;
         const topicAncestors = props.topic.ancestors;
         const searchResultTopicIndex = topicAncestors.findIndex(

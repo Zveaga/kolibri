@@ -22,9 +22,10 @@
 
 <script>
 
-  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
   import { getCurrentInstance, onMounted, ref } from 'vue';
+
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
   import { PageNames } from '../../../../../../constants';
 
   /**
@@ -88,7 +89,6 @@
         },
       },
     },
-
     beforeRouteEnter(to, from, next) {
       next(vm => {
         vm.prevRoute = from;
