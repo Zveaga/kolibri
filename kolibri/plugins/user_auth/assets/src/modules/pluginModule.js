@@ -3,7 +3,6 @@ import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
-import { getFacilityConfig } from '../../../../../core/assets/src/state/modules/core/actions';
 import signIn from './signIn';
 
 export default {
@@ -35,19 +34,22 @@ export default {
       }
     },
     setFacilityId(store, { facilityId }) {
+      const { getFacilityConfig } = useFacilities();
       store.commit('SET_FACILITY_ID', facilityId);
       return getFacilityConfig(facilityId);
     },
   },
   getters: {
     // Return the facility that was last selected or fallback to the default facility.
-    selectedFacility(state, getters) {
-      const selectedFacility = getters.facilities.find(f => f.id === state.facilityId);
+
+    selectedFacility(state) {
+      const { facilities } = useFacilities();
+      const selectedFacility = facilities.value.find(f => f.id === state.facilityId);
       if (selectedFacility) {
         return selectedFacility;
       } else {
         const { userFacilityId } = useUser();
-        return getters.facilities.find(f => f.id === get(userFacilityId)) || null;
+        return facilities.value.find(f => f.id === get(userFacilityId)) || null;
       }
     },
   },

@@ -6,7 +6,6 @@ import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDataset
 import Lockr from 'lockr';
 
 const state = reactive({
-  error: '',
   facilityConfig: {},
   facilities: [],
   facilityId: Lockr.get('facilityId') || null,
@@ -29,12 +28,8 @@ export function useFacilities() {
 
   //actions
   async function getFacilities() {
-    try {
-      const facilities = await FacilityResource.fetchCollection({ force: true });
-      state.facilities = facilities;
-    } catch (error) {
-      state.error = error.message;
-    }
+    const facilities = await FacilityResource.fetchCollection({ force: true });
+    state.facilities = facilities;
   }
 
   async function getFacilityConfig(facilityId) {
@@ -47,28 +42,23 @@ export function useFacilities() {
 
     let facilityConfig;
 
-    try {
-      if (selectedFacility.value && typeof selectedFacility.value.dataset !== 'object') {
-        facilityConfig = [selectedFacility.value.dataset];
-      } else {
-        facilityConfig = await FacilityDatasetResource.fetchCollection({
-          getParams: {
-            facility_id: facId,
-          },
-        });
-      }
-
-      let config = {};
-      const facility = facilityConfig[0];
-
-      if (facility) {
-        config = { ...facility };
-      }
-      setFacilityConfig(config);
-    } catch (error) {
-      setError(error.message);
-      throw error;
+    if (selectedFacility.value && typeof selectedFacility.value.dataset !== 'object') {
+      facilityConfig = [selectedFacility.value.dataset];
+    } else {
+      facilityConfig = await FacilityDatasetResource.fetchCollection({
+        getParams: {
+          facility_id: facId,
+        },
+      });
     }
+
+    let config = {};
+    const facility = facilityConfig[0];
+
+    if (facility) {
+      config = { ...facility };
+    }
+    setFacilityConfig(config);
   }
 
   //mutations
@@ -80,10 +70,6 @@ export function useFacilities() {
     state.facilities = facilities;
   }
 
-  function setError(state, error) {
-    state.error = error;
-  }
-
   return {
     facilities,
     facilityConfig,
@@ -91,6 +77,5 @@ export function useFacilities() {
     getFacilityConfig,
     setFacilityConfig,
     setFacilities,
-    setError,
   };
 }
