@@ -167,11 +167,6 @@ export default [
             path: 'search-results',
             component: SelectFromSearchResults,
           },
-          {
-            name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
-            path: 'preview-resources',
-            component: ManageSelectedResources,
-          },
         ],
       },
       {

@@ -148,12 +148,20 @@
     },
     methods: {
       contentLink(content) {
-        const { name, params, query } = this.$route;
+        const { params, query } = this.$route;
         if (!content.is_leaf) {
           return this.topicsLink(content.id);
         }
-        // Just return the current route; router-link will handle the no-op from here
-        return { name, params, query };
+        return {
+          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          params: {
+            ...params,
+          },
+          query: {
+            contentId: content.id,
+            ...query,
+          },
+        };
       },
       topicsLink(topicId) {
         const route = this.getTopicLink?.(topicId);
