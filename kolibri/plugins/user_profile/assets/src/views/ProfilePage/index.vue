@@ -186,7 +186,6 @@
 
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
-  import { mapGetters } from 'vuex';
   import { ref } from 'vue';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
@@ -198,6 +197,7 @@
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
@@ -235,6 +235,8 @@
       } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
+      const { facilityConfig } = useFacilities();
+
       return {
         currentUser,
         onMyOwnSetup,
@@ -249,10 +251,10 @@
         showPasswordModal,
         fetchPoints,
         totalPoints,
+        facilityConfig,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
       profileEditRoute() {
         return this.$router.getRoute(RoutesMap.PROFILE_EDIT);
       },

@@ -1,17 +1,27 @@
 import { mount } from '@vue/test-utils';
+import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import SignInPage from '../../src/views/SignInPage';
 import makeStore from '../makeStore';
 
 jest.mock('kolibri/urls');
+jest.mock('kolibri-common/composables/useFacilities');
 
 function makeWrapper() {
   const store = makeStore();
   store.state.facilityId = '123';
-  store.state.core.facilities.push({
-    id: '123',
-    name: 'test facility',
-    dataset: {},
-  });
+  useFacilities.mockImplementation(() =>
+    useFacilitiesMock({
+      facilities: {
+        value: [
+          {
+            id: '123',
+            name: 'test facility',
+            dataset: {},
+          },
+        ],
+      },
+    }),
+  );
   return mount(SignInPage, {
     store,
   });

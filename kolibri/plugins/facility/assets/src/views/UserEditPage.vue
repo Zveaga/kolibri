@@ -139,7 +139,7 @@
   import pickBy from 'lodash/pickBy';
   import UserType from 'kolibri-common/utils/userType';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import urls from 'kolibri/urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -177,12 +177,13 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { currentUserId } = useUser();
-      const { getFacilityConfig } = useFacilities();
+      const { getFacilityConfig, facilityConfig } = useFacilities();
 
       return {
         createSnackbar,
         currentUserId,
         getFacilityConfig,
+        facilityConfig,
       };
     },
     data() {
@@ -206,7 +207,6 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';

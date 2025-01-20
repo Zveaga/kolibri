@@ -188,7 +188,7 @@
       };
     },
     computed: {
-      ...mapGetters(['activeFacilityId', 'facilityConfig']),
+      ...mapGetters(['activeFacilityId']),
       ...mapState('userManagement', ['facilityUsers']),
       showPasswordInput() {
         if (this.facilityConfig.learner_can_login_with_no_password) {
