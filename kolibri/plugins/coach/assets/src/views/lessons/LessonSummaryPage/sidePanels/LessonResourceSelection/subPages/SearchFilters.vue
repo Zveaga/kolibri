@@ -8,12 +8,14 @@
       {{ searchInFolder$({ folder: topic.title }) }}
     </div>
     <SearchFiltersPanel
+      ref="searchFiltersPanel"
       v-model="searchTermsComputed"
       accordion
       showChannels
       showActivities
       @close="showSearch = true"
       @searchClick="onSearchClick"
+      @categorySearchOpen="handleCategorySearchOpen"
     />
   </div>
 
@@ -42,19 +44,34 @@
       const prevRoute = ref(null);
 
       const instance = getCurrentInstance();
-      onMounted(() => {
-        const { searchLabel$ } = coreStrings;
-        props.setTitle(searchLabel$());
-
+      const goBack = () => {
         const backRoute = prevRoute.value?.name
           ? prevRoute.value
           : {
             name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
           };
-        props.setGoBack(() => {
-          instance.proxy.$router.push(backRoute);
-        });
+        instance.proxy.$router.push(backRoute);
+      };
+      const { searchLabel$ } = coreStrings;
+      const { chooseACategory$ } = searchAndFilterStrings;
+      const title = searchLabel$();
+      onMounted(() => {
+        props.setTitle(title);
+        props.setGoBack(goBack);
       });
+
+      function handleCategorySearchOpen(isOpen) {
+        if (isOpen) {
+          props.setTitle(chooseACategory$());
+          props.setGoBack(() => {
+            const searchFiltersPanelRef = instance.proxy.$refs.searchFiltersPanel;
+            searchFiltersPanelRef.closeCategorySearch();
+          });
+        } else {
+          props.setTitle(title);
+          props.setGoBack(goBack);
+        }
+      }
 
       // Fetch first available labels of the selected topic
       props.searchFetch.fetchData();
@@ -65,6 +82,7 @@
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         searchInFolder$,
+        handleCategorySearchOpen,
       };
     },
     props: {

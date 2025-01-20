@@ -315,6 +315,12 @@
         return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
       },
     },
+    watch: {
+      currentCategory(val) {
+        const isCategorySearchOpen = val != null;
+        this.$emit('categorySearchOpen', isCategorySearchOpen);
+      },
+    },
     methods: {
       isCategoryActive(categoryValue) {
         // Takes the dot separated category value and checks if it is active
@@ -407,6 +413,12 @@
       },
       onSearchClick() {
         this.$emit('searchClick');
+      },
+      /**
+       * @public
+       */
+      closeCategorySearch() {
+        this.currentCategory = null;
       },
     },
     $trs: {

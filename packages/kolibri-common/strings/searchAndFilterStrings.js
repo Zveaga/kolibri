@@ -81,4 +81,8 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Back to search results',
     context: 'Button to go back to search results',
   },
+  chooseACategory: {
+    message: 'Choose a category',
+    context: 'Label for a selector component to choose a category',
+  },
 });
