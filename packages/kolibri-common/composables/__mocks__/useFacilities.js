@@ -1,5 +1,6 @@
 const MOCK_DEFAULTS = {
   facilityConfig: {},
+  selectedFacility: {},
   facilities: [],
   getFacilities: jest.fn(),
   getFacilityConfig: jest.fn(),

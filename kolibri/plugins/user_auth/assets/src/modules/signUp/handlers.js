@@ -1,5 +1,5 @@
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { ComponentMap } from '../../constants';
 
 export function showSignUpPage(store, fromRoute) {

@@ -3,7 +3,7 @@ import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyn
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';

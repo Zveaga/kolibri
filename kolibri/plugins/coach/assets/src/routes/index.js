@@ -2,7 +2,7 @@ import store from 'kolibri/store';
 import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';

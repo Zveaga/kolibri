@@ -1,7 +1,7 @@
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
 
 export async function setLessonSummaryState(store, params) {

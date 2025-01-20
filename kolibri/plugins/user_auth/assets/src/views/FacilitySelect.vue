@@ -70,7 +70,7 @@
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import partition from 'lodash/partition';
-  import { useFacilities } from 'kolibri-common/composables/useFacilities';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';

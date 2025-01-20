@@ -2,7 +2,7 @@ import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDataset
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 export function saveFacilityName(store, payload) {
   return FacilityResource.saveModel({

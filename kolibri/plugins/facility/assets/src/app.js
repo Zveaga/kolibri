@@ -3,7 +3,7 @@ import useUser from 'kolibri/composables/useUser';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import router from 'kolibri/router';
 import KolibriApp from 'kolibri-app';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import RootVue from './views/FacilityIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';

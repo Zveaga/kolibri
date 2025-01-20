@@ -3,7 +3,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,

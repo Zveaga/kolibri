@@ -6,7 +6,7 @@ import { ContentNodeKinds } from 'kolibri/constants';
 import chunk from 'lodash/chunk';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
 
 const { getFacilities } = useFacilities();

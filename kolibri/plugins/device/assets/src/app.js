@@ -4,7 +4,7 @@ import router from 'kolibri/router';
 import { IsPinAuthenticated } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
 import KolibriApp from 'kolibri-app';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';

@@ -153,7 +153,7 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { useFacilities } from 'kolibri-common/composables/useFacilities';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {

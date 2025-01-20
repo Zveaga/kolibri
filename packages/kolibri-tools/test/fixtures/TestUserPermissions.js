@@ -17,7 +17,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { getFacilities } from '../../../../kolibri/core/assets/src/state/modules/core/actions';
 
 const translator = createTranslator('UserPermissionToolbarTitles', {

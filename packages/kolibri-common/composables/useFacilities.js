@@ -11,7 +11,7 @@ const state = reactive({
   facilityId: Lockr.get('facilityId') || null,
 });
 
-export function useFacilities() {
+export default function useFacilities() {
   const { userFacilityId } = useUser();
 
   const selectedFacility = computed(() => {
@@ -77,5 +77,6 @@ export function useFacilities() {
     getFacilityConfig,
     setFacilityConfig,
     setFacilities,
+    selectedFacility,
   };
 }

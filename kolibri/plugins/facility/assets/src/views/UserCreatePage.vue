@@ -135,7 +135,7 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
-  import { useFacilities } from 'kolibri-common/composables/useFacilities';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;

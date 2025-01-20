@@ -3,7 +3,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
-import { useFacilities } from 'kolibri-common/composables/useFacilities';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);
