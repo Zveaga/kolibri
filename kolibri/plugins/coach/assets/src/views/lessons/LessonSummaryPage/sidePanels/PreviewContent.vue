@@ -6,8 +6,9 @@
         :layout12="{ span: 9 }"
         :layout8="{ span: 4 }"
         :layout4="{ span: 2 }"
+        class="channel-selector-heading"
       >
-        <h6 class="channel-selector-heading">
+        <h6>
           {{ coreString('selectFromChannels') }}
         </h6>
       </KGridItem>
@@ -46,14 +47,15 @@
       :items="breadcrumbs"
       :showSingleItem="true"
     />
-
-    <h5>
-      <KLabeledIcon :icon="content.kind">
-        <template>
-          {{ content.title }}
-        </template>
-      </KLabeledIcon>
-    </h5>
+    <div class="title-class">
+      <h5>
+        <KLabeledIcon :icon="content.kind">
+          <template>
+            {{ content.title }}
+          </template>
+        </KLabeledIcon>
+      </h5>
+    </div>
 
     <ContentArea
       :header="questionLabel(selectedQuestionIndex)"
@@ -154,7 +156,7 @@
     computed: {
       breadcrumbs() {
         return [
-          { text: this.coreString('channelsLabel'), link: this.channelsLink },
+          { link: this.channelsLink },
           ...this.ancestors.map(a => ({
             text: a.title,
             link: this.topicsLink(a.id),
@@ -248,11 +250,26 @@
   }
 
   /deep/ .content-renderer {
+    position: relative;
+    top: -40px;
     max-height: 500px;
   }
 
   /deep/ .breadcrumbs-visible-items {
+    position: relative;
+    top: -30px;
+    flex-direction: row;
     font-weight: 400;
+  }
+
+  .channel-selector-heading {
+    position: relative;
+    top: -10px;
+  }
+
+  .title-class {
+    position: relative;
+    top: -30px;
   }
 
 </style>
