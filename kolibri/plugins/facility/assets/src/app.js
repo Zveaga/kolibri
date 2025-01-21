@@ -20,13 +20,13 @@ class FacilityManagementModule extends KolibriApp {
   }
   ready() {
     const { isLearnerOnlyImport, isSuperuser } = useUser();
-    const { getFacilities } = useFacilities();
+    const { getFacilities, facilities } = useFacilities();
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
         redirectBrowser();
         return;
       }
-      if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
+      if (get(isSuperuser) && facilities.value.length === 0) {
         getFacilities().then(next, next);
       } else {
         next();

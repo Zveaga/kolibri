@@ -48,10 +48,10 @@
       },
     },
     created() {
-      const { getFacilities } = useFacilities();
+      const { getFacilities, facilities } = useFacilities();
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
       const getFacilitiesPromise =
-        this.isSuperuser && this.$store.state.core.facilities.length === 0
+        this.isSuperuser && facilities.length === 0
           ? getFacilities().catch(() => {})
           : Promise.resolve();
 

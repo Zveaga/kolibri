@@ -9,7 +9,7 @@ import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
 
-const { getFacilities } = useFacilities();
+const { getFacilities, facilities } = useFacilities();
 
 async function showResourceSelectionPage(store, params) {
   const {
@@ -25,7 +25,7 @@ async function showResourceSelectionPage(store, params) {
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
+    get(isSuperuser) && get(facilities).length === 0
       ? getFacilities().catch(() => {})
       : Promise.resolve();
 
@@ -189,7 +189,7 @@ export async function showLessonResourceContentPreview(store, params) {
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
+    get(isSuperuser) && get(facilities).length === 0
       ? getFacilities().catch(() => {})
       : Promise.resolve();
 
@@ -206,7 +206,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
+    get(isSuperuser) && get(facilities).length === 0
       ? getFacilities().catch(() => {})
       : Promise.resolve();
 

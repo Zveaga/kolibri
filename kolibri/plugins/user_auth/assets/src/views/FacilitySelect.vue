@@ -67,7 +67,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import partition from 'lodash/partition';
   import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -79,6 +78,10 @@
     name: 'FacilitySelect',
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
+    setup() {
+      const { getFacilityConfig, facilities } = useFacilities();
+      return { getFacilityConfig, facilities };
+    },
     props: {
       // This component is interstitial and needs to know where to go when it's done
       // The type is Object, but it needs to be one of the listed routes in the validator
@@ -91,7 +94,6 @@
       },
     },
     computed: {
-      ...mapGetters(['facilities']),
       backTo() {
         return this.$router.getRoute(ComponentMap.AUTH_SELECT);
       },
@@ -117,14 +119,13 @@
     },
     methods: {
       setFacility(facilityId) {
-        const { getFacilityConfig } = useFacilities();
         const whereToNext = { ...this.whereToNext };
         if (this.$route.query.next) {
           whereToNext.query.next = this.$route.query.next;
         }
         // Save the selected facility, get its config, then move along to next route
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
-          getFacilityConfig(facilityId).then(() => {
+          this.getFacilityConfig(facilityId).then(() => {
             this.$router.push(whereToNext);
           });
         });

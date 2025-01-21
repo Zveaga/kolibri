@@ -70,6 +70,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { PageNames } from '../constants';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
@@ -82,7 +83,8 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin } = useUser();
-      return { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin };
+      const { facilities } = useFacilities();
+      return { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin, facilities };
     },
     props: {
       subtopicName: {
@@ -127,7 +129,7 @@
         const { facility_id } = this.$route.params;
 
         if (facility_id) {
-          const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
+          const match = find(this.facilities, { id: facility_id }) || {};
           facilityName = match.name;
         }
         if (facilityName) {

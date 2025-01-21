@@ -56,10 +56,12 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { isSuperuser } = useUser();
-
+      const { getFacilities, facilities } = useFacilities();
       return {
         createSnackbar,
         isSuperuser,
+        getFacilities,
+        facilities,
       };
     },
     props: {
@@ -97,14 +99,13 @@
       },
     },
     created() {
-      const { getFacilities } = useFacilities();
       const initClassInfoPromise = this.$store.dispatch(
         'initClassInfo',
         this.$route.params.classId,
       );
       const getFacilitiesPromise =
-        this.isSuperuser && this.$store.state.core.facilities.length === 0
-          ? getFacilities().catch(() => {})
+        this.isSuperuser && this.facilities.length === 0
+          ? this.getFacilities().catch(() => {})
           : Promise.resolve();
 
       Promise.all([initClassInfoPromise, getFacilitiesPromise])

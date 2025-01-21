@@ -1,6 +1,7 @@
 import find from 'lodash/find';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -48,8 +49,9 @@ export default {
       }
       return rootState.route.params.facility_id || get(userFacilityId);
     },
-    currentFacilityName(state, getters, rootState) {
-      const match = find(rootState.core.facilities, { id: getters.activeFacilityId });
+    currentFacilityName(state, getters) {
+      const { facilities } = useFacilities();
+      const match = find(facilities.value, { id: getters.activeFacilityId });
       return match ? match.name : '';
     },
     facilityPageLinks(state, getters) {

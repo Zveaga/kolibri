@@ -44,12 +44,12 @@ export default {
 
     selectedFacility(state) {
       const { facilities } = useFacilities();
-      const selectedFacility = facilities.find(f => f.id === state.facilityId);
+      const selectedFacility = facilities.value.find(f => f.id === state.facilityId);
       if (selectedFacility) {
         return selectedFacility;
       } else {
         const { userFacilityId } = useUser();
-        return facilities.find(f => f.id === get(userFacilityId)) || null;
+        return facilities.value.find(f => f.id === get(userFacilityId)) || null;
       }
     },
   },

@@ -21,10 +21,10 @@ import groupsRoutes from './groupsRoutes';
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
   const { isSuperuser } = useUser();
-  const { getFacilities } = useFacilities();
+  const { getFacilities, facilities } = useFacilities();
 
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
+    get(isSuperuser) && get(facilities).length === 0
       ? getFacilities().catch(() => {})
       : Promise.resolve();
 

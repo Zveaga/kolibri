@@ -235,7 +235,7 @@
       } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
-      const { facilityConfig } = useFacilities();
+      const { facilityConfig, facilities } = useFacilities();
 
       return {
         currentUser,
@@ -252,6 +252,7 @@
         fetchPoints,
         totalPoints,
         facilityConfig,
+        facilities,
       };
     },
     computed: {
@@ -262,7 +263,7 @@
         return pickBy(this.getUserPermissions);
       },
       facilityName() {
-        const match = find(this.$store.getters.facilities, {
+        const match = find(this.facilities, {
           id: this.userFacilityId,
         });
         return match ? match.name : '';

@@ -1,5 +1,6 @@
 import some from 'lodash/some';
 import { UserKinds } from 'kolibri/constants';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 export const baseSessionState = {
   app_context: false,
@@ -46,8 +47,9 @@ export default {
       return state.kind.includes(UserKinds.ADMIN);
     },
     // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
-    userIsMultiFacilityAdmin(state, getters, rootState) {
-      return getters.isSuperuser && rootState.core.facilities.length > 1;
+    userIsMultiFacilityAdmin(state, getters) {
+      const { facilities } = useFacilities();
+      return getters.isSuperuser && facilities.value.length > 1;
     },
     getUserPermissions(state) {
       const permissions = {};
