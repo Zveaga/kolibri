@@ -40,8 +40,16 @@ logger = logging.getLogger(__name__)
 
 
 def parse_byte_range(range_header, file_size):
-    """Parse Range header using whitenoise's implementation"""
+    """
+    Parse Range header using whitenoise's implementation
+    Unlike whitenoise, this implementation returns None if the start is beyond EOF
+    and returns the start value and the length of the range, rather than the end.
+    """
     try:
+        # Use StaticFile's parse_byte_range to handle the parsing
+        # be aware that it can return a negative start value
+        # with an end value of None, rather than represent a content-range
+        # header that has no start value but an end value.
         start, end = StaticFile.parse_byte_range(range_header)
         if start >= file_size:
             # If start is beyond EOF, return None to trigger full file response
@@ -51,8 +59,11 @@ def parse_byte_range(range_header, file_size):
             end = file_size - 1
         else:
             end = min(end, file_size - 1)
-
-        return (start if start >= 0 else file_size + start, end - start + 1)
+        # Handle negative start values by adding them to file_size
+        if start < 0:
+            start = file_size + start
+        length = end - start + 1
+        return start, length
     except ValueError:
         return None
 
@@ -65,6 +76,8 @@ class RangeZipFileObjectWrapper:
     This can be removed once Python 3.6 support is dropped.
     """
 
+    CHUNK_SIZE = 8192
+
     def __init__(self, file_object, start=0, length=None):
         self.file_object = file_object
         self.remaining = length
@@ -74,7 +87,7 @@ class RangeZipFileObjectWrapper:
         else:
             # Read and discard data until we reach start position
             while start > 0:
-                chunk_size = min(start, 8192)
+                chunk_size = min(start, self.CHUNK_SIZE)
                 self.file_object.read(chunk_size)
                 start -= chunk_size
 
@@ -85,7 +98,10 @@ class RangeZipFileObjectWrapper:
         if self.remaining is not None and self.remaining <= 0:
             raise StopIteration()
         chunk = self.file_object.read(
-            min(8192, self.remaining if self.remaining is not None else 8192)
+            min(
+                self.CHUNK_SIZE,
+                self.remaining if self.remaining is not None else self.CHUNK_SIZE,
+            )
         )
         if not chunk:
             raise StopIteration()
