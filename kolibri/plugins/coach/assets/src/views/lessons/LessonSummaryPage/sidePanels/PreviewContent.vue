@@ -7,7 +7,9 @@
         :layout8="{ span: 4 }"
         :layout4="{ span: 2 }"
       >
-        {{ coreString('selectFromChannels') }}
+        <h6 class="channel-selector-heading">
+          {{ coreString('selectFromChannels') }}
+        </h6>
       </KGridItem>
       <KGridItem
         :layout12="{ span: 3 }"
@@ -247,6 +249,10 @@
 
   /deep/ .content-renderer {
     max-height: 500px;
+  }
+
+  /deep/ .breadcrumbs-visible-items {
+    font-weight: 400;
   }
 
 </style>
