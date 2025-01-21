@@ -113,7 +113,7 @@
       <div v-if="accordion && !currentCategory">
         <!-- search by keyword -->
         <h2 class="title">
-          {{ $tr('keywords') }}
+          {{ title || $tr('keywords') }}
         </h2>
         <SearchBox
           key="channel-search"
@@ -252,6 +252,10 @@
       showActivities: {
         type: Boolean,
         default: true,
+      },
+      title: {
+        type: String,
+        default: null,
       },
     },
     computed: {

@@ -1,23 +1,16 @@
 <template>
 
-  <div>
-    <div
-      v-if="topic"
-      class="side-panel-subtitle"
-    >
-      {{ searchInFolder$({ folder: topic.title }) }}
-    </div>
-    <SearchFiltersPanel
-      ref="searchFiltersPanel"
-      v-model="searchTermsComputed"
-      accordion
-      showChannels
-      showActivities
-      @close="showSearch = true"
-      @searchClick="onSearchClick"
-      @categorySearchOpen="handleCategorySearchOpen"
-    />
-  </div>
+  <SearchFiltersPanel
+    ref="searchFiltersPanel"
+    v-model="searchTermsComputed"
+    accordion
+    showChannels
+    showActivities
+    :title="topic && searchInFolder$({ folder: topic.title })"
+    @close="showSearch = true"
+    @searchClick="onSearchClick"
+    @categorySearchOpen="handleCategorySearchOpen"
+  />
 
 </template>
 
