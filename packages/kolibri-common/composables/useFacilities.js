@@ -1,35 +1,33 @@
-import { reactive, computed } from 'vue';
+import { ref, computed } from 'vue';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import useUser from 'kolibri/composables/useUser';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import Lockr from 'lockr';
 
-const state = reactive({
-  facilityConfig: {},
-  facilities: [],
-  facilityId: Lockr.get('facilityId') || null,
-});
+const _facilityConfig = ref({});
+const _facilities = ref([]);
+const _facilityId = ref(Lockr.get('facilityId') || null);
 
 export default function useFacilities() {
   const { userFacilityId } = useUser();
 
   const selectedFacility = computed(() => {
-    const facilityById = facilities.value.find(f => f.id === state.facilityId);
+    const facilityById = _facilities.value.find(f => f.id === _facilityId.value);
     if (facilityById) {
       return facilityById;
     }
-    return facilities.value.find(f => f.id === userFacilityId.value) || null;
+    return _facilities.value.find(f => f.id === userFacilityId.value) || null;
   });
 
   //getters
-  const facilities = computed(() => state.facilities);
-  const facilityConfig = computed(() => state.facilityConfig);
+  const facilities = computed(() => _facilities.value);
+  const facilityConfig = computed(() => _facilityConfig.value);
 
   //actions
   async function getFacilities() {
     const facilities = await FacilityResource.fetchCollection({ force: true });
-    state.facilities = facilities;
+    _facilities.value = facilities;
   }
 
   async function getFacilityConfig(facilityId) {
@@ -62,12 +60,12 @@ export default function useFacilities() {
   }
 
   //mutations
-  function setFacilityConfig(state, facilityConfig) {
-    state.facilityConfig = facilityConfig;
+  function setFacilityConfig(facilityConfig) {
+    _facilityConfig.value = facilityConfig;
   }
 
-  function setFacilities(state, facilities) {
-    state.facilities = facilities;
+  function setFacilities(facilities) {
+    _facilities.value = facilities;
   }
 
   return {
