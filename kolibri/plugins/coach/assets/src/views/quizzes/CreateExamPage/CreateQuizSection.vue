@@ -174,7 +174,7 @@
           :getQuestionContent="question => activeResourceMap[question.exercise_id]"
           :selectAllIsChecked="allQuestionsSelected"
           :selectAllIsIndeterminate="selectAllIsIndeterminate"
-          @select="handleQuestionCheckboxChange"
+          @select="toggleQuestionInSelection"
           @selectAll="selectAllQuestions"
           @error="err => $emit('error', err)"
           @sort="handleQuestionOrderChange"
@@ -496,9 +496,6 @@
           name: PageNames.QUIZ_SECTION_EDITOR,
           params: { sectionIndex: this.allSections.length - 1 },
         });
-      },
-      handleQuestionCheckboxChange(item) {
-        this.toggleQuestionInSelection(item);
       },
       openSelectResources() {
         this.$router.push({

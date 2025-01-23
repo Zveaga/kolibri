@@ -169,8 +169,7 @@
     setup(_, context) {
       const { createSnackbar } = useSnackbar();
 
-      const router = getCurrentInstance().proxy.$router;
-      const { $route } = getCurrentInstance().proxy;
+      const { $route, $router } = getCurrentInstance().proxy;
 
       const {
         replaceQuestions$,
@@ -212,7 +211,7 @@
         const count = replacements.value.length;
         handleReplacement(replacements.value);
         clearSelectedQuestions();
-        router.replace({
+        $router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
             classId: $route.params.classId,
