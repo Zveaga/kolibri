@@ -159,9 +159,10 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { getFacilityConfig } = useFacilities();
+      const { getFacilityConfig, facilityConfig } = useFacilities();
       return {
         getFacilityConfig,
+        facilityConfig,
       };
     },
     data() {
