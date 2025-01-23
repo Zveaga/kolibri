@@ -6,7 +6,7 @@
         :layout12="{ span: 9 }"
         :layout8="{ span: 4 }"
         :layout4="{ span: 2 }"
-        class="channel-selector-heading"
+        class="channels-header"
       >
         <h6>
           {{ coreString('selectFromChannels') }}
@@ -42,11 +42,9 @@
         </template>
       </KGridItem>
     </KGrid>
-
-    <KBreadcrumbs
-      :items="breadcrumbs"
-      :showSingleItem="true"
-    />
+    <div class="test">
+      <KBreadcrumbs :items="breadcrumbs" />
+    </div>
     <div class="title-class">
       <h5>
         <KLabeledIcon :icon="content.kind">
@@ -109,6 +107,7 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
+  // import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import ContentArea from '../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
   import commonCoach from '../../../common';
@@ -119,6 +118,7 @@
     components: {
       ContentArea,
       SlotTruncator,
+      //LearningActivityIcon,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -156,7 +156,6 @@
     computed: {
       breadcrumbs() {
         return [
-          { link: this.channelsLink },
           ...this.ancestors.map(a => ({
             text: a.title,
             link: this.topicsLink(a.id),
@@ -255,21 +254,21 @@
     max-height: 500px;
   }
 
-  /deep/ .breadcrumbs-visible-items {
-    position: relative;
-    top: -30px;
-    flex-direction: row;
-    font-weight: 400;
-  }
-
-  .channel-selector-heading {
-    position: relative;
-    top: -10px;
+  .channels-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
   }
 
   .title-class {
     position: relative;
     top: -30px;
+  }
+
+  .test {
+    position: relative;
+    top: -35px;
   }
 
 </style>
