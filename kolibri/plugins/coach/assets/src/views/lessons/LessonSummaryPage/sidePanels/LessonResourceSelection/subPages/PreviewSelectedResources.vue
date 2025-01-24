@@ -1,21 +1,7 @@
 <template>
 
-  <SidePanelModal
-    alignment="right"
-    sidePanelWidth="700px"
-    closeButtonIconType="close"
-    @closePanel="() => $router.go(-1)"
-    @shouldFocusFirstEl="() => null"
-  >
-    <template #header>
-      <div>
-        <h2>{{ manageLessonResourcesTitle$() }}</h2>
-      </div>
-    </template>
-
-    <KCircularLoader v-if="loading" />
+  <div>
     <PreviewContent
-      v-else
       :currentContentNode="contentNode"
       :ancestors="ancestors"
       :isSelected="isSelected"
@@ -23,39 +9,44 @@
       @addResource="handleAddResource"
       @removeResource="handleRemoveResource"
     />
-  </SidePanelModal>
+  </div>
 
 </template>
 
 
 <script>
 
+  import { getCurrentInstance } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import useFetchContentNode from '../../../../composables/useFetchContentNode';
-  import useResourceSelection from '../../../../composables/useResourceSelection';
-  import { coachStrings } from '../../../common/commonCoachStrings';
-  import { PageNames } from '../../../../constants/index';
-  import PreviewContent from './PreviewContent';
+  import useFetchContentNode from '../../../../../../composables/useFetchContentNode';
+  import useResourceSelection from '../../../../../../composables/useResourceSelection';
+  import { coachStrings } from '../../../../../common/commonCoachStrings';
+  import { PageNames } from '../../../../../../constants/index';
+  import PreviewContent from '../../PreviewContent';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
-      SidePanelModal,
       PreviewContent,
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
+      const { contentNode, ancestors, questions } = useFetchContentNode(props.contentId);
       const { selectedResources, selectResources, deselectResources } = useResourceSelection();
       const { manageLessonResourcesTitle$ } = coachStrings;
+      const instance = getCurrentInstance();
+
+      props.setTitle(manageLessonResourcesTitle$());
+      props.setGoBack(() => {
+        return instance.proxy.$router.push({
+          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+        });
+      });
 
       return {
-        loading,
         contentNode,
         ancestors,
         questions,
-        manageLessonResourcesTitle$,
         selectedResources,
         selectResources,
         deselectResources,
@@ -65,6 +56,14 @@
       contentId: {
         type: String,
         required: true,
+      },
+      setTitle: {
+        type: Function,
+        default: () => {},
+      },
+      setGoBack: {
+        type: Function,
+        default: () => {},
       },
     },
     data() {

@@ -240,7 +240,8 @@
 <style lang="scss" scoped>
 
   .add-remove-button-style {
-    float: right;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .license-detail-style {
