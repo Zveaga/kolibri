@@ -33,7 +33,7 @@
             />
             <KButton
               :text="$tr('showMoreLanguagesSelector')"
-              class="px-8"
+              class="px-8 px-6"
               appearance="flat-button"
               @click="showLanguageModal = true"
             />
@@ -147,6 +147,10 @@
   .px-8 {
     padding-right: 8px;
     padding-left: 8px;
+  }
+
+  .px-6 {
+    padding-bottom: 6px;
   }
 
   .lang-icon {
