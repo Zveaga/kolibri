@@ -75,27 +75,25 @@
       <!-- eslint-enable -->
     </SlotTruncator>
 
-    <template>
-      <HeaderTable class="license-detail-style">
-        <HeaderTableRow :keyText="coreString('suggestedTime')">
-          <template #value>
-            {{ content.duration ? getTime(content.duration) : 'Not available' }}
-          </template>
-        </HeaderTableRow>
+    <HeaderTable class="license-detail-style">
+      <HeaderTableRow :keyText="coreString('suggestedTime')">
+        <template #value>
+          {{ content.duration ? getTime(content.duration) : 'Not available' }}
+        </template>
+      </HeaderTableRow>
 
-        <HeaderTableRow :keyText="licenseDataHeader$()">
-          <template #value>
-            {{ licenseName }}
-          </template>
-        </HeaderTableRow>
+      <HeaderTableRow :keyText="licenseDataHeader$()">
+        <template #value>
+          {{ licenseName }}
+        </template>
+      </HeaderTableRow>
 
-        <HeaderTableRow :keyText="copyrightHolderDataHeader$()">
-          <template #value>
-            {{ content.license_owner }}
-          </template>
-        </HeaderTableRow>
-      </HeaderTable>
-    </template>
+      <HeaderTableRow :keyText="copyrightHolderDataHeader$()">
+        <template #value>
+          {{ content.license_owner }}
+        </template>
+      </HeaderTableRow>
+    </HeaderTable>
   </div>
 
 </template>
@@ -107,7 +105,8 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
-  // import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  // import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/
+  // LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import ContentArea from '../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
   import commonCoach from '../../../common';
@@ -177,9 +176,9 @@
       content() {
         return this.currentContentNode;
       },
-      channelsLink() {
-        return this.selectionRootLink();
-      },
+      // channelsLink() {
+      //   return this.selectionRootLink();
+      // },
       description() {
         if (this.content && this.content.description) {
           const md = new markdownIt('zero', { breaks: true });
@@ -200,13 +199,13 @@
           this.$route.query,
         );
       },
-      selectionRootLink() {
-        return this.$router.getRoute(
-          PageNames.LESSON_RESOURCE_SELECTION_ROOT,
-          {},
-          this.$route.query,
-        );
-      },
+      // selectionRootLink() {
+      //   return this.$router.getRoute(
+      //     PageNames.LESSON_RESOURCE_SELECTION_ROOT,
+      //     {},
+      //     this.$route.query,
+      //   );
+      // },
       questionLabel(questionIndex) {
         if (!this.isExercise) {
           return '';

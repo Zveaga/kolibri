@@ -5,12 +5,14 @@ export default function useFetchContentNode(contentId) {
   const contentNode = ref({});
   const ancestors = ref([]);
   const questions = ref([]);
+  const loading = ref(true);
 
-  const fetchContentNode = () => {
+  const fetchContentNode = async () => {
     ContentNodeResource.fetchModel({
       id: contentId,
       getParams: { no_available_filtering: true },
     }).then(node => {
+      loading.value = false;
       contentNode.value = node;
 
       if (node.ancestors.length) {
@@ -26,6 +28,7 @@ export default function useFetchContentNode(contentId) {
   fetchContentNode();
 
   return {
+    loading,
     ancestors,
     contentNode,
     questions,

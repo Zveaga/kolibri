@@ -12,7 +12,10 @@
         <h2>{{ manageLessonResourcesTitle$() }}</h2>
       </div>
     </template>
+
+    <KCircularLoader v-if="loading" />
     <PreviewContent
+      v-else
       :currentContentNode="contentNode"
       :ancestors="ancestors"
       :isSelected="isSelected"
@@ -43,11 +46,12 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const { contentNode, ancestors, questions } = useFetchContentNode(props.contentId);
+      const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
       const { selectedResources, selectResources, deselectResources } = useResourceSelection();
       const { manageLessonResourcesTitle$ } = coachStrings;
 
       return {
+        loading,
         contentNode,
         ancestors,
         questions,
