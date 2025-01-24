@@ -43,7 +43,6 @@
           :appearanceOverrides="{ minWidth: '36px', padding: 0 }"
           :aria-label="coreString('startSearchButtonLabel')"
           type="submit"
-          @click="onSearchClick"
         >
           <template #icon>
             <KIcon
@@ -62,7 +61,6 @@
 
 <script>
 
-  import debounce from 'lodash/debounce';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
@@ -95,10 +93,6 @@
         type: String,
         default: null,
       },
-      emitOnInputChange: {
-        type: Boolean,
-        default: false,
-      },
     },
     data() {
       return {
@@ -118,11 +112,6 @@
         return this.value !== null ? this.value : this.$route.query.keywords;
       },
       searchBarDisabled() {
-        if (this.$listeners.searchClick) {
-          // If the parent component is listening for the searchClick event, then we dont disable
-          // the search button to allow clicking on search even if the search input is empty
-          return false;
-        }
         // Disable the search bar if it has been cleared or has not been changed
         return this.searchInputValue === '';
       },
@@ -145,11 +134,6 @@
     watch: {
       value(current) {
         this.searchInputValue = current || '';
-      },
-      searchInputValue() {
-        if (this.emitOnInputChange) {
-          this.debouncedUpdateSearchQuery();
-        }
       },
     },
     created() {
@@ -179,12 +163,6 @@
       },
       updateSearchQuery() {
         this.$emit('change', this.searchInputValue);
-      },
-      debouncedUpdateSearchQuery: debounce(function () {
-        this.updateSearchQuery();
-      }, 300),
-      onSearchClick() {
-        this.$emit('searchClick');
       },
     },
     $trs: {

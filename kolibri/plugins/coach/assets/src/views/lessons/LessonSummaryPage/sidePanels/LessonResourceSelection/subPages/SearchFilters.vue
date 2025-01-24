@@ -7,8 +7,6 @@
     showChannels
     showActivities
     :title="topic && searchInFolder$({ folder: topic.title })"
-    @close="showSearch = true"
-    @searchClick="onSearchClick"
     @categorySearchOpen="handleCategorySearchOpen"
   />
 
@@ -119,14 +117,6 @@
       next(vm => {
         vm.prevRoute = from;
       });
-    },
-    methods: {
-      onSearchClick() {
-        this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
-          query: this.$route.query,
-        });
-      },
     },
   };
 

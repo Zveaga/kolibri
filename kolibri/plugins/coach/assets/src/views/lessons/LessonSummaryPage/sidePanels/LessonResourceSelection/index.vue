@@ -123,7 +123,9 @@
         deselectResources,
         setSelectedResources,
         removeSearchFilterTag,
-      } = useResourceSelection();
+      } = useResourceSelection({
+        searchResultsRouteName: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+      });
 
       const { createSnackbar } = useSnackbar();
 

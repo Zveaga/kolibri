@@ -14,6 +14,11 @@ import useFetch from './useFetch';
  * This utility handles selection rules, manages fetch states for channels, bookmarks,
  * and topic trees, and offers methods to add, remove, or override selected resources.
  *
+ * @param {Object} options
+ * @param {string} options.searchResultsRouteName The name of the route where the search results
+ *  will be displayed so that we can redirect to it when the search terms are updated.
+ *
+ *
  * @typedef {Object} UseResourceSelectionResponse
  * @property {Object} topic Topic tree object, contains the information of the topic,
  *   its ascendants and children.
@@ -46,7 +51,7 @@ import useFetch from './useFetch';
  *
  * @returns {UseResourceSelectionResponse}
  */
-export default function useResourceSelection() {
+export default function useResourceSelection({ searchResultsRouteName } = {}) {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   const topicId = computed(() => route.value.query.topicId);
@@ -93,6 +98,7 @@ export default function useResourceSelection() {
 
   const useSearchObject = useBaseSearch({
     descendant: topic,
+    searchResultsRouteName,
     // As we dont always show the search filters, we dont need to reload the search results
     // each time the topic changes if not needed
     reloadOnDescendantChange: false,

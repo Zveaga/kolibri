@@ -158,6 +158,7 @@ export default function useBaseSearch({
   store,
   router,
   baseurl,
+  searchResultsRouteName,
   reloadOnDescendantChange = true,
   fetchContentNodeProgress,
 }) {
@@ -209,9 +210,14 @@ export default function useBaseSearch({
       } else {
         delete query.keywords;
       }
+
+      const nextRoute = { ...get(route), query };
+      if (searchResultsRouteName) {
+        nextRoute.name = searchResultsRouteName;
+      }
       // Just catch an error from making a redundant navigation rather
       // than try to precalculate this.
-      router.push({ ...get(route), query }).catch(() => {});
+      router.push(nextRoute).catch(() => {});
     },
   });
 
@@ -314,7 +320,7 @@ export default function useBaseSearch({
         [key]: '',
       });
     } else {
-      const keyObject = get(searchTerms)[key];
+      const keyObject = { ...get(searchTerms)[key] };
       delete keyObject[value];
       set(searchTerms, {
         ...get(searchTerms),
