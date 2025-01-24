@@ -32,6 +32,7 @@
       :treeFetch="treeFetch"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
+      :noSelectableResourcesIds="noSelectableResourcesIds"
       :selectedResourcesSize="selectedResourcesSize"
       @selectResources="selectResources"
       @deselectResources="deselectResources"
@@ -169,6 +170,9 @@
           count: this.selectedResources.length,
           bytesText: bytesForHumans(this.selectedResourcesSize),
         });
+      },
+      noSelectableResourcesIds() {
+        return this.workingResources.map(resource => resource.contentnode_id);
       },
     },
     methods: {

@@ -36,6 +36,7 @@
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
+      :noSelectableResourcesIds="noSelectableResourcesIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -112,6 +113,11 @@
       selectedResources: {
         type: Array,
         required: true,
+      },
+      noSelectableResourcesIds: {
+        type: Array,
+        required: false,
+        default: null,
       },
       disabled: {
         type: Boolean,
