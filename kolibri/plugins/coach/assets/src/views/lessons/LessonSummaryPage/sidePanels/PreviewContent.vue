@@ -105,6 +105,7 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
+  import { ContentNodeKinds } from 'kolibri/constants';
   // import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/
   // LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
@@ -162,7 +163,7 @@
         ];
       },
       isExercise() {
-        return this.content.kind === 'exercise';
+        return this.content.kind === ContentNodeKinds.EXERCISE;
       },
       selectedQuestion() {
         if (this.isExercise) {
