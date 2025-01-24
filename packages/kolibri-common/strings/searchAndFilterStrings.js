@@ -104,4 +104,8 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Added',
     context: 'Notification that can refer to when resources are added to a lesson, for example.',
   },
+  notAvailableLabel: {
+    message: 'Not available',
+    context: 'Message that shows when the value of key is null',
+  },
 });

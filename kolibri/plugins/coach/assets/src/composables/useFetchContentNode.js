@@ -12,8 +12,10 @@ export default function useFetchContentNode(contentId) {
       id: contentId,
       getParams: { no_available_filtering: true },
     }).then(node => {
-      loading.value = false;
       contentNode.value = node;
+      if (node != null) {
+        loading.value = false;
+      }
 
       if (node.ancestors.length) {
         ancestors.value = node.ancestors;

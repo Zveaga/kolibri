@@ -47,7 +47,10 @@
     </div>
     <div class="title-class">
       <h5>
-        <KLabeledIcon :icon="content.kind">
+        <KLabeledIcon :label="content.kind">
+          <template #icon>
+            <LearningActivityIcon :kind="content.learning_activities" />
+          </template>
           <template>
             {{ content.title }}
           </template>
@@ -78,7 +81,7 @@
     <HeaderTable class="license-detail-style">
       <HeaderTableRow :keyText="coreString('suggestedTime')">
         <template #value>
-          {{ content.duration ? getTime(content.duration) : 'Not available' }}
+          {{ content.duration ? getTime(content.duration) : notAvailableLabel$() }}
         </template>
       </HeaderTableRow>
 
@@ -106,8 +109,7 @@
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
   import { ContentNodeKinds } from 'kolibri/constants';
-  // import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/
-  // LearningActivityIcon.vue';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import ContentArea from '../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
   import commonCoach from '../../../common';
@@ -118,18 +120,24 @@
     components: {
       ContentArea,
       SlotTruncator,
-      //LearningActivityIcon,
+      LearningActivityIcon,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
-      const { addText$, copyrightHolderDataHeader$, licenseDataHeader$, addedIndicator$ } =
-        searchAndFilterStrings;
+      const {
+        addText$,
+        copyrightHolderDataHeader$,
+        licenseDataHeader$,
+        addedIndicator$,
+        notAvailableLabel$,
+      } = searchAndFilterStrings;
 
       return {
         addText$,
         licenseDataHeader$,
         copyrightHolderDataHeader$,
         addedIndicator$,
+        notAvailableLabel$,
       };
     },
     props: {
@@ -177,9 +185,6 @@
       content() {
         return this.currentContentNode;
       },
-      // channelsLink() {
-      //   return this.selectionRootLink();
-      // },
       description() {
         if (this.content && this.content.description) {
           const md = new markdownIt('zero', { breaks: true });
@@ -200,13 +205,6 @@
           this.$route.query,
         );
       },
-      // selectionRootLink() {
-      //   return this.$router.getRoute(
-      //     PageNames.LESSON_RESOURCE_SELECTION_ROOT,
-      //     {},
-      //     this.$route.query,
-      //   );
-      // },
       questionLabel(questionIndex) {
         if (!this.isExercise) {
           return '';

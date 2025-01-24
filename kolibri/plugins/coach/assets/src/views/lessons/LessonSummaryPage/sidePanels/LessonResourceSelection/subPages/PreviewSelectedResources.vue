@@ -1,7 +1,9 @@
 <template>
 
   <div>
+    <KCircularLoader v-if="loading" />
     <PreviewContent
+      v-else
       :currentContentNode="contentNode"
       :ancestors="ancestors"
       :isSelected="isSelected"
@@ -31,16 +33,14 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const { contentNode, ancestors, questions } = useFetchContentNode(props.contentId);
+      const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
       const { selectedResources, selectResources, deselectResources } = useResourceSelection();
       const { manageLessonResourcesTitle$ } = coachStrings;
       const instance = getCurrentInstance();
 
       props.setTitle(manageLessonResourcesTitle$());
       props.setGoBack(() => {
-        return instance.proxy.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-        });
+        return instance.proxy.$router.go(-1);
       });
 
       return {
@@ -50,6 +50,7 @@
         selectedResources,
         selectResources,
         deselectResources,
+        loading,
       };
     },
     props: {
