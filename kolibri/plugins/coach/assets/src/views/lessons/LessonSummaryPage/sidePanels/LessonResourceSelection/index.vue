@@ -286,7 +286,6 @@
 
   .side-panel-title {
     margin: 0;
-    margin-top: 20px;
     font-size: 18px;
   }
 

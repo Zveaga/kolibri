@@ -105,6 +105,15 @@
       headingLevel: {
         type: Number,
         default: 3,
+        validator(value) {
+          if (value <= 6 && value >= 2) {
+            return true;
+          } else {
+            // eslint-disable-next-line no-console
+            console.error(`'headingLevel' must be between 2 and 6.`);
+            return false;
+          }
+        },
       },
     },
     computed: {
@@ -112,7 +121,7 @@
         return !this.content.isLeaf;
       },
       headingElement() {
-        return this.headingLevel ? `h${this.headingLevel}` : 'h3';
+        return `h${this.headingLevel}`;
       },
     },
   };
