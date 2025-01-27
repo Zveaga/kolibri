@@ -33,7 +33,7 @@
             />
             <KButton
               :text="$tr('showMoreLanguagesSelector')"
-              class="px-8 px-6"
+              class="px-6 px-8"
               appearance="flat-button"
               @click="showLanguageModal = true"
             />
