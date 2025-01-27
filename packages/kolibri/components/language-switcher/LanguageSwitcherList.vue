@@ -150,7 +150,7 @@
   }
 
   .px-6 {
-    padding-bottom: 6px;
+    padding-bottom: 2px;
   }
 
   .lang-icon {
