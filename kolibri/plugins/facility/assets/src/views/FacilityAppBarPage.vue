@@ -14,14 +14,14 @@
   import { mapGetters } from 'vuex';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useUser from 'kolibri/composables/useUser';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
     name: 'FacilityAppBarPage',
     components: { AppBarPage },
     mixins: [commonCoreStrings],
     setup() {
-      const { userIsMultiFacilityAdmin } = useUser();
+      const { userIsMultiFacilityAdmin } = useFacilities();
       return { userIsMultiFacilityAdmin };
     },
     props: {

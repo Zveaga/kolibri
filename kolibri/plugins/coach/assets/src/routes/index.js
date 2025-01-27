@@ -127,8 +127,8 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      const { userIsMultiFacilityAdmin } = useUser();
-      if (get(userIsMultiFacilityAdmin)) {
+      const { userIsMultiFacilityAdmin } = useFacilities();
+      if (userIsMultiFacilityAdmin.value) {
         next({ name: 'AllFacilitiesPage', replace: true });
       } else {
         next({ name: 'CoachClassListPage', replace: true });

@@ -54,8 +54,8 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { facility_id, userIsMultiFacilityAdmin } = useUser();
-      const { facilities } = useFacilities();
+      const { facility_id } = useUser();
+      const { facilities, userIsMultiFacilityAdmin } = useFacilities();
       return { facility_id, userIsMultiFacilityAdmin, facilities };
     },
     props: {

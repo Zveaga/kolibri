@@ -23,10 +23,15 @@ export default function useFacilities() {
   //getters
   const facilities = computed(() => _facilities.value);
   const facilityConfig = computed(() => _facilityConfig.value);
+  const userIsMultiFacilityAdmin = computed(() => {
+    const { isSuperuser } = useUser();
+    return isSuperuser.value && _facilities.value.length > 1;
+  });
 
   //actions
   async function getFacilities() {
     const facilities = await FacilityResource.fetchCollection({ force: true });
+
     _facilities.value = facilities;
   }
 
@@ -76,5 +81,6 @@ export default function useFacilities() {
     setFacilityConfig,
     setFacilities,
     selectedFacility,
+    userIsMultiFacilityAdmin,
   };
 }

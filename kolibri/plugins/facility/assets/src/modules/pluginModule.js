@@ -43,8 +43,9 @@ export default {
 
       // For multi-facility case, only use facility_id if in route because userFacilityId
       // fallback would always navigate to our default facility, not multi-facility landing page
-      const { userIsMultiFacilityAdmin, userFacilityId } = useUser();
-      if (get(userIsMultiFacilityAdmin)) {
+      const { userFacilityId } = useUser();
+      const { userIsMultiFacilityAdmin } = useFacilities();
+      if (userIsMultiFacilityAdmin.value) {
         return rootState.route.params.facility_id;
       }
       return rootState.route.params.facility_id || get(userFacilityId);
@@ -58,8 +59,8 @@ export default {
       // Use this getter to get Link objects that have the optional 'facility_id'
       // parameter if we're in a multi-facility situation
       const params = {};
-      const { userIsMultiFacilityAdmin } = useUser();
-      if (get(userIsMultiFacilityAdmin)) {
+      const { userIsMultiFacilityAdmin } = useFacilities();
+      if (userIsMultiFacilityAdmin.value) {
         params.facility_id = getters.activeFacilityId;
       }
       return {

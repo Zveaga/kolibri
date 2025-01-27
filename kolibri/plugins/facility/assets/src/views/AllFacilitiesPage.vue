@@ -44,7 +44,6 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
@@ -60,8 +59,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { userIsMultiFacilityAdmin } = useUser();
-      const { facilities } = useFacilities();
+      const { facilities, userIsMultiFacilityAdmin } = useFacilities();
       return { userIsMultiFacilityAdmin, facilities };
     },
     props: {

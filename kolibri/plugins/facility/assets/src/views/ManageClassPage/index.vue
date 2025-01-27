@@ -102,7 +102,6 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
@@ -125,8 +124,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
-      const { userIsMultiFacilityAdmin } = useUser();
-      const { getFacilities } = useFacilities();
+      const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       return {
         classToDelete,
         selectClassToDelete,

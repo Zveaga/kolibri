@@ -82,8 +82,8 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin } = useUser();
-      const { facilities } = useFacilities();
+      const { isClassCoach, isFacilityCoach } = useUser();
+      const { facilities, userIsMultiFacilityAdmin } = useFacilities();
       return { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin, facilities };
     },
     props: {

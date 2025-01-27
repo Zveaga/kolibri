@@ -2,6 +2,7 @@ const MOCK_DEFAULTS = {
   facilityConfig: {},
   selectedFacility: {},
   facilities: [],
+  userIsMultiFacilityAdmin: false,
   getFacilities: jest.fn(),
   getFacilityConfig: jest.fn(),
   setFacilityConfig: jest.fn(),
