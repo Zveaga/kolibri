@@ -235,7 +235,7 @@
   .side-panel {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
 
     .side-panel-header {
       z-index: 1;
