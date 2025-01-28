@@ -18,15 +18,13 @@
           v-if="isSelected"
           :text="coreString('removeAction')"
           :primary="true"
-          :disabled="disableSelectButton"
-          @click="removeResource"
+          @click="removeResource()"
         />
         <KButton
           v-else
           :text="addText$()"
           :primary="false"
-          :disabled="disableSelectButton"
-          @click="addResource"
+          @click="addResource()"
         />
       </div>
     </div>
@@ -153,7 +151,6 @@
     data() {
       return {
         selectedQuestionIndex: 0,
-        disableSelectButton: false,
       };
     },
     computed: {
@@ -207,11 +204,9 @@
         return this.coreString('questionNumberLabel', { questionNumber });
       },
       addResource() {
-        this.disableSelectButton = true;
         this.$emit('addResource', this.content);
       },
       removeResource() {
-        this.disableSelectButton = true;
         this.$emit('removeResource', this.content);
       },
       getTime(seconds) {

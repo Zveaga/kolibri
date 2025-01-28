@@ -20,7 +20,6 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFetchContentNode from '../../../../../../../composables/useFetchContentNode';
-  import useResourceSelection from '../../../../../../../composables/useResourceSelection';
   import { coachStrings } from '../../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../../constants/index';
   import PreviewContent from './PreviewContent';
@@ -33,7 +32,6 @@
     mixins: [commonCoreStrings],
     setup(props) {
       const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
-      const { selectedResources, selectResources, deselectResources } = useResourceSelection();
       const { manageLessonResourcesTitle$ } = coachStrings;
 
       props.setTitle(manageLessonResourcesTitle$());
@@ -43,9 +41,6 @@
         contentNode,
         ancestors,
         questions,
-        selectedResources,
-        selectResources,
-        deselectResources,
         loading,
       };
     },
@@ -62,46 +57,36 @@
         type: Function,
         default: () => {},
       },
-    },
-    data() {
-      return {
-        justRemovedResource: false,
-      };
+      selectedResources: {
+        type: Array,
+        required: true,
+      },
     },
     computed: {
       isSelected() {
-        if (this.justRemovedResource) {
-          return true;
-        }
-        if (this.selectedResources && this.contentNode && this.contentNode.id) {
-          return this.selectedResources.some(
-            resource => resource.contentnode_id === this.contentNode.id,
-          );
+        if (this.selectedResources) {
+          return this.selectedResources.find(resource => resource.id === this.contentId);
         }
         return false;
+      },
+      routeBack() {
+        const { params, query } = this.$route;
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          params: params,
+          query: query,
+        };
       },
     },
     methods: {
       handleAddResource(content) {
-        this.routeBack().then(() => {
-          this.selectResources([content]);
-          this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
-        });
+        this.routeBack;
+        this.$emit('selectResources', [content]);
+        this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
       },
       handleRemoveResource(content) {
-        this.justRemovedResource = true;
-        this.deselectResources([content]);
-        this.routeBack().then(() => {
-          this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
-        });
-      },
-      routeBack() {
-        const { params, query } = this.$route;
-        return this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-          params: params,
-          query: query,
-        });
+        this.$emit('deselectResources', [content]);
+        this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
       },
     },
   };
