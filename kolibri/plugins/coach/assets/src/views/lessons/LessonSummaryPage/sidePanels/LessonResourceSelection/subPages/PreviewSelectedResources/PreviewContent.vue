@@ -30,13 +30,14 @@
         />
       </div>
     </div>
-    <div class="test">
-      <ResourceSelectionBreadcrumbs
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
-    </div>
+
+    <ResourceSelectionBreadcrumbs
+      :ancestors="ancestors"
+      :channelsLink="channelsLink"
+      :topicsLink="topicsLink"
+      class="align-breadcrumbs"
+    />
+
     <div class="title-class">
       <h5>
         <KLabeledIcon :label="content.kind">
@@ -252,7 +253,7 @@
     top: -30px;
   }
 
-  .test {
+  .align-breadcrumbs {
     position: relative;
     top: -35px;
   }
