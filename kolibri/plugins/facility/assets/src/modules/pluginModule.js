@@ -1,4 +1,3 @@
-import find from 'lodash/find';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -49,11 +48,6 @@ export default {
         return rootState.route.params.facility_id;
       }
       return rootState.route.params.facility_id || get(userFacilityId);
-    },
-    currentFacilityName(state, getters) {
-      const { facilities } = useFacilities();
-      const match = find(facilities.value, { id: getters.activeFacilityId });
-      return match ? match.name : '';
     },
     facilityPageLinks(state, getters) {
       // Use this getter to get Link objects that have the optional 'facility_id'

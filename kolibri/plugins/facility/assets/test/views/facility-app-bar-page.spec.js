@@ -44,13 +44,13 @@ describe('FacilityAppBarPage', function () {
     describe('the user is an admin of multiple facilities, and a current facility name is defined', () => {
       it("should return the string 'Facility – ' with the current facility name", () => {
         useFacilities.mockImplementation(() =>
-          useFacilitiesMock({ userIsMultiFacilityAdmin: true }),
+          useFacilitiesMock({
+            userIsMultiFacilityAdmin: true,
+            currentFacilityName: 'currentFacilityName',
+          }),
         );
         const wrapper = makeWrapper({
           propsData: { appBarTitle: null },
-          getters: {
-            currentFacilityName: 'currentFacilityName',
-          },
         });
         const expectedTitle = 'Facility – currentFacilityName';
         expect(wrapper.vm.title).toBe(expectedTitle);
@@ -59,12 +59,13 @@ describe('FacilityAppBarPage', function () {
   });
   describe('the user is not an admin of multiple facilities', () => {
     it('should return the value of appBarTitle prop when provided', () => {
-      useUser.mockImplementation(() => useUserMock({ userIsMultiFacilityAdmin: false }));
-      const wrapper = makeWrapper({
-        getters: {
+      useUser.mockImplementation(() =>
+        useUserMock({
+          userIsMultiFacilityAdmin: false,
           currentFacilityName: 'currentFacilityName',
-        },
-      });
+        }),
+      );
+      const wrapper = makeWrapper({});
       expect(wrapper.vm.title).toBe('Facility');
     });
   });

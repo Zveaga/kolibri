@@ -4,14 +4,15 @@ import useUser from 'kolibri/composables/useUser';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import Lockr from 'lockr';
+import store from 'kolibri/store';
 
 const _facilityConfig = ref({});
 const _facilities = ref([]);
 const _facilityId = ref(Lockr.get('facilityId') || null);
 
 export default function useFacilities() {
-  const { userFacilityId } = useUser();
-
+  const { userFacilityId, isSuperuser } = useUser();
+  // const route = router.currentRoute;
   const selectedFacility = computed(() => {
     const facilityById = _facilities.value.find(f => f.id === _facilityId.value);
     if (facilityById) {
@@ -24,8 +25,11 @@ export default function useFacilities() {
   const facilities = computed(() => _facilities.value);
   const facilityConfig = computed(() => _facilityConfig.value);
   const userIsMultiFacilityAdmin = computed(() => {
-    const { isSuperuser } = useUser();
     return isSuperuser.value && _facilities.value.length > 1;
+  });
+  const currentFacilityName = computed(() => {
+    const match = _facilities.value.find(f => f.id === store.getters.activeFacilityId);
+    return match ? match.name : '';
   });
 
   //actions
@@ -82,5 +86,6 @@ export default function useFacilities() {
     setFacilities,
     selectedFacility,
     userIsMultiFacilityAdmin,
+    currentFacilityName,
   };
 }
