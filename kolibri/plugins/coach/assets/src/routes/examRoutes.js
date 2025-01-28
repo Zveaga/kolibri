@@ -1,12 +1,14 @@
 import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CreateExamPage from '../views/quizzes/CreateExamPage';
-import SectionEditor from '../views/quizzes/CreateExamPage/SectionEditor.vue';
-import ResourceSelection from '../views/quizzes/CreateExamPage/ResourceSelection.vue';
-import ReplaceQuestions from '../views/quizzes/CreateExamPage/ReplaceQuestions.vue';
+import SectionEditor from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/SectionEditor.vue';
+import ResourceSelection from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/index.vue';
+import ReplaceQuestions from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/ReplaceQuestions.vue';
 import ExamsRootPage from '../views/quizzes/ExamsRootPage';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
-import SectionOrder from '../views/quizzes/CreateExamPage/SectionOrder';
+import SectionOrder from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/SectionOrder.vue';
+import SectionSidePanel from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/index.vue';
+import QuizResourceSelection from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/_index.vue';
 import LearnerQuizPage from '../views/common/reports/LearnerQuizPage.vue';
 import QuizPreviewPage from '../views/quizzes/reports/QuizPreviewPage.vue';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
@@ -52,32 +54,66 @@ export default [
     },
     children: [
       {
-        name: PageNames.QUIZ_SECTION_EDITOR,
-        path: 'edit',
-        component: SectionEditor,
+        name: PageNames.QUIZ_SECTION_SIDE_PANEL,
+        path: 'details',
+        component: SectionSidePanel,
+        children: [
+          {
+            name: PageNames.QUIZ_SECTION_EDITOR,
+            path: 'edit',
+            component: SectionEditor,
+          },
+          {
+            name: PageNames.QUIZ_REPLACE_QUESTIONS,
+            path: 'replace-questions',
+            component: ReplaceQuestions,
+          },
+          {
+            name: PageNames.QUIZ_SECTION_ORDER,
+            path: 'section-order',
+            component: SectionOrder,
+          },
+          {
+            name: PageNames.QUIZ_SELECT_RESOURCES,
+            path: 'select-resources/:topic_id?',
+            component: ResourceSelection,
+          },
+          {
+            name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
+            path: 'select-quiz/:topic_id?',
+            component: ResourceSelection,
+            props: {
+              selectPracticeQuiz: true,
+            },
+          },
+        ],
       },
       {
-        name: PageNames.QUIZ_REPLACE_QUESTIONS,
-        path: 'replace-questions',
-        component: ReplaceQuestions,
-      },
-      {
-        name: PageNames.QUIZ_SELECT_RESOURCES,
-        path: 'select-resources/:topic_id?',
-        component: ResourceSelection,
-      },
-      {
-        name: PageNames.QUIZ_SECTION_ORDER,
-        path: 'section-order',
-        component: SectionOrder,
-      },
-      {
-        name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
-        path: 'select-quiz/:topic_id?',
-        component: ResourceSelection,
-        props: {
-          selectPracticeQuiz: true,
-        },
+        name: PageNames.QUIZ_SELECT_RESOURCES_OLD,
+        path: 'select-resources/',
+        component: QuizResourceSelection,
+        children: [
+          // {
+          //   name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          //   path: 'index',
+          //   component: SelectionIndex,
+          // },
+          // {
+          //   name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          //   path: 'bookmarks',
+          //   component: SelectFromBookmarks,
+          // },
+          // {
+          //   name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          //   path: 'channels',
+          //   component: SelectFromChannels,
+          // },
+          // {
+          //   name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+          //   path: 'preview-resources',
+          //   component: ManageSelectedResources,
+          // },
+        ],
       },
     ],
   },

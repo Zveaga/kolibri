@@ -157,9 +157,9 @@
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import { coachStrings } from '../../common/commonCoachStrings';
-  import { PageNames } from '../../../constants/index';
+  import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
+  import { coachStrings } from '../../../../common/commonCoachStrings';
+  import { PageNames } from '../../../../../constants/index';
 
   export default {
     name: 'ReplaceQuestions',

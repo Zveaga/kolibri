@@ -135,9 +135,9 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { PageNames } from '../../../constants/index';
-  import { coachStrings } from '../../common/commonCoachStrings.js';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation.js';
+  import { PageNames } from '../../../../../constants/index';
+  import { coachStrings } from '../../../../common/commonCoachStrings.js';
+  import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
 
   export default {
     name: 'SectionEditor',
