@@ -31,7 +31,11 @@
       </div>
     </div>
     <div class="test">
-      <KBreadcrumbs :items="breadcrumbs" />
+      <ResourceSelectionBreadcrumbs
+        :ancestors="ancestors"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
     </div>
     <div class="title-class">
       <h5>
@@ -102,6 +106,7 @@
   import ContentArea from '../../../../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
   import commonCoach from '../../../../../../common';
   import { PageNames } from '../../../../../../../constants/index';
+  import ResourceSelectionBreadcrumbs from '../../../../../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'PreviewContent',
@@ -109,6 +114,7 @@
       ContentArea,
       SlotTruncator,
       LearningActivityIcon,
+      ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -150,13 +156,10 @@
       };
     },
     computed: {
-      breadcrumbs() {
-        return [
-          ...this.ancestors.map(a => ({
-            text: a.title,
-            link: this.topicsLink(a.id),
-          })),
-        ];
+      channelsLink() {
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+        };
       },
       isExercise() {
         return this.content.kind === ContentNodeKinds.EXERCISE;
@@ -184,14 +187,16 @@
     },
     methods: {
       topicsLink(topicId) {
-        return this.topicListingLink({ ...this.$route.params, topicId });
-      },
-      topicListingLink({ topicId }) {
-        return this.$router.getRoute(
-          PageNames.LESSON_RESOURCE_SELECTION,
-          { topicId },
-          this.$route.query,
-        );
+        const { params, query } = this.$route;
+
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          params: params,
+          query: {
+            ...query,
+            topicId,
+          },
+        };
       },
       questionLabel(questionIndex) {
         if (!this.isExercise) {
