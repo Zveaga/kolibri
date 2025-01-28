@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KCircularLoader v-if="loading" />
+    <KCircularLoader v-if="loading && !contentNode" />
     <PreviewContent
       v-else
       :currentContentNode="contentNode"

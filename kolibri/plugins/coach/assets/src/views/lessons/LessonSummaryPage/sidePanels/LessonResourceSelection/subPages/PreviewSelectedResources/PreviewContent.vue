@@ -1,47 +1,35 @@
 <template>
 
   <div>
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 9 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-        class="channels-header"
-      >
+    <div class="channel-header">
+      <div>
         <h6>
           {{ coreString('selectFromChannels') }}
         </h6>
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <template>
-          <div class="add-remove-button-style">
-            <template v-if="isSelected">
-              <KIcon icon="onDevice" />
-              {{ addedIndicator$() }}
-            </template>
+      </div>
 
-            <KButton
-              v-if="isSelected"
-              :text="coreString('removeAction')"
-              :primary="true"
-              :disabled="disableSelectButton"
-              @click="removeResource"
-            />
-            <KButton
-              v-else
-              :text="addText$()"
-              :primary="false"
-              :disabled="disableSelectButton"
-              @click="addResource"
-            />
-          </div>
+      <div>
+        <template v-if="isSelected">
+          <KIcon icon="onDevice" />
+          {{ addedIndicator$() }}
         </template>
-      </KGridItem>
-    </KGrid>
+
+        <KButton
+          v-if="isSelected"
+          :text="coreString('removeAction')"
+          :primary="true"
+          :disabled="disableSelectButton"
+          @click="removeResource"
+        />
+        <KButton
+          v-else
+          :text="addText$()"
+          :primary="false"
+          :disabled="disableSelectButton"
+          @click="addResource"
+        />
+      </div>
+    </div>
     <div class="test">
       <KBreadcrumbs :items="breadcrumbs" />
     </div>
@@ -238,12 +226,6 @@
 
 <style lang="scss" scoped>
 
-  .add-remove-button-style {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 24px;
-  }
-
   .license-detail-style {
     margin: 30px 0 32px;
   }
@@ -254,7 +236,7 @@
     max-height: 500px;
   }
 
-  .channels-header {
+  .channel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
