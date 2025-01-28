@@ -18,13 +18,12 @@
 
 <script>
 
-  import { getCurrentInstance } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFetchContentNode from '../../../../../../composables/useFetchContentNode';
-  import useResourceSelection from '../../../../../../composables/useResourceSelection';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
-  import { PageNames } from '../../../../../../constants/index';
-  import PreviewContent from '../../PreviewContent';
+  import useFetchContentNode from '../../../../../../../composables/useFetchContentNode';
+  import useResourceSelection from '../../../../../../../composables/useResourceSelection';
+  import { coachStrings } from '../../../../../../common/commonCoachStrings';
+  import { PageNames } from '../../../../../../../constants/index';
+  import PreviewContent from './PreviewContent';
 
   export default {
     name: 'PreviewSelectedResources',
@@ -36,12 +35,9 @@
       const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
       const { selectedResources, selectResources, deselectResources } = useResourceSelection();
       const { manageLessonResourcesTitle$ } = coachStrings;
-      const instance = getCurrentInstance();
 
       props.setTitle(manageLessonResourcesTitle$());
-      props.setGoBack(() => {
-        return instance.proxy.$router.go(-1);
-      });
+      props.setGoBack(null);
 
       return {
         contentNode,

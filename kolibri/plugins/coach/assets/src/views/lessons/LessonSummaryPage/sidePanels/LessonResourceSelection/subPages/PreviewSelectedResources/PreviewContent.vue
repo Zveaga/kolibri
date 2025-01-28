@@ -111,9 +111,9 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
-  import ContentArea from '../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
-  import commonCoach from '../../../common';
-  import { PageNames } from '../../../../constants/index';
+  import ContentArea from '../../../../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
+  import commonCoach from '../../../../../../common';
+  import { PageNames } from '../../../../../../../constants/index';
 
   export default {
     name: 'PreviewContent',
@@ -241,6 +241,7 @@
   .add-remove-button-style {
     display: flex;
     justify-content: flex-end;
+    margin-top: 24px;
   }
 
   .license-detail-style {
@@ -257,7 +258,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
   }
 
   .title-class {

@@ -154,12 +154,10 @@
         }
         return {
           name: PageNames.LESSON_PREVIEW_RESOURCE,
-          params: {
-            ...params,
-          },
+          params: params,
           query: {
-            contentId: content.id,
             ...query,
+            contentId: content.id,
           },
         };
       },
