@@ -4,6 +4,7 @@ Feature: Lessons
   Background:
     Given I am signed in as a coach
       And I am at *Coach > Lessons*
+      And there is at least one imported channel
       And there are lessons with resources assigned to the class
       And there are learners who have started, completed or need help with resources
 
@@ -13,6 +14,63 @@ Feature: Lessons
     	And I see the *New lesson* button
     	And I see the class name, the total size of lessons visible to learners, filters by status and recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
     	And I see a table with all of the lessons with the following columns: *Title*, *Progress*, *Size*, *Recipients*, *Visible to learners*
+
+  Scenario: Coach can create a new lesson for the entire class
+    When I click *New lesson* button
+    Then I see the *Create new lesson* modal
+    When I fill in the title of the lesson
+      And I fill in the description # optional
+      And I set the *Recipients* # optional, skip for this case
+      And I click the *Save changes* button
+    Then the modal closes
+    	And I see the *Lesson created* snackbar message
+      And I see the lesson details page
+
+  Scenario: Coach can edit the title and description of an existing lesson
+    When I click the *...* button
+      And I select the *Edit details* option
+    Then I see the *Edit lesson details* page
+    When I change the title and description of the lesson
+      And I click the *Save changes* button
+    Then I see the lesson details page again
+    	And I see a *Changes saved* snackbar notification
+      And I see that the title of the lesson is changed
+    When I click on the title of the lesson
+    Then I see the lesson details page
+    	And I can see that the description of the lesson is also changed
+
+  Scenario: Cannot change the title of an existing lesson if it is already used
+    Given I am at the *Edit lesson details* page
+      When I try to rename the channel by entering an existing lesson title
+      Then I see the following validation message: *A lesson with this name already exists*
+        And I cannot save until I choose another title
+
+  Scenario: Coach can assign existing lesson to different recipients
+    Given I am at the lesson details page
+    When I click the *...* button
+    	And I select the *Edit details* option
+    Then I see the *Edit lesson details* modal
+    When I change the *Recipients* by selecting *Individual learners* or one of the available groups
+      And I click the *Save changes* button
+    Then the modal closes
+    	And I see the *Lesson created* snackbar message
+      And I see the lesson details page
+      And the *Recipients* field reflects the changes I've made
+
+  Scenario: Coach can add lesson resources
+    Given I am at the lesson details page
+    When I click the *Manage resources* button
+    Then I can see the *Manage lesson resources* side panel
+		When I click on a channel card
+		Then I see all of the available channel folders
+		When I click on a folder with resources
+		Then I can see the list with available resources
+		When I select one or several resources
+		Then I see the *N resouce(s)selected (N MB)* link to the left of the *Save & Finish* button
+		When I click the *Save & Finish* button
+		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
+			And I see a *N resource(s) added* snackbar message
+			And I can see that the selected resources are added to the list with lesson resources
 
   Scenario: Review lesson details
     When I click on the title of a lesson
@@ -27,36 +85,39 @@ Feature: Lessons
     	And I see the following columns: *Name*, *Progress*, *Groups
     	And I see the progress made by each learner
 
-  Scenario: Review the resource progress report
-  	Given I am at the lesson details page for a lesson
-    When I click on a resource
-    Then I see the resource progress report
-    	And I see the title of the resource, class to which the resource is assigned, progress made, and average time spent
-    	And I see a *View by groups* checkbox
-    	And I see the learners table with *Name*, *Progress*, *Time spent*, *Groups* and *Last activity* columns
-      And in the *Progress* column I see the summary icons and labels (Completed, Started, Not started, and Need help)
-      And in the top right I see the *View learner devices* link, *Print report* icon, *Export as CSV* icon and a *Preview* button
+  Scenario: Coach turns on/off the lesson *Visible for learners* status
+    When I click the *Visible for learners* switch for a lesson
+    Then I see the switch slide in the ON position (blue)
+      And I see the *Lesson is visible to learners* snackbar notification
+    When as a learner I reload the class page
+    Then I see the lesson
+    When as a coach I turn off the *Visible for learners* switch for the same lesson
+    Then I see the *Lesson is not visible to learners* snackbar notification
+    When as a learner I reload the class page
+    Then I no longer see the lesson #repeat the same scenario while at the lesson details page
 
-  Scenario: Learner needs help with a resource
-    When a learner has given 2 wrong answers in an exercise
-    Then their *Progress* column states *Needs help*
+  Scenario: Coach turns on/off the lesson *Visible for learners* status - Learn-only devices
+    Given there are learners using Learn-only devices in this class
+    When I click the *Visible for learners* switch for a lesson
+    Then I see the switch slide in the ON position (blue)
+      And I see a modal open that says *Make lesson visible* and displays the total size in bytes for the current lesson
+    When I click *Continue*
+    Then I see the *Lesson is visible to learners* snackbar notification
+    When I reload the browser as a learner #after the device has synced with the server
+    Then I see the lesson
+    When as a coach I turn off the *Visible for learners* switch for the same lesson
+    Then I see the *Lesson is not visible to learners* snackbar notification
+    When as a learner I reload the class page #after the device has synced with the server
+    Then I no longer see the lesson #repeat the same scenario while at the lesson details page
 
-  Scenario: View the resource report page by groups
-    Given I am at viewing the resource progress report page
-		When I click the *View by groups* checkbox
-		Then I see separate tables for each available group
-
-  Scenario: View resource preview
-  	Given I am at viewing the resource progress report page
-    When I click *Preview* button
-    Then I can see the resource preview
-    When I click the back arrow button
-    Then I am back at the resource progress report page
-
-  Scenario: Review learners progress from the *Learners* subtab
-    Given that I am in the *Learners* tab of a lesson
-    When I click on the name of a learner
-    Then I see the name of the learner
-    	And I see a table with *Title*, *Progress* and *Time spent* columns
-    	And I see the lesson resources and the progress made by the learner
-    	And in the top right I see the *Print report* and *Export as CSV* icons
+  Scenario: Coach can delete a lesson
+    When I click the title of a lesson
+    Then I am at the lesson's details page
+     When I click the *...* button
+      And I select *Delete*
+    Then I see the *Delete lesson* modal
+    When I click the *Delete* button
+    Then the modal closes
+    	And I am back at *Coach - '<class>' > Lessons* page
+      And the snackbar notification appears
+      And I no longer see the lesson in the *Lessons* table
