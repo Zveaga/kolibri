@@ -38,7 +38,7 @@ import useFetch from './useFetch';
  *
  * @returns {UseResourceSelectionResponse}
  */
-export default function useResourceSelection() {
+export default function useResourceSelection({ bookmarks, channels, topicTree } = {}) {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   const topicId = computed(() => route.value.query.topicId);
@@ -47,10 +47,21 @@ export default function useResourceSelection() {
   const selectedResources = ref([]);
   const topic = ref(null);
 
+  const fetchBookmarks = async params => {
+    const response = await ContentNodeResource.fetchBookmarks(params);
+    if (bookmarks?.annotator) {
+      const annotatedResults = await bookmarks.annotator(response.results);
+      return {
+        ...response,
+        results: annotatedResults,
+      };
+    }
+    return response;
+  };
   const bookmarksFetch = useFetch({
     fetchMethod: () =>
-      ContentNodeResource.fetchBookmarks({
-        params: { limit: 25, available: true },
+      fetchBookmarks({
+        params: { limit: 25, available: true, ...bookmarks?.filters },
       }),
     fetchMoreMethod: more =>
       ContentNodeResource.fetchBookmarks({
@@ -58,22 +69,40 @@ export default function useResourceSelection() {
       }),
   });
 
+  const fetchChannels = async () => {
+    const result = await ChannelResource.fetchCollection({
+      getParams: {
+        available: true,
+        ...channels?.filters,
+      },
+    });
+    if (channels?.annotator) {
+      return channels.annotator(result);
+    }
+    return result;
+  };
   const channelsFetch = useFetch({
-    fetchMethod: () =>
-      ChannelResource.fetchCollection({
-        getParams: {
-          available: true,
-        },
-      }),
+    fetchMethod: fetchChannels,
   });
 
   const fetchTree = async (params = {}) => {
     topic.value = await ContentNodeResource.fetchTree(params);
+    if (topicTree?.annotator) {
+      const annotatedResults = await topicTree.annotator(topic.value.children.results);
+      return {
+        ...topic.value.children,
+        results: annotatedResults,
+      };
+    }
     return topic.value.children;
   };
 
   const treeFetch = useFetch({
-    fetchMethod: () => fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
+    fetchMethod: () =>
+      fetchTree({
+        id: topicId.value,
+        params: { include_coach_content: true, ...topicTree?.filters },
+      }),
     fetchMoreMethod: more => fetchTree(more),
   });
 
