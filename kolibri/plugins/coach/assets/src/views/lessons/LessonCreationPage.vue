@@ -51,7 +51,7 @@
       const { getFacilities, facilities } = useFacilities();
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
       const getFacilitiesPromise =
-        this.isSuperuser && facilities.length === 0
+        this.isSuperuser && facilities.value.length === 0
           ? getFacilities().catch(() => {})
           : Promise.resolve();
 

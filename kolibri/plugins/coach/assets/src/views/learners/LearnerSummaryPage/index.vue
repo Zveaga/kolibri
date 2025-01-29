@@ -35,7 +35,7 @@
                   <td>
                     <KRouterLink
                       :to="
-                        classRoute(PageNames.LEARNER_LESSON_REPORT, {
+                        classRoute('ReportsLearnerReportLessonPage', {
                           lessonId: tableRow.id,
                         })
                       "
