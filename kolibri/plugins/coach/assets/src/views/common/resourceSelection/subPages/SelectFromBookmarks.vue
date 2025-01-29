@@ -6,6 +6,7 @@
       :contentList="contentList"
       :hasMore="hasMore"
       :disabled="disabled"
+      :channelsLink="channelsLink"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
@@ -23,11 +24,12 @@
 
   import { getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { PageNames } from '../../../../../../constants';
+  import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
+  import { PageNames } from '../../../../constants';
+  import { SelectionTarget } from '../contants';
 
   /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
    */
 
   export default {
@@ -40,15 +42,27 @@
       const instance = getCurrentInstance();
 
       props.setTitle(selectFromBookmarks$());
-      props.setGoBack(() => {
+
+      const redirectBack = () => {
         instance.proxy.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          name:
+            props.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
-      });
+      };
+      props.setGoBack(redirectBack);
+
+      const channelsLink = {
+        name:
+          props.target === SelectionTarget.LESSON
+            ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+            : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+      };
 
       const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
-
       return {
+        channelsLink,
         contentList: data,
         hasMore,
         fetchMore,
@@ -89,6 +103,14 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
       },
     },
   };

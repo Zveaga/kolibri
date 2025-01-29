@@ -36,7 +36,7 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { PageNames, ViewMoreButtonStates } from '../../../constants';
+  import { ViewMoreButtonStates } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -90,17 +90,17 @@
         required: false,
         default: null,
       },
+      channelsLink: {
+        type: Object,
+        required: false,
+        default: null,
+      },
       disabled: {
         type: Boolean,
         default: false,
       },
     },
     computed: {
-      channelsLink() {
-        return {
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-        };
-      },
       selectAllIndeterminate() {
         return (
           !this.selectAllChecked &&

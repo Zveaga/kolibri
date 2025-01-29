@@ -34,16 +34,15 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
+import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
 import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
-import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectionIndex.vue';
-import SelectFromBookmarks from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromBookmarks.vue';
-import SelectFromChannels from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromChannels.vue';
+import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
+import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromChannels.vue';
 import ManageSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedResources.vue';
-
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {

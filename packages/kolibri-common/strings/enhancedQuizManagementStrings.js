@@ -205,6 +205,20 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   saveAndClose: {
     message: 'Save and close',
   },
+  questionsSettingsLabel: {
+    message: "Questions settings for '{ sectionTitle }'",
+    context:
+      'A title label for the section of the page that contains settings for questions selection',
+  },
+  maxNumberOfQuestionsInfo: {
+    message:
+      'You can add up to { count, number } { count, plural, one { question } other { questions }}  to this section',
+    context: 'A message that informs the user about the maximum number of questions they can add',
+  },
+  chooseQuestionsManuallyLabel: {
+    message: 'Choose questions manually',
+    context: 'A label for a checkbox that allows the user to manually select questions',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;

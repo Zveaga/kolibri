@@ -69,11 +69,13 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import { PageNames } from '../../../../../../constants';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { PageNames } from '../../../../constants';
+  import { coachStrings } from '../../commonCoachStrings';
+  import { SelectionTarget } from '../contants';
 
   /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
    */
 
   export default {
@@ -96,9 +98,15 @@
         searchLabel$,
       } = coreStrings;
 
+      const { selectResourcesDescription$ } = enhancedQuizManagementStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
 
-      props.setTitle(manageLessonResourcesTitle$());
+      const title =
+        props.target === SelectionTarget.LESSON
+          ? manageLessonResourcesTitle$()
+          : selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+
+      props.setTitle(title);
       props.setGoBack(null);
 
       return {
@@ -137,18 +145,46 @@
         type: Object,
         required: true,
       },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      /**
+       * The title of the section (valid just for quizzes).
+       * @type {string}
+       */
+      sectionTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       selectFromBookmarksLink() {
+        if (this.target === SelectionTarget.LESSON) {
+          return {
+            name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          };
+        }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          name: PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
         };
       },
     },
     methods: {
       selectFromChannelsLink(channel) {
+        if (this.target === SelectionTarget.LESSON) {
+          return {
+            name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+            query: { topicId: channel.id },
+          };
+        }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: channel.id },
         };
       },

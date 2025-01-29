@@ -30,6 +30,7 @@
       canSelectAll
       :topic="topic"
       :disabled="disabled"
+      :channelsLink="channelsLink"
       :contentList="contentList"
       :hasMore="hasMore"
       :fetchMore="fetchMore"
@@ -49,12 +50,14 @@
 
   import { getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
-  import { PageNames } from '../../../../../../constants';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { coachStrings } from '../../commonCoachStrings';
+  import { PageNames } from '../../../../constants';
+  import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
+  import { SelectionTarget } from '../contants';
 
   /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
    */
 
   export default {
@@ -67,15 +70,38 @@
       const { manageLessonResourcesTitle$ } = coachStrings;
       const instance = getCurrentInstance();
 
-      props.setTitle(manageLessonResourcesTitle$());
-      props.setGoBack(() => {
+      const { selectResourcesDescription$ } = enhancedQuizManagementStrings;
+      const title =
+        props.target === SelectionTarget.LESSON
+          ? manageLessonResourcesTitle$()
+          : selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+
+      props.setTitle(title);
+
+      const redirectBack = () => {
         instance.proxy.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          name:
+            props.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
-      });
+      };
+      const { topicId } = instance.proxy.$route.query;
+      if (!topicId) {
+        redirectBack();
+      }
+      props.setGoBack(redirectBack);
+
+      const channelsLink = {
+        name:
+          props.target === SelectionTarget.LESSON
+            ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+            : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+      };
 
       const { data, hasMore, fetchMore, loadingMore } = props.treeFetch;
       return {
+        channelsLink,
         contentList: data,
         hasMore,
         fetchMore,
@@ -123,18 +149,23 @@
         type: Boolean,
         default: false,
       },
-    },
-    beforeRouteEnter(to, _, next) {
-      const { topicId } = to.query;
-      if (!topicId) {
-        return next({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          params: {
-            ...to.params,
-          },
-        });
-      }
-      return next();
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      /**
+       * The title of the section (valid just for quizzes).
+       * @type {string}
+       */
+      sectionTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
   };
 

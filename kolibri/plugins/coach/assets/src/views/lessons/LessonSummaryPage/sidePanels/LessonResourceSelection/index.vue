@@ -34,6 +34,7 @@
       :selectedResources="selectedResources"
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
+      :target="SelectionTarget.LESSON"
       @selectResources="selectResources"
       @deselectResources="deselectResources"
       @setSelectedResources="setSelectedResources"
@@ -89,6 +90,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
+  import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
 
   export default {
@@ -131,6 +133,7 @@
         bookmarksFetch,
         treeFetch,
         selectionRules,
+        SelectionTarget,
         selectResources,
         deselectResources,
         setSelectedResources,
