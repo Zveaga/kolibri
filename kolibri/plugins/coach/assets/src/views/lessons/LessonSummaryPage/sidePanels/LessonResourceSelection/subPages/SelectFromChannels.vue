@@ -29,12 +29,14 @@
     <UpdatedResourceSelection
       canSelectAll
       :topic="topic"
+      :disabled="disabled"
       :contentList="contentList"
       :hasMore="hasMore"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -111,6 +113,15 @@
       selectedResources: {
         type: Array,
         required: true,
+      },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     beforeRouteEnter(to, _, next) {

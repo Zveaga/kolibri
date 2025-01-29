@@ -383,6 +383,16 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Deleted',
     context: 'Generic notification.',
   },
+  closeConfirmationTitle: {
+    message: 'Are you sure you want to leave this page?',
+    context:
+      'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
+  },
+  closeConfirmationMessage: {
+    message: 'You will lose any unsaved edits to your work',
+    context:
+      'Warning message for the user that they will lose their work if they leave the page without saving.',
+  },
 
   // errors
   saveLessonError: {

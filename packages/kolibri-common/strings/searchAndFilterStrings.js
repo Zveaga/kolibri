@@ -39,9 +39,21 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'save & finish',
     context: 'Button to save resources in a lesson',
   },
-  numberOfSelectedResource: {
+  numberOfSelectedResources: {
     message:
       '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
     context: 'Indicates the number of resources selected',
+  },
+  openParentFolderLabel: {
+    message: 'Open parent folder',
+    context: 'Button label to open the parent folder of a resource',
+  },
+  removeResourceLabel: {
+    message: 'Remove resource',
+    context: 'Button label to remove a resource from the selected resources',
+  },
+  emptyResourceList: {
+    message: 'No resources selected',
+    context: 'Message displayed when no resources are selected',
   },
 });
