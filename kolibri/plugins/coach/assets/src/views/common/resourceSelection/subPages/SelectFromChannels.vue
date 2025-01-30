@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <div class="channels-header">
+    <div
+      v-if="target === SelectionTarget.LESSON"
+      class="subheader"
+    >
       <span class="side-panel-subtitle">
         {{ selectFromChannels$() }}
       </span>
@@ -10,6 +13,12 @@
         :text="searchLabel$()"
       />
     </div>
+
+    <QuizResourceSelectionHeader
+      v-if="target === SelectionTarget.QUIZ"
+      class="mb-16"
+      :settings="settings"
+    />
 
     <div class="topic-info">
       <h2>
@@ -54,6 +63,7 @@
   import { coachStrings } from '../../commonCoachStrings';
   import { PageNames } from '../../../../constants';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
+  import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
   import { SelectionTarget } from '../contants';
 
   /**
@@ -64,6 +74,7 @@
     name: 'SelectFromChannels',
     components: {
       UpdatedResourceSelection,
+      QuizResourceSelectionHeader,
     },
     setup(props) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
@@ -106,6 +117,7 @@
         hasMore,
         fetchMore,
         loadingMore,
+        SelectionTarget,
         searchLabel$,
         selectFromChannels$,
       };
@@ -166,6 +178,14 @@
         required: false,
         default: null,
       },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
   };
 
@@ -179,7 +199,7 @@
     font-weight: 600;
   }
 
-  .channels-header {
+  .subheader {
     display: flex;
     align-items: center;
     justify-content: space-between;

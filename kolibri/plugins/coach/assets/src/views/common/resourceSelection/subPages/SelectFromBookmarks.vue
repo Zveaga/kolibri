@@ -1,6 +1,12 @@
 <template>
 
   <div>
+    <QuizResourceSelectionHeader
+      v-if="target === SelectionTarget.QUIZ"
+      class="mb-16"
+      hideSearch
+      :settings="settings"
+    />
     <UpdatedResourceSelection
       canSelectAll
       :contentList="contentList"
@@ -27,6 +33,7 @@
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
+  import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
    * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
@@ -36,6 +43,7 @@
     name: 'SelectFromBookmarks',
     components: {
       UpdatedResourceSelection,
+      QuizResourceSelectionHeader,
     },
     setup(props) {
       const { selectFromBookmarks$ } = coreStrings;
@@ -67,6 +75,7 @@
         hasMore,
         fetchMore,
         loadingMore,
+        SelectionTarget,
       };
     },
     props: {
@@ -112,7 +121,24 @@
         type: String,
         required: true,
       },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .mb-16 {
+    margin-bottom: 16px;
+  }
+
+</style>

@@ -1,10 +1,29 @@
 <template>
 
   <div>
-    <div v-if="bookmarksCount > 0">
-      <div class="mb-16 side-panel-subtitle">
-        {{ selectFromBookmarks$() }}
+    <div
+      v-if="bookmarksCount > 0"
+      class="mb-24"
+    >
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="subheader"
+      >
+        <div class="side-panel-subtitle">
+          {{ selectFromBookmarks$() }}
+        </div>
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+        />
       </div>
+
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ"
+        class="mb-24"
+        :settings="settings"
+      />
+
       <KCardGrid layout="1-1-1">
         <KCard
           :title="bookmarksLabel$()"
@@ -35,14 +54,10 @@
       </KCardGrid>
     </div>
     <div>
-      <div class="channels-header">
+      <div class="subheader">
         <div class="side-panel-subtitle">
           {{ selectFromChannels$() }}
         </div>
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-        />
       </div>
       <p
         v-if="channels.length === 0"
@@ -73,6 +88,7 @@
   import { PageNames } from '../../../../constants';
   import { coachStrings } from '../../commonCoachStrings';
   import { SelectionTarget } from '../contants';
+  import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
    * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
@@ -82,6 +98,7 @@
     name: 'SelectionIndex',
     components: {
       AccessibleChannelCard,
+      QuizResourceSelectionHeader,
     },
     setup(props) {
       const { bookmarksFetch, channelsFetch } = props;
@@ -112,6 +129,7 @@
       return {
         bookmarksCount,
         channels,
+        SelectionTarget,
         selectFromChannels$,
         noAvailableResources$,
         numberOfBookmarks$,
@@ -162,6 +180,14 @@
         required: false,
         default: null,
       },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       selectFromBookmarksLink() {
@@ -209,12 +235,15 @@
     font-weight: 600;
   }
 
-  .channels-header {
+  .subheader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 24px;
     margin-bottom: 16px;
+  }
+
+  .mb-24 {
+    margin-bottom: 24px;
   }
 
 </style>

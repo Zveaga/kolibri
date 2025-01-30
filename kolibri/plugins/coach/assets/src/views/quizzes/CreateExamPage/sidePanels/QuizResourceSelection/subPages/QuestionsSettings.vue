@@ -53,7 +53,7 @@
 
 <script>
 
-  import { computed, getCurrentInstance, onUnmounted } from 'vue';
+  import { ref, computed, getCurrentInstance, onMounted, onUnmounted } from 'vue';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -69,6 +69,7 @@
     name: 'SelectFromBookmarks',
     components: {},
     setup(props) {
+      const prevRoute = ref(null);
       const instance = getCurrentInstance();
 
       const {
@@ -96,9 +97,15 @@
         }),
       );
       props.setGoBack(null);
-      props.setContinueAction(() => {
-        instance.proxy.$router.push({
-          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+      onMounted(() => {
+        props.setContinueAction(() => {
+          if (!props.isLanding && prevRoute.value) {
+            instance.proxy.$router.push(prevRoute.value);
+            return;
+          }
+          instance.proxy.$router.push({
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          });
         });
       });
       onUnmounted(() => {
@@ -106,6 +113,8 @@
       });
 
       return {
+        // eslint-disable-next-line vue/no-unused-properties
+        prevRoute,
         questionCount,
         maxQuestions: computed(() => props.settings.maxQuestions),
         maxNumberOfQuestions$,
@@ -131,6 +140,15 @@
         type: Object,
         required: true,
       },
+      isLanding: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
     },
   };
 

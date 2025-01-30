@@ -219,6 +219,18 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Choose questions manually',
     context: 'A label for a checkbox that allows the user to manually select questions',
   },
+  selectUpToNResources: {
+    message:
+      'Select up to { count, number } { count, plural, one { resource } other { resources }}',
+    context:
+      'A message that informs the user about the maximum number of resources they can select',
+  },
+  selectUpToNQuestions: {
+    message:
+      'Select up to { count, number } { count, plural, one { question } other { questions }}',
+    context:
+      'A message that informs the user about the maximum number of questions they can select',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;
