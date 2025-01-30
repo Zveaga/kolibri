@@ -17,28 +17,56 @@
         <h1 class="side-panel-title">{{ title }}</h1>
       </div>
     </template>
-    <div v-if="loading">
-      <KCircularLoader />
-    </div>
+    <template #default="{ isScrolled }">
+      <div v-if="loading">
+        <KCircularLoader />
+      </div>
 
-    <router-view
-      v-else
-      :setTitle="value => (title = value)"
-      :setGoBack="value => (goBack = value)"
-      :setContinueAction="value => (continueAction = value)"
-      :sectionTitle="sectionTitle"
-      :selectedResources="workingResourcePool"
-      :topic="topic"
-      :treeFetch="treeFetch"
-      :channelsFetch="channelsFetch"
-      :bookmarksFetch="bookmarksFetch"
-      :settings.sync="settings"
-      :target="SelectionTarget.QUIZ"
-      :getUnusedQuestionsMessage="getUnusedQuestionsMessage"
-      @selectResources="addToWorkingResourcePool"
-      @deselectResources="removeFromWorkingResourcePool"
-      @setSelectedResources="setWorkingResourcePool"
-    />
+      <div
+        v-if="maximumContentSelectedWarning"
+        class="alert-warning"
+        :class="{
+          shadow: isScrolled,
+        }"
+        :style="{
+          background: $themePalette.lightblue.v_100,
+        }"
+      >
+        <span>
+          {{ maximumContentSelectedWarning }}
+        </span>
+      </div>
+      <router-view
+        v-if="!loading"
+        :setTitle="value => (title = value)"
+        :setGoBack="value => (goBack = value)"
+        :setContinueAction="value => (continueAction = value)"
+        :sectionTitle="sectionTitle"
+        :selectedResources="workingResourcePool"
+        :topic="topic"
+        :treeFetch="treeFetch"
+        :channelsFetch="channelsFetch"
+        :bookmarksFetch="bookmarksFetch"
+        :selectAllRules="selectAllRules"
+        :selectionRules="selectionRules"
+        :settings.sync="settings"
+        :target="SelectionTarget.QUIZ"
+        :getUnusedQuestionsMessage="getUnusedQuestionsMessage"
+        @selectResources="addToWorkingResourcePool"
+        @deselectResources="removeFromWorkingResourcePool"
+        @setSelectedResources="setWorkingResourcePool"
+      />
+      <KModal
+        v-if="showCloseConfirmation"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        :title="closeConfirmationTitle$()"
+        @cancel="handleCancelClose"
+        @submit="handleClosePanel"
+      >
+        {{ closeConfirmationMessage$() }}
+      </KModal>
+    </template>
 
     <template #bottomNavigation>
       <div class="bottom-nav-container">
@@ -85,17 +113,6 @@
         </template>
       </div>
     </template>
-
-    <KModal
-      v-if="showCloseConfirmation"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
-      :title="closeConfirmationTitle$()"
-      @cancel="handleCancelClose"
-      @submit="handleClosePanel"
-    >
-      {{ closeConfirmationMessage$() }}
-    </KModal>
   </SidePanelModal>
 
 </template>
@@ -165,8 +182,14 @@
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
-      const { questionsUnusedInSection$, tooManyQuestions$, selectQuiz$, addNumberOfQuestions$ } =
-        enhancedQuizManagementStrings;
+      const {
+        questionsUnusedInSection$,
+        tooManyQuestions$,
+        selectQuiz$,
+        addNumberOfQuestions$,
+        maximumResourcesSelectedWarning$,
+        maximumQuestionsSelectedWarning$,
+      } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
@@ -305,6 +328,26 @@
         displaySectionTitle(activeSection.value, activeSectionIndex.value),
       );
 
+      const remainingSelectableContent = computed(
+        () => settings.value.questionCount - workingResourcePool.value.length,
+      );
+
+      const selectAllRules = computed(() => [
+        contentList => contentList.length <= remainingSelectableContent.value,
+      ]);
+
+      const selectionRules = computed(() => [() => remainingSelectableContent.value > 0]);
+
+      const maximumContentSelectedWarning = computed(() => {
+        if (remainingSelectableContent.value > 0) {
+          return null;
+        }
+        if (settings.value.isChoosingManually) {
+          return maximumQuestionsSelectedWarning$();
+        }
+        return maximumResourcesSelectedWarning$();
+      });
+
       const { numberOfSelectedResources$ } = searchAndFilterStrings;
 
       return {
@@ -327,6 +370,9 @@
         channelsFetch,
         bookmarksFetch,
         loading,
+        selectionRules,
+        selectAllRules,
+        maximumContentSelectedWarning,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         setWorkingResourcePool,
@@ -438,6 +484,21 @@
       display: flex;
       align-items: center;
       min-height: 40px;
+    }
+  }
+
+  .alert-warning {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    transition: $core-time ease;
+
+    &.shadow {
+      @extend %dropshadow-2dp;
     }
   }
 

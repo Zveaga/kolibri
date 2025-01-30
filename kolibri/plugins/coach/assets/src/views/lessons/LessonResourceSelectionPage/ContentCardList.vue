@@ -7,6 +7,7 @@
         :label="$tr('selectAllCheckboxLabel')"
         :checked="selectAllChecked"
         :indeterminate="selectAllIndeterminate"
+        :disabled="isSelectAllDisabled"
         @change="$emit('changeselectall', $event)"
       />
       <KRadioButtonGroup>
@@ -105,6 +106,10 @@
     },
     props: {
       showSelectAll: {
+        type: Boolean,
+        default: false,
+      },
+      isSelectAllDisabled: {
         type: Boolean,
         default: false,
       },

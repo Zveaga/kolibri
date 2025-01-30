@@ -231,6 +231,16 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'A message that informs the user about the maximum number of questions they can select',
   },
+  maximumResourcesSelectedWarning: {
+    message: 'Maximum resources selected',
+    context:
+      'A warning message that appears when the user has already selected the maximum number of resources',
+  },
+  maximumQuestionsSelectedWarning: {
+    message: 'Maximum questions selected',
+    context:
+      'A warning message that appears when the user has already selected the maximum number of questions',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;

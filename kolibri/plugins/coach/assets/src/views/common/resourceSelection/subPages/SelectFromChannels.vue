@@ -45,6 +45,7 @@
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
       :selectionRules="selectionRules"
+      :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
@@ -144,6 +145,11 @@
         required: true,
       },
       selectionRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
+      selectAllRules: {
         type: Array,
         required: false,
         default: () => [],

@@ -12,6 +12,7 @@
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="showSelectAll"
+        :isSelectAllDisabled="isSelectAllDisabled"
         :viewMoreButtonState="viewMoreButtonState"
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
@@ -81,6 +82,11 @@
         required: false,
         default: () => [],
       },
+      selectAllRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
       selectedResources: {
         type: Array,
         required: true,
@@ -122,6 +128,12 @@
       showSelectAll() {
         return this.canSelectAll && this.multi && this.selectableContentList.length > 0;
       },
+      isSelectAllDisabled() {
+        if (this.disabled) {
+          return true;
+        }
+        return !this.selectAllRules.every(rule => rule(this.selectableContentList));
+      },
       viewMoreButtonState() {
         if (this.loadingMore) {
           return ViewMoreButtonStates.LOADING;
@@ -162,6 +174,9 @@
       contentCheckboxDisabled(resource) {
         if (this.disabled || this.unselectableResourceIds?.includes(resource.id)) {
           return true;
+        }
+        if (this.selectedResources.some(res => res.id === resource.id)) {
+          return false;
         }
         return !this.selectionRules.every(rule => rule(resource) === true);
       },
