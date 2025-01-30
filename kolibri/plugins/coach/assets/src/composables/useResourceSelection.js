@@ -13,6 +13,14 @@ import useFetch from './useFetch';
  * This utility handles selection rules, manages fetch states for channels, bookmarks,
  * and topic trees, and offers methods to add, remove, or override selected resources.
  *
+ * @param {Object} options
+ * @param {Object} options.bookmarks Configuration object for bookmarks fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
+ * @param {Object} options.channels Configuration object for channels fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
+ * @param {Object} options.topicTree Configuration object for topic tree fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
+ *
  * @typedef {Object} UseResourceSelectionResponse
  * @property {Object} topic Topic tree object, contains the information of the topic,
  *   its ascendants and children.

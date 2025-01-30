@@ -77,7 +77,7 @@
           @click="continueAction.handler"
         />
         <template v-else>
-          <div v-if="!selectPracticeQuiz">
+          <div v-if="!settings.selectPracticeQuiz">
             <span v-if="tooManyQuestions">
               {{
                 tooManyQuestions$({
@@ -103,7 +103,7 @@
             <KButton
               primary
               :text="
-                selectPracticeQuiz
+                settings.selectPracticeQuiz
                   ? selectQuiz$()
                   : addNumberOfQuestions$({ count: Math.max(1, settings.questionCount) })
               "
@@ -148,7 +148,7 @@
       SidePanelModal,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
+    setup() {
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
@@ -162,10 +162,13 @@
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
+      const { selectPracticeQuiz } = route.value.query;
+
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
         isChoosingManually: null,
+        selectPracticeQuiz,
       });
       watch(
         activeQuestions,
@@ -180,8 +183,6 @@
         },
         { immediate: true },
       );
-
-      const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
       const {
         questionsUnusedInSection$,
@@ -245,7 +246,7 @@
       });
 
       const isPracticeQuiz = item =>
-        !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
+        !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
 
       const { topic, loading, treeFetch, channelsFetch, bookmarksFetch } = useResourceSelection({
         bookmarks: {
@@ -255,7 +256,7 @@
         channels: {
           filters: {
             contains_exercise: true,
-            contains_quiz: selectPracticeQuiz.value ? true : null,
+            contains_quiz: selectPracticeQuiz ? true : null,
           },
           annotator: results =>
             annotateTopicsWithDescendantCounts(
@@ -273,7 +274,7 @@
         topicTree: {
           filters: {
             kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
-            contains_quiz: selectPracticeQuiz.value ? true : null,
+            contains_quiz: selectPracticeQuiz ? true : null,
           },
           annotator: annotateTopicsWithDescendantCounts,
         },
@@ -310,7 +311,7 @@
       });
 
       const disableSave = computed(() => {
-        if (selectPracticeQuiz.value) {
+        if (selectPracticeQuiz) {
           return !workingPoolHasChanged.value;
         }
         return (
@@ -391,12 +392,6 @@
         numberOfSelectedResources$,
       };
     },
-    props: {
-      selectPracticeQuiz: {
-        type: Boolean,
-        default: false,
-      },
-    },
     beforeRouteLeave(_, __, next) {
       if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
         this.showCloseConfirmation = true;
@@ -407,7 +402,7 @@
     },
     methods: {
       saveSelectedResource() {
-        if (this.selectPracticeQuiz) {
+        if (this.settings.selectPracticeQuiz) {
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
@@ -444,7 +439,7 @@
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
-        if (this.selectPracticeQuiz) {
+        if (this.settings.selectPracticeQuiz) {
           return;
         }
         if (content.kind !== ContentNodeKinds.EXERCISE) {

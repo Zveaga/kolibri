@@ -77,24 +77,11 @@ export default [
             path: 'section-order',
             component: SectionOrder,
           },
-          // {
-          //   name: PageNames.QUIZ_SELECT_RESOURCES,
-          //   path: 'select-resources/:topic_id?',
-          //   component: ResourceSelection,
-          // },
-          // {
-          //   name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
-          //   path: 'select-quiz/:topic_id?',
-          //   component: ResourceSelection,
-          //   props: {
-          //     selectPracticeQuiz: true,
-          //   },
-          // },
         ],
       },
       {
         name: PageNames.QUIZ_SELECT_RESOURCES,
-        path: 'select-resources/',
+        path: 'select-resources',
         component: QuizResourceSelection,
         redirect: 'select-resources/landing-settings',
         children: [
@@ -128,30 +115,24 @@ export default [
           },
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
-            path: 'landing-settings',
+            path: 'settings',
             component: QuestionsSettings,
           },
-          // {
-          //   name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          //   path: 'index',
-          //   component: SelectionIndex,
-          // },
-          // {
-          //   name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
-          //   path: 'bookmarks',
-          //   component: SelectFromBookmarks,
-          // },
-          // {
-          //   name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-          //   path: 'channels',
-          //   component: SelectFromChannels,
-          // },
-          // {
-          //   name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
-          //   path: 'preview-resources',
-          //   component: ManageSelectedResources,
-          // },
         ],
+      },
+      {
+        name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
+        path: 'select-quiz',
+        redirect: to => {
+          const { params } = to;
+          return {
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+            params,
+            query: {
+              selectPracticeQuiz: true,
+            },
+          };
+        },
       },
     ],
   },

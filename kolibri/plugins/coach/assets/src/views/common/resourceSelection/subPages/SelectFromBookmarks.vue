@@ -2,7 +2,7 @@
 
   <div>
     <QuizResourceSelectionHeader
-      v-if="target === SelectionTarget.QUIZ"
+      v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
       class="mb-16"
       hideSearch
       :settings="settings"
@@ -15,6 +15,7 @@
       :channelsLink="channelsLink"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
@@ -22,6 +23,7 @@
       :noSelectableResourcesIds="noSelectableResourcesIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 

@@ -19,10 +19,19 @@
       </div>
 
       <QuizResourceSelectionHeader
-        v-if="target === SelectionTarget.QUIZ"
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="mb-24"
         :settings="settings"
       />
+      <div
+        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+        class="d-flex-end mb-24"
+      >
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+        />
+      </div>
 
       <KCardGrid layout="1-1-1">
         <KCard
@@ -115,15 +124,21 @@
         searchLabel$,
       } = coreStrings;
 
-      const { selectResourcesDescription$ } = enhancedQuizManagementStrings;
+      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
+        enhancedQuizManagementStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
 
-      const title =
-        props.target === SelectionTarget.LESSON
-          ? manageLessonResourcesTitle$()
-          : selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      const getTitle = () => {
+        if (props.target === SelectionTarget.LESSON) {
+          return manageLessonResourcesTitle$();
+        }
+        if (props.settings.selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      };
 
-      props.setTitle(title);
+      props.setTitle(getTitle());
       props.setGoBack(null);
 
       return {
@@ -240,6 +255,11 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
+  }
+
+  .d-flex-end {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .mb-24 {

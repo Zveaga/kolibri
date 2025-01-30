@@ -15,10 +15,20 @@
     </div>
 
     <QuizResourceSelectionHeader
-      v-if="target === SelectionTarget.QUIZ"
+      v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
       class="mb-16"
       :settings="settings"
     />
+
+    <div
+      v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+      class="d-flex-end mb-16"
+    >
+      <KButton
+        icon="filter"
+        :text="searchLabel$()"
+      />
+    </div>
 
     <div class="topic-info">
       <h2>
@@ -44,6 +54,7 @@
       :hasMore="hasMore"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
@@ -51,6 +62,7 @@
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 
@@ -83,13 +95,19 @@
       const { manageLessonResourcesTitle$ } = coachStrings;
       const instance = getCurrentInstance();
 
-      const { selectResourcesDescription$ } = enhancedQuizManagementStrings;
-      const title =
-        props.target === SelectionTarget.LESSON
-          ? manageLessonResourcesTitle$()
-          : selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
+        enhancedQuizManagementStrings;
 
-      props.setTitle(title);
+      const getTitle = () => {
+        if (props.target === SelectionTarget.LESSON) {
+          return manageLessonResourcesTitle$();
+        }
+        if (props.settings.selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      };
+      props.setTitle(getTitle());
 
       const redirectBack = () => {
         instance.proxy.$router.push({
@@ -209,6 +227,15 @@
 
 
 <style scoped>
+
+  .d-flex-end {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .mb-16 {
+    margin-bottom: 16px;
+  }
 
   .side-panel-subtitle {
     font-size: 16px;
