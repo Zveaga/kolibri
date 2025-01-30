@@ -1,8 +1,11 @@
 <template>
 
   <div>
-    <div class="selection-metadata-info">
-      <p>{{ lessonLabel$() }}: {{ currentLesson.title }}</p>
+    <div
+      v-if="target === SelectionTarget.LESSON"
+      class="selection-metadata-info"
+    >
+      <p>{{ lessonLabel$() }}: {{ lessonTitle }}</p>
       <p>{{ sizeLabel$() }}: {{ bytesForHumans(selectedResourcesSize) }}</p>
     </div>
     <DragContainer
@@ -20,7 +23,7 @@
         >
           <div
             class="resource-row"
-            :style="lessonOrderListButtonBorder"
+            :style="rowStyles"
           >
             <div class="row-content">
               <DragHandle v-if="selectedResources.length > 1 && !disabled">
@@ -89,8 +92,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
@@ -99,8 +100,9 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { getCurrentInstance, onMounted, ref, watch } from 'vue';
-  import { coachStrings } from '../../../../../common/commonCoachStrings.js';
-  import { PageNames } from '../../../../../../constants/index.js';
+  import { coachStrings } from '../../commonCoachStrings.js';
+  import { PageNames } from '../../../../constants/index.js';
+  import { SelectionTarget } from '../contants.js';
 
   export default {
     name: 'ManageSelectedResources',
@@ -151,6 +153,7 @@
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        SelectionTarget,
         upLabel$,
         downLabel$,
         sizeLabel$,
@@ -175,17 +178,30 @@
       },
       selectedResourcesSize: {
         type: Number,
-        required: true,
+        required: false,
+        default: 0,
       },
       disabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      lessonTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
 
     computed: {
-      ...mapState('lessonSummary', ['currentLesson']),
-      lessonOrderListButtonBorder() {
+      rowStyles() {
         return {
           borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
           height: `auto`,
@@ -207,8 +223,13 @@
         this.$emit('deselectResources', [resource]);
       },
       navigateToParent(resource) {
+        const pageName =
+          this.target === SelectionTarget.LESSON
+            ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+            : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE;
+
         this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          name: pageName,
           query: { topicId: resource.parent },
         });
       },

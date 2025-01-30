@@ -42,7 +42,7 @@ import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePan
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromChannels.vue';
-import ManageSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedResources.vue';
+import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {

@@ -56,24 +56,32 @@
                 })
               }}
             </span>
-            <span v-else>
+            <KRouterLink
+              v-else-if="
+                workingResourcePool.length > 0 &&
+                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
+              "
+              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
+            >
               {{
-                questionsFromResources$({
-                  questions: workingPoolUnusedQuestions,
+                numberOfSelectedResources$({
+                  count: workingResourcePool.length,
                 })
               }}
-            </span>
+            </KRouterLink>
           </div>
-          <KButton
-            primary
-            :text="
-              selectPracticeQuiz
-                ? selectQuiz$()
-                : addNumberOfQuestions$({ count: Math.max(1, settings.questionCount) })
-            "
-            :disabled="disableSave"
-            @click="saveSelectedResource"
-          />
+          <div class="save-button-wrapper">
+            <KButton
+              primary
+              :text="
+                selectPracticeQuiz
+                  ? selectQuiz$()
+                  : addNumberOfQuestions$({ count: Math.max(1, settings.questionCount) })
+              "
+              :disabled="disableSave"
+              @click="saveSelectedResource"
+            />
+          </div>
         </template>
       </div>
     </template>
@@ -103,6 +111,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
@@ -156,13 +165,8 @@
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
-      const {
-        questionsFromResources$,
-        questionsUnusedInSection$,
-        tooManyQuestions$,
-        selectQuiz$,
-        addNumberOfQuestions$,
-      } = enhancedQuizManagementStrings;
+      const { questionsUnusedInSection$, tooManyQuestions$, selectQuiz$, addNumberOfQuestions$ } =
+        enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
@@ -301,9 +305,12 @@
         displaySectionTitle(activeSection.value, activeSectionIndex.value),
       );
 
+      const { numberOfSelectedResources$ } = searchAndFilterStrings;
+
       return {
         title,
         goBack,
+        PageNames,
         continueAction,
         SelectionTarget,
         sectionTitle,
@@ -324,18 +331,17 @@
         removeFromWorkingResourcePool,
         setWorkingResourcePool,
         settings,
-        workingPoolUnusedQuestions,
         disableSave,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
         questionsUnusedInSection$,
-        questionsFromResources$,
         updateSection,
         addQuestionsToSectionFromResources,
         workingResourcePool,
         selectQuiz$,
         addNumberOfQuestions$,
+        numberOfSelectedResources$,
       };
     },
     props: {
@@ -424,8 +430,15 @@
 
   .bottom-nav-container {
     display: flex;
+    gap: 16px;
     justify-content: flex-end;
     width: 100%;
+
+    .save-button-wrapper {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
   }
 
 </style>

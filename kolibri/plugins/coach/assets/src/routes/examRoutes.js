@@ -15,6 +15,7 @@ import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.v
 import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
 import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromChannels.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
+import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
@@ -95,12 +96,15 @@ export default [
         name: PageNames.QUIZ_SELECT_RESOURCES,
         path: 'select-resources/',
         component: QuizResourceSelection,
-        redirect: 'select-resources/landing',
+        redirect: 'select-resources/landing-settings',
         children: [
           {
-            name: PageNames.QUIZ_SELECT_RESOURCES_LANDING,
-            path: 'landing',
+            name: PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
+            path: 'landing-settings',
             component: QuestionsSettings,
+            props: {
+              isLanding: true,
+            },
           },
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
@@ -116,6 +120,16 @@ export default [
             name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
             path: 'channels',
             component: SelectFromChannels,
+          },
+          {
+            name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
+            path: 'preview-resources',
+            component: ManageSelectedResources,
+          },
+          {
+            name: PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
+            path: 'landing-settings',
+            component: QuestionsSettings,
           },
           // {
           //   name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
