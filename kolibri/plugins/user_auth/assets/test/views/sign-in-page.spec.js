@@ -9,6 +9,13 @@ jest.mock('kolibri-common/composables/useFacilities');
 function makeWrapper() {
   const store = makeStore();
   store.state.facilityId = '123';
+  const selectedFacility = {
+    id: 123,
+    name: 'test facility',
+    dataset: {
+      learner_can_login_with_no_password: false,
+    },
+  };
   useFacilities.mockImplementation(() =>
     useFacilitiesMock({
       facilities: {
@@ -20,6 +27,8 @@ function makeWrapper() {
           },
         ],
       },
+      facilityId: '123',
+      selectedFacility: selectedFacility,
     }),
   );
   return mount(SignInPage, {
