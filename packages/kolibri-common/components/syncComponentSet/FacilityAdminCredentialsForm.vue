@@ -48,6 +48,7 @@
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
 
   export default {
     name: 'FacilityAdminCredentialsForm',
@@ -61,7 +62,20 @@
         type: Object,
         required: true,
         validator(val) {
-          return val.name && val.id && val.baseurl;
+          return validateObject(val, {
+            name: {
+              type: String,
+              required: true,
+            },
+            id: {
+              type: String,
+              required: true,
+            },
+            baseurl: {
+              type: String,
+              required: true,
+            },
+          });
         },
       },
       facility: {
