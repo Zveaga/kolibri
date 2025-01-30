@@ -1,7 +1,6 @@
 <template>
 
   <CoachImmersivePage
-    :appBarTitle="exam.title"
     icon="back"
     :primary="false"
     :route="toolbarRoute"
