@@ -12,6 +12,7 @@ const _facilityId = ref(Lockr.get('facilityId') || null);
 
 export default function useFacilities() {
   const { userFacilityId, isSuperuser } = useUser();
+
   // const route = router.currentRoute;
   const selectedFacility = computed(() => {
     const facilityById = _facilities.value.find(f => f.id === _facilityId.value);
@@ -77,6 +78,10 @@ export default function useFacilities() {
     _facilities.value = facilities;
   }
 
+  function setFacilityId(facilityId) {
+    _facilityId.value = facilityId;
+  }
+
   return {
     facilities,
     facilityConfig,
@@ -87,5 +92,6 @@ export default function useFacilities() {
     selectedFacility,
     userIsMultiFacilityAdmin,
     currentFacilityName,
+    setFacilityId,
   };
 }

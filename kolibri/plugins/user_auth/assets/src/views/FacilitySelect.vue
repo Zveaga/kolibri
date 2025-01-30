@@ -79,8 +79,8 @@
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { getFacilityConfig, facilities } = useFacilities();
-      return { getFacilityConfig, facilities };
+      const { getFacilityConfig, facilities, setFacilityId } = useFacilities();
+      return { getFacilityConfig, facilities, setFacilityId };
     },
     props: {
       // This component is interstitial and needs to know where to go when it's done
@@ -125,6 +125,7 @@
         }
         // Save the selected facility, get its config, then move along to next route
         this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
+          this.setFacilityId(facilityId);
           this.getFacilityConfig(facilityId).then(() => {
             this.$router.push(whereToNext);
           });
