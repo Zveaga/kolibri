@@ -55,6 +55,9 @@ class NetworkLocationAPITestCase(APITestCase):
             base_url=CENTRAL_CONTENT_BASE_URL,
             location_type=models.LocationTypes.Reserved,
         )
+        cls.studio_non_reserved_location = models.NetworkLocation.objects.create(
+            base_url=CENTRAL_CONTENT_BASE_URL,
+        )
         cls.dynamic_location = models.DynamicNetworkLocation.objects.create(
             id="a" * 32,
             base_url="http://dynamiclocation.qqq",
