@@ -20,6 +20,7 @@
         :contentHasCheckbox="showCheckbox"
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
+        :contentCardMessage="contentCardMessage"
         :showRadioButtons="!multi"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
@@ -104,6 +105,15 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {

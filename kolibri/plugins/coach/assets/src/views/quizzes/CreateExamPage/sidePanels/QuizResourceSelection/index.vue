@@ -51,7 +51,7 @@
         :selectionRules="selectionRules"
         :settings.sync="settings"
         :target="SelectionTarget.QUIZ"
-        :getUnusedQuestionsMessage="getUnusedQuestionsMessage"
+        :contentCardMessage="contentCardMessage"
         @selectResources="addToWorkingResourcePool"
         @deselectResources="removeFromWorkingResourcePool"
         @setSelectedResources="setWorkingResourcePool"
@@ -72,8 +72,9 @@
       <div class="bottom-nav-container">
         <KButton
           v-if="continueAction"
+          :disabled="continueAction.disabled"
           :text="coreString('continueAction')"
-          @click="continueAction"
+          @click="continueAction.handler"
         />
         <template v-else>
           <div v-if="!selectPracticeQuiz">
@@ -339,7 +340,7 @@
       const selectionRules = computed(() => [() => remainingSelectableContent.value > 0]);
 
       const maximumContentSelectedWarning = computed(() => {
-        if (remainingSelectableContent.value > 0) {
+        if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
           return null;
         }
         if (settings.value.isChoosingManually) {
@@ -442,8 +443,11 @@
         });
       },
       // The message put onto the content's card when listed
-      getUnusedQuestionsMessage(content) {
+      contentCardMessage(content) {
         if (this.selectPracticeQuiz) {
+          return;
+        }
+        if (content.kind !== ContentNodeKinds.EXERCISE) {
           return;
         }
 

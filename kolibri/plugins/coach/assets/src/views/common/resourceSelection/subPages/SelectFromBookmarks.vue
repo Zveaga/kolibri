@@ -18,6 +18,7 @@
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
+      :contentCardMessage="contentCardMessage"
       :noSelectableResourcesIds="noSelectableResourcesIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -30,6 +31,7 @@
 <script>
 
   import { getCurrentInstance } from 'vue';
+  import { now } from 'kolibri/utils/serverClock';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
@@ -47,7 +49,7 @@
       QuizResourceSelectionHeader,
     },
     setup(props) {
-      const { selectFromBookmarks$ } = coreStrings;
+      const { selectFromBookmarks$, bookmarkedTimeAgoLabel$ } = coreStrings;
       const instance = getCurrentInstance();
 
       props.setTitle(selectFromBookmarks$());
@@ -70,12 +72,24 @@
       };
 
       const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
+
+      const contentCardMessage = content => {
+        if (!content.bookmark?.created) {
+          return null;
+        }
+        const createdDate = new Date(content.bookmark.created);
+        const time = instance.proxy.$formatRelative(createdDate, { now: now() });
+
+        return bookmarkedTimeAgoLabel$({ time });
+      };
+
       return {
         channelsLink,
         contentList: data,
         hasMore,
         fetchMore,
         loadingMore,
+        contentCardMessage,
         SelectionTarget,
       };
     },

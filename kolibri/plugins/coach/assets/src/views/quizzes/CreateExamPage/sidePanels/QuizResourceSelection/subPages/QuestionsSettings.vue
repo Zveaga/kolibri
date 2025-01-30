@@ -53,7 +53,7 @@
 
 <script>
 
-  import { ref, computed, getCurrentInstance, onMounted, onUnmounted } from 'vue';
+  import { ref, computed, getCurrentInstance, onMounted, onUnmounted, watch } from 'vue';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -81,6 +81,12 @@
       } = enhancedQuizManagementStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
+      const invalidSettings = computed(
+        () =>
+          props.settings.questionCount > props.settings.maxQuestions ||
+          props.settings.questionCount < 1,
+      );
+
       const questionCount = computed({
         get: () => props.settings.questionCount,
         set: value => {
@@ -97,17 +103,30 @@
         }),
       );
       props.setGoBack(null);
+
+      const continueHandler = () => {
+        if (!props.isLanding && prevRoute.value) {
+          instance.proxy.$router.push(prevRoute.value);
+          return;
+        }
+        instance.proxy.$router.push({
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        });
+      };
       onMounted(() => {
-        props.setContinueAction(() => {
-          if (!props.isLanding && prevRoute.value) {
-            instance.proxy.$router.push(prevRoute.value);
-            return;
-          }
-          instance.proxy.$router.push({
-            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-          });
+        props.setContinueAction({
+          handler: continueHandler,
         });
       });
+      watch(
+        () => props.settings,
+        () => {
+          props.setContinueAction({
+            handler: continueHandler,
+            disabled: invalidSettings.value,
+          });
+        },
+      );
       onUnmounted(() => {
         props.setContinueAction(null);
       });

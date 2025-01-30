@@ -47,6 +47,7 @@
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
+      :contentCardMessage="contentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -191,6 +192,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
   };
