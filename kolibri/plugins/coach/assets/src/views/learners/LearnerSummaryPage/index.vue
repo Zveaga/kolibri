@@ -186,7 +186,13 @@
         return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
-        return this.classRoute(PageNames.QUIZ_LEARNER_REPORT, { quizId });
+        return this.classRoute(PageNames.QUIZ_LEARNER_REPORT, {
+          quizId,
+          learnerId: this.learner.id,
+          questionId: 0,
+          interactionIndex: 0,
+          tryIndex: 0,
+        });
       },
       lessonLink(lessonId) {
         return this.classRoute(PageNames.LESSON_LEARNER_REPORT, { lessonId });
