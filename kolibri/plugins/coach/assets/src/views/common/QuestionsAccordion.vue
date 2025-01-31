@@ -94,7 +94,7 @@
                   :assessment="true"
                   :allowHints="false"
                   :interactive="false"
-                  :showCorrectAnswers="true"
+                  :showCorrectAnswer="true"
                   @interaction="() => null"
                   @updateProgress="() => null"
                   @updateContentState="() => null"
