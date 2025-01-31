@@ -11,8 +11,8 @@ export default function useFetchContentNode(contentId) {
     ContentNodeResource.fetchModel({
       id: contentId,
       getParams: { no_available_filtering: true },
-    }).then(node => {
-      if (node != null) {
+    })
+      .then(node => {
         loading.value = false;
         contentNode.value = node;
 
@@ -23,10 +23,10 @@ export default function useFetchContentNode(contentId) {
         if (node.assessmentmetadata) {
           questions.value = node.assessmentmetadata.assessment_item_ids;
         }
-      } else {
-        loading.value = false;
-      }
-    });
+      })
+      .catch(error => {
+        this.$store.dispatch('handleApiError', { error });
+      });
   };
 
   fetchContentNode();
