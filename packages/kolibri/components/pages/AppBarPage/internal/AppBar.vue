@@ -2,6 +2,7 @@
 
   <div
     v-show="!$isPrint"
+    ref="appBar"
     :style="{
       backgroundColor: themeConfig.appBar.background,
       color: themeConfig.appBar.textColor,
@@ -24,7 +25,7 @@
       >
         <KTextTruncator
           :text="
-            windowIsSmall
+            windowIsMedium
               ? truncateText(title, smallScreensMaxTitleLength)
               : truncateText(title, 50)
           "
@@ -164,7 +165,7 @@
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const $route = computed(() => store.state.route);
-      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
+      const { windowIsSmall, windowIsMedium } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
@@ -183,7 +184,7 @@
       return {
         themeConfig,
         windowIsSmall,
-        windowBreakpoint,
+        windowIsMedium,
         topBarHeight,
         links,
         isUserLoggedIn,
@@ -211,11 +212,11 @@
     data() {
       return {
         pointsDisplayed: false,
-        breakpointLimit: 4,
         showTopNavBar: false,
-        // Limit for title length on small screens to hide
-        // overflow menu button at windowBreakpoint 3
+        // Limit for title length on small screens to hide overflow menu button
         smallScreensMaxTitleLength: 20,
+        appBarWidth: 0,
+        widthThreshold: 1600,
       };
     },
     computed: {
@@ -231,9 +232,8 @@
     },
     beforeUpdate() {
       // Essential for title updates after data finishes loading
-      this.breakpointLimit =
-        this.title && this.title.length >= this.smallScreensMaxTitleLength ? 4 : 3;
-      this.showTopNavBar = this.windowBreakpoint > this.breakpointLimit;
+      this.widthThreshold =
+        this.title && this.title.length >= this.smallScreensMaxTitleLength ? 1600 : 1350;
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
@@ -244,6 +244,7 @@
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
       window.addEventListener('resize', this.handleWindowResize);
+      this.handleWindowResize();
     },
     methods: {
       handleWindowClick(event) {
@@ -266,7 +267,8 @@
         }
       },
       handleWindowResize() {
-        this.showTopNavBar = this.windowBreakpoint >= this.breakpointLimit;
+        this.appBarWidth = this.$refs.appBar.clientWidth;
+        this.showTopNavBar = this.appBarWidth > this.widthThreshold;
       },
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
