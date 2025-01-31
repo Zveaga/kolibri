@@ -23,7 +23,11 @@
         :removeBrandDivider="true"
       >
         <KTextTruncator
-          :text="windowIsSmall ? truncateText(title, 20) : truncateText(title, 50)"
+          :text="
+            windowIsSmall
+              ? truncateText(title, smallScreensMaxTitleLength)
+              : truncateText(title, 50)
+          "
           :maxLines="1"
         />
         <template
@@ -209,6 +213,9 @@
         pointsDisplayed: false,
         breakpointLimit: 4,
         showTopNavBar: false,
+        // Limit for title length on small screens to hide
+        // overflow menu button at windowBreakpoint 3
+        smallScreensMaxTitleLength: 20,
       };
     },
     computed: {
@@ -221,12 +228,11 @@
       if (this.isLearner) {
         this.fetchPoints();
       }
-      window.addEventListener('click', this.handleWindowClick);
-      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
     beforeUpdate() {
       // Essential for title updates after data finishes loading
-      this.breakpointLimit = this.title && this.title.length >= 20 ? 4 : 3;
+      this.breakpointLimit =
+        this.title && this.title.length >= this.smallScreensMaxTitleLength ? 4 : 3;
       this.showTopNavBar = this.windowBreakpoint > this.breakpointLimit;
     },
     beforeDestroy() {
@@ -235,6 +241,8 @@
       window.removeEventListener('resize', this.handleWindowResize);
     },
     mounted() {
+      window.addEventListener('click', this.handleWindowClick);
+      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
       window.addEventListener('resize', this.handleWindowResize);
     },
     methods: {
