@@ -64,8 +64,8 @@
     },
     computed: {
       isSelected() {
-        if (this.selectedResources) {
-          return this.selectedResources.find(resource => resource.id === this.contentId);
+        if (this.selectedResources && this.contentNode) {
+          return this.selectedResources.some(resource => resource.id === this.contentNode.id);
         }
         return false;
       },

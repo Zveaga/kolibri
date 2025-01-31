@@ -30,7 +30,8 @@
     </div>
 
     <ResourceSelectionBreadcrumbs
-      :ancestors="ancestors"
+      v-if="ancestors.length"
+      :ancestors="[...ancestors, content]"
       :channelsLink="channelsLink"
       :topicsLink="topicsLink"
       class="align-breadcrumbs"
@@ -40,7 +41,7 @@
       <h5>
         <KLabeledIcon :label="content.kind">
           <template #icon>
-            <LearningActivityIcon :kind="content.learning_activities" />
+            <LearningActivityIcon :kind="learningActivities" />
           </template>
           <template>
             {{ content.title }}
@@ -147,6 +148,11 @@
         type: Boolean,
         required: true,
       },
+      questions: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
     },
     data() {
       return {
@@ -181,6 +187,12 @@
         }
 
         return undefined;
+      },
+      learningActivities() {
+        if (this.content.learning_activities) {
+          return this.content.learning_activities;
+        }
+        return [];
       },
     },
     methods: {
