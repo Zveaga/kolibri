@@ -83,7 +83,7 @@
 
       props.setGoBack(() => {
         const { searchTopicId } = routeQuery;
-        if (!isTopicFromSearchResult.value || !routeQuery.searchTopicId) {
+        if (!isTopicFromSearchResult.value) {
           return instance.proxy.$router.push({
             name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
           });
