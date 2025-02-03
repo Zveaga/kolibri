@@ -111,6 +111,7 @@
   import Modalities from 'kolibri-constants/Modalities';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
   import useContentLink from '../composables/useContentLink';
@@ -186,7 +187,50 @@
         type: Object,
         required: true,
         validator(val) {
-          return val.kind && val.content_id;
+          return validateObject(val, {
+            kind: {
+              type: String,
+              required: true,
+            },
+            content_id: {
+              type: String,
+              required: true,
+            },
+            title: {
+              type: String,
+              required: true,
+            },
+            ancestors: {
+              type: Array,
+              required: false,
+              default: () => [],
+            },
+            files: {
+              type: Array,
+              required: false,
+              default: () => [],
+            },
+            options: {
+              type: Object,
+              required: false,
+              default: () => ({}),
+            },
+            available: {
+              type: Boolean,
+              required: false,
+              default: true,
+            },
+            duration: {
+              type: Number,
+              required: false,
+              default: 0,
+            },
+            assessmentmetadata: {
+              type: Object,
+              required: false,
+              default: () => ({}),
+            },
+          });
         },
       },
       // only present when the content node is being viewed as part of lesson

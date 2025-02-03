@@ -98,7 +98,7 @@
     <BottomAppBar>
       <KRouterLink
         v-if="workingResources.length > 0"
-        :text="numberOfSelectedResource$({ count: workingResources.length })"
+        :text="numberOfSelectedResources$({ count: workingResources.length })"
         :primary="true"
         :to="goToPreviewSelection()"
         :style="{ marginRight: '1em', marginTop: '0.5em' }"
@@ -163,13 +163,13 @@
       const { windowIsSmall } = useKResponsiveWindow();
       const { getUserPermissions } = useUser();
       const { createSnackbar, clearSnackbar } = useSnackbar();
-      const { numberOfSelectedResource$ } = searchAndFilterStrings;
+      const { numberOfSelectedResources$ } = searchAndFilterStrings;
       return {
         windowIsSmall,
         getUserPermissions,
         createSnackbar,
         clearSnackbar,
-        numberOfSelectedResource$,
+        numberOfSelectedResources$,
       };
     },
     data() {

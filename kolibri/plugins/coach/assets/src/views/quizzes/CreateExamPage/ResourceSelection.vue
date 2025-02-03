@@ -215,6 +215,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
@@ -270,8 +271,6 @@
         selectResourcesDescription$,
         questionsFromResources$,
         cannotSelectSomeTopicWarning$,
-        closeConfirmationMessage$,
-        closeConfirmationTitle$,
         questionsUnusedInSection$,
         numberOfQuestionsSelected$,
         numberOfQuestionsToAdd$,
@@ -282,6 +281,8 @@
         numberOfQuestionsLabel$,
         addNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
+
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       const { windowIsSmall } = useKResponsiveWindow();
 

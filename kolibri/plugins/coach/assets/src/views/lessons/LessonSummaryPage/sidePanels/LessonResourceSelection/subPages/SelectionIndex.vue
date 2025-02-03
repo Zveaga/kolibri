@@ -44,6 +44,12 @@
           :text="searchLabel$()"
         />
       </div>
+      <p
+        v-if="channels.length === 0"
+        class="mt-24"
+      >
+        {{ noAvailableResources$() }}
+      </p>
       <KCardGrid layout="1-1-1">
         <AccessibleChannelCard
           v-for="channel of channels"
@@ -83,6 +89,7 @@
 
       const {
         selectFromChannels$,
+        noAvailableResources$,
         numberOfBookmarks$,
         bookmarksLabel$,
         selectFromBookmarks$,
@@ -98,6 +105,7 @@
         bookmarksCount,
         channels,
         selectFromChannels$,
+        noAvailableResources$,
         numberOfBookmarks$,
         bookmarksLabel$,
         selectFromBookmarks$,
@@ -154,6 +162,10 @@
 
   .mb-16 {
     margin-bottom: 16px;
+  }
+
+  .mt-24 {
+    margin-top: 24px;
   }
 
   .side-panel-subtitle {

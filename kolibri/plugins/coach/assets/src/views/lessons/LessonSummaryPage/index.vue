@@ -77,7 +77,7 @@
         </KPageContainer>
       </KGridItem>
     </KGrid>
-    <router-view />
+    <router-view @workingResourcesUpdated="workingResourcesBackup = [...workingResources]" />
   </CoachAppBarPage>
 
 </template>

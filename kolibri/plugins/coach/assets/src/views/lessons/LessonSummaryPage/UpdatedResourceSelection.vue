@@ -85,6 +85,15 @@
         type: Array,
         required: true,
       },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       channelsLink() {
@@ -151,9 +160,15 @@
         }
       },
       contentCheckboxDisabled(resource) {
+        if (this.disabled || this.unselectableResourceIds?.includes(resource.id)) {
+          return true;
+        }
         return !this.selectionRules.every(rule => rule(resource) === true);
       },
       contentIsChecked(resource) {
+        if (this.unselectableResourceIds?.includes(resource.id)) {
+          return true;
+        }
         return this.selectedResources.some(res => res.id === resource.id);
       },
       toggleSelected({ content, checked }) {
