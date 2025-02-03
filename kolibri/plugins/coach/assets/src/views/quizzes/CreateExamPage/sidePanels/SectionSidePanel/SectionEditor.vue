@@ -341,9 +341,11 @@
           // The user should be confirming losing changes
           next(false);
         } else {
-          if (to.name === this.selectResourcesRoute.name) {
+          if (to.name.startsWith(this.selectResourcesRoute.name)) {
             // The user clicked "Add Questions" and we need to save the changes
             // and redirect them
+            // Comparing using the `startsWith` method because the main route in
+            // this.selectResourcesRoute.name will redirect it to a subroute
             this.applySettings(to.name);
             return next(false);
           }

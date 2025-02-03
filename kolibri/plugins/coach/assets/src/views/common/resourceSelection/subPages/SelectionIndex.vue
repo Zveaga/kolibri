@@ -237,10 +237,6 @@
 
 <style scoped>
 
-  .mb-16 {
-    margin-bottom: 16px;
-  }
-
   .mt-24 {
     margin-top: 24px;
   }
