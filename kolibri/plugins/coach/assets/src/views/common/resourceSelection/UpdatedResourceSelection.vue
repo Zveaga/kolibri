@@ -36,6 +36,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import { ViewMoreButtonStates } from '../../../constants';
@@ -48,6 +49,9 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      /**
+       * Boolean that determines if the select all checkbox should be rendered.
+       */
       canSelectAll: {
         type: Boolean,
         default: false,
@@ -56,6 +60,10 @@
         type: Boolean,
         default: true,
       },
+      /**
+       * Object representing the current topic. If present, it will render
+       * the topic name, description and ancestor breadcrumbs.
+       */
       topic: {
         type: Object,
         required: false,
@@ -78,25 +86,66 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * Array of functions that take a resource and return true if it should be selectable.
+       */
       selectionRules: {
         type: Array,
         required: false,
         default: () => [],
+        validator: rules =>
+          validateObject(
+            { rules },
+            {
+              rules: {
+                type: Array,
+                spec: {
+                  type: Function,
+                },
+                default: () => [],
+              },
+            },
+          ),
       },
+      /**
+       * Array of functions that take a list of selectable resources and
+       * return true if select all should be enabled.
+       */
       selectAllRules: {
         type: Array,
         required: false,
         default: () => [],
+        validator: rules =>
+          validateObject(
+            { rules },
+            {
+              rules: {
+                type: Array,
+                spec: {
+                  type: Function,
+                },
+                default: () => [],
+              },
+            },
+          ),
       },
       selectedResources: {
         type: Array,
         required: true,
       },
+      /**
+       * Array of resource ids that already belongs to the target model (quiz/lessons),
+       * and should not be selectable.
+       */
       unselectableResourceIds: {
         type: Array,
         required: false,
         default: null,
       },
+      /**
+       * Route object for the channels page to be rendered in the breadcrumbs.
+       * If null, the breadcrumbs will not render a link to the channels page.
+       */
       channelsLink: {
         type: Object,
         required: false,
