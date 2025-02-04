@@ -3,7 +3,7 @@
   <div class="select-resource">
     <div>
       <ResourceSelectionBreadcrumbs
-        v-if="topic"
+        v-if="topic && !hideBreadcrumbs"
         :ancestors="[...topic.ancestors, topic]"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
@@ -20,6 +20,7 @@
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
         :showRadioButtons="!multi"
+        :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMore"
@@ -36,7 +37,7 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { PageNames, ViewMoreButtonStates } from '../../../constants';
+  import { ViewMoreButtonStates } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -94,13 +95,26 @@
         type: Boolean,
         default: false,
       },
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
+      },
+      channelsLink: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      getTopicLink: {
+        type: Function,
+        required: false,
+        default: () => {},
+      },
+      hideBreadcrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
-      channelsLink() {
-        return {
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-        };
-      },
       selectAllIndeterminate() {
         return (
           !this.selectAllChecked &&
@@ -142,6 +156,11 @@
         return { name, params, query };
       },
       topicsLink(topicId) {
+        const route = this.getTopicLink?.(topicId);
+        if (route) {
+          return route;
+        }
+
         const { name, params, query } = this.$route;
         return {
           name,
