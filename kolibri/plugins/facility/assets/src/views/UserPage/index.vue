@@ -60,40 +60,6 @@
           />
         </template>
 
-        <template>
-          <UserTable
-            class="move-down user-roster"
-            :users="facilityUsers"
-            :dataLoading="dataLoading"
-            :emptyMessage="emptyMessageForItems(facilityUsers, search)"
-            :showDemographicInfo="true"
-          >
-            <template #action="userRow">
-              <KButton
-                appearance="flat-button"
-                hasDropdown
-                :text="$tr('optionsButtonLabel')"
-                :disabled="!userCanBeEdited(userRow.user)"
-              >
-                <template #menu>
-                  <KDropdownMenu
-                    :options="manageUserOptions(userRow.user.id)"
-                    @select="handleManageUserSelection($event, userRow.user)"
-                  />
-                </template>
-              </KButton>
-            </template>
-          </UserTable>
-        </template>
-      </PaginatedListContainerWithBackend>
-      <PaginatedListContainerWithBackend
-        v-model="currentPage"
-        :items="facilityUsers"
-        :itemsPerPage="itemsPerPage"
-        :totalPageNumber="totalPages"
-        :roleFilter="roleFilter"
-        :numFilteredItems="usersCount"
-      >
         <KTable
           class="move-down user-roster"
           :headers="tableHeaders"
@@ -186,7 +152,6 @@
   import { UserKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import UserTable from 'kolibri-common/components/UserTable';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
@@ -217,7 +182,6 @@
       FilterTextbox,
       ResetUserPasswordModal,
       DeleteUserModal,
-      UserTable,
       PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
@@ -244,20 +208,20 @@
           {
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
-            minWidth: '150px',
-            width: '20%',
+            minWidth: '300px',
+            width: '40%',
           },
           {
             label: this.coreString('usernameLabel'),
             dataType: 'string',
             minWidth: '150px',
-            width: '15%',
+            width: '20%',
           },
           {
             label: this.coreString('identifierLabel'),
             dataType: 'string',
             minWidth: '150px',
-            width: '15%',
+            width: '10%',
           },
           {
             label: this.coreString('genderLabel'),
@@ -268,14 +232,14 @@
           {
             label: this.coreString('birthYearLabel'),
             dataType: 'date',
-            minWidth: '150px',
-            width: '20%',
+            minWidth: '100px',
+            width: '10%',
           },
           {
             label: this.coreString('userActionsColumnHeader'),
             dataType: 'undefined',
             minWidth: '150px',
-            width: '20%',
+            width: '10%',
           },
         ];
       },
@@ -304,6 +268,9 @@
         return {
           color: this.$themeTokens.textInverted,
           backgroundColor: this.$themeTokens.annotation,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
         };
       },
       roleFilter: {
@@ -516,6 +483,10 @@
     font-size: small;
     white-space: nowrap;
     border-radius: 4px;
+  }
+
+  .labeled-icon-wrapper {
+    width: auto;
   }
 
   .user-roster {
