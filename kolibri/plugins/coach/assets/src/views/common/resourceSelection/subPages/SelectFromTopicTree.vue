@@ -1,34 +1,39 @@
 <template>
 
   <div>
-    <div
-      v-if="target === SelectionTarget.LESSON"
-      class="subheader"
-    >
-      <span class="side-panel-subtitle">
-        {{ selectFromChannels$() }}
-      </span>
-      <KButton
-        icon="filter"
-        :text="searchLabel$()"
-      />
-    </div>
+    <template v-if="!isTopicFromSearchResult">
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="subheader"
+      >
+        <span class="side-panel-subtitle">
+          {{ selectFromChannels$() }}
+        </span>
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
+      </div>
 
-    <QuizResourceSelectionHeader
-      v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
-      class="mb-16"
-      :settings="settings"
-    />
-
-    <div
-      v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
-      class="d-flex-end mb-16"
-    >
-      <KButton
-        icon="filter"
-        :text="searchLabel$()"
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
+        class="mb-16"
+        :settings="settings"
+        @searchClick="onSearchClick"
       />
-    </div>
+
+      <div
+        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+        class="d-flex-end mb-16"
+      >
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
+      </div>
+    </template>
 
     <div class="topic-info">
       <h2>
@@ -47,9 +52,8 @@
 
     <UpdatedResourceSelection
       canSelectAll
-      :topic="topic"
+      :topic="computedTopic"
       :disabled="disabled"
-      :channelsLink="channelsLink"
       :contentList="contentList"
       :hasMore="hasMore"
       :fetchMore="fetchMore"
@@ -58,6 +62,8 @@
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
+      :hideBreadcrumbs="hideBreadcrumbs"
+      :channelsLink="breadcrumbChannelsLink"
       :contentCardMessage="contentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
@@ -71,8 +77,9 @@
 
 <script>
 
-  import { getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { coachStrings } from '../../commonCoachStrings';
   import { PageNames } from '../../../../constants';
@@ -85,7 +92,7 @@
    */
 
   export default {
-    name: 'SelectFromChannels',
+    name: 'SelectFromTopicTree',
     components: {
       UpdatedResourceSelection,
       QuizResourceSelectionHeader,
@@ -97,8 +104,15 @@
 
       const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
         enhancedQuizManagementStrings;
+      const { backToSearchResultsLabel$ } = searchAndFilterStrings;
+
+      const routeQuery = instance.proxy.$route.query;
+      const isTopicFromSearchResult = computed(() => !!routeQuery.searchResultTopicId);
 
       const getTitle = () => {
+        if (isTopicFromSearchResult.value) {
+          return backToSearchResultsLabel$();
+        }
         if (props.target === SelectionTarget.LESSON) {
           return manageLessonResourcesTitle$();
         }
@@ -110,11 +124,26 @@
       props.setTitle(getTitle());
 
       const redirectBack = () => {
+        const { searchTopicId } = routeQuery;
+        if (!isTopicFromSearchResult.value) {
+          return instance.proxy.$router.push({
+            name:
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+                : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          });
+        }
+
+        const query = { ...instance.proxy.$route.query };
+        query.topicId = searchTopicId;
+        delete query.searchTopicId;
+        delete query.searchResultTopicId;
         instance.proxy.$router.push({
           name:
             props.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
+          query,
         });
       };
       const { topicId } = instance.proxy.$route.query;
@@ -123,21 +152,35 @@
       }
       props.setGoBack(redirectBack);
 
-      const channelsLink = {
-        name:
-          props.target === SelectionTarget.LESSON
-            ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-            : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-      };
+      const computedTopic = computed(() => {
+        if (!isTopicFromSearchResult.value) {
+          return props.topic;
+        }
+        // When we are showing the topic tree of a folder that was found in search results,
+        // we want to show just the ancestors starting from the search result topic. So lets
+        // slice the ancestors array to start from the search result topic.
+        const { searchResultTopicId } = routeQuery;
+        const topicAncestors = props.topic.ancestors;
+        const searchResultTopicIndex = topicAncestors.findIndex(
+          ({ id }) => id === searchResultTopicId,
+        );
+        const newAncestors =
+          searchResultTopicIndex === -1 ? [] : topicAncestors.slice(searchResultTopicIndex);
+        return {
+          ...props.topic,
+          ancestors: newAncestors,
+        };
+      });
 
       const { data, hasMore, fetchMore, loadingMore } = props.treeFetch;
       return {
-        channelsLink,
         contentList: data,
         hasMore,
         fetchMore,
         loadingMore,
         SelectionTarget,
+        computedTopic,
+        isTopicFromSearchResult,
         searchLabel$,
         selectFromChannels$,
       };
@@ -221,6 +264,31 @@
         default: () => '',
       },
     },
+    computed: {
+      breadcrumbChannelsLink() {
+        if (this.isTopicFromSearchResult) {
+          // Dont show chanell breadcrumb if topic is from search result
+          return null;
+        }
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+        };
+      },
+      hideBreadcrumbs() {
+        return this.isTopicFromSearchResult && this.computedTopic.ancestors.length === 0;
+      },
+    },
+    methods: {
+      onSearchClick() {
+        this.$router.push({
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+          query: this.$route.query,
+        });
+      },
+    },
   };
 
 </script>
@@ -237,6 +305,10 @@
     margin-bottom: 16px;
   }
 
+  .mr-8 {
+    margin-right: 8px;
+  }
+
   .side-panel-subtitle {
     font-size: 16px;
     font-weight: 600;
@@ -249,8 +321,8 @@
     margin-bottom: 16px;
   }
 
-  .mr-8 {
-    margin-right: 8px;
+  .topic-info h2 {
+    margin: 0;
   }
 
 </style>

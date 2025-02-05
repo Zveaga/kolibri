@@ -13,7 +13,7 @@ import QuizPreviewPage from '../views/quizzes/reports/QuizPreviewPage.vue';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
-import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromChannels.vue';
+import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import {

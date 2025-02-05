@@ -109,35 +109,34 @@
             />
           </div>
         </div>
+      </div>
+      <div v-if="accordion && !currentCategory">
+        <!-- search by keyword -->
+        <h2 class="title">
+          {{ title || $tr('keywords') }}
+        </h2>
+        <SearchBox
+          key="channel-search"
+          ref="searchBox"
+          style="margin-bottom: 1em"
+          :placeholder="$tr('searchByKeyword')"
+          :value="value.keywords || ''"
+          @change="val => $emit('input', { ...value, keywords: val })"
+        />
 
-        <div v-if="accordion && !currentCategory">
-          <!-- search by keyword -->
-          <h2 class="title">
-            {{ $tr('keywords') }}
-          </h2>
-          <SearchBox
-            key="channel-search"
-            ref="searchBox"
-            style="margin-bottom: 1em"
-            :placeholder="$tr('searchByKeyword')"
-            :value="value.keywords || ''"
-            @change="val => $emit('input', { ...value, keywords: val })"
-          />
+        <ActivityButtonsGroup
+          v-if="showActivities"
+          class="section"
+          @input="handleActivity"
+        />
 
-          <ActivityButtonsGroup
-            v-if="showActivities"
-            class="section"
-            @input="handleActivity"
-          />
-
-          <AccordionSelectGroup
-            v-model="inputValue"
-            :showChannels="showChannels"
-            :activeCategories="activeCategories"
-            :handleCategory="handleCategory"
-            style="margin-top: 1em"
-          />
-        </div>
+        <AccordionSelectGroup
+          v-model="inputValue"
+          :showChannels="showChannels"
+          :activeCategories="activeCategories"
+          :handleCategory="handleCategory"
+          style="margin-top: 1em"
+        />
       </div>
     </div>
     <!-- When accordion mode is NOT activated, show as KModal, otherwise, just a div -->
@@ -252,6 +251,10 @@
         type: Boolean,
         default: true,
       },
+      title: {
+        type: String,
+        default: null,
+      },
     },
     computed: {
       closeButtonIcon() {
@@ -312,6 +315,12 @@
       },
       activeCategories() {
         return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
+      },
+    },
+    watch: {
+      currentCategory(val) {
+        const isCategorySearchOpen = val != null;
+        this.$emit('categorySearchOpen', isCategorySearchOpen);
       },
     },
     methods: {
@@ -397,6 +406,12 @@
         if (this.$refs.searchBox) {
           this.$refs.searchBox.focusSearchBox();
         }
+      },
+      /**
+       * @public
+       */
+      closeCategorySearch() {
+        this.currentCategory = null;
       },
     },
     $trs: {

@@ -56,4 +56,33 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'No resources selected',
     context: 'Message displayed when no resources are selected',
   },
+  searchInFolder: {
+    message: "Search in '{folder}'",
+    context: 'Title for search resources in folder',
+  },
+  resultsCount: {
+    message: '{count, number} {count, plural, one {result} other {results}}',
+    context: 'Number of search results when we have an exact count',
+  },
+  resultsCountInFolder: {
+    message: "{count, number} {count, plural, one {result} other {results}} in '{folder}'",
+    context: 'Number of search results when we have an exact count in a specific folder',
+  },
+  overResultsCount: {
+    message: 'Over {count, number} results',
+    context: 'Number of search results when we know there are more than the count',
+  },
+  overResultsCountInFolder: {
+    message: "Over {count, number} results in '{folder}'",
+    context:
+      'Number of search results when we know there are more than the count in a specific folder',
+  },
+  backToSearchResultsLabel: {
+    message: 'Back to search results',
+    context: 'Button to go back to search results',
+  },
+  chooseACategory: {
+    message: 'Choose a category',
+    context: 'Label for a selector component to choose a category',
+  },
 });

@@ -20,7 +20,7 @@
           <!-- Fixed header -->
           <div
             ref="fixedHeader"
-            class="side-panel-header"
+            :class="{ 'side-panel-header': true, immersive: immersive }"
             :style="headerStyles"
           >
             <div
@@ -125,6 +125,11 @@
         required: false,
         default: null,
       },
+      immersive: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
       isMobile() {
@@ -154,7 +159,7 @@
       /** Styling Properties */
       headerStyles() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
           borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
         };
       },
@@ -235,12 +240,17 @@
   .side-panel {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
 
     .side-panel-header {
+      z-index: 1;
       width: 100%;
       min-height: 60px;
       padding: 0 1em;
+
+      &.immersive {
+        @extend %dropshadow-2dp;
+      }
     }
 
     .side-panel-content {

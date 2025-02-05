@@ -3,7 +3,7 @@
   <div class="select-resource">
     <div>
       <ResourceSelectionBreadcrumbs
-        v-if="topic"
+        v-if="topic && !hideBreadcrumbs"
         :ancestors="[...topic.ancestors, topic]"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
@@ -22,6 +22,7 @@
         :contentCardLink="contentLink"
         :contentCardMessage="contentCardMessage"
         :showRadioButtons="!multi"
+        :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMore"
@@ -164,6 +165,19 @@
         required: false,
         default: () => '',
       },
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
+      },
+      getTopicLink: {
+        type: Function,
+        required: false,
+        default: () => {},
+      },
+      hideBreadcrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       selectAllIndeterminate() {
@@ -213,6 +227,11 @@
         return { name, params, query };
       },
       topicsLink(topicId) {
+        const route = this.getTopicLink?.(topicId);
+        if (route) {
+          return route;
+        }
+
         const { name, params, query } = this.$route;
         return {
           name,

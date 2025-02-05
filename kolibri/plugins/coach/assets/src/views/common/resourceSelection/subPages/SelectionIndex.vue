@@ -15,6 +15,7 @@
         <KButton
           icon="filter"
           :text="searchLabel$()"
+          @click="onSearchClick"
         />
       </div>
 
@@ -22,6 +23,7 @@
         v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="mb-24"
         :settings="settings"
+        @searchClick="onSearchClick"
       />
       <div
         v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
@@ -30,6 +32,7 @@
         <KButton
           icon="filter"
           :text="searchLabel$()"
+          @click="onSearchClick"
         />
       </div>
 
@@ -228,6 +231,14 @@
           name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: channel.id },
         };
+      },
+      onSearchClick() {
+        this.$router.push({
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+        });
       },
     },
   };

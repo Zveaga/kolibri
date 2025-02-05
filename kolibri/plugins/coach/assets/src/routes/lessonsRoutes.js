@@ -34,15 +34,17 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
-import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
 import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
-import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
+import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
-import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromChannels.vue';
+import SelectFromTopicTree from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
+import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
+import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
+import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -152,8 +154,18 @@ export default [
           },
           {
             name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-            path: 'channels',
-            component: SelectFromChannels,
+            path: 'topic-tree',
+            component: SelectFromTopicTree,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+            path: 'search',
+            component: SearchFilters,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+            path: 'search-results',
+            component: SelectFromSearchResults,
           },
           {
             name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,

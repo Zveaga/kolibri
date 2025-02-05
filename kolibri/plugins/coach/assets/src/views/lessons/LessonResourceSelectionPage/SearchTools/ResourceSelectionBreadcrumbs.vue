@@ -28,16 +28,18 @@
     },
     computed: {
       selectionCrumbs() {
-        return [
-          // The "Channels" breadcrumb
-          { text: this.coreString('channelsLabel'), link: this.channelsLink },
-          // Ancestors breadcrumbs
-          // NOTE: The current topic is injected into `ancestors` in the showPage action
-          ...this.ancestors.map(a => ({
-            text: a.title,
-            link: this.topicsLink(a.id),
-          })),
-        ];
+        // NOTE: The current topic is injected into `ancestors` in the parent component
+        const breadcrumbs = this.ancestors.map(a => ({
+          text: a.title,
+          link: this.topicsLink(a.id),
+        }));
+        if (this.channelsLink) {
+          breadcrumbs.unshift({
+            text: this.coreString('channelsLabel'),
+            link: this.channelsLink,
+          });
+        }
+        return breadcrumbs;
       },
     },
   };
