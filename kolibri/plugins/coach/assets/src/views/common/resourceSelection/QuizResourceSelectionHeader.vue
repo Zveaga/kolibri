@@ -4,19 +4,25 @@
     <span>
       {{ quizTitle }}
     </span>
-    <KButtonGroup>
+    <div class="quiz-header-actions">
       <KButton
-        icon="settings"
         appearance="flat-button"
         :text="settingsLabel$()"
         @click="onSettingsClick"
-      />
+      >
+        <template #icon>
+          <KIcon
+            icon="settings"
+            class="setting-icon"
+          />
+        </template>
+      </KButton>
       <KButton
         v-if="!hideSearch"
         icon="filter"
         :text="searchLabel$()"
       />
-    </KButtonGroup>
+    </div>
   </div>
 
 </template>
@@ -74,6 +80,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .quiz-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .setting-icon {
+    margin-right: 4px;
+    font-size: 20px;
   }
 
 </style>
