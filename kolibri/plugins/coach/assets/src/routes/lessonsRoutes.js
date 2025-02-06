@@ -44,6 +44,7 @@ import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/Lesson
 import SelectFromBookmarks from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromBookmarks.vue';
 import SelectFromTopicTree from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromTopicTree.vue';
 import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
+import ManageSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedResources.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -166,7 +167,11 @@ export default [
             path: 'search-results',
             component: SelectFromSearchResults,
           },
-
+          {
+            name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+            path: 'preview-resources',
+            component: ManageSelectedResources,
+          },
           {
             name: PageNames.LESSON_PREVIEW_RESOURCE,
             path: 'preview',
