@@ -23,6 +23,9 @@
         />
       </div>
     </template>
+    <template #select>
+      <slot name="select"></slot>
+    </template>
     <template #footer>
       <div class="default-icon">
         <KIconButton

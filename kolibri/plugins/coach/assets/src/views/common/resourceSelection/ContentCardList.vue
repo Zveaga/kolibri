@@ -1,7 +1,6 @@
 <template>
 
-  <div>
-    <ul class="content-list">
+  <div class="content-list">
       <KCheckbox
         v-if="showSelectAll"
         :label="$tr('selectAllCheckboxLabel')"
@@ -10,16 +9,22 @@
         :disabled="isSelectAllDisabled"
         @change="$emit('changeselectall', $event)"
       />
-      <KRadioButtonGroup>
-        <li
-          v-for="content in contentList"
-          :key="content.id"
-          class="content-list-item"
-          :aria-selected="contentIsChecked(content)"
-        >
+    <KCardGrid layout="1-1-1">
+      <component
+        :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
+        v-for="content in contentList"
+        :key="content.id"
+        :to="contentCardLink(content)"
+        :contentNode="content"
+        :thumbnailSrc="content.thumbnail"
+        :headingLevel="cardsHeadingLevel"
+      >
+        <template #belowTitle>
+          <p v-if="contentCardMessage(content)">{{ contentCardMessage(content) }}</p>
+        </template>
+        <template #select>
           <KCheckbox
             v-if="contentHasCheckbox(content) && !showRadioButtons"
-            class="content-checkbox"
             :label="content.title"
             :showLabel="false"
             :checked="contentIsChecked(content)"
@@ -29,7 +34,6 @@
           />
           <KRadioButton
             v-else-if="contentHasCheckbox(content) && showRadioButtons"
-            class="content-checkbox"
             :label="content.title"
             :showLabel="false"
             :currentValue="contentIsChecked(content) ? content.id : 'none'"
@@ -37,31 +41,9 @@
             :disabled="contentCheckboxDisabled(content)"
             @change="handleCheckboxChange(content, true)"
           />
-          <!--
-          disabled, tabindex, is-leaf class set here to hack making the card not clickable
-          if you're trying to make the card clickable remove these properties
-        -->
-          <LessonContentCard
-            class="content-card"
-            :disabled="content.is_leaf"
-            :tabindex="content.is_leaf ? -1 : 0"
-            :class="{ 'with-checkbox': needCheckboxes }"
-            :content="content"
-            :message="contentCardMessage(content)"
-            :link="contentCardLink(content)"
-            :headingLevel="cardsHeadingLevel"
-          >
-            <template #notice>
-              <slot
-                name="notice"
-                :content="content"
-              >
-              </slot>
-            </template>
-          </LessonContentCard>
-        </li>
-      </KRadioButtonGroup>
-    </ul>
+        </template>
+      </component>
+    </KCardGrid>
 
     <template>
       <KButton
@@ -91,13 +73,15 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
+  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
   import { ViewMoreButtonStates } from '../../../constants/index';
-  import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'ContentCardList',
     components: {
-      LessonContentCard,
+      AccessibleResourceCard,
+      AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -177,9 +161,6 @@
     computed: {
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
-      },
-      needCheckboxes() {
-        return this.contentList.some(c => this.contentHasCheckbox(c));
       },
     },
     methods: {

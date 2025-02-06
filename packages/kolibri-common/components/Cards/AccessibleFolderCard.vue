@@ -20,6 +20,7 @@
     </template>
 
     <template #belowTitle>
+      <slot name="belowTitle"></slot>
       <div
         class="header-bar"
         :style="headerStyles"
