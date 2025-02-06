@@ -85,4 +85,32 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Choose a category',
     context: 'Label for a selector component to choose a category',
   },
+  addText: {
+    message: 'Add',
+    context: 'Button for adding a resource',
+  },
+
+  copyrightHolderDataHeader: {
+    message: 'Copyright holder',
+    context:
+      'Refers to the person or organization who holds the copyright or legal ownership for that resource.',
+  },
+  licenseDataHeader: {
+    message: 'License',
+    context:
+      "Refers to the type of license the learning resource has. For example, 'CC BY-NC' meaning 'Creative Commons: attribution, non-commercial'.",
+  },
+  addedIndicator: {
+    message: 'Added',
+    context: 'Notification that can refer to when resources are added to a lesson, for example.',
+  },
+  notAvailableLabel: {
+    message: 'Not available',
+    context: 'Message that shows when the value of key is null',
+  },
+  minutes: {
+    message: '{value, number, integer} {value, plural, one {minute} other {minutes}}',
+    context:
+      'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
+  },
 });

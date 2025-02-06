@@ -37,7 +37,7 @@ import {
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
-import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
+import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/PreviewSelectedResources';
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
 import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
 import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectionIndex.vue';
@@ -171,6 +171,17 @@ export default [
             name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
             path: 'preview-resources',
             component: ManageSelectedResources,
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_RESOURCE,
+            path: 'preview',
+            component: PreviewSelectedResources,
+            props: toRoute => {
+              const contentId = toRoute.query.contentId;
+              return {
+                contentId,
+              };
+            },
           },
         ],
       },
