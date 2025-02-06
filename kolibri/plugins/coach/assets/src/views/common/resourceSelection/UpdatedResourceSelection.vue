@@ -205,7 +205,10 @@
         if (this.disabled) {
           return true;
         }
-        return !this.selectAllRules.every(rule => rule(this.selectableContentList));
+        const deselectedResources = this.selectableContentList.filter(
+          resource => !this.selectedResources.some(res => res.id === resource.id),
+        );
+        return !this.selectAllRules.every(rule => rule(deselectedResources));
       },
       viewMoreButtonState() {
         if (this.loadingMore) {
