@@ -58,7 +58,6 @@ const MOCK_DEFAULTS = {
   isFacilityCoach: false,
   isLearner: true,
   isFacilityAdmin: false,
-  userIsMultiFacilityAdmin: false,
   getUserPermissions: {},
   userFacilityId: undefined,
   getUserKind: UserKinds.ANONYMOUS,

@@ -120,6 +120,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -144,7 +145,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { currentUserId, isSuperuser, userIsMultiFacilityAdmin } = useUser();
+      const { currentUserId, isSuperuser } = useUser();
+      const { userIsMultiFacilityAdmin } = useFacilities();
       return {
         currentUserId,
         isSuperuser,

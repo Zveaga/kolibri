@@ -44,7 +44,7 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useUser from 'kolibri/composables/useUser';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
     name: 'AllFacilitiesPage',
@@ -59,8 +59,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { userIsMultiFacilityAdmin } = useUser();
-      return { userIsMultiFacilityAdmin };
+      const { facilities, userIsMultiFacilityAdmin } = useFacilities();
+      return { userIsMultiFacilityAdmin, facilities };
     },
     props: {
       subtopicName: {
@@ -71,9 +71,6 @@
     },
     computed: {
       ...mapGetters(['facilityPageLinks']),
-      facilities() {
-        return this.$store.state.core.facilities;
-      },
     },
     beforeMount() {
       // Redirect to single-facility landing page if user/device isn't supposed

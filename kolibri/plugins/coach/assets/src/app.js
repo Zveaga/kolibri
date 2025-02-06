@@ -5,10 +5,13 @@ import router from 'kolibri/router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import KolibriApp from 'kolibri-app';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import HomeActivityPage from './views/home/HomeActivityPage';
+
+const { getFacilities, facilities } = useFacilities();
 
 function _channelListState(data) {
   return data.map(channel => ({
@@ -139,8 +142,8 @@ class CoachToolsModule extends KolibriApp {
         promises.push(this.store.dispatch('initClassInfo', to.params.classId));
       }
 
-      if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
-        promises.push(this.store.dispatch('getFacilities').catch(() => {}));
+      if (get(isSuperuser) && facilities.value.length === 0) {
+        promises.push(getFacilities().catch(() => {}));
       }
 
       if (promises.length > 0) {

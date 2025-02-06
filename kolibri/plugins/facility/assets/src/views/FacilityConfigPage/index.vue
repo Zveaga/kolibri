@@ -238,6 +238,7 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -294,7 +295,8 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { windowIsSmall } = useKResponsiveWindow();
-      const { isAppContext, isSuperuser, userIsMultiFacilityAdmin } = useUser();
+      const { isAppContext, isSuperuser } = useUser();
+      const { userIsMultiFacilityAdmin } = useFacilities();
       return {
         createSnackbar,
         windowIsSmall,

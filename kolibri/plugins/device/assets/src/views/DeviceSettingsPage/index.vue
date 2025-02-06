@@ -386,6 +386,7 @@
   import { checkCapability } from 'kolibri/utils/appCapabilities';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -430,6 +431,7 @@
       const { windowIsSmall } = useKResponsiveWindow();
       const dataPlugins = ref(null);
       const { snackbarIsVisible, createSnackbar } = useSnackbar();
+      const { facilities } = useFacilities();
 
       fetchPlugins.then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
@@ -468,6 +470,7 @@
         windowIsSmall,
         snackbarIsVisible,
         createSnackbar,
+        facilities,
       };
     },
     data() {
@@ -516,9 +519,6 @@
       },
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
-      },
-      facilities() {
-        return this.$store.getters.facilities;
       },
       isMultiFacilitySuperuser() {
         return this.isSuperuser && this.facilities.length > 1;
