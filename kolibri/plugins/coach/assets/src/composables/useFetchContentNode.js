@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, getCurrentInstance } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
 export default function useFetchContentNode(contentId) {
@@ -6,6 +6,7 @@ export default function useFetchContentNode(contentId) {
   const ancestors = ref([]);
   const questions = ref([]);
   const loading = ref(true);
+  const store = getCurrentInstance().proxy.$store;
 
   const fetchContentNode = async () => {
     ContentNodeResource.fetchModel({
@@ -25,7 +26,7 @@ export default function useFetchContentNode(contentId) {
         }
       })
       .catch(error => {
-        this.$store.dispatch('handleApiError', { error });
+        store.dispatch('handleApiError', { error });
       });
   };
 

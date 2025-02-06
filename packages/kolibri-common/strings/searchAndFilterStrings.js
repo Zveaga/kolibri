@@ -108,4 +108,9 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Not available',
     context: 'Message that shows when the value of key is null',
   },
+  minutes: {
+    message: '{value, number, integer} {value, plural, one {minute} other {minutes}}',
+    context:
+      'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
+  },
 });

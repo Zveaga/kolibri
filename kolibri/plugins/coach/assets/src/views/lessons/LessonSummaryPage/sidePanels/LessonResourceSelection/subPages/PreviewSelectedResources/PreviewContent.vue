@@ -2,11 +2,9 @@
 
   <div>
     <div class="channel-header">
-      <div>
-        <h6>
-          {{ coreString('selectFromChannels') }}
-        </h6>
-      </div>
+      <p>
+        {{ coreString('selectFromChannels') }}
+      </p>
 
       <div>
         <template v-if="isSelected">
@@ -34,21 +32,18 @@
       :ancestors="[...ancestors, currentContentNode]"
       :channelsLink="channelsLink"
       :topicsLink="topicsLink"
-      class="align-breadcrumbs"
     />
 
-    <div class="title-class">
-      <h5>
-        <KLabeledIcon :label="currentContentNode.kind">
-          <template #icon>
-            <LearningActivityIcon :kind="learningActivities" />
-          </template>
-          <template>
-            {{ currentContentNode.title }}
-          </template>
-        </KLabeledIcon>
-      </h5>
-    </div>
+    <h2>
+      <KLabeledIcon :label="currentContentNode.kind">
+        <template #icon>
+          <LearningActivityIcon :kind="learningActivities" />
+        </template>
+        <template>
+          {{ currentContentNode.title }}
+        </template>
+      </KLabeledIcon>
+    </h2>
 
     <ContentArea
       :header="questionLabel(selectedQuestionIndex)"
@@ -128,6 +123,7 @@
         licenseDataHeader$,
         addedIndicator$,
         notAvailableLabel$,
+        minutes$,
       } = searchAndFilterStrings;
 
       return {
@@ -136,6 +132,7 @@
         copyrightHolderDataHeader$,
         addedIndicator$,
         notAvailableLabel$,
+        minutes$,
       };
     },
     props: {
@@ -223,14 +220,7 @@
         this.$emit('removeResource', this.currentContentNode);
       },
       getTime(seconds) {
-        return this.$tr('minutes', { value: Math.floor(seconds / 60) });
-      },
-    },
-    $trs: {
-      minutes: {
-        message: '{value, number, integer} {value, plural, one {minute} other {minutes}}',
-        context:
-          'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
+        return this.minutes$({ value: Math.floor(seconds / 60) });
       },
     },
   };
@@ -241,12 +231,11 @@
 <style lang="scss" scoped>
 
   .license-detail-style {
-    margin: 30px 0 32px;
+    margin-top: 10px;
   }
 
   /deep/ .content-renderer {
     position: relative;
-    top: -40px;
     max-height: 500px;
   }
 
@@ -256,14 +245,8 @@
     justify-content: space-between;
   }
 
-  .title-class {
-    position: relative;
-    top: -30px;
-  }
-
-  .align-breadcrumbs {
-    position: relative;
-    top: -35px;
+  .channel-header p {
+    font-weight: 600;
   }
 
 </style>

@@ -18,6 +18,7 @@
 
 <script>
 
+  import { getCurrentInstance, ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFetchContentNode from '../../../../../../../composables/useFetchContentNode';
   import { coachStrings } from '../../../../../../common/commonCoachStrings';
@@ -31,17 +32,32 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
+      const previousRoute = ref(null);
+      const instance = getCurrentInstance();
+
       const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
       const { manageLessonResourcesTitle$ } = coachStrings;
 
       props.setTitle(manageLessonResourcesTitle$());
       props.setGoBack(null);
 
+      const routeBack = () => {
+        const backRoute = previousRoute.value?.name
+          ? previousRoute.value
+          : {
+            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          };
+        instance.proxy.$router.push(backRoute);
+      };
+
       return {
         contentNode,
         ancestors,
         questions,
         loading,
+        routeBack,
+        // eslint-disable-next-line vue/no-unused-properties
+        previousRoute,
       };
     },
     props: {
@@ -69,24 +85,20 @@
         }
         return false;
       },
-      routeBack() {
-        const { params, query } = this.$route;
-        return {
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-          params: params,
-          query: query,
-        };
-      },
+    },
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.previousRoute = from;
+      });
     },
     methods: {
       handleAddResource(content) {
-        this.routeBack;
+        this.routeBack();
         this.$emit('selectResources', [content]);
-        this.showSnackbarNotification('resourcesAddedWithCount', { count: 1 });
       },
       handleRemoveResource(content) {
+        this.routeBack();
         this.$emit('deselectResources', [content]);
-        this.showSnackbarNotification('resourcesRemovedWithCount', { count: 1 });
       },
     },
   };
