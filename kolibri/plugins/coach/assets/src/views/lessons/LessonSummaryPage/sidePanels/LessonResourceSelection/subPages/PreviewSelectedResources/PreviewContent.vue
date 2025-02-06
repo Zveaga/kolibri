@@ -31,7 +31,7 @@
 
     <ResourceSelectionBreadcrumbs
       v-if="ancestors.length"
-      :ancestors="[...ancestors, content]"
+      :ancestors="[...ancestors, currentContentNode]"
       :channelsLink="channelsLink"
       :topicsLink="topicsLink"
       class="align-breadcrumbs"
@@ -39,12 +39,12 @@
 
     <div class="title-class">
       <h5>
-        <KLabeledIcon :label="content.kind">
+        <KLabeledIcon :label="currentContentNode.kind">
           <template #icon>
             <LearningActivityIcon :kind="learningActivities" />
           </template>
           <template>
-            {{ content.title }}
+            {{ currentContentNode.title }}
           </template>
         </KLabeledIcon>
       </h5>
@@ -53,7 +53,7 @@
     <ContentArea
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
-      :content="content"
+      :content="currentContentNode"
       :isExercise="isExercise"
     />
 
@@ -73,7 +73,11 @@
     <HeaderTable class="license-detail-style">
       <HeaderTableRow :keyText="coreString('suggestedTime')">
         <template #value>
-          {{ content.duration ? getTime(content.duration) : notAvailableLabel$() }}
+          {{
+            currentContentNode.duration
+              ? getTime(currentContentNode.duration)
+              : notAvailableLabel$()
+          }}
         </template>
       </HeaderTableRow>
 
@@ -85,7 +89,7 @@
 
       <HeaderTableRow :keyText="copyrightHolderDataHeader$()">
         <template #value>
-          {{ content.license_owner }}
+          {{ currentContentNode.license_owner }}
         </template>
       </HeaderTableRow>
     </HeaderTable>
@@ -166,7 +170,7 @@
         };
       },
       isExercise() {
-        return this.content.kind === ContentNodeKinds.EXERCISE;
+        return this.currentContentNode.kind === ContentNodeKinds.EXERCISE;
       },
       selectedQuestion() {
         if (this.isExercise) {
@@ -175,22 +179,19 @@
         return '';
       },
       licenseName() {
-        return licenseLongName(this.content.license_name);
-      },
-      content() {
-        return this.currentContentNode;
+        return licenseLongName(this.currentContentNode.license_name);
       },
       description() {
-        if (this.content && this.content.description) {
+        if (this.currentContentNode && this.currentContentNode.description) {
           const md = new markdownIt('zero', { breaks: true });
-          return md.render(this.content.description);
+          return md.render(this.currentContentNode.description);
         }
 
         return undefined;
       },
       learningActivities() {
-        if (this.content.learning_activities) {
-          return this.content.learning_activities;
+        if (this.currentContentNode.learning_activities) {
+          return this.currentContentNode.learning_activities;
         }
         return [];
       },
@@ -216,10 +217,10 @@
         return this.coreString('questionNumberLabel', { questionNumber });
       },
       addResource() {
-        this.$emit('addResource', this.content);
+        this.$emit('addResource', this.currentContentNode);
       },
       removeResource() {
-        this.$emit('removeResource', this.content);
+        this.$emit('removeResource', this.currentContentNode);
       },
       getTime(seconds) {
         return this.$tr('minutes', { value: Math.floor(seconds / 60) });
