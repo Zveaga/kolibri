@@ -40,7 +40,7 @@
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { ViewMoreButtonStates } from '../../../constants';
+  import { ViewMoreButtonStates, PageNames } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -222,12 +222,18 @@
     },
     methods: {
       contentLink(content) {
-        const { name, params, query } = this.$route;
+        const { params, query } = this.$route;
         if (!content.is_leaf) {
           return this.topicsLink(content.id);
         }
-        // Just return the current route; router-link will handle the no-op from here
-        return { name, params, query };
+        return {
+          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          params: params,
+          query: {
+            ...query,
+            contentId: content.id,
+          },
+        };
       },
       topicsLink(topicId) {
         const route = this.getTopicLink?.(topicId);

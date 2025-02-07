@@ -15,7 +15,6 @@ export default function useUser() {
   const isFacilityCoach = computed(() => store.getters.isFacilityCoach);
   const isLearner = computed(() => store.getters.isLearner);
   const isFacilityAdmin = computed(() => store.getters.isFacilityAdmin);
-  const userIsMultiFacilityAdmin = computed(() => store.getters.userIsMultiFacilityAdmin);
   const getUserPermissions = computed(() => store.getters.getUserPermissions);
   const userFacilityId = computed(() => store.getters.userFacilityId);
   const getUserKind = computed(() => store.getters.getUserKind);
@@ -46,7 +45,6 @@ export default function useUser() {
     isFacilityCoach,
     isLearner,
     isFacilityAdmin,
-    userIsMultiFacilityAdmin,
     getUserPermissions,
     userFacilityId,
     getUserKind,

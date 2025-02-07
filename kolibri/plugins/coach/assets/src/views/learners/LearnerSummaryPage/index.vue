@@ -34,11 +34,7 @@
                 >
                   <td>
                     <KRouterLink
-                      :to="
-                        classRoute('ReportsLearnerReportLessonPage', {
-                          lessonId: tableRow.id,
-                        })
-                      "
+                      :to="lessonLink(tableRow.id)"
                       :text="tableRow.title"
                       icon="lesson"
                     />
@@ -190,7 +186,16 @@
         return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
-        return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
+        return this.classRoute(PageNames.QUIZ_LEARNER_REPORT, {
+          quizId,
+          learnerId: this.learner.id,
+          questionId: 0,
+          interactionIndex: 0,
+          tryIndex: 0,
+        });
+      },
+      lessonLink(lessonId) {
+        return this.classRoute(PageNames.LESSON_LEARNER_REPORT, { lessonId });
       },
       exportCSVLessons() {
         const filteredLessons = this.lessons

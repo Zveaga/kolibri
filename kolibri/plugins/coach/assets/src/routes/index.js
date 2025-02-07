@@ -2,6 +2,7 @@ import store from 'kolibri/store';
 import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';
@@ -20,9 +21,11 @@ import groupsRoutes from './groupsRoutes';
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
   const { isSuperuser } = useUser();
+  const { getFacilities, facilities } = useFacilities();
+
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+    get(isSuperuser) && get(facilities).length === 0
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   return Promise.all([initClassInfoPromise, getFacilitiesPromise]);
@@ -124,8 +127,8 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      const { userIsMultiFacilityAdmin } = useUser();
-      if (get(userIsMultiFacilityAdmin)) {
+      const { userIsMultiFacilityAdmin } = useFacilities();
+      if (userIsMultiFacilityAdmin.value) {
         next({ name: 'AllFacilitiesPage', replace: true });
       } else {
         next({ name: 'CoachClassListPage', replace: true });

@@ -21,7 +21,6 @@
     <div v-if="subpageLoading">
       <KCircularLoader />
     </div>
-
     <router-view
       v-else
       :setTitle="setTitle"
