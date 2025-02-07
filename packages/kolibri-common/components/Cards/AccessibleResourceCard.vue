@@ -36,15 +36,6 @@
           :tooltip="coreString('savedFromBookmarks')"
           @click.stop="isBookmarked = !isBookmarked"
         />
-
-        <KIconButton
-          icon="infoOutline"
-          size="mini"
-          :color="$themePalette.grey.v_700"
-          :ariaLabel="coreString('viewInformation')"
-          :tooltip="coreString('viewInformation')"
-          @click.stop="$emit('toggleInfo')"
-        />
       </div>
     </template>
   </KCard>
