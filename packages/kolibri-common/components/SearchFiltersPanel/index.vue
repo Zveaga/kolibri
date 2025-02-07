@@ -141,8 +141,8 @@
     </div>
     <!-- When accordion mode is NOT activated, show as KModal, otherwise, just a div -->
     <component
-      :is="accordion ? 'div' : 'KModal'"
-      v-if="windowIsLarge && currentCategory"
+      :is="accordion || !windowIsLarge ? 'div' : 'KModal'"
+      v-if="currentCategory"
       appendToOverlay
       :title="$tr('chooseACategory')"
       :cancelText="coreString('closeAction')"
@@ -150,7 +150,6 @@
       @cancel="currentCategory = null"
     >
       <CategorySearchModal
-        v-if="currentCategory"
         ref="searchModal"
         :class="windowIsLarge ? '' : 'drawer-panel'"
         :selectedCategory="currentCategory"
