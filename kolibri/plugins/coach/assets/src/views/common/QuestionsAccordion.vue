@@ -5,6 +5,7 @@
       <div class="questions-accordion-header">
         <div>
           <KCheckbox
+            v-if="isCheckBoxVisible"
             ref="selectAllCheckbox"
             class="select-all-box"
             :label="selectAllLabel$()"
@@ -58,26 +59,28 @@
             }"
           >
             <template #leading-actions>
-              <DragHandle>
-                <div>
-                  <DragSortWidget
-                    :moveUpText="upLabel$"
-                    :moveDownText="downLabel$"
-                    :noDrag="true"
-                    :isFirst="index === 0"
-                    :isLast="index === questions.length - 1"
-                    @moveUp="() => handleKeyboardDragUp(index)"
-                    @moveDown="() => handleKeyboardDragDown(index)"
-                  />
-                </div>
-              </DragHandle>
-              <KCheckbox
-                class="accordion-item-checkbox"
-                :checked="selectedQuestions.includes(question.item)"
-                @change="
-                  (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
-                "
-              />
+              <div v-if="isCheckBoxVisible">
+                <DragHandle>
+                  <div>
+                    <DragSortWidget
+                      :moveUpText="upLabel$"
+                      :moveDownText="downLabel$"
+                      :noDrag="true"
+                      :isFirst="index === 0"
+                      :isLast="index === questions.length - 1"
+                      @moveUp="() => handleKeyboardDragUp(index)"
+                      @moveDown="() => handleKeyboardDragDown(index)"
+                    />
+                  </div>
+                </DragHandle>
+                <KCheckbox
+                  class="accordion-item-checkbox"
+                  :checked="selectedQuestions.includes(question.item)"
+                  @change="
+                    (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
+                  "
+                />
+              </div>
             </template>
             <template #content>
               <div
@@ -177,6 +180,11 @@
       selectAllIsIndeterminate: {
         type: Boolean,
         required: false,
+      },
+      isCheckBoxVisible: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
     methods: {

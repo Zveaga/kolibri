@@ -105,7 +105,6 @@
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import { SelectionTarget } from '../../contants.js';
   import { PageNames } from '../../../../../constants/index.js';
@@ -121,25 +120,15 @@
       HeaderTable,
       HeaderTableRow,
       SlotTruncator,
-      LearningActivityIcon,
-      ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const {
-        addText$,
-        copyrightHolderDataHeader$,
-        licenseDataHeader$,
-        addedIndicator$,
-        notAvailableLabel$,
-        minutes$,
-      } = searchAndFilterStrings;
+      const { copyrightHolderDataHeader$, licenseDataHeader$, notAvailableLabel$, minutes$ } =
+        searchAndFilterStrings;
 
       return {
-        addText$,
         licenseDataHeader$,
         copyrightHolderDataHeader$,
-        addedIndicator$,
         notAvailableLabel$,
         minutes$,
       };
@@ -149,13 +138,22 @@
         type: Object,
         required: true,
       },
-      ancestors: {
+      questions: {
         type: Array,
         required: false,
         default: () => [],
       },
-      isSelected: {
+      isActionDisabled: {
         type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
         required: true,
       },
       questions: {
@@ -211,12 +209,6 @@
 
         return undefined;
       },
-      learningActivities() {
-        if (this.currentContentNode.learning_activities) {
-          return this.currentContentNode.learning_activities;
-        }
-        return [];
-      },
     },
     methods: {
       topicsLink(topicId) {
@@ -240,12 +232,6 @@
         }
         const questionNumber = questionIndex + 1;
         return this.coreString('questionNumberLabel', { questionNumber });
-      },
-      addResource() {
-        this.$emit('addResource', this.currentContentNode);
-      },
-      removeResource() {
-        this.$emit('removeResource', this.currentContentNode);
       },
       getTime(seconds) {
         return this.minutes$({ value: Math.floor(seconds / 60) });
@@ -274,16 +260,6 @@
   /deep/ .content-renderer {
     position: relative;
     max-height: 500px;
-  }
-
-  .channel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .channel-header p {
-    font-weight: 600;
   }
 
 </style>
