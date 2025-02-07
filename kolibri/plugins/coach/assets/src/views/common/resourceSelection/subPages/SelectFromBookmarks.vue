@@ -18,6 +18,7 @@
       :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
+      :getResourceLink="getResourceLink"
       :selectedResources="selectedResources"
       :contentCardMessage="contentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
@@ -150,6 +151,13 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
     },
   };

@@ -38,9 +38,9 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
   import { validateObject } from 'kolibri/utils/objectSpecs';
+  import { ViewMoreButtonStates } from '../../../constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { ViewMoreButtonStates, PageNames } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -174,6 +174,13 @@
         required: false,
         default: () => {},
       },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
+      },
       hideBreadcrumbs: {
         type: Boolean,
         default: false,
@@ -222,18 +229,10 @@
     },
     methods: {
       contentLink(content) {
-        const { params, query } = this.$route;
         if (!content.is_leaf) {
           return this.topicsLink(content.id);
         }
-        return {
-          name: PageNames.LESSON_PREVIEW_RESOURCE,
-          params: params,
-          query: {
-            ...query,
-            contentId: content.id,
-          },
-        };
+        return this.getResourceLink(content.id);
       },
       topicsLink(topicId) {
         const route = this.getTopicLink?.(topicId);

@@ -32,6 +32,7 @@
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
+      :getResourceLink="getResourceLink"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -137,6 +138,13 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
     },
     computed: {

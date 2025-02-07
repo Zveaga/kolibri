@@ -34,6 +34,8 @@
       :searchTerms.sync="searchTerms"
       :selectionRules="selectionRules"
       :target="SelectionTarget.LESSON"
+      :lessonTitle="lessonTitle"
+      :getResourceLink="getResourceLink"
       :selectedResources="selectedResources"
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
@@ -211,6 +213,9 @@
           !!this.$route.query.searchResultTopicId
         );
       },
+      lessonTitle() {
+        return this.currentLesson.title;
+      },
     },
     methods: {
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
@@ -279,6 +284,15 @@
       },
       setGoBack(goBack) {
         this.goBack = goBack;
+      },
+      getResourceLink(resourceId) {
+        return {
+          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          query: {
+            ...this.$route.query,
+            contentId: resourceId,
+          },
+        };
       },
     },
   };

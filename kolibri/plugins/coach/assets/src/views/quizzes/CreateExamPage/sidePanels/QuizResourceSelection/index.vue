@@ -52,6 +52,7 @@
         :settings.sync="settings"
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
+        :getResourceLink="getResourceLink"
         @selectResources="addToWorkingResourcePool"
         @deselectResources="removeFromWorkingResourcePool"
         @setSelectedResources="setWorkingResourcePool"
@@ -457,6 +458,15 @@
         return this.questionsUnusedInSection$({
           count,
         });
+      },
+      getResourceLink(resourceId) {
+        return {
+          name: PageNames.QUIZ_PREVIEW_RESOURCE,
+          query: {
+            ...this.$route.query,
+            contentId: resourceId,
+          },
+        };
       },
     },
   };

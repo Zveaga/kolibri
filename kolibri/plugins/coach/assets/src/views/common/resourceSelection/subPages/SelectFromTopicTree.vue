@@ -64,6 +64,7 @@
       :selectedResources="selectedResources"
       :hideBreadcrumbs="hideBreadcrumbs"
       :channelsLink="breadcrumbChannelsLink"
+      :getResourceLink="getResourceLink"
       :contentCardMessage="contentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
@@ -263,6 +264,13 @@
         required: false,
         default: () => '',
       },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
+      },
     },
     computed: {
       breadcrumbChannelsLink() {
@@ -271,7 +279,10 @@
           return null;
         }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         };
       },
       hideBreadcrumbs() {

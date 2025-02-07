@@ -46,7 +46,7 @@
                   <span>
                     <KRouterLink
                       :text="resource.title"
-                      :to="{}"
+                      :to="getResourceLink(resource.id)"
                       style="font-size: 14px"
                     />
                   </span>
@@ -99,7 +99,7 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { getCurrentInstance, onMounted, ref, watch } from 'vue';
+  import { getCurrentInstance, ref, watch } from 'vue';
   import { coachStrings } from '../../commonCoachStrings.js';
   import { PageNames } from '../../../../constants/index.js';
   import { SelectionTarget } from '../contants.js';
@@ -127,21 +127,21 @@
       const { lessonLabel$, sizeLabel$ } = coachStrings;
 
       const instance = getCurrentInstance();
+      const router = instance.proxy.$router;
 
-      onMounted(() => {
-        const backRoute = prevRoute.value?.name
-          ? prevRoute.value
-          : {
-            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          };
-        if (props.selectedResources.length === 0) {
-          instance.proxy.$router.replace(backRoute);
+      const redirectBack = () => {
+        if (prevRoute.value?.name) {
+          return router.push(prevRoute.value);
         }
-        props.setTitle(numberOfSelectedResources$({ count: props.selectedResources.length }));
-        props.setGoBack(() => {
-          instance.proxy.$router.push(backRoute);
+        router.push({
+          name:
+            props.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
-      });
+      };
+      props.setTitle(numberOfSelectedResources$({ count: props.selectedResources.length }));
+      props.setGoBack(redirectBack);
 
       watch(
         () => props.selectedResources,
@@ -197,6 +197,13 @@
         type: String,
         required: false,
         default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
     },
 

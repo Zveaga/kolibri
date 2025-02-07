@@ -16,6 +16,7 @@ import SelectionIndex from '../views/common/resourceSelection/subPages/Selection
 import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
+import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
@@ -117,6 +118,17 @@ export default [
             name: PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
             path: 'settings',
             component: QuestionsSettings,
+          },
+          {
+            name: PageNames.QUIZ_PREVIEW_RESOURCE,
+            path: 'preview',
+            component: PreviewSelectedResources,
+            props: toRoute => {
+              const contentId = toRoute.query.contentId;
+              return {
+                contentId,
+              };
+            },
           },
         ],
       },

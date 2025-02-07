@@ -185,11 +185,6 @@ export default [
           },
         ],
       },
-      {
-        name: PageNames.LESSON_PREVIEW_RESOURCE,
-        path: 'preview-resources/:nodeId',
-        component: PreviewSelectedResources,
-      },
     ],
   },
   {
