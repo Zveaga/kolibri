@@ -1,9 +1,11 @@
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
 
 export async function setLessonSummaryState(store, params) {
+  const { getFacilities, facilities } = useFacilities();
   const { classId, lessonId } = params;
   store.commit('lessonSummary/resources/RESET_STATE');
   store.commit('lessonSummary/SET_STATE', {
@@ -16,8 +18,8 @@ export async function setLessonSummaryState(store, params) {
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+    get(isSuperuser) && get(facilities).length === 0
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

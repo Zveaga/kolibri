@@ -2,8 +2,11 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import AuthBase from '../../src/views/AuthBase';
 import makeStore from '../makeStore';
+import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 
+jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri/urls');
+
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 const router = new VueRouter({
@@ -12,7 +15,12 @@ const router = new VueRouter({
 router.getRoute = jest.fn();
 
 const store = makeStore();
-store.state.core.facilityConfig = { learner_can_sign_up: true };
+
+useFacilities.mockImplementation(() =>
+  useFacilitiesMock({
+    facilityConfig: { learner_can_sign_up: true },
+  }),
+);
 
 function makeWrapper(allowAccess = true) {
   store.getters = { ...store.getters, allowAccess: allowAccess };

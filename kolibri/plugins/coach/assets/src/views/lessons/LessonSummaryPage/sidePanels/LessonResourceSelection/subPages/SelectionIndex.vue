@@ -42,6 +42,7 @@
         <KButton
           icon="filter"
           :text="searchLabel$()"
+          @click="onSearchClick"
         />
       </div>
       <p
@@ -151,6 +152,9 @@
           name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: channel.id },
         };
+      },
+      onSearchClick() {
+        this.$router.push({ name: PageNames.LESSON_SELECT_RESOURCES_SEARCH });
       },
     },
   };

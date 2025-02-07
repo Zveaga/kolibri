@@ -37,13 +37,14 @@ import {
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
-import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
-import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
+import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/PreviewSelectedResources';
+import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
+import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
 import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectionIndex.vue';
 import SelectFromBookmarks from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromBookmarks.vue';
-import SelectFromChannels from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromChannels.vue';
+import SelectFromTopicTree from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromTopicTree.vue';
+import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
 import ManageSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedResources.vue';
-
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -153,13 +154,34 @@ export default [
           },
           {
             name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-            path: 'channels',
-            component: SelectFromChannels,
+            path: 'topic-tree',
+            component: SelectFromTopicTree,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+            path: 'search',
+            component: SearchFilters,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+            path: 'search-results',
+            component: SelectFromSearchResults,
           },
           {
             name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
             path: 'preview-resources',
             component: ManageSelectedResources,
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_RESOURCE,
+            path: 'preview',
+            component: PreviewSelectedResources,
+            props: toRoute => {
+              const contentId = toRoute.query.contentId;
+              return {
+                contentId,
+              };
+            },
           },
         ],
       },

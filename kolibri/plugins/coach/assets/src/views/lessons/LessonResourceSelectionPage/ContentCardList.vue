@@ -48,6 +48,7 @@
             :content="content"
             :message="contentCardMessage(content)"
             :link="contentCardLink(content)"
+            :headingLevel="cardsHeadingLevel"
           >
             <template #notice>
               <slot
@@ -160,6 +161,11 @@
       contentCardLink: {
         type: Function, // ContentNode => Route
         required: true,
+      },
+      // Heading level for the cards
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
       },
     },
 

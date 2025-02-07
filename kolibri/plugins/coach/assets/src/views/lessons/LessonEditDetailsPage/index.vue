@@ -38,6 +38,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
@@ -55,10 +56,12 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { isSuperuser } = useUser();
-
+      const { getFacilities, facilities } = useFacilities();
       return {
         createSnackbar,
         isSuperuser,
+        getFacilities,
+        facilities,
       };
     },
     props: {
@@ -101,8 +104,8 @@
         this.$route.params.classId,
       );
       const getFacilitiesPromise =
-        this.isSuperuser && this.$store.state.core.facilities.length === 0
-          ? this.$store.dispatch('getFacilities').catch(() => {})
+        this.isSuperuser && this.facilities.length === 0
+          ? this.getFacilities().catch(() => {})
           : Promise.resolve();
 
       Promise.all([initClassInfoPromise, getFacilitiesPromise])

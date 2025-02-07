@@ -1,6 +1,5 @@
 import Lockr from 'lockr';
-import { get } from '@vueuse/core';
-import useUser from 'kolibri/composables/useUser';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
 
@@ -17,9 +16,10 @@ export default {
       store.commit('CORE_SET_PAGE_LOADING', false);
       store.commit('CORE_SET_ERROR', null);
     },
-    setFacilitiesAndConfig(store) {
-      return store.dispatch('getFacilities').then(() => {
-        return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
+    setFacilitiesAndConfig() {
+      const { getFacilities, getFacilityConfig, selectedFacility } = useFacilities();
+      return getFacilities().then(() => {
+        return getFacilityConfig(selectedFacility.value.id);
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -32,20 +32,9 @@ export default {
       }
     },
     setFacilityId(store, { facilityId }) {
+      const { getFacilityConfig } = useFacilities();
       store.commit('SET_FACILITY_ID', facilityId);
-      return store.dispatch('getFacilityConfig', facilityId);
-    },
-  },
-  getters: {
-    // Return the facility that was last selected or fallback to the default facility.
-    selectedFacility(state, getters) {
-      const selectedFacility = getters.facilities.find(f => f.id === state.facilityId);
-      if (selectedFacility) {
-        return selectedFacility;
-      } else {
-        const { userFacilityId } = useUser();
-        return getters.facilities.find(f => f.id === get(userFacilityId)) || null;
-      }
+      return getFacilityConfig(facilityId);
     },
   },
   mutations: {

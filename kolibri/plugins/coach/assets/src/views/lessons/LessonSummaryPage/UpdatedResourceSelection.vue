@@ -3,7 +3,7 @@
   <div class="select-resource">
     <div>
       <ResourceSelectionBreadcrumbs
-        v-if="topic"
+        v-if="topic && !hideBreadcrumbs"
         :ancestors="[...topic.ancestors, topic]"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
@@ -20,6 +20,7 @@
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
         :showRadioButtons="!multi"
+        :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMore"
@@ -36,7 +37,7 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { PageNames, ViewMoreButtonStates } from '../../../constants';
+  import { ViewMoreButtonStates, PageNames } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -94,13 +95,26 @@
         type: Boolean,
         default: false,
       },
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
+      },
+      channelsLink: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      getTopicLink: {
+        type: Function,
+        required: false,
+        default: () => {},
+      },
+      hideBreadcrumbs: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
-      channelsLink() {
-        return {
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-        };
-      },
       selectAllIndeterminate() {
         return (
           !this.selectAllChecked &&
@@ -134,14 +148,25 @@
     },
     methods: {
       contentLink(content) {
-        const { name, params, query } = this.$route;
+        const { params, query } = this.$route;
         if (!content.is_leaf) {
           return this.topicsLink(content.id);
         }
-        // Just return the current route; router-link will handle the no-op from here
-        return { name, params, query };
+        return {
+          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          params: params,
+          query: {
+            ...query,
+            contentId: content.id,
+          },
+        };
       },
       topicsLink(topicId) {
+        const route = this.getTopicLink?.(topicId);
+        if (route) {
+          return route;
+        }
+
         const { name, params, query } = this.$route;
         return {
           name,
