@@ -21,7 +21,6 @@
         v-if="!hideSearch"
         icon="filter"
         :text="searchLabel$()"
-        @click="$emit('searchClick')"
       />
     </div>
   </div>

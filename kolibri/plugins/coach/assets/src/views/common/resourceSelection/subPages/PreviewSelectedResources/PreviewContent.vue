@@ -102,10 +102,10 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
-  import ContentArea from '../../../../../LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
-  import commonCoach from '../../../../../../common';
-  import { PageNames } from '../../../../../../../constants/index';
-  import ResourceSelectionBreadcrumbs from '../../../../../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  // import commonCoach from '../../../../../../common';
+  import { PageNames } from '../../../../../constants/index.js';
+  import ContentArea from '../../../../lessons/LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
+  import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'PreviewContent',
@@ -115,7 +115,7 @@
       LearningActivityIcon,
       ResourceSelectionBreadcrumbs,
     },
-    mixins: [commonCoreStrings, commonCoach],
+    mixins: [commonCoreStrings],
     setup() {
       const {
         addText$,

@@ -20,9 +20,10 @@
 
   import { getCurrentInstance, ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFetchContentNode from '../../../../../../../composables/useFetchContentNode';
-  import { coachStrings } from '../../../../../../common/commonCoachStrings';
-  import { PageNames } from '../../../../../../../constants/index';
+
+  import { coachStrings } from '../../../commonCoachStrings.js';
+  import { PageNames } from '../../../../../constants/index.js';
+  import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import PreviewContent from './PreviewContent';
 
   export default {

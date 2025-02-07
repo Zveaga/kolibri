@@ -41,7 +41,7 @@ import SelectionIndex from '../views/common/resourceSelection/subPages/Selection
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import SelectFromTopicTree from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
-import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/PreviewSelectedResources';
+import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
 import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
 import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
