@@ -100,6 +100,10 @@
                   @updateContentState="() => null"
                   @error="err => $emit('error', err)"
                 />
+                <slot
+                  name="questionExtraContent"
+                  :question="question"
+                ></slot>
               </div>
             </template>
           </AccordionItem>

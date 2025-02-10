@@ -86,6 +86,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
         PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+        PageNames.LESSON_PREVIEW_SELECTED_QUESTIONS,
       ];
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (
