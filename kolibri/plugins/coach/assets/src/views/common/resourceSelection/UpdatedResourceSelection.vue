@@ -12,6 +12,7 @@
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="showSelectAll"
+        :isSelectAllDisabled="isSelectAllDisabled"
         :viewMoreButtonState="viewMoreButtonState"
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
@@ -19,6 +20,7 @@
         :contentHasCheckbox="showCheckbox"
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
+        :contentCardMessage="contentCardMessage"
         :showRadioButtons="!multi"
         :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
@@ -35,9 +37,10 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
+  import { ViewMoreButtonStates } from '../../../constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { ViewMoreButtonStates, PageNames } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -47,6 +50,9 @@
     },
     mixins: [commonCoreStrings],
     props: {
+      /**
+       * Boolean that determines if the select all checkbox should be rendered.
+       */
       canSelectAll: {
         type: Boolean,
         default: false,
@@ -55,6 +61,10 @@
         type: Boolean,
         default: true,
       },
+      /**
+       * Object representing the current topic. If present, it will render
+       * the topic name, description and ancestor breadcrumbs.
+       */
       topic: {
         type: Object,
         required: false,
@@ -77,17 +87,68 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * Array of functions that take a resource and return true if it should be selectable.
+       */
       selectionRules: {
         type: Array,
         required: false,
         default: () => [],
+        validator: rules =>
+          validateObject(
+            { rules },
+            {
+              rules: {
+                type: Array,
+                spec: {
+                  type: Function,
+                },
+                default: () => [],
+              },
+            },
+          ),
+      },
+      /**
+       * Array of functions that take a list of selectable resources and
+       * return true if select all should be enabled.
+       */
+      selectAllRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+        validator: rules =>
+          validateObject(
+            { rules },
+            {
+              rules: {
+                type: Array,
+                spec: {
+                  type: Function,
+                },
+                default: () => [],
+              },
+            },
+          ),
       },
       selectedResources: {
         type: Array,
         required: true,
       },
+      /**
+       * Array of resource ids that already belongs to the target model (quiz/lessons),
+       * and should not be selectable.
+       */
       unselectableResourceIds: {
         type: Array,
+        required: false,
+        default: null,
+      },
+      /**
+       * Route object for the channels page to be rendered in the breadcrumbs.
+       * If null, the breadcrumbs will not render a link to the channels page.
+       */
+      channelsLink: {
+        type: Object,
         required: false,
         default: null,
       },
@@ -95,19 +156,30 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
+      },
       cardsHeadingLevel: {
         type: Number,
         default: 3,
-      },
-      channelsLink: {
-        type: Object,
-        required: false,
-        default: null,
       },
       getTopicLink: {
         type: Function,
         required: false,
         default: () => {},
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
       hideBreadcrumbs: {
         type: Boolean,
@@ -136,6 +208,15 @@
       showSelectAll() {
         return this.canSelectAll && this.multi && this.selectableContentList.length > 0;
       },
+      isSelectAllDisabled() {
+        if (this.disabled) {
+          return true;
+        }
+        const deselectedResources = this.selectableContentList.filter(
+          resource => !this.selectedResources.some(res => res.id === resource.id),
+        );
+        return !this.selectAllRules.every(rule => rule(deselectedResources));
+      },
       viewMoreButtonState() {
         if (this.loadingMore) {
           return ViewMoreButtonStates.LOADING;
@@ -148,18 +229,10 @@
     },
     methods: {
       contentLink(content) {
-        const { params, query } = this.$route;
         if (!content.is_leaf) {
           return this.topicsLink(content.id);
         }
-        return {
-          name: PageNames.LESSON_PREVIEW_RESOURCE,
-          params: params,
-          query: {
-            ...query,
-            contentId: content.id,
-          },
-        };
+        return this.getResourceLink(content.id);
       },
       topicsLink(topicId) {
         const route = this.getTopicLink?.(topicId);
@@ -187,6 +260,9 @@
       contentCheckboxDisabled(resource) {
         if (this.disabled || this.unselectableResourceIds?.includes(resource.id)) {
           return true;
+        }
+        if (this.selectedResources.some(res => res.id === resource.id)) {
+          return false;
         }
         return !this.selectionRules.every(rule => rule(resource) === true);
       },

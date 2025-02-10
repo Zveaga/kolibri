@@ -1,10 +1,41 @@
 <template>
 
   <div>
-    <div v-if="bookmarksCount > 0">
-      <div class="mb-16 side-panel-subtitle">
-        {{ selectFromBookmarks$() }}
+    <div
+      v-if="bookmarksCount > 0"
+      class="mb-24"
+    >
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="subheader"
+      >
+        <div class="side-panel-subtitle">
+          {{ selectFromBookmarks$() }}
+        </div>
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
       </div>
+
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
+        class="mb-24"
+        :settings="settings"
+        @searchClick="onSearchClick"
+      />
+      <div
+        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+        class="d-flex-end mb-24"
+      >
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
+      </div>
+
       <KCardGrid layout="1-1-1">
         <KCard
           :title="bookmarksLabel$()"
@@ -35,15 +66,10 @@
       </KCardGrid>
     </div>
     <div>
-      <div class="channels-header">
+      <div class="subheader">
         <div class="side-panel-subtitle">
           {{ selectFromChannels$() }}
         </div>
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-          @click="onSearchClick"
-        />
       </div>
       <p
         v-if="channels.length === 0"
@@ -70,17 +96,21 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import { PageNames } from '../../../../../../constants';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { PageNames } from '../../../../constants';
+  import { coachStrings } from '../../commonCoachStrings';
+  import { SelectionTarget } from '../contants';
+  import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
    */
 
   export default {
     name: 'SelectionIndex',
     components: {
       AccessibleChannelCard,
+      QuizResourceSelectionHeader,
     },
     setup(props) {
       const { bookmarksFetch, channelsFetch } = props;
@@ -97,14 +127,27 @@
         searchLabel$,
       } = coreStrings;
 
+      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
+        enhancedQuizManagementStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
 
-      props.setTitle(manageLessonResourcesTitle$());
+      const getTitle = () => {
+        if (props.target === SelectionTarget.LESSON) {
+          return manageLessonResourcesTitle$();
+        }
+        if (props.settings.selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      };
+
+      props.setTitle(getTitle());
       props.setGoBack(null);
 
       return {
         bookmarksCount,
         channels,
+        SelectionTarget,
         selectFromChannels$,
         noAvailableResources$,
         numberOfBookmarks$,
@@ -138,23 +181,64 @@
         type: Object,
         required: true,
       },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      /**
+       * The title of the section (valid just for quizzes).
+       * @type {string}
+       */
+      sectionTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     computed: {
       selectFromBookmarksLink() {
+        if (this.target === SelectionTarget.LESSON) {
+          return {
+            name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          };
+        }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          name: PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
         };
       },
     },
     methods: {
       selectFromChannelsLink(channel) {
+        if (this.target === SelectionTarget.LESSON) {
+          return {
+            name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+            query: { topicId: channel.id },
+          };
+        }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: channel.id },
         };
       },
       onSearchClick() {
-        this.$router.push({ name: PageNames.LESSON_SELECT_RESOURCES_SEARCH });
+        this.$router.push({
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+        });
       },
     },
   };
@@ -163,10 +247,6 @@
 
 
 <style scoped>
-
-  .mb-16 {
-    margin-bottom: 16px;
-  }
 
   .mt-24 {
     margin-top: 24px;
@@ -177,12 +257,20 @@
     font-weight: 600;
   }
 
-  .channels-header {
+  .subheader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 24px;
     margin-bottom: 16px;
+  }
+
+  .d-flex-end {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .mb-24 {
+    margin-bottom: 24px;
   }
 
 </style>

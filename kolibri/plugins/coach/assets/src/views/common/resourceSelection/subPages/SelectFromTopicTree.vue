@@ -1,19 +1,39 @@
 <template>
 
   <div>
-    <div
-      v-if="!isTopicFromSearchResult"
-      class="channels-header"
-    >
-      <span class="side-panel-subtitle">
-        {{ selectFromChannels$() }}
-      </span>
-      <KButton
-        icon="filter"
-        :text="searchLabel$()"
-        @click="onSearchClick"
+    <template v-if="!isTopicFromSearchResult">
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="subheader"
+      >
+        <span class="side-panel-subtitle">
+          {{ selectFromChannels$() }}
+        </span>
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
+      </div>
+
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
+        class="mb-16"
+        :settings="settings"
+        @searchClick="onSearchClick"
       />
-    </div>
+
+      <div
+        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+        class="d-flex-end mb-16"
+      >
+        <KButton
+          icon="filter"
+          :text="searchLabel$()"
+          @click="onSearchClick"
+        />
+      </div>
+    </template>
 
     <div class="topic-info">
       <h2>
@@ -32,19 +52,24 @@
 
     <UpdatedResourceSelection
       canSelectAll
-      :disabled="disabled"
       :topic="computedTopic"
+      :disabled="disabled"
       :contentList="contentList"
       :hasMore="hasMore"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
+      :selectAllRules="selectAllRules"
       :selectedResources="selectedResources"
-      :channelsLink="breadcrumbChannelsLink"
       :hideBreadcrumbs="hideBreadcrumbs"
+      :channelsLink="breadcrumbChannelsLink"
+      :getResourceLink="getResourceLink"
+      :contentCardMessage="contentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 
@@ -56,48 +81,77 @@
   import { computed, getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { coachStrings } from '../../../../../common/commonCoachStrings';
-  import { PageNames } from '../../../../../../constants';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { coachStrings } from '../../commonCoachStrings';
+  import { PageNames } from '../../../../constants';
+  import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
+  import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
+  import { SelectionTarget } from '../contants';
 
   /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
    */
 
   export default {
     name: 'SelectFromTopicTree',
     components: {
       UpdatedResourceSelection,
+      QuizResourceSelectionHeader,
     },
     setup(props) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
-      const { backToSearchResultsLabel$ } = searchAndFilterStrings;
       const instance = getCurrentInstance();
+
+      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
+        enhancedQuizManagementStrings;
+      const { backToSearchResultsLabel$ } = searchAndFilterStrings;
+
       const routeQuery = instance.proxy.$route.query;
       const isTopicFromSearchResult = computed(() => !!routeQuery.searchResultTopicId);
 
-      props.setTitle(
-        isTopicFromSearchResult.value ? backToSearchResultsLabel$() : manageLessonResourcesTitle$(),
-      );
+      const getTitle = () => {
+        if (isTopicFromSearchResult.value) {
+          return backToSearchResultsLabel$();
+        }
+        if (props.target === SelectionTarget.LESSON) {
+          return manageLessonResourcesTitle$();
+        }
+        if (props.settings.selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+      };
+      props.setTitle(getTitle());
 
-      props.setGoBack(() => {
+      const redirectBack = () => {
         const { searchTopicId } = routeQuery;
         if (!isTopicFromSearchResult.value) {
           return instance.proxy.$router.push({
-            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+            name:
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+                : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
           });
         }
+
         const query = { ...instance.proxy.$route.query };
         query.topicId = searchTopicId;
         delete query.searchTopicId;
         delete query.searchResultTopicId;
-
         instance.proxy.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+          name:
+            props.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
           query,
         });
-      });
+      };
+      const { topicId } = instance.proxy.$route.query;
+      if (!topicId) {
+        redirectBack();
+      }
+      props.setGoBack(redirectBack);
 
       const computedTopic = computed(() => {
         if (!isTopicFromSearchResult.value) {
@@ -113,7 +167,6 @@
         );
         const newAncestors =
           searchResultTopicIndex === -1 ? [] : topicAncestors.slice(searchResultTopicIndex);
-
         return {
           ...props.topic,
           ancestors: newAncestors,
@@ -126,6 +179,7 @@
         hasMore,
         fetchMore,
         loadingMore,
+        SelectionTarget,
         computedTopic,
         isTopicFromSearchResult,
         searchLabel$,
@@ -158,6 +212,11 @@
         required: false,
         default: () => [],
       },
+      selectAllRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
       selectedResources: {
         type: Array,
         required: true,
@@ -171,6 +230,47 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      /**
+       * The title of the section (valid just for quizzes).
+       * @type {string}
+       */
+      sectionTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
+      },
     },
     computed: {
       breadcrumbChannelsLink() {
@@ -179,29 +279,23 @@
           return null;
         }
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         };
       },
       hideBreadcrumbs() {
         return this.isTopicFromSearchResult && this.computedTopic.ancestors.length === 0;
       },
     },
-    beforeRouteEnter(to, _, next) {
-      const { topicId } = to.query;
-      if (!topicId) {
-        return next({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          params: {
-            ...to.params,
-          },
-        });
-      }
-      return next();
-    },
     methods: {
       onSearchClick() {
         this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_SEARCH
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
           query: this.$route.query,
         });
       },
@@ -213,12 +307,25 @@
 
 <style scoped>
 
+  .d-flex-end {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .mb-16 {
+    margin-bottom: 16px;
+  }
+
+  .mr-8 {
+    margin-right: 8px;
+  }
+
   .side-panel-subtitle {
     font-size: 16px;
     font-weight: 600;
   }
 
-  .channels-header {
+  .subheader {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -227,10 +334,6 @@
 
   .topic-info h2 {
     margin: 0;
-  }
-
-  .mr-8 {
-    margin-right: 8px;
   }
 
 </style>

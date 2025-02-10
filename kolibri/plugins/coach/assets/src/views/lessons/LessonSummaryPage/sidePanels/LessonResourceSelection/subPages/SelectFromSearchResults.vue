@@ -32,6 +32,7 @@
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
+      :getResourceLink="getResourceLink"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -47,9 +48,9 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../../../constants';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
+  import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -137,6 +138,13 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
     },
     computed: {

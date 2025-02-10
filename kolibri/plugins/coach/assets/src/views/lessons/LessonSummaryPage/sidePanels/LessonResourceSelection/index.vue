@@ -33,6 +33,9 @@
       :bookmarksFetch="bookmarksFetch"
       :searchTerms.sync="searchTerms"
       :selectionRules="selectionRules"
+      :target="SelectionTarget.LESSON"
+      :lessonTitle="lessonTitle"
+      :getResourceLink="getResourceLink"
       :selectedResources="selectedResources"
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
@@ -97,6 +100,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
+  import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
 
   export default {
@@ -154,6 +158,7 @@
         bookmarksFetch,
         searchTerms,
         selectionRules,
+        SelectionTarget,
         displayingSearchResults,
         clearSearch,
         selectResources,
@@ -207,6 +212,9 @@
           this.$route.name === PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE &&
           !!this.$route.query.searchResultTopicId
         );
+      },
+      lessonTitle() {
+        return this.currentLesson.title;
       },
     },
     methods: {
@@ -276,6 +284,15 @@
       },
       setGoBack(goBack) {
         this.goBack = goBack;
+      },
+      getResourceLink(resourceId) {
+        return {
+          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          query: {
+            ...this.$route.query,
+            contentId: resourceId,
+          },
+        };
       },
     },
   };

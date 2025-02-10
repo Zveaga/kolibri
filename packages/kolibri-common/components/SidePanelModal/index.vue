@@ -44,8 +44,11 @@
           </div>
 
           <!-- Default slot for inserting content which will scroll on overflow -->
-          <div class="side-panel-content">
-            <slot></slot>
+          <div
+            class="side-panel-content"
+            @scroll="isScrolled = $event.target.scrollTop > 0"
+          >
+            <slot :isScrolled="isScrolled"></slot>
           </div>
           <div
             v-if="$slots.bottomNavigation"
@@ -71,6 +74,7 @@
 
 <script>
 
+  import { ref } from 'vue';
   import { get } from '@vueuse/core';
   import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -89,6 +93,7 @@
         // @type {RefImpl<number>}
         windowBreakpoint,
         lastFocus: null,
+        isScrolled: ref(false),
       };
     },
     props: {

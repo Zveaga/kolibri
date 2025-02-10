@@ -15,6 +15,12 @@ import useFetch from './useFetch';
  * and topic trees, and offers methods to add, remove, or override selected resources.
  *
  * @param {Object} options
+ * @param {Object} options.bookmarks Configuration object for bookmarks fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
+ * @param {Object} options.channels Configuration object for channels fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
+ * @param {Object} options.topicTree Configuration object for topic tree fetch. It can contain
+ * `filters` an object with extra query params, and `annotator` a function to annotate the results.
  * @param {string} options.searchResultsRouteName The name of the route where the search results
  *  will be displayed so that we can redirect to it when the search terms are updated.
  *
@@ -51,7 +57,12 @@ import useFetch from './useFetch';
  *
  * @returns {UseResourceSelectionResponse}
  */
-export default function useResourceSelection({ searchResultsRouteName } = {}) {
+export default function useResourceSelection({
+  searchResultsRouteName,
+  bookmarks,
+  channels,
+  topicTree,
+} = {}) {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   const topicId = computed(() => route.value.query.topicId);
@@ -60,10 +71,21 @@ export default function useResourceSelection({ searchResultsRouteName } = {}) {
   const selectedResources = ref([]);
   const topic = ref(null);
 
+  const fetchBookmarks = async params => {
+    const response = await ContentNodeResource.fetchBookmarks(params);
+    if (bookmarks?.annotator) {
+      const annotatedResults = await bookmarks.annotator(response.results);
+      return {
+        ...response,
+        results: annotatedResults,
+      };
+    }
+    return response;
+  };
   const bookmarksFetch = useFetch({
     fetchMethod: () =>
-      ContentNodeResource.fetchBookmarks({
-        params: { limit: 25, available: true },
+      fetchBookmarks({
+        params: { limit: 25, available: true, ...bookmarks?.filters },
       }),
     fetchMoreMethod: more =>
       ContentNodeResource.fetchBookmarks({
@@ -71,13 +93,20 @@ export default function useResourceSelection({ searchResultsRouteName } = {}) {
       }),
   });
 
+  const fetchChannels = async () => {
+    const result = await ChannelResource.fetchCollection({
+      getParams: {
+        available: true,
+        ...channels?.filters,
+      },
+    });
+    if (channels?.annotator) {
+      return channels.annotator(result);
+    }
+    return result;
+  };
   const channelsFetch = useFetch({
-    fetchMethod: () =>
-      ChannelResource.fetchCollection({
-        getParams: {
-          available: true,
-        },
-      }),
+    fetchMethod: fetchChannels,
   });
 
   const waitForTopicLoad = () => {
@@ -123,11 +152,22 @@ export default function useResourceSelection({ searchResultsRouteName } = {}) {
     if (topic.value?.id !== newTopic.id) {
       topic.value = newTopic;
     }
+    if (topicTree?.annotator) {
+      const annotatedResults = await topicTree.annotator(topic.value.children.results);
+      return {
+        ...topic.value.children,
+        results: annotatedResults,
+      };
+    }
     return topic.value.children;
   };
 
   const treeFetch = useFetch({
-    fetchMethod: () => fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
+    fetchMethod: () =>
+      fetchTree({
+        id: topicId.value,
+        params: { include_coach_content: true, ...topicTree?.filters },
+      }),
     fetchMoreMethod: more => fetchTree(more),
   });
 

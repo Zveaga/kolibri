@@ -98,10 +98,10 @@
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { PageNames } from '../../../constants/index';
-  import { coachStrings } from '../../common/commonCoachStrings.js';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import useDrag from '../../common/useDrag';
+  import { PageNames } from '../../../../../constants/index';
+  import { coachStrings } from '../../../../common/commonCoachStrings.js';
+  import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
+  import useDrag from '../../../../common/useDrag.js';
 
   export default {
     name: 'SectionOrder',

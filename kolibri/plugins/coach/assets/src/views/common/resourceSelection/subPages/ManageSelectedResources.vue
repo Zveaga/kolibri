@@ -1,8 +1,11 @@
 <template>
 
   <div>
-    <div class="selection-metadata-info">
-      <p>{{ lessonLabel$() }}: {{ currentLesson.title }}</p>
+    <div
+      v-if="target === SelectionTarget.LESSON"
+      class="selection-metadata-info"
+    >
+      <p>{{ lessonLabel$() }}: {{ lessonTitle }}</p>
       <p>{{ sizeLabel$() }}: {{ bytesForHumans(selectedResourcesSize) }}</p>
     </div>
     <DragContainer
@@ -20,7 +23,7 @@
         >
           <div
             class="resource-row"
-            :style="lessonOrderListButtonBorder"
+            :style="rowStyles"
           >
             <div class="row-content">
               <DragHandle v-if="selectedResources.length > 1 && !disabled">
@@ -43,7 +46,7 @@
                   <span>
                     <KRouterLink
                       :text="resource.title"
-                      :to="{}"
+                      :to="getResourceLink(resource.id)"
                       style="font-size: 14px"
                     />
                   </span>
@@ -89,8 +92,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
@@ -98,9 +99,10 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { getCurrentInstance, onMounted, ref, watch } from 'vue';
-  import { coachStrings } from '../../../../../common/commonCoachStrings.js';
-  import { PageNames } from '../../../../../../constants/index.js';
+  import { getCurrentInstance, ref, watch } from 'vue';
+  import { coachStrings } from '../../commonCoachStrings.js';
+  import { PageNames } from '../../../../constants/index.js';
+  import { SelectionTarget } from '../contants.js';
 
   export default {
     name: 'ManageSelectedResources',
@@ -125,21 +127,21 @@
       const { lessonLabel$, sizeLabel$ } = coachStrings;
 
       const instance = getCurrentInstance();
+      const router = instance.proxy.$router;
 
-      onMounted(() => {
-        const backRoute = prevRoute.value?.name
-          ? prevRoute.value
-          : {
-            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          };
-        if (props.selectedResources.length === 0) {
-          instance.proxy.$router.replace(backRoute);
+      const redirectBack = () => {
+        if (prevRoute.value?.name) {
+          return router.push(prevRoute.value);
         }
-        props.setTitle(numberOfSelectedResources$({ count: props.selectedResources.length }));
-        props.setGoBack(() => {
-          instance.proxy.$router.push(backRoute);
+        router.push({
+          name:
+            props.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
-      });
+      };
+      props.setTitle(numberOfSelectedResources$({ count: props.selectedResources.length }));
+      props.setGoBack(redirectBack);
 
       watch(
         () => props.selectedResources,
@@ -151,6 +153,7 @@
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        SelectionTarget,
         upLabel$,
         downLabel$,
         sizeLabel$,
@@ -175,17 +178,37 @@
       },
       selectedResourcesSize: {
         type: Number,
-        required: true,
+        required: false,
+        default: 0,
       },
       disabled: {
         type: Boolean,
         default: false,
       },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      lessonTitle: {
+        type: String,
+        required: false,
+        default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
+      },
     },
 
     computed: {
-      ...mapState('lessonSummary', ['currentLesson']),
-      lessonOrderListButtonBorder() {
+      rowStyles() {
         return {
           borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
           height: `auto`,
@@ -207,8 +230,13 @@
         this.$emit('deselectResources', [resource]);
       },
       navigateToParent(resource) {
+        const pageName =
+          this.target === SelectionTarget.LESSON
+            ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+            : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE;
+
         this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          name: pageName,
           query: { topicId: resource.parent },
         });
       },
