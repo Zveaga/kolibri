@@ -13,7 +13,7 @@
 
 <script>
 
-  import QuestionsAccordion from '../../../../../../common/QuestionsAccordion.vue';
+  import QuestionsAccordion from '../../../QuestionsAccordion.vue';
 
   export default {
     name: 'PreviewExercise',

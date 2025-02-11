@@ -2,17 +2,70 @@
 
   <div>
     <KCircularLoader v-if="loading && !contentNode" />
-    <PreviewContent
-      v-else
-      :currentContentNode="contentNode"
-      :ancestors="ancestors"
-      :isSelected="isSelected"
-      :questions="questions"
-      :isActionDisabled="isActionDisabled"
-      :target="target"
-      @addResource="handleAddResource"
-      @removeResource="handleRemoveResource"
-    />
+    <div v-else>
+      <div class="channel-header">
+        <p>
+          {{ coreString('selectFromChannels') }}
+        </p>
+
+        <div class="d-flex-center">
+          <span
+            v-if="isSelected"
+            class="mr-16"
+          >
+            <KIcon icon="onDevice" />
+            {{ addedIndicator$() }}
+          </span>
+
+          <KButton
+            v-if="isSelected"
+            :text="coreString('removeAction')"
+            :primary="true"
+            :disabled="isActionDisabled"
+            @click="handleRemoveResource()"
+          />
+          <KButton
+            v-else
+            :text="addText$()"
+            :primary="false"
+            :disabled="isActionDisabled"
+            @click="handleAddResource()"
+          />
+        </div>
+      </div>
+
+      <ResourceSelectionBreadcrumbs
+        v-if="ancestors.length"
+        :ancestors="[...ancestors, contentNode]"
+        :channelsLink="channelsLink"
+        :topicsLink="topicsLink"
+      />
+
+      <h2>
+        <KLabeledIcon :label="contentNode.kind">
+          <template #icon>
+            <LearningActivityIcon :kind="learningActivities" />
+          </template>
+          <template>
+            {{ contentNode.title }}
+          </template>
+        </KLabeledIcon>
+      </h2>
+
+      <PreviewExercise
+        v-if="isExercise"
+        :contentNode="contentNode"
+        :questions="exerciseQuestions"
+      />
+
+      <PreviewContent
+        v-else
+        :currentContentNode="contentNode"
+        :ancestors="ancestors"
+        :questions="questions"
+        :isExercise="false"
+      />
+    </div>
   </div>
 
 </template>
@@ -23,17 +76,24 @@
   import { getCurrentInstance, onMounted, ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
-
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { SelectionTarget } from '../../contants.js';
   import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
+  import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import PreviewContent from './PreviewContent';
+  import PreviewExercise from './PreviewExercise.vue';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
       PreviewContent,
+      PreviewExercise,
+      LearningActivityIcon,
+      ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
     setup(props) {
@@ -41,10 +101,14 @@
       const instance = getCurrentInstance();
       const router = instance.proxy.$router;
 
-      const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
+      const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
+        props.contentId,
+      );
       const { manageLessonResourcesTitle$ } = coachStrings;
       const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
         enhancedQuizManagementStrings;
+
+      const { addText$, addedIndicator$ } = searchAndFilterStrings;
 
       const getTitle = () => {
         if (props.target === SelectionTarget.LESSON) {
@@ -84,6 +148,9 @@
         redirectBack,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        addText$,
+        addedIndicator$,
+        exerciseQuestions,
       };
     },
     props: {
@@ -154,6 +221,23 @@
         }
         return this.unselectableResourceIds?.includes(this.contentId);
       },
+      channelsLink() {
+        return {
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        };
+      },
+      learningActivities() {
+        if (this.contentNode.learning_activities) {
+          return this.contentNode.learning_activities;
+        }
+        return [];
+      },
+      isExercise() {
+        return this.contentNode.kind === ContentNodeKinds.EXERCISE;
+      },
     },
     beforeRouteEnter(to, from, next) {
       next(vm => {
@@ -161,15 +245,53 @@
       });
     },
     methods: {
-      handleAddResource(content) {
+      handleAddResource() {
         this.redirectBack();
-        this.$emit('selectResources', [content]);
+        this.$emit('selectResources', [this.contentNode]);
       },
-      handleRemoveResource(content) {
+      handleRemoveResource() {
         this.redirectBack();
-        this.$emit('deselectResources', [content]);
+        this.$emit('deselectResources', [this.contentNode]);
+      },
+      topicsLink(topicId) {
+        const { params, query } = this.$route;
+        return {
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+              : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+          params: params,
+          query: {
+            ...query,
+            topicId,
+          },
+        };
       },
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .channel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .channel-header p {
+    font-weight: 600;
+  }
+
+  .mr-16 {
+    margin-right: 16px;
+  }
+
+  .d-flex-center {
+    display: flex;
+    align-items: center;
+  }
+
+</style>

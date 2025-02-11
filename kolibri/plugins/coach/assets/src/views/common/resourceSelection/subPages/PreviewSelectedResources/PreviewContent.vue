@@ -1,55 +1,6 @@
 <template>
 
   <div>
-    <div class="channel-header">
-      <p>
-        {{ coreString('selectFromChannels') }}
-      </p>
-
-      <div class="d-flex-center">
-        <span
-          v-if="isSelected"
-          class="mr-16"
-        >
-          <KIcon icon="onDevice" />
-          {{ addedIndicator$() }}
-        </span>
-
-        <KButton
-          v-if="isSelected"
-          :text="coreString('removeAction')"
-          :primary="true"
-          :disabled="isActionDisabled"
-          @click="removeResource()"
-        />
-        <KButton
-          v-else
-          :text="addText$()"
-          :primary="false"
-          :disabled="isActionDisabled"
-          @click="addResource()"
-        />
-      </div>
-    </div>
-
-    <ResourceSelectionBreadcrumbs
-      v-if="ancestors.length"
-      :ancestors="[...ancestors, currentContentNode]"
-      :channelsLink="channelsLink"
-      :topicsLink="topicsLink"
-    />
-
-    <h2>
-      <KLabeledIcon :label="currentContentNode.kind">
-        <template #icon>
-          <LearningActivityIcon :kind="learningActivities" />
-        </template>
-        <template>
-          {{ currentContentNode.title }}
-        </template>
-      </KLabeledIcon>
-    </h2>
-
     <ContentArea
       :header="questionLabel(selectedQuestionIndex)"
       :selectedQuestion="selectedQuestion"
@@ -104,12 +55,8 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { licenseLongName } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
-  import { ContentNodeKinds } from 'kolibri/constants';
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
-  import { SelectionTarget } from '../../contants.js';
-  import { PageNames } from '../../../../../constants/index.js';
   import ContentArea from '../../../../lessons/LessonSelectionContentPreviewPage/LessonContentPreview/ContentArea.vue';
-  import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import HeaderTable from '../../../HeaderTable/index.vue';
   import HeaderTableRow from '../../../HeaderTable/HeaderTableRow.vue';
 
@@ -143,35 +90,8 @@
         required: false,
         default: () => [],
       },
-      isActionDisabled: {
+      isExercise: {
         type: Boolean,
-        required: false,
-        default: false,
-      },
-      /**
-       * The target entity for the selection.
-       * It can be either 'quiz' or 'lesson'.
-       */
-      target: {
-        type: String,
-        required: true,
-      },
-      questions: {
-        type: Array,
-        required: false,
-        default: () => [],
-      },
-      isActionDisabled: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
-      /**
-       * The target entity for the selection.
-       * It can be either 'quiz' or 'lesson'.
-       */
-      target: {
-        type: String,
         required: true,
       },
     },
@@ -181,17 +101,6 @@
       };
     },
     computed: {
-      channelsLink() {
-        return {
-          name:
-            this.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        };
-      },
-      isExercise() {
-        return this.currentContentNode.kind === ContentNodeKinds.EXERCISE;
-      },
       selectedQuestion() {
         if (this.isExercise) {
           return this.questions[this.selectedQuestionIndex];
@@ -211,21 +120,6 @@
       },
     },
     methods: {
-      topicsLink(topicId) {
-        const { params, query } = this.$route;
-
-        return {
-          name:
-            this.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
-              : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
-          params: params,
-          query: {
-            ...query,
-            topicId,
-          },
-        };
-      },
       questionLabel(questionIndex) {
         if (!this.isExercise) {
           return '';
@@ -243,15 +137,6 @@
 
 
 <style lang="scss" scoped>
-
-  .mr-16 {
-    margin-right: 16px;
-  }
-
-  .d-flex-center {
-    display: flex;
-    align-items: center;
-  }
 
   .license-detail-style {
     margin-top: 10px;
