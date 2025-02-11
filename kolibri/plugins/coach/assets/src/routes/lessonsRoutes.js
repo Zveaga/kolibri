@@ -45,6 +45,7 @@ import PreviewSelectedResources from '../views/common/resourceSelection/subPages
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
 import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
 import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
+import ManageSelectedQuestions from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedQuestions.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -182,6 +183,11 @@ export default [
                 contentId,
               };
             },
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_SELECTED_QUESTIONS,
+            path: 'preview-questions',
+            component: ManageSelectedQuestions,
           },
         ],
       },
