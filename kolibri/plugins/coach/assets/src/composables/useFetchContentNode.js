@@ -1,5 +1,6 @@
-import { ref, getCurrentInstance } from 'vue';
+import { ref, getCurrentInstance, computed } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { exerciseToQuestionArray } from '../utils/selectQuestions';
 
 export default function useFetchContentNode(contentId) {
   const contentNode = ref({});
@@ -30,6 +31,8 @@ export default function useFetchContentNode(contentId) {
       });
   };
 
+  const exerciseQuestions = computed(() => exerciseToQuestionArray(contentNode.value));
+
   fetchContentNode();
 
   return {
@@ -37,5 +40,6 @@ export default function useFetchContentNode(contentId) {
     ancestors,
     contentNode,
     questions,
+    exerciseQuestions,
   };
 }

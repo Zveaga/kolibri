@@ -5,6 +5,7 @@
       <div class="questions-accordion-header">
         <div>
           <KCheckbox
+            v-if="isSelectable"
             ref="selectAllCheckbox"
             class="select-all-box"
             :label="selectAllLabel$()"
@@ -58,7 +59,7 @@
             }"
           >
             <template #leading-actions>
-              <DragHandle>
+              <DragHandle v-if="isSelectable">
                 <div>
                   <DragSortWidget
                     :moveUpText="upLabel$"
@@ -72,6 +73,7 @@
                 </div>
               </DragHandle>
               <KCheckbox
+                v-if="isSelectable"
                 class="accordion-item-checkbox"
                 :checked="selectedQuestions.includes(question.item)"
                 @change="
@@ -172,7 +174,8 @@
       },
       selectedQuestions: {
         type: Array,
-        required: true,
+        required: false,
+        default: () => [],
       },
       selectAllIsChecked: {
         type: Boolean,
@@ -181,6 +184,11 @@
       selectAllIsIndeterminate: {
         type: Boolean,
         required: false,
+      },
+      isSelectable: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
     methods: {
