@@ -51,7 +51,13 @@
           icon="inProgress"
         />
         <KLabeledIcon
-          v-else-if="completedLabel"
+          v-else-if="completedLabel && !reportVisible"
+          :color="$themePalette.grey.v_300"
+          :label="completedLabel"
+          icon="permissions"
+        />
+        <KLabeledIcon
+          v-else-if="completedLabel && reportVisible"
           :color="$themeTokens.mastered"
           :label="completedLabel"
           icon="mastered"
@@ -111,6 +117,14 @@
         type: String,
         required: false,
         default: '',
+      },
+      /**
+       * Provide when using the default content of `progress` slot.
+       */
+      reportVisible: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
   };
