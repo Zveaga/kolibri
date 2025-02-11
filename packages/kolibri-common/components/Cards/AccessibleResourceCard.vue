@@ -4,7 +4,7 @@
     :to="to"
     :headingLevel="headingLevel"
     :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
-    thumbnailDisplay="large"
+    thumbnailDisplay="small"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
@@ -21,6 +21,7 @@
           :text="contentNode.description"
           :maxLines="2"
         />
+        <MetadataChips :tags="metadataTags" />
       </div>
     </template>
     <template #select>
@@ -34,7 +35,7 @@
           :color="$themePalette.grey.v_700"
           :ariaLabel="coreString('savedFromBookmarks')"
           :tooltip="coreString('savedFromBookmarks')"
-          @click.stop="isBookmarked = !isBookmarked"
+          @click.stop="$emit('toggleBookmark', contentNode.id)"
         />
       </div>
     </template>
@@ -45,21 +46,27 @@
 
 <script>
 
+  import { toRefs } from 'vue';
   import { validateLinkObject } from 'kolibri/utils/validators';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import MetadataChips from 'kolibri-common/components/MetadataChips';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
   import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
   export default {
     name: 'AccessibleResourceCard',
     components: {
       LearningActivityIcon,
+      MetadataChips,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
+      const { contentNode } = toRefs(props);
+      const { getResourceTags } = useCoachMetadataTags(contentNode.value);
       const { windowBreakpoint } = useKResponsiveWindow();
-
       return {
+        metadataTags: getResourceTags(),
         windowBreakpoint,
       };
     },
@@ -72,6 +79,10 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      isBookmarked: {
+        type: Boolean,
+        default: false,
       },
       headingLevel: {
         type: Number,
@@ -86,12 +97,6 @@
         default: 'centerInside',
       },
     },
-    data() {
-      return {
-        isBookmarked: false,
-      };
-    },
-    computed: {},
   };
 
 </script>

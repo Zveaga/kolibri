@@ -4,11 +4,12 @@
     :to="to"
     :headingLevel="headingLevel"
     :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
-    thumbnailDisplay="large"
+    thumbnailDisplay="small"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
-    thumbnailScaleType="centerInside"
+    thumbnailScaleType="contain"
     thumbnailAlign="right"
+    :preserveFooter="true"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
@@ -21,22 +22,7 @@
 
     <template #belowTitle>
       <slot name="belowTitle"></slot>
-      <div
-        class="header-bar"
-        :style="headerStyles"
-      >
-        <KIcon
-          icon="topic"
-          :color="$themePalette.grey.v_800"
-          class="folder-header-bar"
-        />
-        <p
-          class="folder-header-text"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ coreString('folder') }}
-        </p>
-      </div>
+      <MetadataChips :tags="metadataTags" />
     </template>
   </KCard>
 
@@ -45,17 +31,26 @@
 
 <script>
 
+  import { toRefs } from 'vue';
   import { validateLinkObject } from 'kolibri/utils/validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
+  import MetadataChips from 'kolibri-common/components/MetadataChips';
 
   export default {
     name: 'AccessibleFolderCard',
+    components: {
+      MetadataChips,
+    },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
+      const { contentNode } = toRefs(props);
       const { windowBreakpoint } = useKResponsiveWindow();
+      const { getFolderTags } = useCoachMetadataTags(contentNode.value);
 
       return {
+        metadataTags: getFolderTags(),
         windowBreakpoint,
       };
     },
@@ -84,8 +79,7 @@
           color: this.$themeTokens.text,
           borderRadius: '4px',
           height: '24px',
-          width: '74px',
-          margin: '0',
+          margin: '0em 1em',
           backgroundColor: this.$themePalette.grey.v_100,
         };
       },
@@ -97,7 +91,7 @@
 
 <style lang="scss" scoped>
 
-  .header-bar {
+  .chips-wrapper {
     display: flex;
     justify-content: space-between;
     height: 38px;

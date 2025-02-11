@@ -1,14 +1,14 @@
 <template>
 
   <div class="content-list">
-      <KCheckbox
-        v-if="showSelectAll"
-        :label="$tr('selectAllCheckboxLabel')"
-        :checked="selectAllChecked"
-        :indeterminate="selectAllIndeterminate"
-        :disabled="isSelectAllDisabled"
-        @change="$emit('changeselectall', $event)"
-      />
+    <KCheckbox
+      v-if="showSelectAll"
+      :label="$tr('selectAllCheckboxLabel')"
+      :checked="selectAllChecked"
+      :indeterminate="selectAllIndeterminate"
+      :disabled="isSelectAllDisabled"
+      @change="$emit('changeselectall', $event)"
+    />
     <KCardGrid layout="1-1-1">
       <component
         :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
@@ -18,6 +18,8 @@
         :contentNode="content"
         :thumbnailSrc="content.thumbnail"
         :headingLevel="cardsHeadingLevel"
+        :isBookmarked="isBookmarked(content.id)"
+        @toggleBookmark="toggleBookmark"
       >
         <template #belowTitle>
           <p v-if="contentCardMessage(content)">{{ contentCardMessage(content) }}</p>
@@ -72,9 +74,15 @@
 
 <script>
 
+  import { computed, ref } from 'vue';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
+  import useUser from 'kolibri/composables/useUser';
+  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
   import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
+  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
   import { ViewMoreButtonStates } from '../../../constants/index';
 
   export default {
@@ -85,8 +93,72 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      // Map of contentnode_id to bookmark resource ID
+      const bookmarks = ref({});
+      // Map of contentNode IDs to bookmark resource IDs
+      const bookmarkedContentNodeIds = computed(() => Object.keys(bookmarks.value));
+      const { currentUserId } = useUser();
+
+      /**
+       * Fetch bookmarks and store them in the bookmarks ref mapping
+       * their contentnode_id to the bokomark's own ID.
+       * The contentnode_id is used for creating it, but we need the
+       * bookmark's ID to delete it.
+       */
+      function getBookmarks() {
+        BookmarksResource.fetchCollection({ force: true }).then(data => {
+          bookmarks.value = data.reduce((memo, bookmark) => {
+            memo[bookmark.contentnode_id] = bookmark.id;
+            return memo;
+          }, {});
+        });
+      }
+
+      function getTags(content) {
+        return useCoachMetadataTags(content).tags.value;
+      }
+
+      function deleteBookmark(contentnode_id) {
+        client({
+          method: 'delete',
+          url: urls['kolibri:core:bookmarks_detail'](contentnode_id),
+        }).then(() => {
+          getBookmarks();
+        });
+      }
+
+      function addBookmark(contentnode_id) {
+        client({
+          method: 'post',
+          url: urls['kolibri:core:bookmarks_list'](),
+          data: {
+            contentnode_id: contentnode_id,
+            user: currentUserId.value,
+          },
+        }).then(() => {
+          getBookmarks();
+        });
+      }
+
+      function isBookmarked(contentnode_id) {
+        return bookmarkedContentNodeIds.value.includes(contentnode_id);
+      }
+
+      function toggleBookmark(contentnode_id) {
+        if (isBookmarked(contentnode_id)) {
+          const bookmarkId = bookmarks.value[contentnode_id];
+          deleteBookmark(bookmarkId);
+        } else {
+          addBookmark(contentnode_id);
+        }
+      }
+
+      getBookmarks();
       return {
+        getTags,
         ViewMoreButtonStates,
+        toggleBookmark,
+        isBookmarked,
       };
     },
     props: {
@@ -207,6 +279,19 @@
 
   .with-checkbox {
     margin-left: $checkbox-offset;
+  }
+
+  .filter-chip {
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: top;
+    border-radius: 0.25em;
+  }
+
+  .filter-chip-text {
+    display: inline-block;
+    margin: 4px 8px;
+    font-size: 11px;
   }
 
 </style>
