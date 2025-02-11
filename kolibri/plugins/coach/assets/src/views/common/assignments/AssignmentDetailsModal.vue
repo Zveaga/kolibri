@@ -30,8 +30,8 @@
 
           <KGridItem
             :layout4="{ span: 3 }"
-            :layout8="{ span: 7 }"
-            :layout12="{ span: 11 }"
+            :layout8="{ span: assignmentIsQuiz ? 3 : 7 }"
+            :layout12="{ span: assignmentIsQuiz ? 5 : 11 }"
           >
             <KTextbox
               ref="titleField"
@@ -47,11 +47,37 @@
               @keydown.enter="submitData"
             />
           </KGridItem>
-          <KGridItem
-            :layout4="{ span: 1 }"
-            :layout8="{ span: 1 }"
-            :layout12="{ span: 1 }"
-          />
+          <template v-if="assignmentIsQuiz">
+            <KGridItem
+              :layout4="{ span: 1 }"
+              :layout8="{ span: 1, alignment: 'left' }"
+              :layout12="{ span: 1, alignment: 'left' }"
+            >
+              <KIcon
+                icon="circleCheckmark"
+                :class="windowIsSmall ? 'style-icon' : 'checkmark-style-icon'"
+              />
+            </KGridItem>
+            <KGridItem
+              :layout4="{ span: 3 }"
+              :layout8="{ span: 3 }"
+              :layout12="{ span: 5 }"
+            >
+              <KSelect
+                :label="reportVisibilityLabel$()"
+                :options="reportVisibilityOptions"
+                :value="reportVisibilityValue"
+                :help="
+                  instantReportVisibility
+                    ? afterLearnerSubmitsQuizDescription$()
+                    : afterCoachEndsQuizDescription$()
+                "
+                :style="windowIsSmall ? 'margin-left: -1em' : 'margin-left: -3em'"
+                class="visibility-score-select"
+                @change="option => (instantReportVisibility = option.value)"
+              />
+            </KGridItem>
+          </template>
           <KGridItem
             :layout4="{ span: 3 }"
             :layout8="{ span: 7 }"
@@ -132,6 +158,7 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coachStrings } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
   import SidePanelRecipientsSelector from './SidePanelRecipientsSelector';
@@ -146,6 +173,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
       const {
         recipientsLabel$,
         descriptionLabel$,
@@ -154,8 +182,14 @@
         saveQuizError$,
         quizDuplicateTitleError$,
         lessonDuplicateTitleError$,
+        reportVisibilityLabel$,
+        afterLearnerSubmitsQuizLabel$,
+        afterCoachEndsQuizLabel$,
+        afterLearnerSubmitsQuizDescription$,
+        afterCoachEndsQuizDescription$,
       } = coachStrings;
       return {
+        windowIsSmall,
         recipientsLabel$,
         descriptionLabel$,
         titleLabel$,
@@ -163,6 +197,11 @@
         saveQuizError$,
         quizDuplicateTitleError$,
         lessonDuplicateTitleError$,
+        reportVisibilityLabel$,
+        afterLearnerSubmitsQuizLabel$,
+        afterCoachEndsQuizLabel$,
+        afterLearnerSubmitsQuizDescription$,
+        afterCoachEndsQuizDescription$,
       };
     },
     props: {
@@ -217,6 +256,7 @@
         formIsSubmitted: false,
         showServerError: false,
         showTitleError: false,
+        instantReportVisibility: true,
       };
     },
     computed: {
@@ -284,7 +324,21 @@
           assignments: this.selectedCollectionIds,
           active: this.activeIsSelected,
           learner_ids: this.adHocLearners,
+          instant_report_visibility: this.instantReportVisibility,
         };
+      },
+      reportVisibilityOptions() {
+        return [
+          { label: this.afterLearnerSubmitsQuizLabel$(), value: true },
+          { label: this.afterCoachEndsQuizLabel$(), value: false },
+        ];
+      },
+      reportVisibilityValue() {
+        return (
+          this.reportVisibilityOptions.find(
+            option => option.value === this.instantReportVisibility,
+          ) || {}
+        );
       },
     },
     watch: {
@@ -300,6 +354,9 @@
       adHocLearners() {
         this.$emit('update', { learner_ids: this.adHocLearners });
       },
+      instantReportVisibility() {
+        this.$emit('update', { instant_report_visibility: this.instantReportVisibility });
+      },
       submitObject() {
         if (this.showServerError) {
           this.$nextTick(() => {
@@ -307,6 +364,9 @@
           });
         }
       },
+    },
+    mounted() {
+      this.instantReportVisibility = this.assignment.instant_report_visibility;
     },
     methods: {
       submitData() {
@@ -406,11 +466,33 @@
     margin-left: -1em;
   }
 
+  /deep/ .ui-select-feedback {
+    background: #ffffff !important;
+  }
+
+  /deep/ .ui-select-label {
+    background: #f5f5f5;
+    border-bottom-color: #666666;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+  }
+
+  .visibility-score-select {
+    border-bottom: 0 !important;
+  }
+
   .style-icon {
     width: 2em;
     height: 2em;
     margin-top: 0.5em;
     margin-left: 1em;
+  }
+
+  .checkmark-style-icon {
+    width: 2em;
+    height: 2em;
+    margin-top: 0.5em;
+    margin-left: -1em;
   }
 
   fieldset {
