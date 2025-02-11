@@ -5,7 +5,7 @@
       <div class="questions-accordion-header">
         <div>
           <KCheckbox
-            v-if="isCheckBoxVisible"
+            v-if="isSelectable"
             ref="selectAllCheckbox"
             class="select-all-box"
             :label="selectAllLabel$()"
@@ -59,28 +59,27 @@
             }"
           >
             <template #leading-actions>
-              <div v-if="isCheckBoxVisible">
-                <DragHandle>
-                  <div>
-                    <DragSortWidget
-                      :moveUpText="upLabel$"
-                      :moveDownText="downLabel$"
-                      :noDrag="true"
-                      :isFirst="index === 0"
-                      :isLast="index === questions.length - 1"
-                      @moveUp="() => handleKeyboardDragUp(index)"
-                      @moveDown="() => handleKeyboardDragDown(index)"
-                    />
-                  </div>
-                </DragHandle>
-                <KCheckbox
-                  class="accordion-item-checkbox"
-                  :checked="selectedQuestions.includes(question.item)"
-                  @change="
-                    (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
-                  "
-                />
-              </div>
+              <DragHandle v-if="isSelectable">
+                <div>
+                  <DragSortWidget
+                    :moveUpText="upLabel$"
+                    :moveDownText="downLabel$"
+                    :noDrag="true"
+                    :isFirst="index === 0"
+                    :isLast="index === questions.length - 1"
+                    @moveUp="() => handleKeyboardDragUp(index)"
+                    @moveDown="() => handleKeyboardDragDown(index)"
+                  />
+                </div>
+              </DragHandle>
+              <KCheckbox
+                v-if="isSelectable"
+                class="accordion-item-checkbox"
+                :checked="selectedQuestions.includes(question.item)"
+                @change="
+                  (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
+                "
+              />
             </template>
             <template #content>
               <div
@@ -171,7 +170,8 @@
       },
       selectedQuestions: {
         type: Array,
-        required: true,
+        required: false,
+        default: () => [],
       },
       selectAllIsChecked: {
         type: Boolean,
@@ -181,7 +181,7 @@
         type: Boolean,
         required: false,
       },
-      isCheckBoxVisible: {
+      isSelectable: {
         type: Boolean,
         required: false,
         default: true,

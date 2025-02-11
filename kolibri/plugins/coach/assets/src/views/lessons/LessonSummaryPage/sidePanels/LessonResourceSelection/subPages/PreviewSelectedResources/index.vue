@@ -47,9 +47,10 @@
         </KLabeledIcon>
       </h2>
 
-      <PreviewSelectedExercise
+      <PreviewExercise
         v-if="isExercise"
         :contentNode="contentNode"
+        :questions="exerciseQuestions"
       />
 
       <PreviewContent
@@ -75,13 +76,13 @@
   import { PageNames } from '../../../../../../../constants/index';
   import ResourceSelectionBreadcrumbs from '../../../../../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import PreviewContent from './PreviewContent';
-  import PreviewSelectedExercise from './PreviewSelectedExercise.vue';
+  import PreviewExercise from './PreviewExercise.vue';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
       PreviewContent,
-      PreviewSelectedExercise,
+      PreviewExercise,
       ResourceSelectionBreadcrumbs,
       LearningActivityIcon,
     },
@@ -91,7 +92,9 @@
       const instance = getCurrentInstance();
       const { addText$, addedIndicator$ } = searchAndFilterStrings;
 
-      const { contentNode, ancestors, questions, loading } = useFetchContentNode(props.contentId);
+      const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
+        props.contentId,
+      );
       const { manageLessonResourcesTitle$ } = coachStrings;
 
       props.setTitle(manageLessonResourcesTitle$());
@@ -111,6 +114,7 @@
         ancestors,
         questions,
         loading,
+        exerciseQuestions,
         routeBack,
         // eslint-disable-next-line vue/no-unused-properties
         previousRoute,
