@@ -158,6 +158,28 @@
         </KGridItem>
       </div>
 
+      <!-- Report Visibility -->
+      <div
+        v-if="!exam.archive"
+        class="status-item"
+      >
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          <span>{{ coachString('reportVisibilityLabel') }}</span>
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <span>{{ reportVisibilityStatus }}</span>
+        </KGridItem>
+      </div>
+
       <!-- Class name  -->
       <div class="status-item">
         <KGridItem
@@ -393,6 +415,11 @@
         } else {
           return null;
         }
+      },
+      reportVisibilityStatus() {
+        return this.exam.instant_report_visibility
+          ? this.coachString('afterLearnerSubmitsQuizLabel')
+          : this.coachString('afterCoachEndsQuizLabel');
       },
       layout12Label() {
         return { span: this.$isPrint ? 3 : 12 };
