@@ -69,6 +69,7 @@ class ExamViewset(ValuesViewset):
         "creator",
         "data_model_version",
         "learners_see_fixed_order",
+        "instant_report_visibility",
         "date_created",
     )
 
