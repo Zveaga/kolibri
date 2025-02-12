@@ -60,31 +60,67 @@
           />
         </template>
 
-        <template>
-          <UserTable
-            class="move-down user-roster"
-            :users="facilityUsers"
-            :dataLoading="dataLoading"
-            :emptyMessage="emptyMessageForItems(facilityUsers, search)"
-            :showDemographicInfo="true"
-          >
-            <template #action="userRow">
+        <KTable
+          class="move-down user-roster"
+          :headers="tableHeaders"
+          :caption="$tr('tableCaption')"
+          :rows="tableRows"
+          :dataLoading="dataLoading"
+          :emptyMessage="emptyMessageForItems(facilityUsers, search)"
+        >
+          <template #header="{ header, colIndex }">
+            <span :class="{ visuallyhidden: colIndex === 5 }">{{ header.label }}</span>
+            <span v-if="colIndex === 2">
+              <CoreInfoIcon
+                class="tooltip"
+                :iconAriaLabel="coreString('identifierAriaLabel')"
+                :tooltipText="coreString('identifierTooltip')"
+              />
+            </span>
+          </template>
+          <template #cell="{ content, colIndex, row }">
+            <span v-if="colIndex === 0">
+              <KLabeledIcon
+                icon="person"
+                :label="content"
+                :style="{ color: $themeTokens.text }"
+              />
+              <UserTypeDisplay
+                aria-hidden="true"
+                :userType="row[5].kind"
+                :omitLearner="true"
+                class="role-badge"
+                data-test="userRoleBadge"
+                :class="$computedClass(userRoleBadgeStyle)"
+              />
+            </span>
+            <span v-else-if="colIndex === 2">
+              <KOptionalText :text="content ? content : ''" />
+            </span>
+            <span v-else-if="colIndex === 3">
+              <GenderDisplayText :gender="content" />
+            </span>
+            <span v-else-if="colIndex === 4">
+              <BirthYearDisplayText :birthYear="content" />
+            </span>
+            <span
+              v-else-if="colIndex === 5"
+              class="core-table-button-col"
+            >
               <KButton
                 appearance="flat-button"
                 hasDropdown
                 :text="$tr('optionsButtonLabel')"
-                :disabled="!userCanBeEdited(userRow.user)"
+                :disabled="!userCanBeEdited(content)"
               >
-                <template #menu>
-                  <KDropdownMenu
-                    :options="manageUserOptions(userRow.user.id)"
-                    @select="handleManageUserSelection($event, userRow.user)"
-                  />
-                </template>
+                <KDropdownMenu
+                  :options="manageUserOptions(content.id)"
+                  @select="handleManageUserSelection($event, content)"
+                />
               </KButton>
-            </template>
-          </UserTable>
-        </template>
+            </span>
+          </template>
+        </KTable>
       </PaginatedListContainerWithBackend>
 
       <!-- Modals -->
@@ -116,7 +152,10 @@
   import { UserKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import UserTable from 'kolibri-common/components/UserTable';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
@@ -136,11 +175,14 @@
       };
     },
     components: {
+      UserTypeDisplay,
+      GenderDisplayText,
+      BirthYearDisplayText,
+      CoreInfoIcon,
       FacilityAppBarPage,
       FilterTextbox,
       ResetUserPasswordModal,
       DeleteUserModal,
-      UserTable,
       PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
@@ -163,6 +205,58 @@
       ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
+      tableHeaders() {
+        return [
+          {
+            label: this.coreString('fullNameLabel'),
+            dataType: 'string',
+            minWidth: '300px',
+            width: '40%',
+          },
+          {
+            label: this.coreString('usernameLabel'),
+            dataType: 'string',
+            minWidth: '150px',
+            width: '20%',
+          },
+          {
+            label: this.coreString('identifierLabel'),
+            dataType: 'string',
+            minWidth: '150px',
+            width: '10%',
+          },
+          {
+            label: this.coreString('genderLabel'),
+            dataType: 'string',
+            minWidth: '150px',
+            width: '10%',
+          },
+          {
+            label: this.coreString('birthYearLabel'),
+            dataType: 'date',
+            minWidth: '100px',
+            width: '10%',
+          },
+          {
+            label: this.coreString('userActionsColumnHeader'),
+            dataType: 'undefined',
+            minWidth: '150px',
+            width: '10%',
+          },
+        ];
+      },
+      tableRows() {
+        return this.facilityUsers.map(user => {
+          return [
+            user.full_name,
+            user.username,
+            user.id_number,
+            user.gender,
+            user.birth_year,
+            user,
+          ];
+        });
+      },
       userKinds() {
         return [
           { label: this.coreString('allLabel'), value: ALL_FILTER },
@@ -171,6 +265,15 @@
           { label: this.$tr('admins'), value: UserKinds.ADMIN },
           { label: this.$tr('superAdmins'), value: UserKinds.SUPERUSER },
         ];
+      },
+      userRoleBadgeStyle() {
+        return {
+          color: this.$themeTokens.textInverted,
+          backgroundColor: this.$themeTokens.annotation,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
       },
       roleFilter: {
         get() {
@@ -300,6 +403,10 @@
       },
     },
     $trs: {
+      tableCaption: {
+        message: 'Users',
+        context: 'Caption for the user table.',
+      },
       searchText: {
         message: 'Search for a user…',
         context: 'Refers to the search option on the user page.',
@@ -367,6 +474,21 @@
 
   .type-filter {
     margin-bottom: 0;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 1px;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
+    font-size: small;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  .labeled-icon-wrapper {
+    width: auto;
   }
 
   .user-roster {
