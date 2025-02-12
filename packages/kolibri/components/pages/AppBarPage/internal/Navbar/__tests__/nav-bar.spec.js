@@ -57,6 +57,7 @@ describe('Navbar', () => {
         const wrapper = makeWrapper(Navbar, {
           propsData: {
             navigationLinks: longerNavigationList,
+            title: 'Title',
           },
         });
         expect(wrapper.findComponent({ name: 'KIconButton' }).element).toBeFalsy();
