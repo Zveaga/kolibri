@@ -101,7 +101,7 @@
     },
     data() {
       return {
-        appBarHeight: 0,
+        appBarHeight: 124,
         navShown: false,
         lastScrollTop: 0,
         hideAppBars: true,
@@ -132,7 +132,7 @@
           };
       },
       paddingTop() {
-        return this.isAppContext ? 0 : 4;
+        return this.isAppContext ? 0 : 5;
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
@@ -147,7 +147,7 @@
     },
     beforeUpdate() {
       // Update appBarHeight after AppBar is rerendered and updated
-      this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
+      this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
     },
     mounted() {
       this.addScrollListener();
@@ -188,7 +188,7 @@
       },
       handleWindowResize() {
         // Update the app bar height when window is resized
-        this.appBarHeight = this.$refs.appBar.$el.offsetHeight || 0;
+        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
       },
     },
   };
