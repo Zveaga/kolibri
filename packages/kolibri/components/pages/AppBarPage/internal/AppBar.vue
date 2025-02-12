@@ -24,11 +24,7 @@
         :removeBrandDivider="true"
       >
         <KTextTruncator
-          :text="
-            windowIsMedium
-              ? truncateText(title, smallScreensMaxTitleLength)
-              : truncateText(title, 50)
-          "
+          :text="truncatedTitle"
           :maxLines="1"
         />
         <template
@@ -54,19 +50,22 @@
         </template>
 
         <template
-          v-if="showNavigation && showTopNavBar"
+          v-if="showNavigation"
           #navigation
         >
           <slot name="sub-nav">
             <Navbar
               v-if="links.length > 0"
+              :class="{ 'hide-navbar': !showTopNavBar }"
               :navigationLinks="links"
+              @update-overflow-count="overflowCount = $event"
             />
           </slot>
         </template>
 
         <template #actions>
           <div
+            ref="appBarActions"
             aria-live="polite"
             :style="{
               paddingBottom: '6px',
@@ -165,7 +164,7 @@
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const $route = computed(() => store.state.route);
-      const { windowIsSmall, windowIsMedium } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
@@ -184,7 +183,6 @@
       return {
         themeConfig,
         windowIsSmall,
-        windowIsMedium,
         topBarHeight,
         links,
         isUserLoggedIn,
@@ -212,11 +210,8 @@
     data() {
       return {
         pointsDisplayed: false,
-        showTopNavBar: false,
-        // Limit for title length on small screens to hide overflow menu button
-        smallScreensMaxTitleLength: 20,
         appBarWidth: 0,
-        widthThreshold: 1600,
+        overflowCount: 0,
       };
     },
     computed: {
@@ -224,27 +219,34 @@
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
+      showTopNavBar() {
+        return this.overflowCount === 0;
+      },
+      truncatedTitle() {
+        if (!this.title) return '';
+        // Dynamically truncate title based on remaining space in AppBar
+        const offset = this.$refs.appBarActions?.clientWidth + 100;
+        const averageCharWidth = 10;
+        const availableWidth = this.appBarWidth - offset;
+        const maxChars = availableWidth > 0 ? Math.floor(availableWidth / averageCharWidth) : 1;
+        return this.truncateText(this.title, maxChars);
+      },
     },
     created() {
       if (this.isLearner) {
         this.fetchPoints();
       }
     },
-    beforeUpdate() {
-      // Essential for title updates after data finishes loading
-      this.widthThreshold =
-        this.title && this.title.length >= this.smallScreensMaxTitleLength ? 1600 : 1350;
-    },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
-      window.removeEventListener('resize', this.handleWindowResize);
+      window.removeEventListener('resize', this.updateAppBarWidth);
     },
     mounted() {
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
-      window.addEventListener('resize', this.handleWindowResize);
-      this.handleWindowResize();
+      window.addEventListener('resize', this.updateAppBarWidth);
+      this.updateAppBarWidth();
     },
     methods: {
       handleWindowClick(event) {
@@ -266,9 +268,8 @@
           this.pointsDisplayed = false;
         }
       },
-      handleWindowResize() {
-        this.appBarWidth = this.$refs.appBar.clientWidth;
-        this.showTopNavBar = this.appBarWidth > this.widthThreshold;
+      updateAppBarWidth() {
+        this.appBarWidth = this.$refs.appBar?.clientWidth || 0;
       },
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
@@ -416,6 +417,17 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
+  }
+
+  // Hide top navbar, but keep it in the DOM for overflow calulations
+  .hide-navbar {
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /deep/ .hide-navbar.navbar-positioning {
+    display: grid;
+    visibility: hidden;
   }
 
 </style>

@@ -114,12 +114,18 @@
         if (this.windowIsLarge) {
           return styles;
         }
-        styles.marginTop = 0;
         if (this.windowIsMedium) {
           return styles;
         }
+        styles.marginTop = 0;
         styles.maxHeight = '42px';
         return styles;
+      },
+    },
+    watch: {
+      // Whenever overflowMenuLinks changes, emit its new length
+      overflowMenuLinks(newValue) {
+        this.$emit('update-overflow-count', newValue.length);
       },
     },
     mounted() {
