@@ -83,6 +83,10 @@
           return values.every(value => value.link.name);
         },
       },
+      title: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return { mounted: false };
@@ -92,7 +96,7 @@
         return this.navigationLinks.filter(l => !l.isHidden);
       },
       overflowMenuLinks() {
-        if (!this.mounted || isUndefined(this.windowWidth)) {
+        if (!this.mounted || isUndefined(this.windowWidth) || !this.title) {
           return [];
         }
         const containerTop = this.$refs.items.offsetTop;

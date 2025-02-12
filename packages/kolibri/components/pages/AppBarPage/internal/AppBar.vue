@@ -58,6 +58,7 @@
               v-if="links.length > 0"
               :class="{ 'hide-navbar': !showTopNavBar }"
               :navigationLinks="links"
+              :title="title"
               @update-overflow-count="overflowCount = $event"
             />
           </slot>
@@ -127,6 +128,7 @@
         <Navbar
           v-if="links.length > 0"
           :navigationLinks="links"
+          :title="title"
         />
       </slot>
     </div>
