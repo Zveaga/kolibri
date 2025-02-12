@@ -256,7 +256,7 @@
         formIsSubmitted: false,
         showServerError: false,
         showTitleError: false,
-        instantReportVisibility: this.assignment.instant_report_visibility !== false,
+        instantReportVisibility: this.assignment.instant_report_visibility,
       };
     },
     computed: {
