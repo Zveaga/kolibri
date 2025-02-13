@@ -43,6 +43,7 @@
         :setContinueAction="value => (continueAction = value)"
         :sectionTitle="sectionTitle"
         :selectedResources="workingResourcePool"
+        :selectedQuestions="workingQuestions"
         :topic="topic"
         :treeFetch="treeFetch"
         :channelsFetch="channelsFetch"
@@ -54,7 +55,9 @@
         :contentCardMessage="contentCardMessage"
         :getResourceLink="getResourceLink"
         @selectResources="addToWorkingResourcePool"
+        @selectQuestions="addToWorkingQuestions"
         @deselectResources="removeFromWorkingResourcePool"
+        @deselectQuestions="removeFromWorkingQuestions"
         @setSelectedResources="setWorkingResourcePool"
       />
       <KModal
@@ -168,7 +171,7 @@
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
-        isChoosingManually: null,
+        isChoosingManually: true,
         selectPracticeQuiz,
       });
       watch(
@@ -184,7 +187,6 @@
         },
         { immediate: true },
       );
-
       const {
         questionsUnusedInSection$,
         tooManyQuestions$,
@@ -200,6 +202,11 @@
        * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
        */
       const workingResourcePool = ref([]);
+
+      /**
+       * @type {Ref<QuizQuestions[]>}
+       */
+      const workingQuestions = ref([]);
 
       /**
        * @param {QuizExercise[]} resources
@@ -231,6 +238,25 @@
        */
       function setWorkingResourcePool(resources = []) {
         workingResourcePool.value = resources;
+      }
+
+      /**
+       * @param {QuizQuestions[]} questions
+       * @affects workingQuestions -- Updates it with the given questions and is ensured to have
+       * a list of unique questions to avoid unnecessary duplication
+       */
+      function addToWorkingQuestions(questions) {
+        workingQuestions.value = uniqWith([...workingQuestions.value, ...questions], isEqual);
+      }
+
+      /**
+       * @param {QuizQuestions[]} questions
+       * @affects workingQuestions -- Removes the given questions from the workingQuestions
+       */
+      function removeFromWorkingQuestions(questions) {
+        workingQuestions.value = workingQuestions.value.filter(
+          obj => !questions.some(r => r.item === obj.item),
+        );
       }
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
@@ -378,6 +404,8 @@
         maximumContentSelectedWarning,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
+        addToWorkingQuestions,
+        removeFromWorkingQuestions,
         setWorkingResourcePool,
         settings,
         disableSave,
@@ -388,6 +416,7 @@
         updateSection,
         addQuestionsToSectionFromResources,
         workingResourcePool,
+        workingQuestions,
         selectQuiz$,
         addNumberOfQuestions$,
         numberOfSelectedResources$,

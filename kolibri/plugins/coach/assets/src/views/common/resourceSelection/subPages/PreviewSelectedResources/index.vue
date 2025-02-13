@@ -56,6 +56,10 @@
         v-if="isExercise"
         :contentNode="contentNode"
         :questions="exerciseQuestions"
+        :settings="settings"
+        :selectedQuestions="selectedQuestionItems"
+        @select="handleSelectQuestion"
+        @selectAll="handleSelectAllQuestions"
       />
 
       <PreviewContent
@@ -204,6 +208,14 @@
         required: false,
         default: null,
       },
+      /**
+       * Array of selected questions from the manual workflow.
+       */
+      selectedQuestions: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
     },
     computed: {
       isSelected() {
@@ -238,6 +250,9 @@
       isExercise() {
         return this.contentNode.kind === ContentNodeKinds.EXERCISE;
       },
+      selectedQuestionItems() {
+        return this.selectedQuestions.map(q => q.item);
+      },
     },
     beforeRouteEnter(to, from, next) {
       next(vm => {
@@ -266,6 +281,22 @@
             topicId,
           },
         };
+      },
+      handleSelectQuestion(questionItem, value) {
+        //Map the string of questionids to actual question object
+        const question = this.exerciseQuestions.find(q => q.item === questionItem);
+        if (value) {
+          this.$emit('selectQuestions', [question]);
+        } else {
+          this.$emit('deselectQuestions', [question]);
+        }
+      },
+      handleSelectAllQuestions(value) {
+        if (value) {
+          this.$emit('selectQuestions', this.exerciseQuestions);
+        } else {
+          this.$emit('deselectQuestions', this.exerciseQuestions);
+        }
       },
     },
   };
