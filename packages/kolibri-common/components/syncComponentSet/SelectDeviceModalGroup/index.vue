@@ -20,14 +20,7 @@
       @removed_address="handleRemovedAddress"
       @cancel="handleCancel"
       @submit="handleSelectAddressSubmit"
-    >
-      <template #underbuttons>
-        <KButton
-          :text="'heheh'"
-          appearance="basic-link"
-        />
-      </template>
-    </SelectDeviceForm>
+    />
   </div>
 
 </template>

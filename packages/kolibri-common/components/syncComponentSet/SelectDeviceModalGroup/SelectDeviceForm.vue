@@ -130,7 +130,6 @@
         @click="$emit('click_add_address')"
       />
     </div>
-    <span></span>
   </KModal>
 
 </template>
