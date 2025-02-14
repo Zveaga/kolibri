@@ -74,6 +74,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
         PageNames.QUIZ_SECTION_ORDER,
         PageNames.QUIZ_BOOK_MARKED_RESOURCES,
+        PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS,
         PageNames.QUIZ_LEARNER_REPORT,
         PageNames.LESSON_SUMMARY,
         PageNames.LESSON_SUMMARY_BETTER,
@@ -86,7 +87,6 @@ class CoachToolsModule extends KolibriApp {
         PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
         PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-        PageNames.LESSON_PREVIEW_SELECTED_QUESTIONS,
       ];
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (

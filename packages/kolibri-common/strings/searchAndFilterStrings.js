@@ -44,6 +44,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
       '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
     context: 'Indicates the number of resources selected',
   },
+  numberOfSelectedQuestions: {
+    message:
+      '{count, number, integer} {count, plural, one {question selected} other {questions selected}}',
+    context: 'Indicates the number of questions selected',
+  },
   openParentFolderLabel: {
     message: 'Open parent folder',
     context: 'Button label to open the parent folder of a resource',

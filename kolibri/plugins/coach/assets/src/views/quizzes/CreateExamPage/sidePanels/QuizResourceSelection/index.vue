@@ -91,7 +91,8 @@
             </span>
             <KRouterLink
               v-else-if="
-                workingResourcePool.length > 0 &&
+                !settings.isChoosingManually &&
+                  workingResourcePool.length > 0 &&
                   $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
               "
               :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
@@ -99,6 +100,20 @@
               {{
                 numberOfSelectedResources$({
                   count: workingResourcePool.length,
+                })
+              }}
+            </KRouterLink>
+            <KRouterLink
+              v-else-if="
+                settings.isChoosingManually &&
+                  workingQuestions.length > 0 &&
+                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
+              "
+              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
+            >
+              {{
+                numberOfSelectedQuestions$({
+                  count: workingQuestions.length,
                 })
               }}
             </KRouterLink>
@@ -245,8 +260,11 @@
        * @affects workingQuestions -- Updates it with the given questions and is ensured to have
        * a list of unique questions to avoid unnecessary duplication
        */
-      function addToWorkingQuestions(questions) {
+      function addToWorkingQuestions(questions, resource) {
         workingQuestions.value = uniqWith([...workingQuestions.value, ...questions], isEqual);
+        if (!workingResourcePool.value.find(r => r.id === resource.id)) {
+          addToWorkingResourcePool([resource]);
+        }
       }
 
       /**
@@ -257,6 +275,10 @@
         workingQuestions.value = workingQuestions.value.filter(
           obj => !questions.some(r => r.item === obj.item),
         );
+        const resourcesToRemove = workingResourcePool.value.filter(
+          r => !workingQuestions.value.some(q => q.exercise_id === r.id),
+        );
+        removeFromWorkingResourcePool(resourcesToRemove);
       }
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
@@ -377,7 +399,7 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$ } = searchAndFilterStrings;
+      const { numberOfSelectedResources$, numberOfSelectedQuestions$ } = searchAndFilterStrings;
 
       return {
         title,
@@ -420,6 +442,7 @@
         selectQuiz$,
         addNumberOfQuestions$,
         numberOfSelectedResources$,
+        numberOfSelectedQuestions$,
       };
     },
     beforeRouteLeave(_, __, next) {

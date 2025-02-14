@@ -286,7 +286,7 @@
         //Map the string of questionids to actual question object
         const question = this.exerciseQuestions.find(q => q.item === questionItem);
         if (value) {
-          this.$emit('selectQuestions', [question]);
+          this.$emit('selectQuestions', [question], this.contentNode);
         } else {
           this.$emit('deselectQuestions', [question]);
         }
