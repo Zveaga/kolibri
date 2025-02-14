@@ -75,6 +75,8 @@
         :selectedQuestions="workingQuestions"
         :topic="topic"
         :treeFetch="treeFetch"
+        :searchTerms="searchTerms"
+        :searchFetch="searchFetch"
         :channelsFetch="channelsFetch"
         :bookmarksFetch="bookmarksFetch"
         :selectAllRules="selectAllRules"
@@ -355,37 +357,38 @@
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
 
-      const { topic, loading, treeFetch, channelsFetch, bookmarksFetch } = useResourceSelection({
-        bookmarks: {
-          filters: { kind: ContentNodeKinds.EXERCISE },
-          annotator: results => results.filter(isPracticeQuiz),
-        },
-        channels: {
-          filters: {
-            contains_exercise: true,
-            contains_quiz: selectPracticeQuiz ? true : null,
+      const { topic, loading, treeFetch, channelsFetch, bookmarksFetch, searchTerms, searchFetch } =
+        useResourceSelection({
+          bookmarks: {
+            filters: { kind: ContentNodeKinds.EXERCISE },
+            annotator: results => results.filter(isPracticeQuiz),
           },
-          annotator: results =>
-            annotateTopicsWithDescendantCounts(
-              results.map(channel => {
-                return {
-                  ...channel,
-                  id: channel.root,
-                  title: channel.name,
-                  kind: ContentNodeKinds.CHANNEL,
-                  is_leaf: false,
-                };
-              }),
-            ),
-        },
-        topicTree: {
-          filters: {
-            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
-            contains_quiz: selectPracticeQuiz ? true : null,
+          channels: {
+            filters: {
+              contains_exercise: true,
+              contains_quiz: selectPracticeQuiz ? true : null,
+            },
+            annotator: results =>
+              annotateTopicsWithDescendantCounts(
+                results.map(channel => {
+                  return {
+                    ...channel,
+                    id: channel.root,
+                    title: channel.name,
+                    kind: ContentNodeKinds.CHANNEL,
+                    is_leaf: false,
+                  };
+                }),
+              ),
           },
-          annotator: annotateTopicsWithDescendantCounts,
-        },
-      });
+          topicTree: {
+            filters: {
+              kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+              contains_quiz: selectPracticeQuiz ? true : null,
+            },
+            annotator: annotateTopicsWithDescendantCounts,
+          },
+        });
 
       function handleCancelClose() {
         showCloseConfirmation.value = false;
@@ -516,6 +519,8 @@
         topic,
         showCloseConfirmation,
         treeFetch,
+        searchTerms,
+        searchFetch,
         channelsFetch,
         bookmarksFetch,
         loading,
