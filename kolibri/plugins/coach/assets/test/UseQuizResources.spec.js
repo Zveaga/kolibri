@@ -140,11 +140,13 @@ describe('useQuizResources', () => {
 
   describe('integration with fetch methods', () => {
     let quizResources, annotateTopicsSpy;
+
     beforeEach(() => {
       quizResources = useQuizResources({ topicId: 'test-topic' });
-      // Spy on the public API property now that our fetch functions call it via "api.annotateTopicsWithDescendantCounts"
+      // Spy on the public API property
       annotateTopicsSpy = jest.spyOn(quizResources, 'annotateTopicsWithDescendantCounts');
     });
+
     afterEach(() => {
       annotateTopicsSpy.mockRestore();
     });
@@ -177,7 +179,6 @@ describe('useQuizResources', () => {
       const { fetchQuizResources, loading } = useQuizResources();
 
       const loadingStates = [];
-      // Use .value to get booleans from computed refs
       loadingStates.push(loading.value);
 
       const fetchPromise = fetchQuizResources();

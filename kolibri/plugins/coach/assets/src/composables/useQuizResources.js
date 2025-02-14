@@ -11,7 +11,7 @@ const _loadingMore = ref(false);
 /**
  * @module useQuizResources
  * @param {Object} config
- * @param {computed<string|null|undefined>} config.topicId - The id of the root node to fetch the children for
+ * @param {computed<string|null|undefined>} config.topicId - The id of the root node
  * @param {boolean} [config.practiceQuiz=false]
  */
 export default function useQuizResources({ topicId, practiceQuiz = false } = {}) {
@@ -24,7 +24,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     params.contains_quiz = true;
   }
 
-  // Initialize useFetchTree methods with the given topicId and params
   const {
     topic,
     fetchTree,
@@ -40,20 +39,22 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   const _loading = ref(false);
 
   /**
-   * Annotates the child TOPIC nodes with the number of assessments that are contained within them
-   * @param {ContentNode[]} results - The array of results from a content API call
-   * @returns {Promise<ContentNode[]>} - A promise that resolves when the annotations have been made and returns the annotated results
+   * Annotates the child TOPIC nodes with the number of assessments
+   * @param {ContentNode[]} results - The array of results from content API
+   * @returns {Promise<ContentNode[]>} - Promise resolving to annotated results
    */
   async function annotateTopicsWithDescendantCounts(results) {
     const topicIds = results
       .filter(({ kind }) => kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL)
       .map(topic => topic.id);
+
     return ContentNodeResource.fetchDescendantsAssessments(topicIds)
       .then(({ data: topicsWithAssessmentCounts }) => {
         const topicsWithAssessmentCountsMap = topicsWithAssessmentCounts.reduce((acc, topic) => {
           acc[topic.id] = topic.num_assessments;
           return acc;
         }, {});
+
         return results
           .map(node => {
             if ([ContentNodeKinds.TOPIC, ContentNodeKinds.CHANNEL].includes(node.kind)) {
@@ -78,7 +79,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     set(_resources, r);
   }
 
-  // --- Create a public API object to hold and expose functions ---
   const api = {
     setResources,
     resources: computed(() => get(_resources)),
@@ -86,13 +86,11 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     loadingMore: computed(() => get(_loadingMore)),
     hasMore,
     topic,
-    annotateTopicsWithDescendantCounts, // expose this function for testing
-    // We'll assign these next:
+    annotateTopicsWithDescendantCounts,
     fetchQuizResources: undefined,
     fetchMoreQuizResources: undefined,
   };
 
-  // --- Define fetchQuizResources using the public API to call annotateTopicsWithDescendantCounts ---
   api.fetchQuizResources = async function fetchQuizResources() {
     set(_loading, true);
     return fetchTree().then(async results => {
@@ -103,7 +101,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     });
   };
 
-  // --- Define fetchMoreQuizResources similarly ---
   api.fetchMoreQuizResources = async function fetchMoreQuizResources() {
     set(_loading, true);
     set(_loadingMore, true);
