@@ -33,6 +33,7 @@
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
       :getResourceLink="getResourceLink"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -145,6 +146,11 @@
       getResourceLink: {
         type: Function,
         required: true,
+      },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
       },
     },
     computed: {
