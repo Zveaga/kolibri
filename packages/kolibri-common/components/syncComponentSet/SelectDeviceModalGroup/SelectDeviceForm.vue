@@ -138,13 +138,13 @@
 <script>
 
   import { computed } from 'vue';
-  import { useLocalStorage, get } from '@vueuse/core';
+  import { useLocalStorage } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import pickBy from 'lodash/pickBy';
-  import { UnreachableConnectionStatuses } from './constants';
+  import { LocationTypes, UnreachableConnectionStatuses } from './constants';
   import useDeviceDeletion from './useDeviceDeletion.js';
   import {
     useDevicesWithFilter,
@@ -208,8 +208,12 @@
 
       const storageDeviceId = useLocalStorage('kolibri-lastSelectedNetworkLocationId', '');
 
-      const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
-      const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
+      const discoveredDevices = computed(() =>
+        devices.value.filter(d => d.location_type === LocationTypes.DYNAMIC),
+      );
+      const savedDevices = computed(() =>
+        devices.value.filter(d => d.location_type !== LocationTypes.DYNAMIC),
+      );
 
       return {
         // useDevices
