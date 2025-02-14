@@ -120,7 +120,7 @@
       </KFixedGrid>
     </template>
 
-    <KButtonGroup class="under-buttons">
+    <div class="under-buttons">
       <slot name="underbuttons"></slot>
       <KButton
         v-show="!newDeviceButtonDisabled && !formDisabled"
@@ -129,7 +129,8 @@
         appearance="basic-link"
         @click="$emit('click_add_address')"
       />
-    </KButtonGroup>
+    </div>
+    <span></span>
   </KModal>
 
 </template>
@@ -477,8 +478,10 @@
   }
 
   .under-buttons {
-    /* align button group with the form content */
-    margin-left: -8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 8px 0 2px;
   }
 
 </style>
