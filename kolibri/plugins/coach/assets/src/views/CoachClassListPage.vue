@@ -82,9 +82,9 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { isClassCoach, isFacilityCoach } = useUser();
+      const { isAdmin, isClassCoach, isFacilityCoach } = useUser();
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
-      return { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin, facilities };
+      return { isAdmin, isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin, facilities };
     },
     props: {
       subtopicName: {
