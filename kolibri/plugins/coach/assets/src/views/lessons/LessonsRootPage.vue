@@ -96,9 +96,9 @@
                         :style="{ display: 'inline-block', marginLeft: '6px' }"
                         :size="26"
                       />
-                      <span :id="`toggle-lesson-visibility-label-${lesson.id}`">
+                      <h3 :id="`toggle-lesson-visibility-label-${lesson.id}`">
                         Toggle visibility for lesson {{ lesson.name }}
-                      </span>
+                      </h3>
                       <KSwitch
                         v-else:
                         key="`switch-${lesson.id}`"

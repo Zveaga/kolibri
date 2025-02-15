@@ -25,7 +25,7 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 2 }"
         >
-          <span id="toggle-lesson-visibility-label">Toggle lesson visibility</span>
+          <h3 id="toggle-lesson-visibility-label">Toggle lesson visibility</h3>
           <KSwitch
             name="toggle-lesson-visibility"
             :aria-labelledby="'toggle-lesson-visibility-label'"

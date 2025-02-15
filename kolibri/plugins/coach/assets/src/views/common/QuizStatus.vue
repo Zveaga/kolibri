@@ -100,7 +100,7 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 2 }"
         >
-          <span id="toggle-quiz-visibility-label">Toggle quiz visibility</span>
+          <h3 id="toggle-quiz-visibility-label">Toggle quiz visibility</h3>
           <KSwitch
             name="toggle-quiz-visibility"
             :aria-labelledby="'toggle-quiz-visibility'"
