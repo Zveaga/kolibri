@@ -104,7 +104,6 @@
           <KSwitch
             name="toggle-quiz-visibility"
             :ariaLabelledBy="'toggle-quiz-visibility-label'"
-            label=""
             style="display: inline"
             :checked="exam.active"
             :value="exam.active"

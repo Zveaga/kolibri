@@ -104,7 +104,6 @@
                         key="`switch-${lesson.id}`"
                         name="toggle-lesson-visibility"
                         :ariaLabelledBy="`toggle-lesson-visibility-label-${lesson.id}`"
-                        label=""
                         :checked="lesson.active"
                         :value="lesson.active"
                         @change="toggleModal(lesson)"
