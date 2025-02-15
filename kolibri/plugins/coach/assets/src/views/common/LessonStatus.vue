@@ -28,7 +28,7 @@
           <h3 id="toggle-lesson-visibility-label">Toggle lesson visibility</h3>
           <KSwitch
             name="toggle-lesson-visibility"
-            :aria-labelledby="'toggle-lesson-visibility-label'"
+            :ariaLabelledBy="'toggle-lesson-visibility-label'"
             label=""
             :checked="lesson.active"
             :value="lesson.active"

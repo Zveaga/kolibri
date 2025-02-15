@@ -103,7 +103,7 @@
           <h3 id="toggle-quiz-visibility-label">Toggle quiz visibility</h3>
           <KSwitch
             name="toggle-quiz-visibility"
-            :aria-labelledby="'toggle-quiz-visibility'"
+            :ariaLabelledBy="'toggle-quiz-visibility-label'"
             label=""
             style="display: inline"
             :checked="exam.active"
