@@ -359,6 +359,7 @@
 
       const { topic, loading, treeFetch, channelsFetch, bookmarksFetch, searchTerms, searchFetch } =
         useResourceSelection({
+          searchResultsRouteName: PageNames.QUIZ_SEARCH_RESULTS,
           bookmarks: {
             filters: { kind: ContentNodeKinds.EXERCISE },
             annotator: results => results.filter(isPracticeQuiz),
