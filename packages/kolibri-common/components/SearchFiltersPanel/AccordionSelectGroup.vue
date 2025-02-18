@@ -51,7 +51,7 @@
             </template>
           </KButton>
           <KButton
-            :text="coreString('uncategorized')"
+            :text="coreString('otherCategories')"
             class="category-button"
             :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
             :style="{
@@ -59,7 +59,15 @@
             }"
             appearance="flat-button"
             @click="noCategories"
-          />
+          >
+            <template #icon>
+              <KIcon
+                class="category-icon"
+                icon="optionsCircle"
+                :color="$themeTokens.primary"
+              />
+            </template>
+          </KButton>
         </template>
       </AccordionItem>
       <AccordionItem
@@ -330,9 +338,16 @@
         // Takes the dot separated category value and checks if it is active
         return this.activeCategories.some(k => k.includes(categoryValue));
       },
-      categoryIcon() {
-        // TODO Add icons to KDS then use them
-        return 'categories';
+      categoryIcon(category) {
+        if (category === 'WORK') {
+          return 'skillsResource';
+        } else if (category === 'FOUNDATIONS') {
+          return 'basicSkillsResource';
+        }
+        // for those with a clearer 1:1 match with the category and icon
+        else {
+          return camelCase(category) + 'Resource';
+        }
       },
     },
     $trs: {
@@ -401,6 +416,8 @@
     position: absolute;
     top: 50%;
     left: 0.5em;
+    width: 32px;
+    height: 32px;
     transform: translateY(-50%);
   }
 
@@ -415,8 +432,7 @@
     // Ensure the child KIcons' absolute positioning anchors to this button
     position: relative;
     width: 100%;
-    // 0.5em around except on the right where the category icon is
-    padding: 0 0.5em 0 2.25em;
+    padding: 0.25em 0.5em 0.25em 3.5em;
     font-weight: normal;
     text-align: left;
     // KButton text formatting overrides
