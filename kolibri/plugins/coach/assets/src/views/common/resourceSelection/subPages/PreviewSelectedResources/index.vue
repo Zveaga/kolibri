@@ -59,6 +59,7 @@
         :isSelectable="!!settings?.isChoosingManually"
         :maxSelectableQuestions="settings?.questionCount"
         :selectedQuestions="selectedQuestionItems"
+        :unselectableQuestionItems="unselectableQuestionItems"
         @selectQuestions="handleSelectQuestions"
         @deselectQuestions="handleDeselectQuestionss"
       />
@@ -173,7 +174,20 @@
         type: Array,
         required: true,
       },
+      /**
+       * Array of resource ids that already belongs to the quiz,
+       * and should not be selectable.
+       */
       unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      /**
+       * Array of question ids that already belongs to the quiz,
+       * and should not be selectable.
+       */
+      unselectableQuestionItems: {
         type: Array,
         required: false,
         default: null,

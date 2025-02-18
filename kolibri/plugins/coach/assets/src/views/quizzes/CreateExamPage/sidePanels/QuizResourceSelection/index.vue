@@ -54,6 +54,8 @@
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
         :getResourceLink="getResourceLink"
+        :unselectableResourceIds="unselectableResourceIds"
+        :unselectableQuestionItems="unselectableQuestionItems"
         @selectResources="addToWorkingResourcePool"
         @selectQuestions="addToWorkingQuestions"
         @deselectResources="removeFromWorkingResourcePool"
@@ -143,7 +145,6 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import { useMemoize } from '@vueuse/core';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -177,6 +178,7 @@
         addQuestionsToSection,
         addQuestionsToSectionFromResources,
         allQuestionsInQuiz,
+        allResourceMap,
         activeQuestions,
         addSection,
       } = injectQuizCreation();
@@ -284,16 +286,15 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = useMemoize(content => {
+      const unusedQuestionsCount = content => {
         const questionItems = content.assessmentmetadata.assessment_item_ids.map(
           aid => `${content.id}:${aid}`,
         );
-        const questionsItemsAlreadyUsed = allQuestionsInQuiz.value
-          .map(q => q.item)
-          .filter(i => questionItems.includes(i));
-        const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
-        return questionItemsAvailable;
-      });
+        const questionsItemsUnused = questionItems
+          .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+          .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+        return questionsItemsUnused.length;
+      };
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -402,6 +403,22 @@
 
       const selectionRules = computed(() => [() => remainingSelectableContent.value > 0]);
 
+      const unselectableResourceIds = computed(() => {
+        return Object.keys(allResourceMap.value).filter(exerciseId => {
+          const exercise = allResourceMap.value[exerciseId];
+          const questionItems = exercise.assessmentmetadata.assessment_item_ids.map(
+            questionId => `${exerciseId}:${questionId}`,
+          );
+          return questionItems.every(questionItem =>
+            allQuestionsInQuiz.value.some(q => q.item === questionItem),
+          );
+        });
+      });
+
+      const unselectableQuestionItems = computed(() => {
+        return allQuestionsInQuiz.value.map(q => q.item);
+      });
+
       const maximumContentSelectedWarning = computed(() => {
         if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
           return null;
@@ -436,6 +453,8 @@
         loading,
         selectionRules,
         selectAllRules,
+        unselectableResourceIds,
+        unselectableQuestionItems,
         maximumContentSelectedWarning,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
