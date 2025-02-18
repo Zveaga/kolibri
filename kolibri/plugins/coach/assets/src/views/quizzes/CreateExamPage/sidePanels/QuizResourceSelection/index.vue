@@ -350,13 +350,21 @@
         return Boolean(workingResourcePool.value.length);
       });
 
-      const workingPoolUnusedQuestions = computed(() => {
+      const workingPoolQuestionsCount = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return workingQuestions.value.length;
+        }
+
         return workingResourcePool.value.reduce((acc, content) => {
           return acc + unusedQuestionsCount(content);
         }, 0);
       });
 
       const tooManyQuestions = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return workingQuestions.value.length > settings.value.questionCount;
+        }
+
         return workingResourcePool.value.length > settings.value.questionCount;
       });
 
@@ -366,7 +374,7 @@
         }
         return (
           !workingPoolHasChanged.value ||
-          workingPoolUnusedQuestions.value < settings.value.questionCount ||
+          workingPoolQuestionsCount.value < settings.value.questionCount ||
           settings.value.questionCount < 1 ||
           tooManyQuestions.value ||
           settings.value.questionCount.value > settings.value.maxQuestions
@@ -380,9 +388,13 @@
         displaySectionTitle(activeSection.value, activeSectionIndex.value),
       );
 
-      const remainingSelectableContent = computed(
-        () => settings.value.questionCount - workingResourcePool.value.length,
-      );
+      const remainingSelectableContent = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return settings.value.questionCount - workingQuestions.value.length;
+        }
+
+        return settings.value.questionCount - workingResourcePool.value.length;
+      });
 
       const selectAllRules = computed(() => [
         contentList => contentList.length <= remainingSelectableContent.value,

@@ -53,6 +53,10 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Open parent folder',
     context: 'Button label to open the parent folder of a resource',
   },
+  openExerciseLabel: {
+    message: 'Open exercise',
+    context: 'Button label to open the exercise a question belongs to',
+  },
   removeResourceLabel: {
     message: 'Remove resource',
     context: 'Button label to remove a resource from the selected resources',

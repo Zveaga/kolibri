@@ -24,7 +24,12 @@
           <KIcon icon="practiceSolid" />
           <span>{{ getQuestionContent(question).title }}</span>
         </div>
-        <KIconButton icon="emptyTopic" />
+        <KIconButton
+          icon="emptyTopic"
+          :ariaLabel="openExerciseLabel$()"
+          :tooltip="openExerciseLabel$()"
+          @click="navigateToParent(question)"
+        />
       </div>
     </template>
   </QuestionsAccordion>
@@ -35,7 +40,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import QuestionsAccordion from '../../../../../common/QuestionsAccordion.vue';
+  import { PageNames } from '../../../../../../constants';
 
   export default {
     name: 'ManageSelectedQuestions',
@@ -43,6 +50,13 @@
       QuestionsAccordion,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { openExerciseLabel$ } = searchAndFilterStrings;
+
+      return {
+        openExerciseLabel$,
+      };
+    },
     props: {
       selectedQuestions: {
         type: Array,
@@ -105,6 +119,14 @@
         );
         this.selectedQuestionsInPreview = [];
         this.$emit('deselectQuestions', questionsToDelete);
+      },
+      navigateToParent(question) {
+        const pageName = PageNames.QUIZ_PREVIEW_RESOURCE;
+
+        this.$router.push({
+          name: pageName,
+          query: { contentId: question.exercise_id },
+        });
       },
     },
   };

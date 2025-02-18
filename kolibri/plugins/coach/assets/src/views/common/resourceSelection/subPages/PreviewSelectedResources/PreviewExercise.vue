@@ -4,7 +4,7 @@
     <QuestionsAccordion
       :questions="questions"
       :getQuestionContent="() => contentNode"
-      :isSelectable="settings?.isChoosingManually"
+      :isSelectable="!!settings?.isChoosingManually"
       :selectedQuestions="selectedQuestions"
       :selectAllIsChecked="selectAllIsChecked"
       :selectAllIsIndeterminate="selectAllIsIndeterminate"

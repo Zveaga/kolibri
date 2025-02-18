@@ -3,7 +3,10 @@
   <div>
     <KCircularLoader v-if="loading && !contentNode" />
     <div v-else>
-      <div class="channel-header">
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="channel-header"
+      >
         <p>
           {{ coreString('selectFromChannels') }}
         </p>
@@ -33,7 +36,11 @@
           />
         </div>
       </div>
-
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ"
+        hideSearch
+        :settings="settings"
+      />
       <ResourceSelectionBreadcrumbs
         v-if="ancestors.length"
         :ancestors="[...ancestors, contentNode]"
@@ -86,6 +93,7 @@
   import { SelectionTarget } from '../../contants.js';
   import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
+  import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import PreviewContent from './PreviewContent';
@@ -97,6 +105,7 @@
       PreviewContent,
       PreviewExercise,
       LearningActivityIcon,
+      QuizResourceSelectionHeader,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
@@ -149,6 +158,7 @@
         ancestors,
         questions,
         loading,
+        SelectionTarget,
         redirectBack,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
