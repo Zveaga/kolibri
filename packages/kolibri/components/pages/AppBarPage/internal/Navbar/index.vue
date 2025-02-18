@@ -121,7 +121,6 @@
         if (this.windowIsMedium) {
           return styles;
         }
-        styles.marginTop = 0;
         styles.maxHeight = '42px';
         return styles;
       },

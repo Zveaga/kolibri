@@ -127,6 +127,7 @@
       <slot name="sub-nav">
         <Navbar
           v-if="links.length > 0"
+          :class="{ 'sub-nav': !showTopNavBar }"
           :navigationLinks="links"
           :title="title"
         />
@@ -432,6 +433,10 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
+  }
+
+  /deep/ .sub-nav .items {
+    margin-top: 0;
   }
 
 </style>
