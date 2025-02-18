@@ -24,6 +24,7 @@
     />
 
     <UpdatedResourceSelection
+      :isSelectable="isSelectable"
       :contentList="contentList"
       :hasMore="hasMore"
       :cardsHeadingLevel="2"
@@ -43,7 +44,7 @@
 
 <script>
 
-  import { getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance } from 'vue';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
@@ -51,6 +52,7 @@
   import { PageNames } from '../../../../../../constants';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
+  import { SelectionTarget } from '../../../../../common/resourceSelection/contants';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -89,12 +91,21 @@
       props.setTitle(manageLessonResourcesTitle$());
       props.setGoBack(null);
 
+      const isSelectable = computed(() => {
+        if (props.target === SelectionTarget.LESSON) {
+          return true;
+        }
+        // if choosing manually for quizzes, dont allow selecting resources
+        return !props.settings.isChoosingManually;
+      });
+
       const { data, hasMore, fetchMore, loadingMore } = props.searchFetch;
       return {
         contentList: data,
         hasMore,
         fetchMore,
         loadingMore,
+        isSelectable,
         searchLabel$,
         selectFromChannels$,
         redirectBack,
@@ -145,6 +156,22 @@
       getResourceLink: {
         type: Function,
         required: true,
+      },
+      /**
+       * The target entity for the selection.
+       * It can be either 'quiz' or 'lesson'.
+       */
+      target: {
+        type: String,
+        required: true,
+      },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {

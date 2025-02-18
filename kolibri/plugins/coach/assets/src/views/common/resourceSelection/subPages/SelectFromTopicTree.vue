@@ -52,6 +52,7 @@
 
     <UpdatedResourceSelection
       canSelectAll
+      :isSelectable="isSelectable"
       :topic="computedTopic"
       :disabled="disabled"
       :contentList="contentList"
@@ -173,6 +174,14 @@
         };
       });
 
+      const isSelectable = computed(() => {
+        if (props.target === SelectionTarget.LESSON) {
+          return true;
+        }
+        // if choosing manually for quizzes, dont allow selecting resources
+        return !props.settings.isChoosingManually;
+      });
+
       const { data, hasMore, fetchMore, loadingMore } = props.treeFetch;
       return {
         contentList: data,
@@ -180,6 +189,7 @@
         fetchMore,
         loadingMore,
         SelectionTarget,
+        isSelectable,
         computedTopic,
         isTopicFromSearchResult,
         searchLabel$,

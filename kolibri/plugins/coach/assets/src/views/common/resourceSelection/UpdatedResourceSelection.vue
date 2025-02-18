@@ -57,6 +57,15 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * Boolean that determines if the select checkboxes should be rendered.
+       * This is different from `selectionRules` as `selectionRules` just determines
+       * whether the checkbox is enabled or not.
+       */
+      isSelectable: {
+        type: Boolean,
+        default: true,
+      },
       multi: {
         type: Boolean,
         default: true,
@@ -283,7 +292,7 @@
         }
       },
       showCheckbox(node) {
-        return node.kind !== ContentNodeKinds.TOPIC;
+        return this.isSelectable && node.kind !== ContentNodeKinds.TOPIC;
       },
     },
   };

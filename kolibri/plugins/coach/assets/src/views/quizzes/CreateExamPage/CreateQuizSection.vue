@@ -172,10 +172,8 @@
           :questions="activeQuestions"
           :selectedQuestions="selectedActiveQuestions"
           :getQuestionContent="question => activeResourceMap[question.exercise_id]"
-          :selectAllIsChecked="allQuestionsSelected"
-          :selectAllIsIndeterminate="selectAllIsIndeterminate"
-          @select="toggleQuestionInSelection"
-          @selectAll="selectAllQuestions"
+          @selectQuestions="addQuestionsToSelection"
+          @deselectQuestions="removeQuestionsFromSelection"
           @error="err => $emit('error', err)"
           @sort="handleQuestionOrderChange"
         >
@@ -264,15 +262,13 @@
       const {
         // Methods
         updateSection,
-        allQuestionsSelected,
-        selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        selectAllQuestions,
         replacementQuestionPool,
         // Computed
-        toggleQuestionInSelection,
+        addQuestionsToSelection,
+        removeQuestionsFromSelection,
         allSections,
         activeSectionIndex,
         activeSection,
@@ -299,11 +295,9 @@
         deleteConfirmation$,
         questionsDeletedNotification$,
 
-        toggleQuestionInSelection,
-        selectAllQuestions,
+        addQuestionsToSelection,
+        removeQuestionsFromSelection,
         updateSection,
-        allQuestionsSelected,
-        selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,

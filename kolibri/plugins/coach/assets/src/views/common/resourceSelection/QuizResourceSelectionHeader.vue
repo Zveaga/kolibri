@@ -22,6 +22,7 @@
         icon="filter"
         :text="searchLabel$()"
       />
+      <slot name="actions"></slot>
     </div>
   </div>
 

@@ -9,6 +9,7 @@
     />
     <UpdatedResourceSelection
       canSelectAll
+      :isSelectable="isSelectable"
       :contentList="contentList"
       :hasMore="hasMore"
       :disabled="disabled"
@@ -33,7 +34,7 @@
 
 <script>
 
-  import { getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance } from 'vue';
   import { now } from 'kolibri/utils/serverClock';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
@@ -86,12 +87,21 @@
         return bookmarkedTimeAgoLabel$({ time });
       };
 
+      const isSelectable = computed(() => {
+        if (props.target === SelectionTarget.LESSON) {
+          return true;
+        }
+        // if choosing manually for quizzes, dont allow selecting resources
+        return !props.settings.isChoosingManually;
+      });
+
       return {
         channelsLink,
         contentList: data,
         hasMore,
         fetchMore,
         loadingMore,
+        isSelectable,
         contentCardMessage,
         SelectionTarget,
       };
