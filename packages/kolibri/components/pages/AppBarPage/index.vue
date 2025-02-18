@@ -30,7 +30,7 @@
     <div
       id="main"
       class="main-wrapper"
-      :style="wrapperStyles"
+      :style="[wrapperStyles, paddingTop]"
     >
       <slot></slot>
     </div>
@@ -126,13 +126,16 @@
             backgroundColor: this.$themePalette.grey.v_100,
             paddingLeft: this.paddingLeftRight,
             paddingRight: this.paddingLeftRight,
-            paddingTop: this.appBarHeight + this.paddingTop + 'px',
             paddingBottom: '72px',
             marginTop: 0,
           };
       },
       paddingTop() {
-        return this.isAppContext ? 0 : 5;
+        const extraPadding = this.isAppContext ? 0 : 5;
+        const totalPadding = this.appBarHeight + extraPadding;
+        return {
+          paddingTop: `${totalPadding}px`,
+        };
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
@@ -147,7 +150,7 @@
     },
     beforeUpdate() {
       // Update appBarHeight after AppBar is rerendered and updated
-      this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
+      this.handleWindowResize();
     },
     mounted() {
       this.addScrollListener();
