@@ -143,6 +143,32 @@ export default function useQuizCreation() {
     updateSection({ sectionIndex, questions, resourcePool });
   }
 
+  /**
+   * Add an array of questions to a section
+   * @param {Object} options
+   * @param {number} options.sectionIndex - The index of the section to add the questions to
+   * @param {QuizQuestion[]} options.questions - The questions array to add
+   * @param {QuizExercise[]} options.resources - The resources to add to the exercise map
+   */
+  function addQuestionsToSection({ sectionIndex, questions, resources }) {
+    const targetSection = get(allSections)[sectionIndex];
+    if (!targetSection) {
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
+    }
+
+    if (!questions || questions.length === 0) {
+      throw new TypeError('Questions must be a non-empty array of questions');
+    }
+
+    const newQuestions = questions.filter(
+      q => !targetSection.questions.map(q => q.item).includes(q.item),
+    );
+
+    const questionsToAdd = [...targetSection.questions, ...newQuestions];
+
+    updateSection({ sectionIndex, questions: questionsToAdd, resourcePool: resources });
+  }
+
   function handleReplacement(replacements) {
     const questions = activeQuestions.value.map(question => {
       if (selectedActiveQuestions.value.includes(question.item)) {
@@ -441,6 +467,7 @@ export default function useQuizCreation() {
 
   provide('allQuestionsInQuiz', allQuestionsInQuiz);
   provide('updateSection', updateSection);
+  provide('addQuestionsToSection', addQuestionsToSection);
   provide('addQuestionsToSectionFromResources', addQuestionsToSectionFromResources);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
@@ -506,6 +533,7 @@ export default function useQuizCreation() {
 export function injectQuizCreation() {
   const allQuestionsInQuiz = inject('allQuestionsInQuiz');
   const updateSection = inject('updateSection');
+  const addQuestionsToSection = inject('addQuestionsToSection');
   const addQuestionsToSectionFromResources = inject('addQuestionsToSectionFromResources');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
@@ -536,6 +564,7 @@ export function injectQuizCreation() {
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
+    addQuestionsToSection,
     addQuestionsToSectionFromResources,
     handleReplacement,
     replaceSelectedQuestions,

@@ -174,6 +174,7 @@
         activeSection,
         activeSectionIndex,
         updateSection,
+        addQuestionsToSection,
         addQuestionsToSectionFromResources,
         allQuestionsInQuiz,
         activeQuestions,
@@ -436,6 +437,7 @@
         tooManyQuestions$,
         questionsUnusedInSection$,
         updateSection,
+        addQuestionsToSection,
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
@@ -474,6 +476,12 @@
             });
             sectionIndex++;
           }
+        } else if (this.settings.isChoosingManually) {
+          this.addQuestionsToSection({
+            sectionIndex: this.activeSectionIndex,
+            questions: this.workingQuestions,
+            resources: this.workingResourcePool,
+          });
         } else {
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
