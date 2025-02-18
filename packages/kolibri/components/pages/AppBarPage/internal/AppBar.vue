@@ -56,7 +56,7 @@
           <slot name="sub-nav">
             <Navbar
               v-if="links.length > 0"
-              :class="{ 'hide-navbar': !showTopNavBar }"
+              :style="hiddenNavbarStyle"
               :navigationLinks="links"
               :title="title"
               @update-overflow-count="overflowCount = $event"
@@ -232,6 +232,19 @@
         const availableWidth = this.appBarWidth - offset;
         const maxChars = availableWidth > 0 ? Math.floor(availableWidth / averageCharWidth) : 1;
         return this.truncateText(this.title, maxChars);
+      },
+      hiddenNavbarStyle() {
+        if (this.showTopNavBar) {
+          return {};
+        }
+        // Hide top navbar, but keep it in the DOM for overflow calulations
+        const rightOffset = `${this.title.length * 10 + 250}px`;
+        return {
+          pointerEvents: 'none',
+          opacity: '0',
+          position: 'fixed',
+          right: rightOffset,
+        };
       },
     },
     created() {
@@ -419,17 +432,6 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
-  }
-
-  // Hide top navbar, but keep it in the DOM for overflow calulations
-  .hide-navbar {
-    pointer-events: none;
-    opacity: 0;
-  }
-
-  /deep/ .hide-navbar.navbar-positioning {
-    display: grid;
-    visibility: hidden;
   }
 
 </style>
