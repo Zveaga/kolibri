@@ -70,10 +70,6 @@
         <div class="side-panel-subtitle">
           {{ selectFromChannels$() }}
         </div>
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-        />
       </div>
       <p
         v-if="channels.length === 0"
