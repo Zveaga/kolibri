@@ -1,20 +1,22 @@
 <template>
 
+  <p v-if="workingQuestions.length === 0">
+    {{ emptyQuestionsList$() }}
+  </p>
   <QuestionsAccordion
+    v-else
     :questions="workingQuestions"
     :getQuestionContent="getQuestionContent"
-    :selectedQuestions="selectedQuestionsInPreview"
-    :selectAllIsChecked="selectAllIsChecked"
-    :selectAllIsIndeterminate="selectAllIsIndeterminate"
-    @select="handleSelect"
-    @selectAll="handleSelectAll"
+    :selectedQuestions="cartSelectedQuestions"
+    @selectQuestions="handleSelectQuestions"
+    @deselectQuestions="handleDeselectQuestions"
   >
     <template #header-trailing-actions>
       <KIconButton
         icon="trash"
         :tooltip="coreString('deleteAction')"
         :aria-label="coreString('deleteAction')"
-        :disabled="selectedQuestionsInPreview.length === 0"
+        :disabled="cartSelectedQuestions.length === 0"
         @click="deleteQuestions"
       />
     </template>
@@ -39,6 +41,8 @@
 
 <script>
 
+  import uniq from 'lodash/uniq';
+  import { getCurrentInstance, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import QuestionsAccordion from '../../../../../common/QuestionsAccordion.vue';
@@ -50,14 +54,37 @@
       QuestionsAccordion,
     },
     mixins: [commonCoreStrings],
-    setup() {
-      const { openExerciseLabel$ } = searchAndFilterStrings;
+    setup(props) {
+      const router = getCurrentInstance().proxy.$router;
+      const { openExerciseLabel$, numberOfSelectedQuestions$, emptyQuestionsList$ } =
+        searchAndFilterStrings;
+
+      props.setTitle(numberOfSelectedQuestions$({ count: props.selectedQuestions.length }));
+      props.setGoBack(() => {
+        router.back();
+      });
+
+      watch(
+        () => props.selectedQuestions,
+        () => {
+          props.setTitle(numberOfSelectedQuestions$({ count: props.selectedQuestions.length }));
+        },
+      );
 
       return {
         openExerciseLabel$,
+        emptyQuestionsList$,
       };
     },
     props: {
+      setTitle: {
+        type: Function,
+        default: () => {},
+      },
+      setGoBack: {
+        type: Function,
+        default: () => {},
+      },
       selectedQuestions: {
         type: Array,
         required: true,
@@ -69,55 +96,31 @@
     },
     data() {
       return {
-        // questions: stubQuestions,
-        selectedQuestionsInPreview: [],
+        cartSelectedQuestions: [],
       };
     },
     computed: {
       workingQuestions() {
         return this.selectedQuestions;
       },
-      selectAllIsChecked() {
-        return (
-          this.selectedQuestionsInPreview.length > 0 &&
-          this.selectedQuestionsInPreview.length === this.workingQuestions.length
-        );
-      },
-      selectAllIsIndeterminate() {
-        return (
-          this.selectedQuestionsInPreview.length > 0 &&
-          this.selectedQuestionsInPreview.length < this.workingQuestions.length
-        );
-      },
     },
     methods: {
-      handleSelect(questionItem, isSelected) {
-        if (isSelected) {
-          if (!this.selectedQuestionsInPreview.includes(questionItem)) {
-            this.selectedQuestionsInPreview.push(questionItem);
-          }
-        } else {
-          const index = this.selectedQuestionsInPreview.indexOf(questionItem);
-          if (index > -1) {
-            this.selectedQuestionsInPreview.splice(index, 1);
-          }
-        }
+      handleSelectQuestions(questionItems) {
+        this.cartSelectedQuestions = uniq([...this.cartSelectedQuestions, ...questionItems]);
       },
-      handleSelectAll(isSelected) {
-        if (isSelected) {
-          this.selectedQuestionsInPreview = this.workingQuestions.map(q => q.item);
-        } else {
-          this.selectedQuestionsInPreview = [];
-        }
+      handleDeselectQuestions(questionItems) {
+        this.cartSelectedQuestions = this.cartSelectedQuestions.filter(
+          q => !questionItems.includes(q),
+        );
       },
       getQuestionContent(question) {
         return this.selectedResources.find(resource => resource.id === question.exercise_id);
       },
       deleteQuestions() {
-        const questionsToDelete = this.selectedQuestionsInPreview.map(q =>
+        const questionsToDelete = this.cartSelectedQuestions.map(q =>
           this.workingQuestions.find(wq => wq.item === q),
         );
-        this.selectedQuestionsInPreview = [];
+        this.cartSelectedQuestions = [];
         this.$emit('deselectQuestions', questionsToDelete);
       },
       navigateToParent(question) {

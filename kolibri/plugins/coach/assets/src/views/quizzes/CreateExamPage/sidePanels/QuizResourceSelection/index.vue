@@ -189,7 +189,7 @@
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
-        isChoosingManually: true,
+        isChoosingManually: false,
         selectPracticeQuiz,
       });
       watch(

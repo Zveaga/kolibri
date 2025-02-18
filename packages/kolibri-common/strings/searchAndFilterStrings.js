@@ -65,6 +65,10 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'No resources selected',
     context: 'Message displayed when no resources are selected',
   },
+  emptyQuestionsList: {
+    message: 'No questions selected',
+    context: 'Message displayed when no questions are selected',
+  },
   searchInFolder: {
     message: "Search in '{folder}'",
     context: 'Title for search resources in folder',

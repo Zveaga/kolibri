@@ -57,7 +57,7 @@
         >
           <AccordionItem
             :title="displayQuestionTitle(question, getQuestionContent(question).title)"
-            :aria-selected="selectedQuestions.includes(question.item)"
+            :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
               userSelect: dragActive ? 'none !important' : 'text',
             }"
@@ -79,7 +79,7 @@
               <KCheckbox
                 v-if="isSelectable"
                 class="accordion-item-checkbox"
-                :checked="selectedQuestions.includes(question.item)"
+                :checked="questionIsChecked(question)"
                 :disabled="questionCheckboxDisabled(question)"
                 @change="
                   (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
@@ -169,11 +169,20 @@
         return props.selectedQuestions.length >= props.maxSelectableQuestions;
       }
 
+      function questionIsChecked(question) {
+        if (props.unselectableQuestionItems?.includes(question.item)) {
+          return true;
+        }
+        return props.selectedQuestions.includes(question.item);
+      }
+
       const selectableQuestions = computed(() => {
         if (!props.isSelectable) {
           return [];
         }
-        return props.questions.filter(question => !questionCheckboxDisabled(question));
+        return props.questions.filter(
+          question => !props.unselectableQuestionItems?.includes(question.item),
+        );
       });
 
       const selectAllIsChecked = computed(
@@ -197,7 +206,7 @@
         if (props.disabled) {
           return true;
         }
-        if (props.maxSelectableQuestions === null) {
+        if (props.maxSelectableQuestions === null || selectAllIsChecked.value) {
           return false;
         }
         if (props.selectedQuestions.length >= props.maxSelectableQuestions) {
@@ -220,6 +229,7 @@
 
         moveUpOne,
         moveDownOne,
+        questionIsChecked,
         displayQuestionTitle,
         questionCheckboxDisabled,
 

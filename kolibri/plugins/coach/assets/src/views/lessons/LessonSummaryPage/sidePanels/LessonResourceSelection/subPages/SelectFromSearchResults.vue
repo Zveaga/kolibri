@@ -151,13 +151,6 @@
         default: null,
       },
       /**
-       * Function that receives a resourceId and returns a link to the resource.
-       */
-      getResourceLink: {
-        type: Function,
-        required: true,
-      },
-      /**
        * The target entity for the selection.
        * It can be either 'quiz' or 'lesson'.
        */
@@ -172,6 +165,13 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that receives a resourceId and returns a link to the resource.
+       */
+      getResourceLink: {
+        type: Function,
+        required: true,
       },
     },
     computed: {
