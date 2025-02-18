@@ -1049,6 +1049,12 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Select from channels',
     context: "Option on the 'Manage lesson resources' page.",
   },
+  noAvailableResources: {
+    message:
+      'There are no resources available. Please contact your administrator to import channels on this device.',
+    context:
+      'Message displayed when there are no resources available for the user to select or view.',
+  },
   selectFromBookmarks: {
     message: 'Select from bookmarks',
     context: "Option on the 'Manage lesson resources' page.",

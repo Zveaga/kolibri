@@ -20,7 +20,7 @@
           <!-- Fixed header -->
           <div
             ref="fixedHeader"
-            class="side-panel-header"
+            :class="{ 'side-panel-header': true, immersive: immersive }"
             :style="headerStyles"
           >
             <div
@@ -44,8 +44,11 @@
           </div>
 
           <!-- Default slot for inserting content which will scroll on overflow -->
-          <div class="side-panel-content">
-            <slot></slot>
+          <div
+            class="side-panel-content"
+            @scroll="isScrolled = $event.target.scrollTop > 0"
+          >
+            <slot :isScrolled="isScrolled"></slot>
           </div>
           <div
             v-if="$slots.bottomNavigation"
@@ -71,6 +74,7 @@
 
 <script>
 
+  import { ref } from 'vue';
   import { get } from '@vueuse/core';
   import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -88,9 +92,8 @@
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
-        fixedHeaderHeight: 0,
-        fixedBottombarHeight: 0,
         lastFocus: null,
+        isScrolled: ref(false),
       };
     },
     props: {
@@ -122,6 +125,11 @@
         required: false,
         default: null,
       },
+      immersive: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
       isMobile() {
@@ -151,7 +159,7 @@
       /** Styling Properties */
       headerStyles() {
         return {
-          backgroundColor: this.$themeTokens.surface,
+          backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
           borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
         };
       },
@@ -181,11 +189,6 @@
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
-      // Gets the height of the fixed header - adds 40 to account for padding + 24 for closeButton
-      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight;
-      if (this.$refs.fixedBottombar) {
-        this.fixedBottombarHeight = this.$refs.fixedBottombar.clientHeight;
-      }
       this.$nextTick(() => {
         this.$emit('shouldFocusFirstEl');
       });
@@ -237,12 +240,17 @@
   .side-panel {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
 
     .side-panel-header {
+      z-index: 1;
       width: 100%;
       min-height: 60px;
       padding: 0 1em;
+
+      &.immersive {
+        @extend %dropshadow-2dp;
+      }
     }
 
     .side-panel-content {

@@ -2,14 +2,18 @@
 
   <div>
     <AccordionContainer
-      v-if="Object.keys(availableLibraryCategories).length"
-      class="accordion-select"
+      :multiple="false"
+      style="border: 0"
     >
       <AccordionItem
+        v-if="Object.keys(availableLibraryCategories).length"
+        isOpenByDefault
+        class="accordion-select"
         :title="$tr('categoryLabel')"
         :headerAppearanceOverrides="
           accordionHeaderStyles(activeCategories.some(cat => isCategoryActive(cat)))
         "
+        :style="accordionItemStyles"
       >
         <template #content>
           <KButton
@@ -58,13 +62,9 @@
           />
         </template>
       </AccordionItem>
-    </AccordionContainer>
-
-    <AccordionContainer
-      v-if="languageOptionsList.length"
-      class="accordion-select"
-    >
       <AccordionItem
+        v-if="languageOptionsList.length"
+        class="accordion-select"
         :title="coreString('languageLabel')"
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('languages', languageOptionsList))
@@ -74,6 +74,7 @@
           maxHeight: '256px',
           overflowY: 'scroll',
         }"
+        :style="accordionItemStyles"
       >
         <template #content>
           <KCheckbox
@@ -86,13 +87,9 @@
           />
         </template>
       </AccordionItem>
-    </AccordionContainer>
-
-    <AccordionContainer
-      v-if="contentLevelOptions.length"
-      class="accordion-select"
-    >
       <AccordionItem
+        v-if="contentLevelOptions.length"
+        class="accordion-select"
         :title="coreString('levelLabel')"
         :disabled="contentLevelOptions.every(opt => opt.disabled)"
         :headerAppearanceOverrides="
@@ -102,6 +99,7 @@
           maxHeight: '256px',
           overflowY: 'scroll',
         }"
+        :style="accordionItemStyles"
       >
         <template #content>
           <KCheckbox
@@ -114,13 +112,9 @@
           />
         </template>
       </AccordionItem>
-    </AccordionContainer>
-
-    <AccordionContainer
-      v-if="accessibilityOptionsList.length"
-      class="accordion-select"
-    >
       <AccordionItem
+        v-if="accessibilityOptionsList.length"
+        class="accordion-select"
         :title="coreString('accessibility')"
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('accessibility_labels', accessibilityOptionsList))
@@ -130,6 +124,7 @@
           maxHeight: '256px',
           overflowY: 'scroll',
         }"
+        :style="accordionItemStyles"
       >
         <template #content>
           <KCheckbox
@@ -142,10 +137,8 @@
           />
         </template>
       </AccordionItem>
-    </AccordionContainer>
-
-    <AccordionContainer class="accordion-select">
       <AccordionItem
+        class="accordion-select"
         :title="coreString('showResources')"
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('learner_needs', needsOptionsList))
@@ -155,6 +148,7 @@
           maxHeight: '256px',
           overflowY: 'scroll',
         }"
+        :style="accordionItemStyles"
       >
         <template #content>
           <KCheckbox
@@ -289,6 +283,11 @@
             label: this.coreString(translationKey),
           };
         });
+      },
+      accordionItemStyles() {
+        return {
+          border: `1px solid ${this.$themeTokens.fineLine}`,
+        };
       },
     },
     methods: {

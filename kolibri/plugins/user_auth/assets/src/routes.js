@@ -2,6 +2,7 @@ import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import store from 'kolibri/store';
 import router from 'kolibri/router';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { showSignInPage } from './modules/signIn/handlers';
 import { showSignUpPage } from './modules/signUp/handlers';
 import { ComponentMap } from './constants';
@@ -11,6 +12,8 @@ import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
 
+const { facilities } = useFacilities();
+
 export default [
   {
     path: '/',
@@ -18,7 +21,7 @@ export default [
     beforeEnter(to, from, next) {
       // If Multiple Facilities but we've not stored a facilityId in localstorage
       // then we go to the AuthSelect route
-      if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+      if (facilities.value.length > 1 && !store.state.facilityId) {
         next(router.getRoute(ComponentMap.AUTH_SELECT));
       } else {
         next(router.getRoute(ComponentMap.SIGN_IN));
@@ -31,7 +34,7 @@ export default [
     beforeEnter(to, from, next) {
       // If we're on multiple facility device, show auth_select when
       // there is no facilityId
-      if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+      if (facilities.value.length > 1 && !store.state.facilityId) {
         // Go to FacilitySelect with whereToNext => SignUpPage
         const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
         let query = {};
@@ -62,7 +65,7 @@ export default [
         return Promise.resolve();
       }
 
-      if (store.getters.facilities.length > 1 && !store.state.facilityId) {
+      if (facilities.value.length > 1 && !store.state.facilityId) {
         // Go to FacilitySelect with whereToNext => SignUpPage
         const whereToNext = router.getRoute(ComponentMap.SIGN_UP);
         const route = {

@@ -37,12 +37,15 @@ import {
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
-import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
-import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
-import ManageSelectedLessonResources from '../views/lessons/LessonSummaryPage/sidePanels/ManageSelectedLessonResource';
-import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectionIndex.vue';
-import SelectFromBookmarks from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromBookmarks.vue';
-import SelectFromChannels from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromChannels.vue';
+import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
+import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
+import SelectFromTopicTree from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
+import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
+import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
+import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/index.vue';
+import SearchFilters from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SearchFilters.vue';
+import SelectFromSearchResults from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromSearchResults.vue';
+import ManageSelectedQuestions from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/ManageSelectedQuestions.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -152,20 +155,41 @@ export default [
           },
           {
             name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-            path: 'channels',
-            component: SelectFromChannels,
+            path: 'topic-tree',
+            component: SelectFromTopicTree,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+            path: 'search',
+            component: SearchFilters,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+            path: 'search-results',
+            component: SelectFromSearchResults,
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+            path: 'preview-resources',
+            component: ManageSelectedResources,
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_RESOURCE,
+            path: 'preview',
+            component: PreviewSelectedResources,
+            props: toRoute => {
+              const contentId = toRoute.query.contentId;
+              return {
+                contentId,
+              };
+            },
+          },
+          {
+            name: PageNames.LESSON_PREVIEW_SELECTED_QUESTIONS,
+            path: 'preview-questions',
+            component: ManageSelectedQuestions,
           },
         ],
-      },
-      {
-        name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
-        path: 'preview-resources/',
-        component: ManageSelectedLessonResources,
-      },
-      {
-        name: PageNames.LESSON_PREVIEW_RESOURCE,
-        path: 'preview-resources/:nodeId',
-        component: PreviewSelectedResources,
       },
     ],
   },

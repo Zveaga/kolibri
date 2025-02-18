@@ -5,10 +5,13 @@ import router from 'kolibri/router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import KolibriApp from 'kolibri-app';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import HomeActivityPage from './views/home/HomeActivityPage';
+
+const { getFacilities, facilities } = useFacilities();
 
 function _channelListState(data) {
   return data.map(channel => ({
@@ -62,6 +65,13 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_REPLACE_QUESTIONS,
         PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
+        PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
+        PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+        PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
+        PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
+        PageNames.QUIZ_PREVIEW_RESOURCE,
+        PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
         PageNames.QUIZ_SECTION_ORDER,
         PageNames.QUIZ_BOOK_MARKED_RESOURCES,
         PageNames.QUIZ_LEARNER_REPORT,
@@ -72,8 +82,11 @@ class CoachToolsModule extends KolibriApp {
         PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
         PageNames.LESSON_PREVIEW_RESOURCE,
         PageNames.LESSON_SELECT_RESOURCES_INDEX,
+        PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+        PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
         PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+        PageNames.LESSON_PREVIEW_SELECTED_QUESTIONS,
       ];
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (
@@ -137,8 +150,8 @@ class CoachToolsModule extends KolibriApp {
         promises.push(this.store.dispatch('initClassInfo', to.params.classId));
       }
 
-      if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
-        promises.push(this.store.dispatch('getFacilities').catch(() => {}));
+      if (get(isSuperuser) && facilities.value.length === 0) {
+        promises.push(getFacilities().catch(() => {}));
       }
 
       if (promises.length > 0) {

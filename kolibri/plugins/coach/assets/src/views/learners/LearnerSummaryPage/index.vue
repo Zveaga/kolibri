@@ -11,7 +11,13 @@
         :layout4="{ span: 2 }"
       >
         <KPageContainer class="content-spacing">
-          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+          <div style="display: flex; justify-content: space-between">
+            <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+            <ReportsControls
+              :disablePrint="true"
+              @export="exportCSVLessons"
+            />
+          </div>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <template #headers>
               <th>{{ coachString('titleLabel') }}</th>
@@ -28,11 +34,7 @@
                 >
                   <td>
                     <KRouterLink
-                      :to="
-                        classRoute('ReportsLearnerReportLessonPage', {
-                          lessonId: tableRow.id,
-                        })
-                      "
+                      :to="lessonLink(tableRow.id)"
                       :text="tableRow.title"
                       icon="lesson"
                     />
@@ -59,7 +61,13 @@
         :layout4="{ span: 2 }"
       >
         <KPageContainer class="content-spacing">
-          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+          <div style="display: flex; justify-content: space-between">
+            <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+            <ReportsControls
+              :disablePrint="true"
+              @export="exportCSVQuizzes"
+            />
+          </div>
           <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <template #headers>
               <th>{{ coachString('titleLabel') }}</th>
@@ -112,6 +120,9 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { PageNames } from '../../../constants';
+  import ReportsControls from '../../common/ReportsControls';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
   import LearnerHeader from './LearnerHeader';
 
   export default {
@@ -119,6 +130,7 @@
     components: {
       CoachAppBarPage,
       LearnerHeader,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
@@ -174,7 +186,60 @@
         return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
-        return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
+        return this.classRoute(PageNames.QUIZ_LEARNER_REPORT, {
+          quizId,
+          learnerId: this.learner.id,
+          questionId: 0,
+          interactionIndex: 0,
+          tryIndex: 0,
+        });
+      },
+      lessonLink(lessonId) {
+        return this.classRoute(PageNames.LESSON_LEARNER_REPORT, { lessonId });
+      },
+      exportCSVLessons() {
+        const filteredLessons = this.lessons
+          .filter(lesson => this.getLearnersForLesson(lesson).includes(this.learner.id))
+          .map(lesson => ({
+            ...lesson,
+            status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
+          }));
+
+        const LessonColumn = [...csvFields.title(), ...csvFields.learnerProgress()];
+
+        const LessonfileName = this.$tr('printLabel', { className: this.className });
+
+        const LessonExporter = new CSVExporter(LessonColumn, LessonfileName);
+        LessonExporter.addNames({
+          learner: this.learner.name,
+          report: 'Lesson',
+        });
+
+        LessonExporter.export(filteredLessons);
+      },
+      exportCSVQuizzes() {
+        const filteredExams = this.exams
+          .filter(exam => this.getLearnersForExam(exam).includes(this.learner.id))
+          .map(exam => ({
+            ...exam,
+            statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
+          }));
+
+        const ExamColumn = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+        ];
+
+        const ExamfileName = this.$tr('printLabel', { className: this.className });
+
+        const ExamExporter = new CSVExporter(ExamColumn, ExamfileName);
+        ExamExporter.addNames({
+          learner: this.learner.name,
+          report: 'Quizzes',
+        });
+
+        ExamExporter.export(filteredExams);
       },
       loadMoreLessonTable() {
         if (this.lessonLimit > 20) {
@@ -190,6 +255,13 @@
           return;
         }
         this.quizLimit += 10;
+      },
+    },
+    $trs: {
+      printLabel: {
+        message: '{className} Learners',
+        context:
+          "Title that displays on a printed copy of the 'Learners' > 'Learner' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
     },
   };

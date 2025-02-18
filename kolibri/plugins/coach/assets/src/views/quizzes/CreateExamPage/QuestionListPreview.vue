@@ -129,7 +129,7 @@
         :itemId="currentQuestion.question_id"
         :assessment="true"
         :allowHints="false"
-        :showCorrectAnswer="false"
+        :showCorrectAnswer="true"
         :interactive="false"
       />
       <p v-else>

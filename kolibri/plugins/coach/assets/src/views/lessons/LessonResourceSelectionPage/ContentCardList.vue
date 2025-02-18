@@ -7,6 +7,7 @@
         :label="$tr('selectAllCheckboxLabel')"
         :checked="selectAllChecked"
         :indeterminate="selectAllIndeterminate"
+        :disabled="isSelectAllDisabled"
         @change="$emit('changeselectall', $event)"
       />
       <KRadioButtonGroup>
@@ -48,6 +49,7 @@
             :content="content"
             :message="contentCardMessage(content)"
             :link="contentCardLink(content)"
+            :headingLevel="cardsHeadingLevel"
           >
             <template #notice>
               <slot
@@ -108,6 +110,10 @@
         type: Boolean,
         default: false,
       },
+      isSelectAllDisabled: {
+        type: Boolean,
+        default: false,
+      },
       viewMoreButtonState: {
         type: String,
         required: true,
@@ -161,6 +167,11 @@
         type: Function, // ContentNode => Route
         required: true,
       },
+      // Heading level for the cards
+      cardsHeadingLevel: {
+        type: Number,
+        default: 3,
+      },
     },
 
     computed: {
@@ -196,6 +207,7 @@
   .content-list {
     display: block;
     padding: 0;
+    margin: 0;
     list-style: none;
   }
 

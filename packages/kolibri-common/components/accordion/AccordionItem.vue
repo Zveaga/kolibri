@@ -90,6 +90,10 @@
         type: Boolean,
         default: false,
       },
+      isOpenByDefault: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       contentId() {
@@ -98,6 +102,9 @@
     },
     mounted() {
       this.registerItem();
+      if (this.isOpenByDefault) {
+        this.toggle();
+      }
     },
     componentWillUnmount() {
       this.unregisterItem();

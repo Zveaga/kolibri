@@ -19,6 +19,7 @@
         v-if="quizInitialized"
         ref="detailsModal"
         assignmentType="quiz"
+        :selectRecipientsWithSidePanel="true"
         :assignment="quiz"
         :classId="classId"
         :groups="groups"
@@ -104,7 +105,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
-    <SectionSidePanel v-if="quizInitialized" />
+    <router-view />
   </CoachImmersivePage>
 
 </template>
@@ -123,11 +124,11 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import CreateQuizSection from './CreateQuizSection';
-  import SectionSidePanel from './SectionSidePanel';
 
   export default {
     name: 'CreateExamPage',
@@ -136,7 +137,6 @@
       BottomAppBar,
       CreateQuizSection,
       AssignmentDetailsModal,
-      SectionSidePanel,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -158,8 +158,6 @@
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
-        closeConfirmationTitle$,
-        closeConfirmationMessage$,
         changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
@@ -167,6 +165,8 @@
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
       } = enhancedQuizManagementStrings;
+
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       return {
         closeConfirmationTitle$,
@@ -334,6 +334,10 @@
         }
       },
       saveQuizAndRedirect(close = true) {
+        const errorText = this.$refs.detailsModal.validate();
+        if (errorText) {
+          return;
+        }
         this.saveQuiz()
           .then(exam => {
             this.$refs.detailsModal.handleSubmitSuccess();
