@@ -1,6 +1,6 @@
 <template>
 
-  <form>
+  <form @keydown.enter="submitForm">
     <p
       v-if="singleFacility && facility.name"
       class="facility-name"
@@ -72,6 +72,10 @@
         type: Boolean,
         default: false,
       },
+      handleSubmit:{
+        type:Function,
+        default: () => {},
+      }
     },
     data() {
       return {
@@ -138,6 +142,11 @@
           }
         });
       },
+      submitForm() {
+        if (this.handleSubmit) {
+          this.handleSubmit(); 
+        }
+      }
     },
     $trs: {
       // Use this version in Device > Facilities
