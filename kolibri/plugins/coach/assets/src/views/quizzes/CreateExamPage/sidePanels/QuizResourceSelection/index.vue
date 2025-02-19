@@ -75,7 +75,7 @@
         :selectedQuestions="workingQuestions"
         :topic="topic"
         :treeFetch="treeFetch"
-        :searchTerms="searchTerms"
+        :searchTerms.sync="searchTerms"
         :searchFetch="searchFetch"
         :channelsFetch="channelsFetch"
         :bookmarksFetch="bookmarksFetch"
@@ -87,6 +87,7 @@
         :getResourceLink="getResourceLink"
         :unselectableResourceIds="unselectableResourceIds"
         :unselectableQuestionItems="unselectableQuestionItems"
+        :displayingSearchResults="displayingSearchResults"
         @selectResources="addToWorkingResourcePool"
         @selectQuestions="addToWorkingQuestions"
         @deselectResources="removeFromWorkingResourcePool"
@@ -357,39 +358,47 @@
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
 
-      const { topic, loading, treeFetch, channelsFetch, bookmarksFetch, searchTerms, searchFetch } =
-        useResourceSelection({
-          searchResultsRouteName: PageNames.QUIZ_SEARCH_RESULTS,
-          bookmarks: {
-            filters: { kind: ContentNodeKinds.EXERCISE },
-            annotator: results => results.filter(isPracticeQuiz),
+      const {
+        topic,
+        loading,
+        treeFetch,
+        channelsFetch,
+        bookmarksFetch,
+        searchTerms,
+        searchFetch,
+        displayingSearchResults,
+      } = useResourceSelection({
+        searchResultsRouteName: PageNames.QUIZ_SEARCH_RESULTS,
+        bookmarks: {
+          filters: { kind: ContentNodeKinds.EXERCISE },
+          annotator: results => results.filter(isPracticeQuiz),
+        },
+        channels: {
+          filters: {
+            contains_exercise: true,
+            contains_quiz: selectPracticeQuiz ? true : null,
           },
-          channels: {
-            filters: {
-              contains_exercise: true,
-              contains_quiz: selectPracticeQuiz ? true : null,
-            },
-            annotator: results =>
-              annotateTopicsWithDescendantCounts(
-                results.map(channel => {
-                  return {
-                    ...channel,
-                    id: channel.root,
-                    title: channel.name,
-                    kind: ContentNodeKinds.CHANNEL,
-                    is_leaf: false,
-                  };
-                }),
-              ),
+          annotator: results =>
+            annotateTopicsWithDescendantCounts(
+              results.map(channel => {
+                return {
+                  ...channel,
+                  id: channel.root,
+                  title: channel.name,
+                  kind: ContentNodeKinds.CHANNEL,
+                  is_leaf: false,
+                };
+              }),
+            ),
+        },
+        topicTree: {
+          filters: {
+            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            contains_quiz: selectPracticeQuiz ? true : null,
           },
-          topicTree: {
-            filters: {
-              kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
-              contains_quiz: selectPracticeQuiz ? true : null,
-            },
-            annotator: annotateTopicsWithDescendantCounts,
-          },
-        });
+          annotator: annotateTopicsWithDescendantCounts,
+        },
+      });
 
       function handleCancelClose() {
         showCloseConfirmation.value = false;
@@ -552,6 +561,7 @@
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
         numberOfSelectedResources$,
+        displayingSearchResults,
         numberOfSelectedQuestions$,
       };
     },

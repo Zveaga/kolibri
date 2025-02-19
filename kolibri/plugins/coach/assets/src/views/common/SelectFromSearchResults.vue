@@ -51,7 +51,7 @@
   import { PageNames } from '../../constants';
   import { coachStrings } from './commonCoachStrings';
   import UpdatedResourceSelection from './resourceSelection/UpdatedResourceSelection.vue';
-
+  import { SelectionTarget } from './resourceSelection/contants';
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
    */
@@ -68,7 +68,10 @@
         const { topicId } = instance.proxy.$route.query;
         if (topicId) {
           instance.proxy.$router.push({
-            name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+            name:
+              this.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+                : PageNames.QUIZ_SELECT_RESOURCES,
             query: {
               topicId,
             },
@@ -146,6 +149,10 @@
         type: Function,
         required: true,
       },
+      target: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       resultsCountMessage() {
@@ -169,10 +176,17 @@
     },
     methods: {
       onSearchClick() {
-        this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
-          query: this.$route.query,
-        });
+        if (this.target === SelectionTarget.LESSON) {
+          this.$router.push({
+            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+            query: this.$route.query,
+          });
+        } else {
+          this.$router.push({
+            name: PageNames.QUIZ_SEARCH_PANEL,
+            query: this.$route.query.topicId,
+          });
+        }
       },
       onClearSearch() {
         this.$emit('clearSearch');
