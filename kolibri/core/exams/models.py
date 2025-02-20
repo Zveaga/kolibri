@@ -160,7 +160,7 @@ class AbstractExam(models.Model):
 
     # If True, learners have instant access to exam reports after submission.
     # Otherwise, reports are visible only after the coach ends the exam.
-    instant_report_visibility = models.BooleanField(default=True)
+    instant_report_visibility = models.BooleanField(null=True, default=True)
 
     def __str__(self):
         return self.title
