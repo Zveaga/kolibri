@@ -2,6 +2,7 @@
 
   <div
     v-show="!$isPrint"
+    ref="appBar"
     :style="{
       backgroundColor: themeConfig.appBar.background,
       color: themeConfig.appBar.textColor,
@@ -23,7 +24,7 @@
         :removeBrandDivider="true"
       >
         <KTextTruncator
-          :text="windowIsSmall ? truncateText(title, 20) : truncateText(title, 50)"
+          :text="truncatedTitle"
           :maxLines="1"
         />
         <template
@@ -49,19 +50,23 @@
         </template>
 
         <template
-          v-if="showNavigation && windowIsLarge"
+          v-if="showNavigation"
           #navigation
         >
           <slot name="sub-nav">
             <Navbar
               v-if="links.length > 0"
+              :style="hiddenNavbarStyle"
               :navigationLinks="links"
+              :title="title"
+              @update-overflow-count="overflowCount = $event"
             />
           </slot>
         </template>
 
         <template #actions>
           <div
+            ref="appBarActions"
             aria-live="polite"
             :style="{
               paddingBottom: '6px',
@@ -116,13 +121,15 @@
       </KToolbar>
     </header>
     <div
-      v-if="showNavigation && !windowIsLarge && !showAppNavView"
+      v-show="showNavigation && !showAppNavView && !showTopNavBar"
       class="subpage-nav"
     >
       <slot name="sub-nav">
         <Navbar
           v-if="links.length > 0"
+          :class="{ 'sub-nav': !showTopNavBar }"
           :navigationLinks="links"
+          :title="title"
         />
       </slot>
     </div>
@@ -160,7 +167,7 @@
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const $route = computed(() => store.state.route);
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
@@ -178,7 +185,6 @@
       });
       return {
         themeConfig,
-        windowIsLarge,
         windowIsSmall,
         topBarHeight,
         links,
@@ -207,6 +213,8 @@
     data() {
       return {
         pointsDisplayed: false,
+        appBarWidth: 0,
+        overflowCount: 0,
       };
     },
     computed: {
@@ -214,17 +222,47 @@
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
+      showTopNavBar() {
+        return this.overflowCount === 0;
+      },
+      truncatedTitle() {
+        if (!this.title) return '';
+        // Dynamically truncate title based on remaining space in AppBar
+        const offset = this.$refs.appBarActions?.clientWidth + 100;
+        const averageCharWidth = 10;
+        const availableWidth = this.appBarWidth - offset;
+        const maxChars = availableWidth > 0 ? Math.floor(availableWidth / averageCharWidth) : 1;
+        return this.truncateText(this.title, maxChars);
+      },
+      hiddenNavbarStyle() {
+        if (this.showTopNavBar) {
+          return {};
+        }
+        // Hide top navbar, but keep it in the DOM for overflow calulations
+        const rightOffset = `${this.title.length * 10 + 250}px`;
+        return {
+          pointerEvents: 'none',
+          opacity: '0',
+          position: 'fixed',
+          right: rightOffset,
+        };
+      },
     },
     created() {
       if (this.isLearner) {
         this.fetchPoints();
       }
-      window.addEventListener('click', this.handleWindowClick);
-      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
+      window.removeEventListener('resize', this.updateAppBarWidth);
+    },
+    mounted() {
+      window.addEventListener('click', this.handleWindowClick);
+      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
+      window.addEventListener('resize', this.updateAppBarWidth);
+      this.updateAppBarWidth();
     },
     methods: {
       handleWindowClick(event) {
@@ -245,6 +283,9 @@
         if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
         }
+      },
+      updateAppBarWidth() {
+        this.appBarWidth = this.$refs.appBar?.clientWidth || 0;
       },
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
@@ -392,6 +433,10 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
+  }
+
+  /deep/ .sub-nav .items {
+    margin-top: 0;
   }
 
 </style>

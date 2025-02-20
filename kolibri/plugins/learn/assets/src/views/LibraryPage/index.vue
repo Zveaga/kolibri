@@ -473,11 +473,9 @@
         }
       },
       gridOffset() {
-        const paddingTop =
-          !this.windowIsLarge && (this.isLocalLibraryEmpty || this.deviceId) ? '140px' : '110px';
         return this.isRtl
-          ? { paddingRight: `${this.sidePanelWidth + 24}px`, paddingTop }
-          : { paddingLeft: `${this.sidePanelWidth + 24}px`, paddingTop };
+          ? { paddingRight: `${this.sidePanelWidth + 24}px` }
+          : { paddingLeft: `${this.sidePanelWidth + 24}px` };
       },
       sidePanelWidth() {
         if (
@@ -623,11 +621,10 @@
   }
 
   .filter-button {
-    margin-top: 30px;
+    margin-top: 35px;
   }
 
   .main-grid {
-    padding-top: 110px;
     padding-right: 24px;
     padding-bottom: 96px;
   }

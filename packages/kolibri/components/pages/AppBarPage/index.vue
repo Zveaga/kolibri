@@ -30,7 +30,7 @@
     <div
       id="main"
       class="main-wrapper"
-      :style="wrapperStyles"
+      :style="[wrapperStyles, paddingTop]"
     >
       <slot></slot>
     </div>
@@ -71,10 +71,9 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return {
-        windowBreakpoint,
         windowIsSmall,
         isAppContext,
       };
@@ -102,7 +101,7 @@
     },
     data() {
       return {
-        appBarHeight: 0,
+        appBarHeight: 124,
         navShown: false,
         lastScrollTop: 0,
         hideAppBars: true,
@@ -127,13 +126,16 @@
             backgroundColor: this.$themePalette.grey.v_100,
             paddingLeft: this.paddingLeftRight,
             paddingRight: this.paddingLeftRight,
-            paddingTop: this.appBarHeight + this.paddingTop + 'px',
             paddingBottom: '72px',
             marginTop: 0,
           };
       },
       paddingTop() {
-        return this.isAppContext ? 0 : 4;
+        const extraPadding = this.isAppContext ? 0 : 5;
+        const totalPadding = this.appBarHeight + extraPadding;
+        return {
+          paddingTop: `${totalPadding}px`,
+        };
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
@@ -146,20 +148,17 @@
         return show;
       },
     },
-    watch: {
-      windowBreakpoint() {
-        //Update the the app bar height at every breakpoint
-        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
-      },
+    beforeUpdate() {
+      // Update appBarHeight after AppBar is rerendered and updated
+      this.handleWindowResize();
     },
     mounted() {
-      this.$nextTick(() => {
-        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
-      });
       this.addScrollListener();
+      window.addEventListener('resize', this.handleWindowResize);
     },
-    beforeUnmount() {
+    beforeDestroy() {
       this.removeScrollListener();
+      window.removeEventListener('resize', this.handleWindowResize);
     },
     methods: {
       addScrollListener() {
@@ -189,6 +188,10 @@
           this.throttledHandleScroll.cancel();
           this.throttledHandleScroll = null;
         }
+      },
+      handleWindowResize() {
+        // Update the app bar height when window is resized
+        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
       },
     },
   };
