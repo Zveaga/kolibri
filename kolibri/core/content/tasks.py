@@ -4,12 +4,15 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.content.constants.transfer_types import COPY_METHOD
+from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
+from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
@@ -218,12 +221,8 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     status_fn=get_status,
 )
 def remotechannelimport(channel_id, baseurl=None, peer_id=None):
-    call_command(
-        "importchannel",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-    )
+    job = get_current_job()
+    transfer_channel(job, channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
 
 
 class RemoteChannelResourcesImportValidator(
@@ -538,15 +537,10 @@ def remoteimport(
     fail_on_error=False,
     all_thumbnails=False,
 ):
-    call_command(
-        "importchannel",
-        "network",
-        channel_id,
-        baseurl=baseurl,
-    )
 
+    current_job = get_current_job()
+    transfer_channel(current_job, channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
     if update:
-        current_job = get_current_job()
         current_job.update_metadata(database_ready=True)
 
     manager_class = (
@@ -587,15 +581,11 @@ def diskimport(
     drive = get_mounted_drive_by_id(drive_id)
     directory = drive.datafolder
 
-    call_command(
-        "importchannel",
-        "disk",
-        channel_id,
-        directory,
-    )
+    current_job = get_current_job()
+
+    transfer_channel(current_job, channel_id, COPY_METHOD, source_path=directory)
 
     if update:
-        current_job = get_current_job()
         current_job.update_metadata(database_ready=True)
 
     manager_class = (
@@ -633,12 +623,8 @@ def diskchannelimport(
     drive_id,
 ):
     drive = get_mounted_drive_by_id(drive_id)
-    call_command(
-        "importchannel",
-        "disk",
-        channel_id,
-        drive.datafolder,
-    )
+    job = get_current_job()
+    transfer_channel(job, channel_id, COPY_METHOD, source_path=drive.datafolder)
 
 
 class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):

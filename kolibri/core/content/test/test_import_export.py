@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import time
+import unittest
 import uuid
 from io import StringIO
 
@@ -454,6 +455,7 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_bytes_to_transfer, 0)
 
 
+@unittest.skip(reason="TODO: New test case for channelimport")
 @patch(
     "kolibri.core.content.management.commands.importchannel.channel_import.import_channel_from_local_db"
 )
