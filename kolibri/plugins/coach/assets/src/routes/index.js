@@ -49,13 +49,26 @@ export default [
     path: '/:facility_id?/classes/:subtopicName?',
     component: CoachClassListPage,
     props: true,
-    handler(toRoute) {
+    async handler(toRoute) {
       // loading state is handled locally
       store.dispatch('notLoading');
       // if user only has access to one facility, facility_id will not be accessible from URL,
       // but always defaulting to userFacilityId would cause problems for multi-facility admins
       const { userFacilityId } = useUser();
+      const { facilities, getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const facilityId = toRoute.params.facility_id || get(userFacilityId);
+
+      if (facilities.value.length === 0) {
+        await getFacilities();
+      }
+
+      if (userIsMultiFacilityAdmin.value && !toRoute.params.facility_id) {
+        return router.replace({
+          name: 'AllFacilitiesPage',
+          params: { subtopicName: toRoute.params.subtopicName },
+        });
+      }
+
       store.dispatch('setClassList', facilityId).then(
         () => {
           if (!store.getters.classListPageEnabled) {
