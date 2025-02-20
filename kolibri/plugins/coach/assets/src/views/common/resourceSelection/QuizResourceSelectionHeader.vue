@@ -6,6 +6,7 @@
     </span>
     <div class="quiz-header-actions">
       <KButton
+        v-if="!hideSetting"
         appearance="flat-button"
         :text="settingsLabel$()"
         @click="onSettingsClick"
@@ -54,6 +55,10 @@
       hideSearch: {
         type: Boolean,
         default: false,
+      },
+      hideSetting: {
+        type: Boolean,
+        default: true,
       },
     },
     computed: {
