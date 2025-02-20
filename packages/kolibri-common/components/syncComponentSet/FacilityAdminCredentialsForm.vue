@@ -1,6 +1,6 @@
 <template>
 
-  <form>
+  <form @keydown.enter="submitForm">
     <p
       v-if="singleFacility && facility.name"
       class="facility-name"
@@ -86,6 +86,10 @@
         type: Boolean,
         default: false,
       },
+      handleSubmit: {
+        type: Function,
+        default: () => {},
+      },
     },
     data() {
       return {
@@ -151,6 +155,11 @@
             this.$refs.password.focus();
           }
         });
+      },
+      submitForm() {
+        if (this.handleSubmit) {
+          this.handleSubmit();
+        }
       },
     },
     $trs: {
