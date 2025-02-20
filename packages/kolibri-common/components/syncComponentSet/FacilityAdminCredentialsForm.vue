@@ -86,10 +86,10 @@
         type: Boolean,
         default: false,
       },
-      handleSubmit:{
-        type:Function,
+      handleSubmit: {
+        type: Function,
         default: () => {},
-      }
+      },
     },
     data() {
       return {
@@ -158,9 +158,9 @@
       },
       submitForm() {
         if (this.handleSubmit) {
-          this.handleSubmit(); 
+          this.handleSubmit();
         }
-      }
+      },
     },
     $trs: {
       // Use this version in Device > Facilities
