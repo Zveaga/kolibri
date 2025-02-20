@@ -5,7 +5,6 @@ import { ContentNodeKinds } from 'kolibri/constants';
 import useQuizResources from '../src/composables/useQuizResources.js';
 import useFetchTree from '../src/composables/useFetchTree.js';
 
-// Mock the useFetchTree module
 jest.mock('../src/composables/useFetchTree.js');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
@@ -31,18 +30,6 @@ describe('useQuizResources', () => {
     },
   ];
 
-  const annotatedResults = [
-    {
-      ...sampleResults[0],
-      num_assessments: 2,
-    },
-    {
-      ...sampleResults[1],
-      num_assessments: 1,
-    },
-    sampleResults[2],
-  ];
-
   const descendantsResponse = {
     data: [
       { id: 'topic1', num_assessments: 2 },
@@ -51,7 +38,7 @@ describe('useQuizResources', () => {
   };
 
   beforeEach(() => {
-    // Reset all mocks before each test
+    // Reset mocks before each test
     jest.clearAllMocks();
 
     // Mock useFetchTree implementation
@@ -97,10 +84,21 @@ describe('useQuizResources', () => {
   describe('annotateTopicsWithDescendantCounts', () => {
     it('should annotate topics with correct assessment counts', async () => {
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
-
       const result = await annotateTopicsWithDescendantCounts(sampleResults);
 
-      expect(result).toEqual(annotatedResults);
+      // Verify the topics are properly annotated
+      expect(result).toEqual([
+        {
+          ...sampleResults[0],
+          num_assessments: 2,
+        },
+        {
+          ...sampleResults[1],
+          num_assessments: 1,
+        },
+        sampleResults[2], // Exercise remains unchanged
+      ]);
+
       expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
         'topic1',
         'topic2',
@@ -110,7 +108,7 @@ describe('useQuizResources', () => {
     it('should filter out topics with no assessments', async () => {
       ContentNodeResource.fetchDescendantsAssessments.mockResolvedValue({
         data: [
-          { id: 'topic1', num_assessments: 0 },
+          { id: 'topic1', num_assessments: 0 }, // No assessments
           { id: 'topic2', num_assessments: 1 },
         ],
       });
@@ -123,7 +121,7 @@ describe('useQuizResources', () => {
           ...sampleResults[1],
           num_assessments: 1,
         },
-        sampleResults[2],
+        sampleResults[2], // Exercise remains unchanged
       ]);
     });
 
@@ -139,30 +137,50 @@ describe('useQuizResources', () => {
   });
 
   describe('integration with fetch methods', () => {
-    let quizResources, annotateTopicsSpy;
+    let quizResources;
 
     beforeEach(() => {
       quizResources = useQuizResources({ topicId: 'test-topic' });
-      // Spy on the public API property
-      annotateTopicsSpy = jest.spyOn(quizResources, 'annotateTopicsWithDescendantCounts');
     });
 
-    afterEach(() => {
-      annotateTopicsSpy.mockRestore();
-    });
-
-    it('should call annotateTopicsWithDescendantCounts during fetchQuizResources', async () => {
+    it('should annotate fetched resources in fetchQuizResources', async () => {
       await quizResources.fetchQuizResources();
 
-      expect(annotateTopicsSpy).toHaveBeenCalledTimes(1);
-      expect(annotateTopicsSpy).toHaveBeenCalledWith(sampleResults);
+      // Check that resources have been annotated as expected
+      expect(get(quizResources.resources)).toEqual([
+        { ...sampleResults[0], num_assessments: 2 },
+        { ...sampleResults[1], num_assessments: 1 },
+        sampleResults[2],
+      ]);
+
+      // Verify that the API call to fetch descendant assessments was made with correct topic IDs
+      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
+        'topic1',
+        'topic2',
+      ]);
     });
 
-    it('should call annotateTopicsWithDescendantCounts during fetchMoreQuizResources', async () => {
+    it('should annotate fetched resources in fetchMoreQuizResources', async () => {
+      // First, fetch the initial resources
+      await quizResources.fetchQuizResources();
+      const initialResources = get(quizResources.resources);
+
+      // Then, fetch more resources and append them
       await quizResources.fetchMoreQuizResources();
 
-      expect(annotateTopicsSpy).toHaveBeenCalledTimes(1);
-      expect(annotateTopicsSpy).toHaveBeenCalledWith(sampleResults);
+      const expectedNewResources = [
+        { ...sampleResults[0], num_assessments: 2 },
+        { ...sampleResults[1], num_assessments: 1 },
+        sampleResults[2],
+      ];
+
+      expect(get(quizResources.resources)).toEqual([...initialResources, ...expectedNewResources]);
+
+      // Verify that the API call was made correctly during fetchMore as well
+      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
+        'topic1',
+        'topic2',
+      ]);
     });
   });
 
@@ -172,27 +190,37 @@ describe('useQuizResources', () => {
 
       await fetchQuizResources();
 
-      expect(get(resources)).toEqual(annotatedResults);
+      expect(get(resources)).toEqual([
+        {
+          ...sampleResults[0],
+          num_assessments: 2,
+        },
+        {
+          ...sampleResults[1],
+          num_assessments: 1,
+        },
+        sampleResults[2],
+      ]);
     });
 
-    it('should handle loading state correctly', async () => {
+    it('should manage loading state correctly', async () => {
       const { fetchQuizResources, loading } = useQuizResources();
 
       const loadingStates = [];
-      loadingStates.push(loading.value);
+      loadingStates.push(get(loading));
 
       const fetchPromise = fetchQuizResources();
-      loadingStates.push(loading.value);
+      loadingStates.push(get(loading));
 
       await fetchPromise;
-      loadingStates.push(loading.value);
+      loadingStates.push(get(loading));
 
       expect(loadingStates).toEqual([false, true, false]);
     });
   });
 
   describe('fetchMoreQuizResources', () => {
-    it('should fetch and append more resources', async () => {
+    it('should fetch and append more annotated resources', async () => {
       const { fetchQuizResources, fetchMoreQuizResources, resources } = useQuizResources();
 
       await fetchQuizResources();
@@ -200,20 +228,32 @@ describe('useQuizResources', () => {
 
       await fetchMoreQuizResources();
 
-      expect(get(resources)).toEqual([...initialResources, ...annotatedResults]);
+      const expectedNewResources = [
+        {
+          ...sampleResults[0],
+          num_assessments: 2,
+        },
+        {
+          ...sampleResults[1],
+          num_assessments: 1,
+        },
+        sampleResults[2],
+      ];
+
+      expect(get(resources)).toEqual([...initialResources, ...expectedNewResources]);
     });
 
-    it('should handle loading states correctly', async () => {
+    it('should manage loading states correctly', async () => {
       const { fetchMoreQuizResources, loading, loadingMore } = useQuizResources();
 
       const states = [];
-      states.push({ loading: loading.value, loadingMore: loadingMore.value });
+      states.push({ loading: get(loading), loadingMore: get(loadingMore) });
 
       const fetchPromise = fetchMoreQuizResources();
-      states.push({ loading: loading.value, loadingMore: loadingMore.value });
+      states.push({ loading: get(loading), loadingMore: get(loadingMore) });
 
       await fetchPromise;
-      states.push({ loading: loading.value, loadingMore: loadingMore.value });
+      states.push({ loading: get(loading), loadingMore: get(loadingMore) });
 
       expect(states).toEqual([
         { loading: false, loadingMore: false },
