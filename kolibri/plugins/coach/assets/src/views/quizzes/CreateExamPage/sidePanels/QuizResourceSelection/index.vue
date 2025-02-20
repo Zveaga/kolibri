@@ -106,7 +106,10 @@
       </KModal>
     </template>
 
-    <template #bottomNavigation>
+    <template
+      v-if="$route.name !== PageNames.QUIZ_SEARCH_PANEL"
+      #bottomNavigation
+    >
       <div class="bottom-nav-container">
         <KButton
           v-if="continueAction"

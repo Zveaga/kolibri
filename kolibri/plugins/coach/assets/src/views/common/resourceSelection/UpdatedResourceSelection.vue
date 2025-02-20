@@ -21,7 +21,7 @@
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
         :contentCardMessage="contentCardMessage"
-        :showRadioButtons="!multi"
+        :showRadioButtons="showRadioButton"
         :cardsHeadingLevel="cardsHeadingLevel"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
@@ -41,6 +41,7 @@
   import { ViewMoreButtonStates } from '../../../constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import { SelectionTarget } from './contants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -194,6 +195,10 @@
         type: Boolean,
         default: false,
       },
+      target: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       selectAllIndeterminate() {
@@ -215,7 +220,12 @@
         );
       },
       showSelectAll() {
-        return this.canSelectAll && this.multi && this.selectableContentList.length > 0;
+        return (
+          this.canSelectAll &&
+          this.multi &&
+          this.selectableContentList.length > 0 &&
+          !this.showRadioButton
+        );
       },
       isSelectAllDisabled() {
         if (this.disabled) {
@@ -234,6 +244,9 @@
           return ViewMoreButtonStates.HAS_MORE;
         }
         return ViewMoreButtonStates.NO_MORE;
+      },
+      showRadioButton() {
+        return this.target === SelectionTarget.QUIZ;
       },
     },
     methods: {

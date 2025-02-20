@@ -62,6 +62,7 @@
       :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
+      :target="target"
       :selectedResources="selectedResources"
       :hideBreadcrumbs="hideBreadcrumbs"
       :channelsLink="breadcrumbChannelsLink"

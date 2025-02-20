@@ -32,6 +32,7 @@
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
+      :target="target"
       :getResourceLink="getResourceLink"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -71,7 +72,7 @@
             name:
               this.target === SelectionTarget.LESSON
                 ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
-                : PageNames.QUIZ_SELECT_RESOURCES,
+                : PageNames.QUIZ_SEARCH_PANEL,
             query: {
               topicId,
             },
@@ -79,7 +80,10 @@
           return;
         }
         instance.proxy.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          name:
+            this.target === SelectionTarget.LESSON
+              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
       }
       if (!props.displayingSearchResults) {
@@ -200,7 +204,7 @@
       },
       getTopicLink(topicId) {
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          name: PageNames.QUIZ_SEARCH_RESULTS,
           query: {
             ...this.$route.query,
             topicId,
