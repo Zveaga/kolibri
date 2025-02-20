@@ -90,7 +90,7 @@
           <span> {{ $tr('reportVisibleToLearnersLabel') }} </span>
           <StatusElapsedTime
             v-if="exam.active"
-            :date="examDateOpened"
+            :date="exam.instant_report_visibility ? examDateOpened : examDateArchived"
             actionType="madeVisible"
             style="font-weight: normal"
           />
