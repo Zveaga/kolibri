@@ -70,6 +70,8 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
         PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
         PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
+        PageNames.QUIZ_SEARCH_PANEL,
+        PageNames.QUIZ_SEARCH_RESULTS,
         PageNames.QUIZ_PREVIEW_RESOURCE,
         PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
         PageNames.QUIZ_SECTION_ORDER,
