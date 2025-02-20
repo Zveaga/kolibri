@@ -14,6 +14,7 @@
           :min="1"
           :invalid="questionCount > maxQuestions"
           :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+          :disabled="!questionCountIsEditable"
           :showInvalidText="true"
           class="question-textbox"
         />
@@ -28,14 +29,14 @@
           <KIconButton
             icon="minus"
             aria-hidden="true"
-            :disabled="questionCount === 1"
+            :disabled="questionCount === 1 || !questionCountIsEditable"
             @click="questionCount -= 1"
           />
           <span :style="{ color: $themeTokens.fineLine }"> | </span>
           <KIconButton
             icon="plus"
             aria-hidden="true"
-            :disabled="questionCount >= maxQuestions"
+            :disabled="questionCount >= maxQuestions || !questionCountIsEditable"
             @click="questionCount += 1"
           />
         </div>
@@ -131,10 +132,13 @@
         props.setContinueAction(null);
       });
 
+      const questionCountIsEditable = computed(() => !props.settings.isChoosingManually);
+
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         questionCount,
+        questionCountIsEditable,
         maxQuestions: computed(() => props.settings.maxQuestions),
         maxNumberOfQuestions$,
         numberOfQuestionsLabel$,

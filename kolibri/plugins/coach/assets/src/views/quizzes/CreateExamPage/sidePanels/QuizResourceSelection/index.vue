@@ -123,11 +123,7 @@
           <div class="save-button-wrapper">
             <KButton
               primary
-              :text="
-                settings.selectPracticeQuiz
-                  ? selectQuiz$()
-                  : addNumberOfQuestions$({ count: Math.max(1, settings.questionCount) })
-              "
+              :text="saveButtonLabel"
               :disabled="disableSave"
               @click="saveSelectedResource"
             />
@@ -186,6 +182,10 @@
 
       const { selectPracticeQuiz } = route.value.query;
 
+      const getDefaultQuestionCount = maxQuestions => {
+        return Math.min(10, maxQuestions);
+      };
+
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
@@ -199,12 +199,24 @@
           newSettings.maxQuestions = MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length;
           if (newSettings.questionCount === null) {
             // initialize questionCount if it hasn't been set yet
-            newSettings.questionCount = Math.min(10, newSettings.maxQuestions);
+            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
           settings.value = newSettings;
         },
         { immediate: true },
       );
+
+      watch(settings, (newSettings, oldSettings) => {
+        // If isChoosingManually was toggled
+        if (newSettings.isChoosingManually !== oldSettings.isChoosingManually) {
+          if (newSettings.isChoosingManually) {
+            newSettings.questionCount = newSettings.maxQuestions;
+          } else {
+            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
+          }
+        }
+      });
+
       const {
         questionsUnusedInSection$,
         tooManyQuestions$,
@@ -369,13 +381,24 @@
         return workingResourcePool.value.length > settings.value.questionCount;
       });
 
+      const saveButtonLabel = computed(() => {
+        if (selectPracticeQuiz) {
+          return selectQuiz$();
+        }
+        if (settings.value.isChoosingManually) {
+          return addNumberOfQuestions$({ count: workingQuestions.value.length });
+        }
+        return addNumberOfQuestions$({ count: settings.value.questionCount });
+      });
+
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
           return !workingPoolHasChanged.value;
         }
         return (
           !workingPoolHasChanged.value ||
-          workingPoolQuestionsCount.value < settings.value.questionCount ||
+          (!settings.value.isChoosingManually &&
+            workingPoolQuestionsCount.value < settings.value.questionCount) ||
           settings.value.questionCount < 1 ||
           tooManyQuestions.value ||
           settings.value.questionCount.value > settings.value.maxQuestions
@@ -463,6 +486,7 @@
         setWorkingResourcePool,
         settings,
         disableSave,
+        saveButtonLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -472,8 +496,6 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
-        selectQuiz$,
-        addNumberOfQuestions$,
         numberOfSelectedResources$,
         numberOfSelectedQuestions$,
       };
