@@ -221,8 +221,7 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     status_fn=get_status,
 )
 def remotechannelimport(channel_id, baseurl=None, peer_id=None):
-    job = get_current_job()
-    transfer_channel(job, channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
+    transfer_channel(channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
 
 
 class RemoteChannelResourcesImportValidator(
@@ -538,9 +537,9 @@ def remoteimport(
     all_thumbnails=False,
 ):
 
-    current_job = get_current_job()
-    transfer_channel(current_job, channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
+    transfer_channel(channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
     if update:
+        current_job = get_current_job()
         current_job.update_metadata(database_ready=True)
 
     manager_class = (
@@ -581,17 +580,15 @@ def diskimport(
     drive = get_mounted_drive_by_id(drive_id)
     directory = drive.datafolder
 
-    current_job = get_current_job()
-
-    transfer_channel(current_job, channel_id, COPY_METHOD, source_path=directory)
+    transfer_channel(channel_id, COPY_METHOD, source_path=directory)
 
     if update:
+        current_job = get_current_job()
         current_job.update_metadata(database_ready=True)
 
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager
     )
-    drive = get_mounted_drive_by_id(drive_id)
     manager = manager_class(
         channel_id,
         path=drive.datafolder,
@@ -623,8 +620,7 @@ def diskchannelimport(
     drive_id,
 ):
     drive = get_mounted_drive_by_id(drive_id)
-    job = get_current_job()
-    transfer_channel(job, channel_id, COPY_METHOD, source_path=drive.datafolder)
+    transfer_channel(channel_id, COPY_METHOD, source_path=drive.datafolder)
 
 
 class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):

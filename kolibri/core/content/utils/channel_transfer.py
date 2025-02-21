@@ -12,22 +12,44 @@ from kolibri.core.content.utils.channel_import import import_channel_by_id
 from kolibri.core.content.utils.channel_import import ImportCancelError
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import file_transfer as transfer
 
 logger = logging.getLogger(__name__)
 
 
-def start_file_transfer(job, filetransfer, channel_id, dest, no_upgrade, contentfolder):
+class DummyJob:
+    def is_cancelled(self):
+        return False
+
+    def check_for_cancel(self):
+        pass
+
+    def start_progress(self, total):
+        pass
+
+    def update_progress(self, bytes_transferred, extra_data=None):
+        pass
+
+
+def get_job():
+    job = get_current_job()
+    if job is None:
+        return DummyJob()
+    return job
+
+
+def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolder):
     """
     Runs the file transfer and, if not in "no_upgrade" mode, imports the channel and updates metadata.
 
-    :param job: The job instance; must have is_cancelled() and check_for_cancel() methods.
     :param filetransfer: The file transfer object to execute.
     :param channel_id: The channel id being transferred.
     :param dest: The destination file path.
     :param no_upgrade: If True, bypass the channel import.
     :param contentfolder: The content folder used during import.
     """
+    job = get_job()
     progress_extra_data = {"channel_id": channel_id}
 
     with filetransfer:
@@ -97,7 +119,6 @@ def start_file_transfer(job, filetransfer, channel_id, dest, no_upgrade, content
 
 
 def transfer_channel(
-    job,
     channel_id,
     method,
     no_upgrade=False,
@@ -108,7 +129,6 @@ def transfer_channel(
     """
     Transfers a channel database either by downloading or copying
 
-    :param job: The job instance; must have is_cancelled() and check_for_cancel() methods.
     :param channel_id: The channel id to transfer.
     :param method: The transfer method (DOWNLOAD_METHOD or COPY_METHOD).
     :param no_upgrade: If True, only download the database to an upgrade file path.
@@ -117,6 +137,8 @@ def transfer_channel(
     :param source_path: The source path (if copying).
     :return: The destination path of the transferred channel database.
     """
+    job = get_job()
+
     new_channel_dest = paths.get_upgrade_content_database_file_path(
         channel_id, contentfolder=content_dir
     )
@@ -151,9 +173,7 @@ def transfer_channel(
     logger.debug("Destination: {}".format(dest))
 
     try:
-        start_file_transfer(
-            job, filetransfer, channel_id, dest, no_upgrade, content_dir
-        )
+        start_file_transfer(filetransfer, channel_id, dest, no_upgrade, content_dir)
     except transfer.TransferCanceled:
         pass
 

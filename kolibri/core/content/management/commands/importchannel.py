@@ -79,7 +79,6 @@ class Command(AsyncCommand):
     def download_channel(self, channel_id, baseurl, no_upgrade, content_dir):
         logger.info("Downloading data for channel id {}".format(channel_id))
         transfer_channel(
-            job=self,
             channel_id=channel_id,
             method=DOWNLOAD_METHOD,
             no_upgrade=no_upgrade,
@@ -90,7 +89,6 @@ class Command(AsyncCommand):
     def copy_channel(self, channel_id, source_path, no_upgrade, content_dir):
         logger.info("Copying in data for channel id {}".format(channel_id))
         transfer_channel(
-            job=self,
             channel_id=channel_id,
             method=COPY_METHOD,
             no_upgrade=no_upgrade,
