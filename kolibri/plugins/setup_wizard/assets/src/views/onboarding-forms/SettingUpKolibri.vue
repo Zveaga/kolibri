@@ -13,7 +13,7 @@
         <KButton
           :primary="true"
           :text="coreString('retryAction')"
-          @click="provisionDevice"
+          @click="startProvisionDeviceTask"
         />
       </template>
     </AppError>
@@ -36,19 +36,21 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { checkCapability } from 'kolibri/utils/appCapabilities';
-  import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
   import KolibriLoadingSnippet from 'kolibri-common/components/KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { Presets } from 'kolibri/constants';
-  import urls from 'kolibri/urls';
-  import client from 'kolibri/client';
   import Lockr from 'lockr';
   import { DeviceTypePresets } from '../../constants';
+
+  const PROVISION_TASK_QUEUE = 'device_provision';
 
   export default {
     name: 'SettingUpKolibri',
@@ -178,9 +180,10 @@
       },
     },
     created() {
-      this.provisionDevice();
+      this.startProvisionDeviceTask();
     },
     methods: {
+      ...mapActions(['kolibriLogin']),
       startOver() {
         this.$store.dispatch('clearError');
         this.wizardService.send('START_OVER');
@@ -189,28 +192,55 @@
       wizardContext(key) {
         return this.wizardService.state.context[key];
       },
-      provisionDevice() {
-        this.$store.dispatch('clearError');
-        client({
-          url: urls['kolibri:core:deviceprovision'](),
-          method: 'POST',
-          data: this.deviceProvisioningData,
-        })
-          .then(() => {
-            const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-            const facilityImported = 'FACILITY_IS_IMPORTED';
-            window.sessionStorage.setItem(welcomeDismissalKey, false);
-            window.sessionStorage.setItem(
-              facilityImported,
-              this.wizardContext('isImportedFacility'),
-            );
-
-            Lockr.rm('savedState'); // Clear out saved state machine
-            redirectBrowser();
-          })
-          .catch(e => {
-            this.$store.dispatch('handleApiError', { error: e });
+      async startProvisionDeviceTask() {
+        try {
+          await TaskResource.startTask({
+            type: TaskTypes.PROVISIONDEVICE,
+            ...this.deviceProvisioningData,
           });
+          this.pollProvisionTask();
+        } catch (e) {
+          this.$store.dispatch('handleApiError', { error: e });
+        }
+      },
+      async pollProvisionTask() {
+        try {
+          const tasks = await TaskResource.list({ queue: PROVISION_TASK_QUEUE });
+          const [task] = tasks || [];
+          if (!task) {
+            throw new Error('Device provisioning task not found');
+          }
+          if (task.status === TaskStatuses.COMPLETED) {
+            const facilityId = task.result.facility_id;
+            const { username, password } = this.deviceProvisioningData.superuser;
+            this.clearPollingTasks();
+            this.wrapOnboarding();
+            return this.kolibriLogin({
+              facilityId,
+              username,
+              password,
+            });
+          } else if (task.status === TaskStatuses.FAILED) {
+            this.$store.dispatch('handleApiError', { error: task.error });
+          } else {
+            setTimeout(() => {
+              this.pollProvisionTask();
+            }, 1000);
+          }
+        } catch (e) {
+          this.$store.dispatch('handleApiError', { error: e });
+        }
+      },
+      wrapOnboarding() {
+        const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+        const facilityImported = 'FACILITY_IS_IMPORTED';
+        window.localStorage.setItem(welcomeDismissalKey, false);
+        window.localStorage.setItem(facilityImported, this.wizardContext('isImportedFacility'));
+
+        Lockr.rm('savedState'); // Clear out saved state machine
+      },
+      clearPollingTasks() {
+        TaskResource.clearAll(PROVISION_TASK_QUEUE);
       },
     },
     $trs: {
