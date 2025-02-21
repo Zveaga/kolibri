@@ -5,11 +5,6 @@ from django.db import models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ("exams", "0010_add_exam_report_visibility_field"),
-        ("exams", "0011_update_exam_report_visibility_field"),
-    ]
-
     dependencies = [
         ("exams", "0009_alter_exam_date_created"),
     ]
@@ -18,9 +13,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="draftexam",
             name="instant_report_visibility",
-            field=models.BooleanField(default=True, null=True),
+            field=models.BooleanField(null=True),
         ),
         migrations.AddField(
+            model_name="exam",
+            name="instant_report_visibility",
+            field=models.BooleanField(null=True),
+        ),
+        migrations.AlterField(
+            model_name="draftexam",
+            name="instant_report_visibility",
+            field=models.BooleanField(default=True, null=True),
+        ),
+        migrations.AlterField(
             model_name="exam",
             name="instant_report_visibility",
             field=models.BooleanField(default=True, null=True),
