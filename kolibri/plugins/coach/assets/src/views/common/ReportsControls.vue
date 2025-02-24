@@ -49,6 +49,7 @@
 
   import pickBy from 'lodash/pickBy';
   import useUser from 'kolibri/composables/useUser';
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -75,18 +76,22 @@
       },
     },
     computed: {
+      ...mapState('classSummary', ['learnerMap']),
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
         return this.isAppContext || this.disableExport;
       },
       isMainReport() {
-        return [
-          PageNames.LEARNERS_ROOT,
-          PageNames.LESSONS_ROOT,
-          PageNames.EXAMS_ROOT,
-          PageNames.EXAM_SUMMARY,
-          PageNames.LESSON_SUMMARY,
-        ].includes(this.$route.name);
+        return (
+          [
+            PageNames.LEARNERS_ROOT,
+            PageNames.LESSONS_ROOT,
+            PageNames.LESSONS_ROOT_BETTER,
+            PageNames.EXAMS_ROOT,
+            PageNames.EXAM_SUMMARY,
+            PageNames.LESSON_SUMMARY,
+          ].includes(this.$route.name) && Object.keys(this.learnerMap).length > 0
+        );
       },
       classLearnersListRoute() {
         const { query } = this.$route;
