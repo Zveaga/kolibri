@@ -1,4 +1,3 @@
-import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
@@ -141,6 +140,32 @@ export default function useQuizCreation() {
     const questions = [...targetSection.questions, ...newQuestions];
 
     updateSection({ sectionIndex, questions, resourcePool });
+  }
+
+  /**
+   * Add an array of questions to a section
+   * @param {Object} options
+   * @param {number} options.sectionIndex - The index of the section to add the questions to
+   * @param {QuizQuestion[]} options.questions - The questions array to add
+   * @param {QuizExercise[]} options.resources - The resources to add to the exercise map
+   */
+  function addQuestionsToSection({ sectionIndex, questions, resources }) {
+    const targetSection = get(allSections)[sectionIndex];
+    if (!targetSection) {
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
+    }
+
+    if (!questions || questions.length === 0) {
+      throw new TypeError('Questions must be a non-empty array of questions');
+    }
+
+    const newQuestions = questions.filter(
+      q => !targetSection.questions.map(q => q.item).includes(q.item),
+    );
+
+    const questionsToAdd = [...targetSection.questions, ...newQuestions];
+
+    updateSection({ sectionIndex, questions: questionsToAdd, resourcePool: resources });
   }
 
   function handleReplacement(replacements) {
@@ -286,44 +311,25 @@ export default function useQuizCreation() {
   // Questions / Exercises management
   // --------------------------------
 
-  /** @param {QuizQuestion} question
+  /** @param {QuizQuestion[]} questions
    * @affects _selectedQuestionIds - Adds question to _selectedQuestionIds if it isn't
    * there already */
-  function addQuestionToSelection(id) {
-    set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), id]));
+  function addQuestionsToSelection(ids) {
+    set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), ...ids]));
   }
 
   /**
-   * @param {QuizQuestion} question
+   * @param {QuizQuestion[]} questions
    * @affects _selectedQuestionIds - Removes question from _selectedQuestionIds if it is there */
-  function removeQuestionFromSelection(id) {
+  function removeQuestionsFromSelection(ids) {
     set(
       _selectedQuestionIds,
-      get(_selectedQuestionIds).filter(_id => id !== _id),
+      get(_selectedQuestionIds).filter(_id => !ids.includes(_id)),
     );
-  }
-
-  function toggleQuestionInSelection(id) {
-    if (get(_selectedQuestionIds).includes(id)) {
-      removeQuestionFromSelection(id);
-    } else {
-      addQuestionToSelection(id);
-    }
   }
 
   function clearSelectedQuestions() {
     set(_selectedQuestionIds, []);
-  }
-
-  function selectAllQuestions() {
-    if (get(allQuestionsSelected)) {
-      clearSelectedQuestions();
-    } else {
-      set(
-        _selectedQuestionIds,
-        get(activeQuestions).map(q => q.item),
-      );
-    }
   }
 
   // Utilities
@@ -386,22 +392,6 @@ export default function useQuizCreation() {
     }, []);
   });
 
-  /** Handling the Select All Checkbox
-   * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
-
-  /** @type {ComputedRef<Boolean>} Whether all active questions are selected */
-  const allQuestionsSelected = computed(() => {
-    return Boolean(
-      get(selectedActiveQuestions).length &&
-        isEqual(
-          get(selectedActiveQuestions).sort(),
-          get(activeQuestions)
-            .map(q => q.item)
-            .sort(),
-        ),
-    );
-  });
-
   const allSectionsEmpty = computed(() => {
     return get(allSections).every(section => section.questions.length === 0);
   });
@@ -434,21 +424,17 @@ export default function useQuizCreation() {
     }
   });
 
-  /** @type {ComputedRef<Boolean>} Whether the select all checkbox should be indeterminate */
-  const selectAllIsIndeterminate = computed(() => {
-    return !get(allQuestionsSelected) && !get(noQuestionsSelected);
-  });
-
   provide('allQuestionsInQuiz', allQuestionsInQuiz);
   provide('updateSection', updateSection);
+  provide('addQuestionsToSection', addQuestionsToSection);
   provide('addQuestionsToSectionFromResources', addQuestionsToSectionFromResources);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
   provide('updateQuiz', updateQuiz);
-  provide('addQuestionToSelection', addQuestionToSelection);
-  provide('removeQuestionFromSelection', removeQuestionFromSelection);
+  provide('addQuestionsToSelection', addQuestionsToSelection);
+  provide('removeQuestionsFromSelection', removeQuestionsFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('allSections', allSections);
   provide('activeSectionIndex', activeSectionIndex);
@@ -460,12 +446,8 @@ export default function useQuizCreation() {
   provide('allResourceMap', allResourceMap);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
-  provide('allQuestionsSelected', allQuestionsSelected);
-  provide('selectAllIsIndeterminate', selectAllIsIndeterminate);
   provide('replacementQuestionPool', replacementQuestionPool);
-  provide('selectAllQuestions', selectAllQuestions);
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
-  provide('toggleQuestionInSelection', toggleQuestionInSelection);
 
   return {
     // Methods
@@ -479,8 +461,8 @@ export default function useQuizCreation() {
     initializeQuiz,
     updateQuiz,
     clearSelectedQuestions,
-    addQuestionToSelection,
-    removeQuestionFromSelection,
+    addQuestionsToSelection,
+    removeQuestionsFromSelection,
 
     // Computed
     quizHasChanged,
@@ -494,10 +476,8 @@ export default function useQuizCreation() {
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
-    selectAllIsIndeterminate,
     selectAllLabel,
     allSectionsEmpty,
-    allQuestionsSelected,
     noQuestionsSelected,
     allQuestionsInQuiz,
   };
@@ -506,14 +486,15 @@ export default function useQuizCreation() {
 export function injectQuizCreation() {
   const allQuestionsInQuiz = inject('allQuestionsInQuiz');
   const updateSection = inject('updateSection');
+  const addQuestionsToSection = inject('addQuestionsToSection');
   const addQuestionsToSectionFromResources = inject('addQuestionsToSectionFromResources');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
   const updateQuiz = inject('updateQuiz');
-  const addQuestionToSelection = inject('addQuestionToSelection');
-  const removeQuestionFromSelection = inject('removeQuestionFromSelection');
+  const addQuestionsToSelection = inject('addQuestionsToSelection');
+  const removeQuestionsFromSelection = inject('removeQuestionsFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
   const allSections = inject('allSections');
   const activeSectionIndex = inject('activeSectionIndex');
@@ -523,19 +504,15 @@ export function injectQuizCreation() {
   const activeResourceMap = inject('activeResourceMap');
   const allResourceMap = inject('allResourceMap');
   const activeQuestions = inject('activeQuestions');
-  const allQuestionsSelected = inject('allQuestionsSelected');
-  const selectAllIsIndeterminate = inject('selectAllIsIndeterminate');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const replacementQuestionPool = inject('replacementQuestionPool');
-  const selectAllQuestions = inject('selectAllQuestions');
   const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
-  const toggleQuestionInSelection = inject('toggleQuestionInSelection');
 
   return {
     // Methods
     deleteActiveSelectedQuestions,
-    selectAllQuestions,
     updateSection,
+    addQuestionsToSection,
     addQuestionsToSectionFromResources,
     handleReplacement,
     replaceSelectedQuestions,
@@ -543,14 +520,11 @@ export function injectQuizCreation() {
     removeSection,
     updateQuiz,
     clearSelectedQuestions,
-    addQuestionToSelection,
-    removeQuestionFromSelection,
-    toggleQuestionInSelection,
+    addQuestionsToSelection,
+    removeQuestionsFromSelection,
 
     // Computed
-    allQuestionsSelected,
     allQuestionsInQuiz,
-    selectAllIsIndeterminate,
     allSections,
     activeSectionIndex,
     activeSection,

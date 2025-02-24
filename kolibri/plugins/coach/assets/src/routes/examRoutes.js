@@ -16,6 +16,7 @@ import SelectionIndex from '../views/common/resourceSelection/subPages/Selection
 import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
+import ManageSelectedQuestions from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/ManageSelectedQuestions.vue';
 import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,
@@ -113,6 +114,11 @@ export default [
             name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
             path: 'preview-resources',
             component: ManageSelectedResources,
+          },
+          {
+            name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS,
+            path: 'preview-questions',
+            component: ManageSelectedQuestions,
           },
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,

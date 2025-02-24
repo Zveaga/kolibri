@@ -44,9 +44,18 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
       '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
     context: 'Indicates the number of resources selected',
   },
+  numberOfSelectedQuestions: {
+    message:
+      '{count, number, integer} {count, plural, one {question selected} other {questions selected}}',
+    context: 'Indicates the number of questions selected',
+  },
   openParentFolderLabel: {
     message: 'Open parent folder',
     context: 'Button label to open the parent folder of a resource',
+  },
+  openExerciseLabel: {
+    message: 'Open exercise',
+    context: 'Button label to open the exercise a question belongs to',
   },
   removeResourceLabel: {
     message: 'Remove resource',
@@ -55,6 +64,10 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
   emptyResourceList: {
     message: 'No resources selected',
     context: 'Message displayed when no resources are selected',
+  },
+  emptyQuestionsList: {
+    message: 'No questions selected',
+    context: 'Message displayed when no questions are selected',
   },
   searchInFolder: {
     message: "Search in '{folder}'",

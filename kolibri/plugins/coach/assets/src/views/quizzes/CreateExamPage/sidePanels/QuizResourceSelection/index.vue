@@ -43,6 +43,7 @@
         :setContinueAction="value => (continueAction = value)"
         :sectionTitle="sectionTitle"
         :selectedResources="workingResourcePool"
+        :selectedQuestions="workingQuestions"
         :topic="topic"
         :treeFetch="treeFetch"
         :channelsFetch="channelsFetch"
@@ -53,8 +54,12 @@
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
         :getResourceLink="getResourceLink"
+        :unselectableResourceIds="unselectableResourceIds"
+        :unselectableQuestionItems="unselectableQuestionItems"
         @selectResources="addToWorkingResourcePool"
+        @selectQuestions="addToWorkingQuestions"
         @deselectResources="removeFromWorkingResourcePool"
+        @deselectQuestions="removeFromWorkingQuestions"
         @setSelectedResources="setWorkingResourcePool"
       />
       <KModal
@@ -88,7 +93,8 @@
             </span>
             <KRouterLink
               v-else-if="
-                workingResourcePool.length > 0 &&
+                !settings.isChoosingManually &&
+                  workingResourcePool.length > 0 &&
                   $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
               "
               :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
@@ -99,15 +105,25 @@
                 })
               }}
             </KRouterLink>
+            <KRouterLink
+              v-else-if="
+                settings.isChoosingManually &&
+                  workingQuestions.length > 0 &&
+                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
+              "
+              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
+            >
+              {{
+                numberOfSelectedQuestions$({
+                  count: workingQuestions.length,
+                })
+              }}
+            </KRouterLink>
           </div>
           <div class="save-button-wrapper">
             <KButton
               primary
-              :text="
-                settings.selectPracticeQuiz
-                  ? selectQuiz$()
-                  : addNumberOfQuestions$({ count: Math.max(1, settings.questionCount) })
-              "
+              :text="saveButtonLabel"
               :disabled="disableSave"
               @click="saveSelectedResource"
             />
@@ -125,7 +141,6 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import { useMemoize } from '@vueuse/core';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -156,8 +171,10 @@
         activeSection,
         activeSectionIndex,
         updateSection,
+        addQuestionsToSection,
         addQuestionsToSectionFromResources,
         allQuestionsInQuiz,
+        allResourceMap,
         activeQuestions,
         addSection,
       } = injectQuizCreation();
@@ -165,10 +182,14 @@
 
       const { selectPracticeQuiz } = route.value.query;
 
+      const getDefaultQuestionCount = maxQuestions => {
+        return Math.min(10, maxQuestions);
+      };
+
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
-        isChoosingManually: null,
+        isChoosingManually: false,
         selectPracticeQuiz,
       });
       watch(
@@ -178,12 +199,23 @@
           newSettings.maxQuestions = MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length;
           if (newSettings.questionCount === null) {
             // initialize questionCount if it hasn't been set yet
-            newSettings.questionCount = Math.min(10, newSettings.maxQuestions);
+            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
           settings.value = newSettings;
         },
         { immediate: true },
       );
+
+      watch(settings, (newSettings, oldSettings) => {
+        // If isChoosingManually was toggled
+        if (newSettings.isChoosingManually !== oldSettings.isChoosingManually) {
+          if (newSettings.isChoosingManually) {
+            newSettings.questionCount = newSettings.maxQuestions;
+          } else {
+            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
+          }
+        }
+      });
 
       const {
         questionsUnusedInSection$,
@@ -200,6 +232,11 @@
        * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
        */
       const workingResourcePool = ref([]);
+
+      /**
+       * @type {Ref<QuizQuestions[]>}
+       */
+      const workingQuestions = ref([]);
 
       /**
        * @param {QuizExercise[]} resources
@@ -233,18 +270,43 @@
         workingResourcePool.value = resources;
       }
 
+      /**
+       * @param {QuizQuestions[]} questions
+       * @affects workingQuestions -- Updates it with the given questions and is ensured to have
+       * a list of unique questions to avoid unnecessary duplication
+       */
+      function addToWorkingQuestions(questions, resource) {
+        workingQuestions.value = uniqWith([...workingQuestions.value, ...questions], isEqual);
+        if (!workingResourcePool.value.find(r => r.id === resource.id)) {
+          addToWorkingResourcePool([resource]);
+        }
+      }
+
+      /**
+       * @param {QuizQuestions[]} questions
+       * @affects workingQuestions -- Removes the given questions from the workingQuestions
+       */
+      function removeFromWorkingQuestions(questions) {
+        workingQuestions.value = workingQuestions.value.filter(
+          obj => !questions.some(r => r.item === obj.item),
+        );
+        const resourcesToRemove = workingResourcePool.value.filter(
+          r => !workingQuestions.value.some(q => q.exercise_id === r.id),
+        );
+        removeFromWorkingResourcePool(resourcesToRemove);
+      }
+
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = useMemoize(content => {
+      const unusedQuestionsCount = content => {
         const questionItems = content.assessmentmetadata.assessment_item_ids.map(
           aid => `${content.id}:${aid}`,
         );
-        const questionsItemsAlreadyUsed = allQuestionsInQuiz.value
-          .map(q => q.item)
-          .filter(i => questionItems.includes(i));
-        const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
-        return questionItemsAvailable;
-      });
+        const questionsItemsUnused = questionItems
+          .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+          .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+        return questionsItemsUnused.length;
+      };
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -301,14 +363,32 @@
         return Boolean(workingResourcePool.value.length);
       });
 
-      const workingPoolUnusedQuestions = computed(() => {
+      const workingPoolQuestionsCount = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return workingQuestions.value.length;
+        }
+
         return workingResourcePool.value.reduce((acc, content) => {
           return acc + unusedQuestionsCount(content);
         }, 0);
       });
 
       const tooManyQuestions = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return workingQuestions.value.length > settings.value.questionCount;
+        }
+
         return workingResourcePool.value.length > settings.value.questionCount;
+      });
+
+      const saveButtonLabel = computed(() => {
+        if (selectPracticeQuiz) {
+          return selectQuiz$();
+        }
+        if (settings.value.isChoosingManually) {
+          return addNumberOfQuestions$({ count: workingQuestions.value.length });
+        }
+        return addNumberOfQuestions$({ count: settings.value.questionCount });
       });
 
       const disableSave = computed(() => {
@@ -317,7 +397,8 @@
         }
         return (
           !workingPoolHasChanged.value ||
-          workingPoolUnusedQuestions.value < settings.value.questionCount ||
+          (!settings.value.isChoosingManually &&
+            workingPoolQuestionsCount.value < settings.value.questionCount) ||
           settings.value.questionCount < 1 ||
           tooManyQuestions.value ||
           settings.value.questionCount.value > settings.value.maxQuestions
@@ -331,15 +412,35 @@
         displaySectionTitle(activeSection.value, activeSectionIndex.value),
       );
 
-      const remainingSelectableContent = computed(
-        () => settings.value.questionCount - workingResourcePool.value.length,
-      );
+      const remainingSelectableContent = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return settings.value.questionCount - workingQuestions.value.length;
+        }
+
+        return settings.value.questionCount - workingResourcePool.value.length;
+      });
 
       const selectAllRules = computed(() => [
         contentList => contentList.length <= remainingSelectableContent.value,
       ]);
 
       const selectionRules = computed(() => [() => remainingSelectableContent.value > 0]);
+
+      const unselectableResourceIds = computed(() => {
+        return Object.keys(allResourceMap.value).filter(exerciseId => {
+          const exercise = allResourceMap.value[exerciseId];
+          const questionItems = exercise.assessmentmetadata.assessment_item_ids.map(
+            questionId => `${exerciseId}:${questionId}`,
+          );
+          return questionItems.every(questionItem =>
+            allQuestionsInQuiz.value.some(q => q.item === questionItem),
+          );
+        });
+      });
+
+      const unselectableQuestionItems = computed(() => {
+        return allQuestionsInQuiz.value.map(q => q.item);
+      });
 
       const maximumContentSelectedWarning = computed(() => {
         if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
@@ -351,7 +452,7 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$ } = searchAndFilterStrings;
+      const { numberOfSelectedResources$, numberOfSelectedQuestions$ } = searchAndFilterStrings;
 
       return {
         title,
@@ -375,22 +476,28 @@
         loading,
         selectionRules,
         selectAllRules,
+        unselectableResourceIds,
+        unselectableQuestionItems,
         maximumContentSelectedWarning,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
+        addToWorkingQuestions,
+        removeFromWorkingQuestions,
         setWorkingResourcePool,
         settings,
         disableSave,
+        saveButtonLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
         questionsUnusedInSection$,
         updateSection,
+        addQuestionsToSection,
         addQuestionsToSectionFromResources,
         workingResourcePool,
-        selectQuiz$,
-        addNumberOfQuestions$,
+        workingQuestions,
         numberOfSelectedResources$,
+        numberOfSelectedQuestions$,
       };
     },
     beforeRouteLeave(_, __, next) {
@@ -422,6 +529,12 @@
             });
             sectionIndex++;
           }
+        } else if (this.settings.isChoosingManually) {
+          this.addQuestionsToSection({
+            sectionIndex: this.activeSectionIndex,
+            questions: this.workingQuestions,
+            resources: this.workingResourcePool,
+          });
         } else {
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,

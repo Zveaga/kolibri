@@ -8,10 +8,14 @@
             v-if="isSelectable"
             ref="selectAllCheckbox"
             class="select-all-box"
+            :style="{
+              marginLeft: isSortable ? '1.5em' : '0',
+            }"
             :label="selectAllLabel$()"
+            :disabled="selectAllIsDisabled"
             :checked="selectAllIsChecked"
             :indeterminate="selectAllIsIndeterminate"
-            @change="$emit('selectAll', $event)"
+            @change="handleSelectAll"
             @click.stop="() => {}"
           />
         </div>
@@ -53,13 +57,13 @@
         >
           <AccordionItem
             :title="displayQuestionTitle(question, getQuestionContent(question).title)"
-            :aria-selected="selectedQuestions.includes(question.item)"
+            :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
               userSelect: dragActive ? 'none !important' : 'text',
             }"
           >
             <template #leading-actions>
-              <DragHandle v-if="isSelectable">
+              <DragHandle v-if="isSortable">
                 <div>
                   <DragSortWidget
                     :moveUpText="upLabel$"
@@ -75,7 +79,8 @@
               <KCheckbox
                 v-if="isSelectable"
                 class="accordion-item-checkbox"
-                :checked="selectedQuestions.includes(question.item)"
+                :checked="questionIsChecked(question)"
+                :disabled="questionCheckboxDisabled(question)"
                 @change="
                   (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
                 "
@@ -119,7 +124,7 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import {
     enhancedQuizManagementStrings,
     displayQuestionTitle,
@@ -143,7 +148,7 @@
       AccordionItem,
       AccordionContainer,
     },
-    setup() {
+    setup(props) {
       const dragActive = ref(false);
 
       const { upLabel$, downLabel$ } = searchAndFilterStrings;
@@ -151,11 +156,83 @@
 
       const { moveUpOne, moveDownOne } = useDrag();
 
+      function questionCheckboxDisabled(question) {
+        if (props.disabled || props.unselectableQuestionItems?.includes(question.item)) {
+          return true;
+        }
+        if (
+          props.selectedQuestions.includes(question.item) ||
+          props.maxSelectableQuestions === null
+        ) {
+          return false;
+        }
+        return props.selectedQuestions.length >= props.maxSelectableQuestions;
+      }
+
+      function questionIsChecked(question) {
+        if (props.unselectableQuestionItems?.includes(question.item)) {
+          return true;
+        }
+        return props.selectedQuestions.includes(question.item);
+      }
+
+      const selectableQuestions = computed(() => {
+        if (!props.isSelectable) {
+          return [];
+        }
+        return props.questions.filter(
+          question => !props.unselectableQuestionItems?.includes(question.item),
+        );
+      });
+
+      const selectAllIsChecked = computed(
+        () =>
+          selectableQuestions.value.length > 0 &&
+          selectableQuestions.value.every(question =>
+            props.selectedQuestions.includes(question.item),
+          ),
+      );
+
+      const selectAllIsIndeterminate = computed(
+        () =>
+          selectableQuestions.value.length > 0 &&
+          !selectAllIsChecked.value &&
+          selectableQuestions.value.some(question =>
+            props.selectedQuestions.includes(question.item),
+          ),
+      );
+
+      const selectAllIsDisabled = computed(() => {
+        if (props.disabled) {
+          return true;
+        }
+        if (props.maxSelectableQuestions === null || selectAllIsChecked.value) {
+          return false;
+        }
+        if (props.selectedQuestions.length >= props.maxSelectableQuestions) {
+          return true;
+        }
+        const deselectedQuestions = selectableQuestions.value.filter(
+          question => !props.selectedQuestions.includes(question.item),
+        );
+        const selectedQuestionsLength = props.selectedQuestions.length;
+        const potentialSelectionLength = selectedQuestionsLength + deselectedQuestions.length;
+        return potentialSelectionLength > props.maxSelectableQuestions;
+      });
+
       return {
+        dragActive,
+        selectableQuestions,
+        selectAllIsDisabled,
+        selectAllIsChecked,
+        selectAllIsIndeterminate,
+
         moveUpOne,
         moveDownOne,
-        dragActive,
+        questionIsChecked,
         displayQuestionTitle,
+        questionCheckboxDisabled,
+
         upLabel$,
         downLabel$,
         selectAllLabel$,
@@ -177,18 +254,39 @@
         required: false,
         default: () => [],
       },
-      selectAllIsChecked: {
-        type: Boolean,
-        required: false,
-      },
-      selectAllIsIndeterminate: {
-        type: Boolean,
-        required: false,
-      },
       isSelectable: {
         type: Boolean,
         required: false,
         default: true,
+      },
+      /**
+       * Maximum number of questions that can be selected.
+       */
+      maxSelectableQuestions: {
+        type: Number,
+        required: false,
+        default: null,
+      },
+      /**
+       * If true, all checkboxes will be disabled.
+       */
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Array of question ids that already belongs to the quiz,
+       * and should not be selectable.
+       */
+      unselectableQuestionItems: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+    },
+    computed: {
+      isSortable() {
+        return this.$listeners.sort !== undefined;
       },
     },
     methods: {
@@ -210,7 +308,24 @@
       },
       handleQuestionCheckboxChange(questionItem, value, $event) {
         $event.stopPropagation();
-        this.$emit('select', questionItem, value);
+        if (value) {
+          this.$emit('selectQuestions', [questionItem]);
+        } else {
+          this.$emit('deselectQuestions', [questionItem]);
+        }
+      },
+      handleSelectAll(value) {
+        if (value) {
+          this.$emit(
+            'selectQuestions',
+            this.selectableQuestions.map(question => question.item),
+          );
+        } else {
+          this.$emit(
+            'deselectQuestions',
+            this.selectableQuestions.map(question => question.item),
+          );
+        }
       },
     },
   };
@@ -229,7 +344,6 @@
     .select-all-box {
       margin-top: 0;
       margin-bottom: 0;
-      margin-left: 1.5em;
 
       // Vertical centering here into the KCheckbox
       /deep/ & label {

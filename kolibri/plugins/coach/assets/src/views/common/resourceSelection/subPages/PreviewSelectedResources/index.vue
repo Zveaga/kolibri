@@ -3,37 +3,37 @@
   <div>
     <KCircularLoader v-if="loading && !contentNode" />
     <div v-else>
-      <div class="channel-header">
+      <div
+        v-if="target === SelectionTarget.LESSON"
+        class="channel-header"
+      >
         <p>
           {{ coreString('selectFromChannels') }}
         </p>
-
-        <div class="d-flex-center">
-          <span
-            v-if="isSelected"
-            class="mr-16"
-          >
-            <KIcon icon="onDevice" />
-            {{ addedIndicator$() }}
-          </span>
-
-          <KButton
-            v-if="isSelected"
-            :text="coreString('removeAction')"
-            :primary="true"
-            :disabled="isActionDisabled"
-            @click="handleRemoveResource()"
-          />
-          <KButton
-            v-else
-            :text="addText$()"
-            :primary="false"
-            :disabled="isActionDisabled"
-            @click="handleAddResource()"
-          />
-        </div>
+        <ResourceActionButton
+          :isSelected="isSelected"
+          :isActionDisabled="isActionDisabled"
+          @addResource="handleAddResource"
+          @removeResource="handleRemoveResource"
+        />
       </div>
-
+      <QuizResourceSelectionHeader
+        v-if="target === SelectionTarget.QUIZ"
+        hideSearch
+        :settings="settings"
+      >
+        <template
+          v-if="!settings.isChoosingManually"
+          #actions
+        >
+          <ResourceActionButton
+            :isSelected="isSelected"
+            :isActionDisabled="isActionDisabled"
+            @addResource="handleAddResource"
+            @removeResource="handleRemoveResource"
+          />
+        </template>
+      </QuizResourceSelectionHeader>
       <ResourceSelectionBreadcrumbs
         v-if="ancestors.length"
         :ancestors="[...ancestors, contentNode]"
@@ -52,10 +52,16 @@
         </KLabeledIcon>
       </h2>
 
-      <PreviewExercise
+      <QuestionsAccordion
         v-if="isExercise"
-        :contentNode="contentNode"
         :questions="exerciseQuestions"
+        :getQuestionContent="() => contentNode"
+        :isSelectable="!!settings?.isChoosingManually"
+        :maxSelectableQuestions="settings?.questionCount"
+        :selectedQuestions="selectedQuestionItems"
+        :unselectableQuestionItems="unselectableQuestionItems"
+        @selectQuestions="handleSelectQuestions"
+        @deselectQuestions="handleDeselectQuestionss"
       />
 
       <PreviewContent
@@ -74,28 +80,29 @@
 <script>
 
   import { getCurrentInstance, onMounted, ref } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { SelectionTarget } from '../../contants.js';
   import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
+  import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
+  import QuestionsAccordion from '../../../QuestionsAccordion.vue';
   import PreviewContent from './PreviewContent';
-  import PreviewExercise from './PreviewExercise.vue';
+  import ResourceActionButton from './ResourceActionButton.vue';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
       PreviewContent,
-      PreviewExercise,
+      QuestionsAccordion,
       LearningActivityIcon,
+      ResourceActionButton,
+      QuizResourceSelectionHeader,
       ResourceSelectionBreadcrumbs,
     },
-    mixins: [commonCoreStrings],
     setup(props) {
       const prevRoute = ref(null);
       const instance = getCurrentInstance();
@@ -107,8 +114,6 @@
       const { manageLessonResourcesTitle$ } = coachStrings;
       const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
         enhancedQuizManagementStrings;
-
-      const { addText$, addedIndicator$ } = searchAndFilterStrings;
 
       const getTitle = () => {
         if (props.target === SelectionTarget.LESSON) {
@@ -145,11 +150,10 @@
         ancestors,
         questions,
         loading,
+        SelectionTarget,
         redirectBack,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
-        addText$,
-        addedIndicator$,
         exerciseQuestions,
       };
     },
@@ -170,7 +174,20 @@
         type: Array,
         required: true,
       },
+      /**
+       * Array of resource ids that already belongs to the quiz,
+       * and should not be selectable.
+       */
       unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      /**
+       * Array of question ids that already belongs to the quiz,
+       * and should not be selectable.
+       */
+      unselectableQuestionItems: {
         type: Array,
         required: false,
         default: null,
@@ -204,6 +221,14 @@
         required: false,
         default: null,
       },
+      /**
+       * Array of selected questions from the manual workflow.
+       */
+      selectedQuestions: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
     },
     computed: {
       isSelected() {
@@ -219,7 +244,7 @@
         if (this.disabled) {
           return true;
         }
-        return this.unselectableResourceIds?.includes(this.contentId);
+        return !!this.unselectableResourceIds?.includes(this.contentId);
       },
       channelsLink() {
         return {
@@ -237,6 +262,9 @@
       },
       isExercise() {
         return this.contentNode.kind === ContentNodeKinds.EXERCISE;
+      },
+      selectedQuestionItems() {
+        return this.selectedQuestions.map(q => q.item);
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -267,6 +295,15 @@
           },
         };
       },
+      handleSelectQuestions(questionsItem) {
+        //Map the string of questionids to actual question object
+        const questions = questionsItem.map(q => this.exerciseQuestions.find(eq => eq.item === q));
+        this.$emit('selectQuestions', questions, this.contentNode);
+      },
+      handleDeselectQuestionss(questionsItem) {
+        const questions = questionsItem.map(q => this.exerciseQuestions.find(eq => eq.item === q));
+        this.$emit('deselectQuestions', questions);
+      },
     },
   };
 
@@ -283,15 +320,6 @@
 
   .channel-header p {
     font-weight: 600;
-  }
-
-  .mr-16 {
-    margin-right: 16px;
-  }
-
-  .d-flex-center {
-    display: flex;
-    align-items: center;
   }
 
 </style>
