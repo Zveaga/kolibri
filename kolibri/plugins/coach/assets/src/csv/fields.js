@@ -16,6 +16,11 @@ const FieldsMixinStrings = createTranslator('FieldsMixinStrings', {
     message: 'Assigned to',
     context: 'Column header for the quiz report exported as CSV',
   },
+  individualLearners: {
+    message: 'Individual learners',
+    context:
+      'One of the options in the quiz report exported as CSV indicating that a quiz or a lesson has been assigned to individual learners.',
+  },
   groupsAndIndividuals: {
     message: 'Both individual learners and groups',
     context:
@@ -168,7 +173,10 @@ export function recipients(className) {
         if (recipientNames.length === 0 && row.hasAssignments) {
           return FieldsMixinStrings.$tr('wholeClass');
         } else {
-          const numGroups = get(row, 'groupNames.length', -1);
+          const numGroups = get(row, 'groupNames.length', 0);
+          if (!numGroups) {
+            return FieldsMixinStrings.$tr('individualLearners');
+          }
           // If there are more recipients than groups, then there must be some individual learners
           return recipientNames.length > numGroups
             ? FieldsMixinStrings.$tr('groupsAndIndividuals') // At least one individual recipient
