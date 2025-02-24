@@ -13,7 +13,13 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.tasks import DeviceProvisionValidator
 from kolibri.core.device.tasks import provisiondevice
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
+from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
+from kolibri.plugins.app.test.helpers import register_capabilities
+from kolibri.plugins.app.utils import GET_OS_USER
+from kolibri.plugins.app.utils import interface
 from kolibri.plugins.utils.test.helpers import plugin_disabled
+from kolibri.plugins.utils.test.helpers import plugin_enabled
 
 
 class DeviceProvisionTestCase(TestCase):
@@ -48,8 +54,18 @@ class DeviceProvisionTestCase(TestCase):
             "allow_guest_access": self.allow_guest_access,
         }
 
-    def _post_deviceprovision(self, data):
-        serializer = DeviceProvisionValidator(data=data)
+    def _post_deviceprovision(self, data, auth_token=None):
+        request = None
+        if auth_token:
+            from kolibri.core.device.models import DeviceAppKey
+
+            app_key = DeviceAppKey.get_app_key()
+
+            request = type("Request", (object,), {"COOKIES": {}})()
+            request.COOKIES[APP_AUTH_TOKEN_COOKIE_NAME] = auth_token
+            request.COOKIES[APP_KEY_COOKIE_NAME] = app_key
+
+        serializer = DeviceProvisionValidator(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
         return provisiondevice(**validated_data["kwargs"])
@@ -165,6 +181,22 @@ class DeviceProvisionTestCase(TestCase):
             del data["superuser"]
             with pytest.raises(ValidationError):
                 self._post_deviceprovision(data)
+
+    def test_osuser_superuser_created(self):
+        with plugin_enabled("kolibri.plugins.app"), register_capabilities(
+            **{GET_OS_USER: lambda x: ("test_user", True)}
+        ):
+            initialize_url = interface.get_initialize_url(auth_token="test")
+            self.client.get(initialize_url)
+            data = self._default_provision_data()
+            del data["superuser"]
+            self._post_deviceprovision(data, auth_token="test")
+            self.client.get(initialize_url)
+            self.assertEqual(
+                DevicePermissions.objects.get(),
+                FacilityUser.objects.get().devicepermissions,
+            )
+            self.assertTrue(FacilityUser.objects.get().os_user)
 
     def test_imported_facility_no_update(self):
         facility = Facility.objects.create(name="This is a test")

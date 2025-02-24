@@ -45,7 +45,7 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
     def validate(self, data):
         if (
             GET_OS_USER in interface
-            and "request" in self.context
+            and self.context.get("request") is not None
             and valid_app_key_on_request(self.context["request"])
         ):
             data["auth_token"] = self.context["request"].COOKIES.get(
