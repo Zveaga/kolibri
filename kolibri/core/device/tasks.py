@@ -20,6 +20,7 @@ from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import FirstProvisioning
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
@@ -179,7 +180,7 @@ def provisiondevice(**data):  # noqa C901
                 "Either `superuser` or `auth_token` must be provided for provisioning"
             )
 
-        is_soud = data.pop("is_soud")
+        is_soud = data.pop("is_soud", True)
 
         if superuser:
             if facility_created:
@@ -220,6 +221,6 @@ def provisiondevice(**data):  # noqa C901
 
         schedule_ping()  # Trigger telemetry pingback after we've provisioned
 
-        return {
-            "facility_id": facility.id,
-        }
+        job = get_current_job()
+        if job:
+            job.update_metadata(facility_id=facility.id)

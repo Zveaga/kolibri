@@ -211,7 +211,7 @@
             throw new Error('Device provisioning task not found');
           }
           if (task.status === TaskStatuses.COMPLETED) {
-            const facilityId = task.result.facility_id;
+            const facilityId = task.extra_metadata.facility_id;
             const { username, password } = this.deviceProvisioningData.superuser;
             this.clearPollingTasks();
             this.wrapOnboarding();

@@ -100,7 +100,6 @@ class TasksViewSet(viewsets.GenericViewSet):
             "args": job.args,
             "kwargs": job.kwargs,
             "extra_metadata": job.extra_metadata,
-            "result": job.result,
             # Output is UTC naive, coerce to UTC aware.
             "scheduled_datetime": make_aware(orm_job.scheduled_time, utc).isoformat(),
             "repeat": orm_job.repeat,
