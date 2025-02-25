@@ -43,6 +43,7 @@
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { checkCapability } from 'kolibri/utils/appCapabilities';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import KolibriLoadingSnippet from 'kolibri-common/components/KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -212,14 +213,18 @@
           }
           if (task.status === TaskStatuses.COMPLETED) {
             const facilityId = task.extra_metadata.facility_id;
-            const { username, password } = this.deviceProvisioningData.superuser;
             this.clearPollingTasks();
             this.wrapOnboarding();
-            return this.kolibriLogin({
-              facilityId,
-              username,
-              password,
-            });
+            if (this.deviceProvisioningData.superuser) {
+              const { username, password } = this.deviceProvisioningData.superuser;
+              return this.kolibriLogin({
+                facilityId,
+                username,
+                password,
+              });
+            } else {
+              return redirectBrowser();
+            }
           } else if (task.status === TaskStatuses.FAILED) {
             this.$store.dispatch('handleApiError', { error: task.error });
           } else {
