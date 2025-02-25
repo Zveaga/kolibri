@@ -14,23 +14,23 @@ const hostProjectDir = process.cwd();
 
 let esLintConfig;
 try {
-  esLintConfig = require(`${hostProjectDir}/.eslintrc.js`);
+  esLintConfig = require(`${hostProjectDir}/.eslintrc`);
 } catch (e) {
-  esLintConfig = require('./.eslintrc.js');
+  esLintConfig = require('./.eslintrc');
 }
 
 let stylelintConfig;
 try {
-  stylelintConfig = require(`${hostProjectDir}/.stylelintrc.js`);
+  stylelintConfig = require(`${hostProjectDir}/.stylelintrc`);
 } catch (e) {
-  stylelintConfig = require('./.stylelintrc.js');
+  stylelintConfig = require('./.stylelintrc');
 }
 
 let prettierConfig;
 try {
-  prettierConfig = require(`${hostProjectDir}/.prettierrc.js`);
+  prettierConfig = require(`${hostProjectDir}/.prettierrc`);
 } catch (e) {
-  prettierConfig = require('./.prettierrc.js');
+  prettierConfig = require('./.prettierrc');
 }
 
 const logging = logger.getLogger('Kolibri Format');

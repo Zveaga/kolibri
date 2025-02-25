@@ -1,6 +1,6 @@
 {
   "name": "kolibri-format",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A module for formatting frontend code to Kolibri standards",
   "repository": {
     "type": "git",
