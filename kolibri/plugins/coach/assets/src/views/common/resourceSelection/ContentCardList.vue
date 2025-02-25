@@ -43,6 +43,12 @@
             :disabled="contentCheckboxDisabled(content)"
             @change="handleCheckboxChange(content, true)"
           />
+          <!-- As a fallback, if any contents have checkboxes at all, we'll want to
+               ensure the folder cards align w/ the resources -->
+          <div
+            v-else-if="contentsHaveCheckboxes"
+            style="width: 24px"
+          ></div>
         </template>
       </component>
     </KCardGrid>
@@ -82,7 +88,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
   import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
-  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
   import { ViewMoreButtonStates } from '../../../constants/index';
 
   export default {
@@ -112,10 +117,6 @@
             return memo;
           }, {});
         });
-      }
-
-      function getTags(content) {
-        return useCoachMetadataTags(content).tags.value;
       }
 
       function deleteBookmark(contentnode_id) {
@@ -155,7 +156,6 @@
 
       getBookmarks();
       return {
-        getTags,
         ViewMoreButtonStates,
         toggleBookmark,
         isBookmarked,
@@ -231,6 +231,9 @@
     },
 
     computed: {
+      contentsHaveCheckboxes() {
+        return this.contentList.some(this.contentHasCheckbox);
+      },
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },

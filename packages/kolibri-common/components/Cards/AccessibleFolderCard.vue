@@ -9,13 +9,13 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailScaleType="contain"
     thumbnailAlign="right"
-    :preserveFooter="true"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
         <KIcon
           icon="topic"
           :color="$themePalette.grey.v_700"
+          style="top: 0"
         />
       </div>
     </template>
@@ -23,6 +23,10 @@
     <template #belowTitle>
       <slot name="belowTitle"></slot>
       <MetadataChips :tags="metadataTags" />
+    </template>
+
+    <template #select>
+      <slot name="select"></slot>
     </template>
   </KCard>
 
@@ -73,23 +77,16 @@
         default: null,
       },
     },
-    computed: {
-      headerStyles() {
-        return {
-          color: this.$themeTokens.text,
-          borderRadius: '4px',
-          height: '24px',
-          margin: '0em 1em',
-          backgroundColor: this.$themePalette.grey.v_100,
-        };
-      },
-    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
+
+  /deep/ .k-horizontal-with-small-thumbnail.k-thumbnail-align-right .k-thumbnail {
+    margin: 0;
+  }
 
   .chips-wrapper {
     display: flex;
@@ -116,7 +113,6 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100%;
     font-size: 48px;
   }
 

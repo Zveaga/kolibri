@@ -1,3 +1,5 @@
+//import { availableLanguages } from 'kolibri/utils/i18n';
+//import uniq from 'lodash/uniq';
 import { ref } from 'vue';
 import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 import { ActivitiesLookup, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
@@ -44,7 +46,6 @@ export function useCoachMetadataTags(contentNode) {
   };
 
   const getLanguageTag = () => {
-    if (!contentNode.lang) return [];
     return createTag(contentNode.lang.lang_name, contentNode.lang.id);
   };
 
@@ -91,6 +92,11 @@ export function useCoachMetadataTags(contentNode) {
     return [...getActivityTags(), ...getDurationTag(), ...getCategoryTags()];
   };
 
+  // Placeholder for possible need to handle lanugage tags gracefully
+  const getChannelTags = () => {
+    return getResourceTags();
+  };
+
   if (
     contentNode.kind === ContentNodeKinds.CHANNEL ||
     contentNode.kind === ContentNodeKinds.TOPIC
@@ -113,6 +119,7 @@ export function useCoachMetadataTags(contentNode) {
 
   return {
     tags,
+    getChannelTags,
     getFolderTags,
     getResourceTags,
   };

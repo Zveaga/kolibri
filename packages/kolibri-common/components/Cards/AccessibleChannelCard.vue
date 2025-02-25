@@ -32,6 +32,7 @@
             :maxLines="3"
           />
         </p>
+        <MetadataChips :tags="getChannelTags()" />
       </div>
     </template>
   </KCard>
@@ -43,17 +44,34 @@
 
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import MetadataChips from 'kolibri-common/components/MetadataChips';
+  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
   import commonCoach from './../../../../kolibri/plugins/coach/assets/src/views/common';
 
   export default {
     name: 'AccessibleChannelCard',
     components: {
       ContentIcon,
+      MetadataChips,
     },
     mixins: [commonCoach],
-    setup() {
+    setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
+      // A little data massaging to make the metadata passable to useCoachMetadataTags
+      const contentNode = props.contentNode;
+      contentNode.lang = {};
+
+      // The grade_levels and categories fields are stored as
+      // comma-separated strings in the database
+      contentNode.grade_levels = contentNode.included_grade_levels
+        ? contentNode.included_grade_levels.split(',')
+        : [];
+      contentNode.categories = contentNode.included_categories
+        ? contentNode.included_categories.split(',')
+        : [];
+      const { getChannelTags } = useCoachMetadataTags(props.contentNode);
       return {
+        getChannelTags,
         windowBreakpoint,
       };
     },

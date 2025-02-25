@@ -4,7 +4,7 @@
     :to="to"
     :headingLevel="headingLevel"
     :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
-    thumbnailDisplay="small"
+    thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
@@ -24,9 +24,6 @@
         <MetadataChips :tags="metadataTags" />
       </div>
     </template>
-    <template #select>
-      <slot name="select"></slot>
-    </template>
     <template #footer>
       <div class="default-icon">
         <KIconButton
@@ -38,6 +35,9 @@
           @click.stop="$emit('toggleBookmark', contentNode.id)"
         />
       </div>
+    </template>
+    <template #select>
+      <slot name="select"></slot>
     </template>
   </KCard>
 
@@ -94,7 +94,7 @@
       },
       thumbnailScaleType: {
         type: String,
-        default: 'centerInside',
+        default: 'contain',
       },
     },
   };
@@ -104,12 +104,36 @@
 
 <style lang="scss" scoped>
 
+  /deep/ .k-horizontal-with-large-thumbnail {
+    .k-upper-card-area {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .k-around-title {
+      width: 75%;
+      padding-bottom: 0;
+    }
+
+    .k-footer {
+      width: 75%;
+    }
+
+    .k-thumbnail {
+      width: 25%;
+      margin: 0;
+    }
+  }
+
   .default-resource-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
+    max-height: 160px;
     font-size: 48px;
   }
 

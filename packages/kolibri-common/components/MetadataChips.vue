@@ -1,17 +1,15 @@
 <template>
 
-  <div
-    class="metadata-chips"
-  >
+  <div class="metadata-chips">
     <div
-      v-for="({ label, key, icon }) in tags"
+      v-for="{ label, key, icon } in tags"
       :key="key"
       :style="{ backgroundColor: $themePalette.grey.v_100 }"
       class="chip"
     >
       <KIcon
         v-if="icon"
-        class='icon'
+        class="icon"
         :icon="icon"
       />
       <span
@@ -28,8 +26,6 @@
 
 <script>
 
-  import { toRefs } from 'vue';
-
   export default {
     name: 'MetadataChips',
     props: {
@@ -43,7 +39,7 @@
       tags: {
         type: Array,
         required: true,
-        validator: (tags) => tags.every(tag => tag.label && tag.key),
+        validator: tags => tags.every(tag => tag.label && tag.key),
       },
     },
   };
@@ -55,9 +51,13 @@
 
   .metadata-chips {
     display: flex;
+    flex-wrap: wrap;
+    row-gap: 4px;
     align-items: center;
-    padding: 4px;
-    border-radius: 4px;
+    max-height: 48px;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 8px;
   }
 
   .chip-text {
@@ -66,12 +66,12 @@
   }
 
   .icon {
-    top: 0!important;
+    top: 0 !important;
   }
 
   .chip {
-    display: flex;
     position: relative;
+    display: flex;
     padding: 4px;
     margin-right: 4px;
   }
