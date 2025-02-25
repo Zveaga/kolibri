@@ -21,6 +21,7 @@
           :text="contentNode.description"
           :maxLines="2"
         />
+        <slot name="belowTitle"></slot>
         <MetadataChips :tags="metadataTags" />
       </div>
     </template>
