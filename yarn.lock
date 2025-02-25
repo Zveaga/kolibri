@@ -2881,15 +2881,6 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-"aphrodite@git+https://github.com/learningequality/aphrodite.git":
-  version "2.2.3"
-  uid fdc8d7be8912a5cf17f74ff10f124013c52c3e32
-  resolved "git+https://github.com/learningequality/aphrodite.git#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
-  dependencies:
-    asap "^2.0.3"
-    inline-style-prefixer "^4.0.2"
-    string-hash "^1.1.3"
-
 "aphrodite@https://github.com/learningequality/aphrodite/":
   version "2.2.3"
   resolved "https://github.com/learningequality/aphrodite/#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
@@ -7678,10 +7669,10 @@ jszip@*, jszip@^3.1.5, jszip@^3.10.1:
     readable-stream "~2.3.6"
     setimmediate "^1.0.5"
 
-katex@^0.16, katex@^0.16.20:
-  version "0.16.20"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.20.tgz#75c741ded0f7ee8d896a1d31bac307e61af863c3"
-  integrity sha512-jjuLaMGD/7P8jUTpdKhA9IoqnH+yMFB3sdAFtq5QdAqeP2PjiSbnC3EaguKPNtv6dXXanHxp1ckwvF4a86LBig==
+katex@^0.16, katex@^0.16.21:
+  version "0.16.21"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.21.tgz#8f63c659e931b210139691f2cc7bb35166b792a3"
+  integrity sha512-XvqR7FgOHtWupfMiigNzmh+MgUVmDGU2kXZm899ZkPfcuoPuFxyHmXsgATDpFZDAXCI8tvinaVcDo8PIIJSo4A==
   dependencies:
     commander "^8.3.0"
 
