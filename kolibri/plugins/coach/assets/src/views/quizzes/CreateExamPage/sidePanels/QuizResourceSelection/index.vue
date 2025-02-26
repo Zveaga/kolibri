@@ -23,6 +23,35 @@
       </div>
 
       <div
+        v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
+        class="alert-warning d-flex-between"
+        :class="{
+          shadow: isScrolled,
+        }"
+        :style="{
+          padding: '8px 16px',
+          background: $themePalette.green.v_100,
+        }"
+      >
+        <div class="choosing-manually-label">
+          <KIcon
+            icon="correct"
+            class="correct-icon"
+          />
+          <span>
+            {{
+              settings.isChoosingManually ? manualSelectionOnNotice$() : manualSelectionOffNotice$()
+            }}
+          </span>
+        </div>
+        <KButton
+          appearance="flat-button"
+          :text="dismissAction$()"
+          @click="showManualSelectionNotice = false"
+        />
+      </div>
+
+      <div
         v-if="maximumContentSelectedWarning"
         class="alert-warning"
         :class="{
@@ -79,7 +108,7 @@
         <KButton
           v-if="continueAction"
           :disabled="continueAction.disabled"
-          :text="coreString('continueAction')"
+          :text="continueAction.text || coreString('continueAction')"
           @click="continueAction.handler"
         />
         <template v-else>
@@ -186,10 +215,12 @@
         return Math.min(10, maxQuestions);
       };
 
+      const showManualSelectionNotice = ref(false);
+
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
-        isChoosingManually: false,
+        isChoosingManually: null,
         selectPracticeQuiz,
       });
       watch(
@@ -209,6 +240,11 @@
       watch(settings, (newSettings, oldSettings) => {
         // If isChoosingManually was toggled
         if (newSettings.isChoosingManually !== oldSettings.isChoosingManually) {
+          // If value was set for the first time, dont show the notice
+          if (oldSettings.isChoosingManually !== null) {
+            showManualSelectionNotice.value = true;
+          }
+
           if (newSettings.isChoosingManually) {
             newSettings.questionCount = newSettings.maxQuestions;
           } else {
@@ -224,6 +260,8 @@
         addNumberOfQuestions$,
         maximumResourcesSelectedWarning$,
         maximumQuestionsSelectedWarning$,
+        manualSelectionOnNotice$,
+        manualSelectionOffNotice$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -452,7 +490,8 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$, numberOfSelectedQuestions$ } = searchAndFilterStrings;
+      const { numberOfSelectedResources$, numberOfSelectedQuestions$, dismissAction$ } =
+        searchAndFilterStrings;
 
       return {
         title,
@@ -479,6 +518,7 @@
         unselectableResourceIds,
         unselectableQuestionItems,
         maximumContentSelectedWarning,
+        showManualSelectionNotice,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         addToWorkingQuestions,
@@ -496,6 +536,9 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
+        dismissAction$,
+        manualSelectionOnNotice$,
+        manualSelectionOffNotice$,
         numberOfSelectedResources$,
         numberOfSelectedQuestions$,
       };
@@ -596,6 +639,17 @@
     font-size: 18px;
   }
 
+  .choosing-manually-label {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    .correct-icon {
+      position: unset;
+      font-size: 20px;
+    }
+  }
+
   .bottom-nav-container {
     display: flex;
     gap: 16px;
@@ -622,6 +676,12 @@
     &.shadow {
       @extend %dropshadow-2dp;
     }
+  }
+
+  .d-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
 </style>

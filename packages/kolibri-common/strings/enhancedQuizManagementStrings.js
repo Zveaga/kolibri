@@ -241,6 +241,14 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'A warning message that appears when the user has already selected the maximum number of questions',
   },
+  manualSelectionOnNotice: {
+    message: 'Manual question selection is on',
+    context: 'A message that appears when the user has enabled the manual selection of questions',
+  },
+  manualSelectionOffNotice: {
+    message: 'Manual question selection is off',
+    context: 'A message that appears when the user has disabled the manual selection of questions',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;
