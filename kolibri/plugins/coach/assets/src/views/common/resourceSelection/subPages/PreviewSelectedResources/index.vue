@@ -8,7 +8,7 @@
         class="channel-header"
       >
         <p>
-          {{ coreString('selectFromChannels') }}
+          {{ selectFromChannels$() }}
         </p>
         <ResourceActionButton
           :isSelected="isSelected"
@@ -103,6 +103,7 @@
 
   import { getCurrentInstance, onMounted, ref, computed } from 'vue';
   import { ContentNodeKinds } from 'kolibri/constants';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
@@ -135,6 +136,7 @@
         props.contentId,
       );
       const { manageLessonResourcesTitle$ } = coachStrings;
+      const { selectFromChannels$ } = coreStrings;
       const {
         selectResourcesDescription$,
         selectPracticeQuizLabel$,
@@ -206,6 +208,7 @@
         clearSelectionNotice,
         saveSettings,
         saveSettingsAction$,
+        selectFromChannels$,
         chooseQuestionsManuallyLabel$,
       };
     },
