@@ -83,7 +83,12 @@ class ExamViewset(ValuesViewset):
 
     draft_values = common_values + ("assignments", "learner_ids")
 
-    field_map = {"assignments": "assignment_collections"}
+    field_map = {
+        "assignments": "assignment_collections",
+        "instant_report_visibility": lambda x: True
+        if x["instant_report_visibility"] is None
+        else x["instant_report_visibility"],
+    }
 
     def get_draft_queryset(self):
         return models.DraftExam.objects.all()
@@ -163,9 +168,9 @@ class ExamViewset(ValuesViewset):
         )
 
         # Return True for instant_report_visibility if it is null
-        for item in all_objects:
-            if item.get("instant_report_visibility") is None:
-                item["instant_report_visibility"] = True
+        # for item in all_objects:
+        #     if item.get("instant_report_visibility") is None:
+        #         item["instant_report_visibility"] = True
 
         return Response(all_objects)
 
