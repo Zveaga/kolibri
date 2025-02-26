@@ -211,6 +211,20 @@
 
       const { selectPracticeQuiz } = route.value.query;
 
+      /**
+       * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
+       */
+      const workingResourcePool = ref([]);
+
+      const resetSelection = () => {
+        workingResourcePool.value = [];
+        workingQuestions.value = [];
+      };
+      /**
+       * @type {Ref<QuizQuestions[]>}
+       */
+      const workingQuestions = ref([]);
+
       const getDefaultQuestionCount = maxQuestions => {
         return Math.min(10, maxQuestions);
       };
@@ -250,6 +264,8 @@
           } else {
             newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
+
+          resetSelection();
         }
       });
 
@@ -265,16 +281,6 @@
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
-
-      /**
-       * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
-       */
-      const workingResourcePool = ref([]);
-
-      /**
-       * @type {Ref<QuizQuestions[]>}
-       */
-      const workingQuestions = ref([]);
 
       /**
        * @param {QuizExercise[]} resources

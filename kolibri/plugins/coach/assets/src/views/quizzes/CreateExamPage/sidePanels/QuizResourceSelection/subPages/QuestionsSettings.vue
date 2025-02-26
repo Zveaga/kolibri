@@ -45,6 +45,7 @@
     <KCheckbox
       :checked="isChoosingManually"
       :label="chooseQuestionsManuallyLabel$()"
+      :description="clearSelectionNotice"
       @change="$event => (isChoosingManually = $event)"
     />
   </div>
@@ -81,6 +82,7 @@
         maxNumberOfQuestionsInfo$,
         maxNumberOfQuestions$,
         chooseQuestionsManuallyLabel$,
+        clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
       const { activeSection, activeSectionIndex } = injectQuizCreation();
@@ -93,7 +95,7 @@
       props.setGoBack(null);
 
       const workingQuestionCount = ref(props.settings.questionCount);
-      const workingIsChoosingManually = ref(props.settings.isChoosingManually);
+      const workingIsChoosingManually = ref(Boolean(props.settings.isChoosingManually));
 
       const invalidSettings = computed(() => {
         if (workingIsChoosingManually.value) {
@@ -143,12 +145,19 @@
       });
 
       const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
+      const clearSelectionNotice = computed(() => {
+        if (!props.selectedResources.length && !props.selectedQuestions.length) {
+          return null;
+        }
+        return clearSelectionNotice$();
+      });
 
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
+        clearSelectionNotice,
         questionCountIsEditable,
         maxQuestions: computed(() => props.settings.maxQuestions),
         maxNumberOfQuestions$,
@@ -177,6 +186,14 @@
       isLanding: {
         type: Boolean,
         default: false,
+      },
+      selectedQuestions: {
+        type: Array,
+        required: true,
+      },
+      selectedResources: {
+        type: Array,
+        required: true,
       },
     },
     beforeRouteEnter(to, from, next) {

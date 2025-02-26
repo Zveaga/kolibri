@@ -219,6 +219,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Choose questions manually',
     context: 'A label for a checkbox that allows the user to manually select questions',
   },
+  clearSelectionNotice: {
+    message: 'Changing this setting will clear your current selections',
+    context: 'A message that informs the user that changing a setting will remove their selections',
+  },
   selectUpToNResources: {
     message:
       'Select up to { count, number } { count, plural, one { resource } other { resources }}',
