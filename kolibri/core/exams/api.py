@@ -167,11 +167,6 @@ class ExamViewset(ValuesViewset):
             reverse=True,
         )
 
-        # Return True for instant_report_visibility if it is null
-        # for item in all_objects:
-        #     if item.get("instant_report_visibility") is None:
-        #         item["instant_report_visibility"] = True
-
         return Response(all_objects)
 
     def get_object(self):
