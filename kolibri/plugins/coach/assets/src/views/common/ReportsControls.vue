@@ -125,13 +125,13 @@
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
           const userSet = new Set(data.map(item => item.user));
           this.filteredLearnMap.value = Object.fromEntries(
-            Object.entries(this.learnerMap).filter(([key]) => userSet.has(key))
+            Object.entries(this.learnerMap).filter(([key]) => userSet.has(key)),
           );
         });
         if (this.isPolling) {
           setTimeout(() => {
             this.pollClassListSyncStatuses();
-          }, "10000");
+          }, '10000');
         }
       },
     },

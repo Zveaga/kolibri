@@ -125,7 +125,7 @@
       },
       learnersWithLearnOnlyDevices() {
         const lods = Object.fromEntries(
-          Object.entries(this.learnerMap).filter(([key]) => key in this.classSyncStatusList)
+          Object.entries(this.learnerMap).filter(([key]) => key in this.classSyncStatusList),
         );
         return lods;
       },
