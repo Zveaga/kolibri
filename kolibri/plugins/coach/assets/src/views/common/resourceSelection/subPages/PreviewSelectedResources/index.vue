@@ -8,7 +8,7 @@
         class="channel-header"
       >
         <p>
-          {{ coreString('selectFromChannels') }}
+          {{ selectFromChannels$() }}
         </p>
         <ResourceActionButton
           :isSelected="isSelected"
@@ -52,6 +52,28 @@
         </KLabeledIcon>
       </h2>
 
+      <div
+        v-if="target === SelectionTarget.QUIZ"
+        class="update-settings-container"
+        :style="{
+          backgroundColor: $themePalette.grey.v_100,
+        }"
+      >
+        <KCheckbox
+          :checked="workingIsChoosingManually"
+          :label="chooseQuestionsManuallyLabel$()"
+          :description="clearSelectionNotice"
+          @change="$event => (workingIsChoosingManually = $event)"
+        />
+        <KButton
+          class="no-shink"
+          appearance="flat-button"
+          :text="saveSettingsAction$()"
+          :disabled="isSaveSettingsDisabled"
+          @click="saveSettings"
+        />
+      </div>
+
       <QuestionsAccordion
         v-if="isExercise"
         :questions="exerciseQuestions"
@@ -79,10 +101,12 @@
 
 <script>
 
-  import { getCurrentInstance, onMounted, ref } from 'vue';
+  import { getCurrentInstance, onMounted, ref, computed } from 'vue';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import { ContentNodeKinds } from 'kolibri/constants';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
   import { SelectionTarget } from '../../contants.js';
   import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
@@ -112,8 +136,13 @@
         props.contentId,
       );
       const { manageLessonResourcesTitle$ } = coachStrings;
-      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
-        enhancedQuizManagementStrings;
+      const { selectFromChannels$ } = coreStrings;
+      const {
+        selectResourcesDescription$,
+        selectPracticeQuizLabel$,
+        chooseQuestionsManuallyLabel$,
+        clearSelectionNotice$,
+      } = enhancedQuizManagementStrings;
 
       const getTitle = () => {
         if (props.target === SelectionTarget.LESSON) {
@@ -139,11 +168,30 @@
         });
       };
 
+      const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
+      const saveSettings = () => {
+        instance.proxy.$emit('update:settings', {
+          ...props.settings,
+          isChoosingManually: workingIsChoosingManually.value,
+        });
+      };
+      const isSaveSettingsDisabled = computed(() => {
+        return workingIsChoosingManually.value === props.settings?.isChoosingManually;
+      });
+      const clearSelectionNotice = computed(() => {
+        if (!props.selectedResources.length && !props.selectedQuestions.length) {
+          return null;
+        }
+        return clearSelectionNotice$();
+      });
+
       onMounted(() => {
         if (!props.contentId) {
           redirectBack();
         }
       });
+
+      const { saveSettingsAction$ } = searchAndFilterStrings;
 
       return {
         contentNode,
@@ -155,6 +203,13 @@
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         exerciseQuestions,
+        workingIsChoosingManually,
+        isSaveSettingsDisabled,
+        clearSelectionNotice,
+        saveSettings,
+        saveSettingsAction$,
+        selectFromChannels$,
+        chooseQuestionsManuallyLabel$,
       };
     },
     props: {
@@ -320,6 +375,18 @@
 
   .channel-header p {
     font-weight: 600;
+  }
+
+  .update-settings-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .no-shink {
+    flex-shrink: 0;
   }
 
 </style>

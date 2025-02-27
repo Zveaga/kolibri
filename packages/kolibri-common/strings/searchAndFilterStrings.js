@@ -126,4 +126,12 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context:
       'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
   },
+  dismissAction: {
+    message: 'Dismiss',
+    context: 'Button label to dismiss a notification',
+  },
+  saveSettingsAction: {
+    message: 'Save settings',
+    context: 'Button label to save resource selection settings',
+  },
 });

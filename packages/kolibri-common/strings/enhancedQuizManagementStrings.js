@@ -219,6 +219,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Choose questions manually',
     context: 'A label for a checkbox that allows the user to manually select questions',
   },
+  clearSelectionNotice: {
+    message: 'Changing this setting will clear your current selections',
+    context: 'A message that informs the user that changing a setting will remove their selections',
+  },
   selectUpToNResources: {
     message:
       'Select up to { count, number } { count, plural, one { resource } other { resources }}',
@@ -240,6 +244,14 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Maximum questions selected',
     context:
       'A warning message that appears when the user has already selected the maximum number of questions',
+  },
+  manualSelectionOnNotice: {
+    message: 'Manual question selection is on',
+    context: 'A message that appears when the user has enabled the manual selection of questions',
+  },
+  manualSelectionOffNotice: {
+    message: 'Manual question selection is off',
+    context: 'A message that appears when the user has disabled the manual selection of questions',
   },
 });
 

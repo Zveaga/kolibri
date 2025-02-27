@@ -43,9 +43,10 @@
       </div>
     </div>
     <KCheckbox
-      :checked="settings.isChoosingManually"
+      :checked="isChoosingManually"
       :label="chooseQuestionsManuallyLabel$()"
-      @change="$emit('update:settings', { ...settings, isChoosingManually: $event })"
+      :description="clearSelectionNotice"
+      @change="$event => (isChoosingManually = $event)"
     />
   </div>
 
@@ -59,6 +60,8 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
 
@@ -79,24 +82,10 @@
         maxNumberOfQuestionsInfo$,
         maxNumberOfQuestions$,
         chooseQuestionsManuallyLabel$,
+        clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
+
       const { activeSection, activeSectionIndex } = injectQuizCreation();
-
-      const invalidSettings = computed(
-        () =>
-          props.settings.questionCount > props.settings.maxQuestions ||
-          props.settings.questionCount < 1,
-      );
-
-      const questionCount = computed({
-        get: () => props.settings.questionCount,
-        set: value => {
-          instance.proxy.$emit('update:settings', {
-            ...props.settings,
-            questionCount: value,
-          });
-        },
-      });
 
       props.setTitle(
         questionsSettingsLabel$({
@@ -105,7 +94,26 @@
       );
       props.setGoBack(null);
 
+      const workingQuestionCount = ref(props.settings.questionCount);
+      const workingIsChoosingManually = ref(Boolean(props.settings.isChoosingManually));
+
+      const invalidSettings = computed(() => {
+        if (workingIsChoosingManually.value) {
+          return false;
+        }
+
+        return (
+          workingQuestionCount.value > props.settings.maxQuestions || workingQuestionCount.value < 1
+        );
+      });
+
       const continueHandler = () => {
+        instance.proxy.$emit('update:settings', {
+          ...props.settings,
+          questionCount: Math.min(workingQuestionCount.value, props.settings.maxQuestions),
+          isChoosingManually: workingIsChoosingManually.value,
+        });
+
         if (!props.isLanding && prevRoute.value) {
           instance.proxy.$router.push(prevRoute.value);
           return;
@@ -114,30 +122,42 @@
           name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
       };
+
+      const { saveSettingsAction$ } = searchAndFilterStrings;
+      const { continueAction$ } = coreStrings;
+      const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
+
       onMounted(() => {
         props.setContinueAction({
           handler: continueHandler,
+          text: continueText,
         });
       });
-      watch(
-        () => props.settings,
-        () => {
-          props.setContinueAction({
-            handler: continueHandler,
-            disabled: invalidSettings.value,
-          });
-        },
-      );
+      watch(invalidSettings, () => {
+        props.setContinueAction({
+          handler: continueHandler,
+          disabled: invalidSettings.value,
+          text: continueText,
+        });
+      });
       onUnmounted(() => {
         props.setContinueAction(null);
       });
 
-      const questionCountIsEditable = computed(() => !props.settings.isChoosingManually);
+      const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
+      const clearSelectionNotice = computed(() => {
+        if (!props.selectedResources.length && !props.selectedQuestions.length) {
+          return null;
+        }
+        return clearSelectionNotice$();
+      });
 
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
-        questionCount,
+        questionCount: workingQuestionCount,
+        isChoosingManually: workingIsChoosingManually,
+        clearSelectionNotice,
         questionCountIsEditable,
         maxQuestions: computed(() => props.settings.maxQuestions),
         maxNumberOfQuestions$,
@@ -166,6 +186,14 @@
       isLanding: {
         type: Boolean,
         default: false,
+      },
+      selectedQuestions: {
+        type: Array,
+        required: true,
+      },
+      selectedResources: {
+        type: Array,
+        required: true,
       },
     },
     beforeRouteEnter(to, from, next) {
