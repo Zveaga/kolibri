@@ -57,7 +57,6 @@
     max-height: 48px;
     padding: 0;
     overflow: hidden;
-    border-radius: 8px;
   }
 
   .chip-text {
@@ -67,6 +66,7 @@
 
   .icon {
     top: 0 !important;
+    margin-left: 0.125rem;
   }
 
   .chip {
@@ -74,6 +74,7 @@
     display: flex;
     padding: 4px;
     margin-right: 4px;
+    border-radius: 8px;
   }
 
 </style>

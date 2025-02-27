@@ -84,8 +84,29 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .k-horizontal-with-small-thumbnail.k-thumbnail-align-right .k-thumbnail {
-    margin: 0;
+  /deep/ .k-horizontal-with-small-thumbnail {
+    .k-upper-card-area {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .k-around-title {
+      width: 75%;
+      padding-bottom: 0;
+    }
+
+    .k-footer {
+      width: 75%;
+    }
+
+    .k-thumbnail {
+      width: 25%;
+      margin: 0 !important;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
   }
 
   .chips-wrapper {

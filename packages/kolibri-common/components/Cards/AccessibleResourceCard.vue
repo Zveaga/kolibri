@@ -8,7 +8,7 @@
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
-    :thumbnailScaleType="thumbnailScaleType"
+    thumbnailScaleType="contain"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">
@@ -18,8 +18,10 @@
     <template #belowTitle>
       <div>
         <KTextTruncator
+          v-if="contentNode.description"
           :text="contentNode.description"
           :maxLines="2"
+          style="margin-bottom: 0.5rem"
         />
         <slot name="belowTitle"></slot>
         <MetadataChips :tags="metadataTags" />
@@ -93,10 +95,6 @@
         type: String,
         default: null,
       },
-      thumbnailScaleType: {
-        type: String,
-        default: 'contain',
-      },
     },
   };
 
@@ -113,6 +111,10 @@
       justify-content: space-between;
     }
 
+    .k-below-title {
+      padding: 0;
+    }
+
     .k-around-title {
       width: 75%;
       padding-bottom: 0;
@@ -120,6 +122,7 @@
 
     .k-footer {
       width: 75%;
+      padding: 0 0.5rem 0.5rem 0;
     }
 
     .k-thumbnail {
@@ -140,6 +143,12 @@
 
   .default-icon {
     text-align: right;
+
+    .button {
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 0px;
+    }
   }
 
 </style>

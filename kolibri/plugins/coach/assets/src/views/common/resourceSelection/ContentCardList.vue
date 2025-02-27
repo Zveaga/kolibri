@@ -22,7 +22,12 @@
         @toggleBookmark="toggleBookmark"
       >
         <template #belowTitle>
-          <p v-if="contentCardMessage(content)">{{ contentCardMessage(content) }}</p>
+          <div
+            v-if="contentCardMessage(content)"
+            style="margin: 0 0 0.5rem"
+          >
+            {{ contentCardMessage(content) }}
+          </div>
         </template>
         <template #select>
           <KCheckbox
@@ -259,6 +264,12 @@
 <style lang="scss" scoped>
 
   @import './LessonContentCard/card';
+
+  /deep/ .k-card-grid {
+    ul {
+      gap: 24px !important;
+    }
+  }
 
   .content-list {
     display: block;
