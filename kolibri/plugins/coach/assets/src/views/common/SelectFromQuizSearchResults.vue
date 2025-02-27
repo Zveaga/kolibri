@@ -48,8 +48,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../constants';
-  import { coachStrings } from './commonCoachStrings';
   import UpdatedResourceSelection from './resourceSelection/UpdatedResourceSelection.vue';
   import { SelectionTarget } from './resourceSelection/contants';
   /**
@@ -90,9 +90,9 @@
       }
 
       const { selectFromChannels$, searchLabel$ } = coreStrings;
-      const { manageLessonResourcesTitle$ } = coachStrings;
+      const { selectPracticeQuizLabel$ } = enhancedQuizManagementStrings;
 
-      props.setTitle(manageLessonResourcesTitle$());
+      props.setTitle(selectPracticeQuizLabel$());
       props.setGoBack(null);
 
       const { data, hasMore, fetchMore, loadingMore } = props.searchFetch;

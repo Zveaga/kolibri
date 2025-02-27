@@ -196,7 +196,7 @@
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
 
   export default {
-    name: 'ResourceSelection',
+    name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
     },
