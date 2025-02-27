@@ -38,7 +38,10 @@
         const backRoute = prevRoute.value?.name
           ? prevRoute.value
           : {
-            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+            name:
+              this.target === SelectionTarget.QUIZ
+                ? PageNames.QUIZ_SELECT_RESOURCES_INDEX
+                : PageNames.LESSON_SELECT_RESOURCES_INDEX,
           };
         instance.proxy.$router.push(backRoute);
       };

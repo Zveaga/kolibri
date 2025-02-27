@@ -18,13 +18,13 @@ import SelectFromBookmarks from '../views/common/resourceSelection/subPages/Sele
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import ManageSelectedQuestions from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/ManageSelectedQuestions.vue';
 import SelectFromSearchResults from '../views/common/SelectFromSearchResults.vue';
+import SearchFilters from '../views/common/SearchFilters.vue';
 import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
 import QuestionsSettings from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/QuestionsSettings.vue';
-import QuizSearchPanel from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/QuizSearchPanel.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -141,7 +141,7 @@ export default [
           {
             name: PageNames.QUIZ_SEARCH_PANEL,
             path: 'search',
-            component: QuizSearchPanel,
+            component: SearchFilters,
           },
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
