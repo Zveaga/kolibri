@@ -306,7 +306,7 @@
           name:
             this.target === SelectionTarget.LESSON
               ? PageNames.LESSON_SELECT_RESOURCES_SEARCH
-              : PageNames.QUIZ_SEARCH_PANEL,
+              : PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
           query: this.$route.query,
         });
       },

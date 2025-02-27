@@ -139,7 +139,7 @@ export default [
             },
           },
           {
-            name: PageNames.QUIZ_SEARCH_PANEL,
+            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
             path: 'search',
             component: SearchQuizFilters,
           },

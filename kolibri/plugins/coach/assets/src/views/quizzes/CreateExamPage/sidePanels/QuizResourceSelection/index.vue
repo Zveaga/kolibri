@@ -109,7 +109,7 @@
     </template>
 
     <template
-      v-if="$route.name !== PageNames.QUIZ_SEARCH_PANEL"
+      v-if="$route.name !== PageNames.QUIZ_SELECT_RESOURCES_SEARCH"
       #bottomNavigation
     >
       <div class="bottom-nav-container">

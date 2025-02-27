@@ -186,7 +186,7 @@
           });
         } else {
           this.$router.push({
-            name: PageNames.QUIZ_SEARCH_PANEL,
+            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
             query: this.$route.query,
           });
         }
