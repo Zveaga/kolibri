@@ -94,7 +94,6 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
-  import { PageNames } from '../../../constants';
   import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
@@ -145,7 +144,6 @@
       const workingResourcesBackup = [...(this.$store.state.lessonSummary.workingResources || [])];
 
       return {
-        PageNames,
         currentAction: '',
         ReportsLessonTabs,
         workingResourcesBackup,
@@ -163,11 +161,11 @@
       },
       lessonSelectionRootPage() {
         if (this.isTemp) {
-          return this.classRoute(PageNames.LESSON_SELECT_RESOURCES, {
+          return this.classRoute(this.PageNames.LESSON_SELECT_RESOURCES, {
             lessonId: this.lessonId,
           });
         }
-        return this.classRoute(PageNames.LESSON_RESOURCE_SELECTION_ROOT, {
+        return this.classRoute(this.PageNames.LESSON_RESOURCE_SELECTION_ROOT, {
           lessonId: this.lessonId,
         });
       },
@@ -192,7 +190,7 @@
 
         tabsList.forEach(tab => {
           tab.to = this.classRoute(
-            this.group ? PageNames.GROUP_LESSON_SUMMARY : PageNames.LESSON_SUMMARY,
+            this.group ? this.PageNames.GROUP_LESSON_SUMMARY : this.PageNames.LESSON_SUMMARY,
             { tabId: tab.id },
           );
         });
@@ -240,7 +238,9 @@
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lessonId, learner.id),
             link: this.classRoute(
-              this.group ? PageNames.GROUP_LESSON_LEARNER : PageNames.LESSON_LEARNER_REPORT,
+              this.group
+                ? this.PageNames.GROUP_LESSON_LEARNER
+                : this.PageNames.LESSON_LEARNER_REPORT,
               { learnerId: learner.id },
             ),
           };
@@ -272,7 +272,7 @@
       handleSelectOption(action) {
         switch (action) {
           case 'EDIT_DETAILS':
-            return this.$router.push(this.$router.getRoute(PageNames.LESSON_EDIT_DETAILS));
+            return this.$router.push(this.$router.getRoute(this.PageNames.LESSON_EDIT_DETAILS));
           case 'PRINT_REPORT':
             return this.$print();
           case 'EXPORT':
@@ -291,13 +291,15 @@
           if (resource.kind === this.ContentNodeKinds.EXERCISE) {
             return this.classRoute(
               this.group
-                ? PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT
-                : PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
+                ? this.PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT
+                : this.PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
               { exerciseId: resource.content_id },
             );
           } else {
             return this.classRoute(
-              this.group ? PageNames.GROUPS_ROOT : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
+              this.group
+                ? this.PageNames.GROUPS_ROOT
+                : this.PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
               { resourceId: resource.content_id },
             );
           }
