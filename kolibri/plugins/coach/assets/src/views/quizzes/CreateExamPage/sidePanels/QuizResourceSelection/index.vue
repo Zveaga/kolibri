@@ -93,6 +93,8 @@
         @deselectResources="removeFromWorkingResourcePool"
         @deselectQuestions="removeFromWorkingQuestions"
         @setSelectedResources="setWorkingResourcePool"
+        @removeSearchFilterTag="removeSearchFilterTag"
+        @clearSearch="clearSearch"
       />
       <KModal
         v-if="showCloseConfirmation"
@@ -236,7 +238,6 @@
       };
 
       const showManualSelectionNotice = ref(false);
-
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
@@ -370,6 +371,8 @@
         searchTerms,
         searchFetch,
         displayingSearchResults,
+        clearSearch,
+        removeSearchFilterTag,
       } = useResourceSelection({
         searchResultsRouteName: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
         bookmarks: {
@@ -548,6 +551,8 @@
         addToWorkingQuestions,
         removeFromWorkingQuestions,
         setWorkingResourcePool,
+        removeSearchFilterTag,
+        clearSearch,
         settings,
         disableSave,
         saveButtonLabel,

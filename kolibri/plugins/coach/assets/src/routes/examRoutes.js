@@ -17,8 +17,8 @@ import SelectFromChannels from '../views/common/resourceSelection/subPages/Selec
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import ManageSelectedQuestions from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/ManageSelectedQuestions.vue';
-import SelectFromSearchResults from '../views/common/SelectFromSearchResults.vue';
-import SearchFilters from '../views/common/SearchFilters.vue';
+import SelectFromQuizSearchResults from '../views/common/SelectFromQuizSearchResults.vue';
+import SearchQuizFilters from '../views/common/SearchQuizFilters.vue';
 import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,
@@ -141,12 +141,12 @@ export default [
           {
             name: PageNames.QUIZ_SEARCH_PANEL,
             path: 'search',
-            component: SearchFilters,
+            component: SearchQuizFilters,
           },
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
             path: 'search-results',
-            component: SelectFromSearchResults,
+            component: SelectFromQuizSearchResults,
           },
         ],
       },

@@ -253,7 +253,7 @@ export default function useBaseSearch({
     if (get(displayingSearchResults)) {
       getParams.max_results = 25;
       const terms = get(searchTerms);
-      set(searchResultsLoading, true);
+
       for (const key of searchKeys) {
         if (key === 'categories') {
           if (terms[key][AllCategories]) {

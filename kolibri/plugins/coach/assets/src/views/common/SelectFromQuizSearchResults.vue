@@ -45,7 +45,6 @@
 <script>
 
   import { getCurrentInstance } from 'vue';
-
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -58,7 +57,7 @@
    */
 
   export default {
-    name: 'SelectFromSearchResults',
+    name: 'SelectFromQuizSearchResults',
     components: {
       SearchChips,
       UpdatedResourceSelection,
@@ -72,7 +71,7 @@
             name:
               this.target === SelectionTarget.LESSON
                 ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
-                : PageNames.QUIZ_SEARCH_PANEL,
+                : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
             query: {
               topicId,
             },
@@ -83,7 +82,7 @@
           name:
             this.target === SelectionTarget.LESSON
               ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+              : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
         });
       }
       if (!props.displayingSearchResults) {
@@ -188,7 +187,7 @@
         } else {
           this.$router.push({
             name: PageNames.QUIZ_SEARCH_PANEL,
-            query: this.$route.query.topicId,
+            query: this.$route.query,
           });
         }
       },

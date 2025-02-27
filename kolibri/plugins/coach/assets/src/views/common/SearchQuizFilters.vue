@@ -26,7 +26,7 @@
    */
 
   export default {
-    name: 'SearchFilters',
+    name: 'SearchQuizFilters',
     components: {
       SearchFiltersPanel,
     },
