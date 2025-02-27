@@ -49,7 +49,8 @@
 
   import pickBy from 'lodash/pickBy';
   import useUser from 'kolibri/composables/useUser';
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
+  import { reactive } from 'vue';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -60,9 +61,10 @@
     mixins: [commonCoach],
     setup() {
       const { isAppContext } = useUser();
-
+      const filteredLearnMap = reactive({ value: {} });
       return {
         isAppContext,
+        filteredLearnMap,
       };
     },
     props: {
@@ -90,7 +92,7 @@
             PageNames.EXAMS_ROOT,
             PageNames.EXAM_SUMMARY,
             PageNames.LESSON_SUMMARY,
-          ].includes(this.$route.name) && Object.keys(this.learnerMap).length > 0
+          ].includes(this.$route.name) && Object.keys(this.filteredLearnMap.value).length > 0
         );
       },
       classLearnersListRoute() {
@@ -108,6 +110,29 @@
           },
         };
         return route;
+      },
+    },
+    mounted() {
+      this.isPolling = true;
+      this.pollClassListSyncStatuses();
+    },
+    beforeDestroy() {
+      this.isPolling = false;
+    },
+    methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      pollClassListSyncStatuses() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          const userSet = new Set(data.map(item => item.user));
+          this.filteredLearnMap.value = Object.fromEntries(
+            Object.entries(this.learnerMap).filter(([key]) => userSet.has(key))
+          );
+        });
+        if (this.isPolling) {
+          setTimeout(() => {
+            this.pollClassListSyncStatuses();
+          }, "10000");
+        }
       },
     },
     $trs: {
