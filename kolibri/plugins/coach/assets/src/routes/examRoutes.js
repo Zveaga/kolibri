@@ -144,7 +144,7 @@ export default [
             component: QuizSearchPanel,
           },
           {
-            name: PageNames.QUIZ_SEARCH_RESULTS,
+            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
             path: 'search-results',
             component: SelectFromSearchResults,
           },

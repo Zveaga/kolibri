@@ -204,7 +204,7 @@
       },
       getTopicLink(topicId) {
         return {
-          name: PageNames.QUIZ_SEARCH_RESULTS,
+          name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
           query: {
             ...this.$route.query,
             topicId,

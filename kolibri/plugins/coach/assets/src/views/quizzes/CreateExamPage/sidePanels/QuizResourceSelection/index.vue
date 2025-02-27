@@ -371,7 +371,7 @@
         searchFetch,
         displayingSearchResults,
       } = useResourceSelection({
-        searchResultsRouteName: PageNames.QUIZ_SEARCH_RESULTS,
+        searchResultsRouteName: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
         bookmarks: {
           filters: { kind: ContentNodeKinds.EXERCISE },
           annotator: results => results.filter(isPracticeQuiz),
