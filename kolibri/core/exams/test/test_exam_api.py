@@ -84,6 +84,7 @@ class BaseExamTest:
                         }
                     ],
                     "learners_see_fixed_order": False,
+                    "instant_report_visibility": True,
                 }
             ],
         )
@@ -98,6 +99,7 @@ class BaseExamTest:
             "draft": self.draft,
             "collection": self.classroom.id,
             "learners_see_fixed_order": False,
+            "instant_report_visibility": True,
             "question_sources": sections,
             "assignments": [],
         }
@@ -421,6 +423,7 @@ class BaseExamTest:
             "creator",
             "data_model_version",
             "learners_see_fixed_order",
+            "instant_report_visibility",
             "date_created",
         ]:
             self.assertIn(field, response.data)
@@ -433,6 +436,7 @@ class BaseExamTest:
             "active": True,
             "collection": self.classroom.id,
             "learners_see_fixed_order": False,
+            "instant_report_visibility": True,
             "question_sources": [],
             "assignments": [],
             "date_activated": None,
@@ -502,6 +506,14 @@ class BaseExamTest:
         )
         self.assertEqual(response.status_code, 200)
         self.assertExamExists(id=self.exam.id, learners_see_fixed_order=True)
+
+    def test_admin_can_update_instant_report_visibility(self):
+        self.login_as_admin()
+        response = self.patch_updated_exam(
+            self.exam.id, {"instant_report_visibility": False}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertExamExists(id=self.exam.id, instant_report_visibility=False)
 
 
 class ExamAPITestCase(BaseExamTest, APITestCase):

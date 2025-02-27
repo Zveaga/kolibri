@@ -25,6 +25,7 @@ const fieldsToSave = [
   'learner_ids',
   'collection',
   'learners_see_fixed_order',
+  'instant_report_visibility',
   'draft',
   'active',
   'archive',

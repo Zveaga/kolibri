@@ -90,7 +90,7 @@
           <span> {{ $tr('reportVisibleToLearnersLabel') }} </span>
           <StatusElapsedTime
             v-if="exam.active"
-            :date="examDateOpened"
+            :date="exam.instant_report_visibility ? examDateOpened : examDateArchived"
             actionType="madeVisible"
             style="font-weight: normal"
           />
@@ -155,6 +155,28 @@
           :layout12="layout12Value"
         >
           <Score :value="avgScore" />
+        </KGridItem>
+      </div>
+
+      <!-- Report Visibility -->
+      <div
+        v-if="!exam.archive"
+        class="status-item"
+      >
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          <span>{{ coachString('reportVisibilityLabel') }}</span>
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <span>{{ reportVisibilityStatus }}</span>
         </KGridItem>
       </div>
 
@@ -393,6 +415,11 @@
         } else {
           return null;
         }
+      },
+      reportVisibilityStatus() {
+        return this.exam.instant_report_visibility
+          ? this.coachString('afterLearnerSubmitsQuizLabel')
+          : this.coachString('afterCoachEndsQuizLabel');
       },
       layout12Label() {
         return { span: this.$isPrint ? 3 : 12 };

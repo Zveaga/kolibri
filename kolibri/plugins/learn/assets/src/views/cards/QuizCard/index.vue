@@ -2,7 +2,7 @@
 
   <BaseCard
     v-if="quiz"
-    v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel }"
+    v-bind="{ to, title, collectionTitle, completedLabel, inProgressLabel, reportVisible }"
   >
     <template
       v-if="showThumbnail"
@@ -84,6 +84,10 @@
           return this.$tr('completedPercentLabel', { score: percentage });
         }
         return '';
+      },
+      reportVisible() {
+        // Show report if quiz is closed or instant_report_visibility is true
+        return this.quiz.archive || this.quiz.instant_report_visibility;
       },
     },
     $trs: {

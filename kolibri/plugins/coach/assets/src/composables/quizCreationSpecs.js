@@ -191,4 +191,9 @@ export const Quiz = {
     type: Boolean,
     default: true,
   },
+  // Default to quiz reports being visible immediately after learner submits quiz
+  instant_report_visibility: {
+    type: Boolean,
+    default: true,
+  },
 };
