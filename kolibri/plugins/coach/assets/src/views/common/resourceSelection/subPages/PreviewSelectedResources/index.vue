@@ -62,7 +62,7 @@
         <KCheckbox
           :checked="workingIsChoosingManually"
           :label="chooseQuestionsManuallyLabel$()"
-          :description="clearSelectionNotice"
+          :description="clearSelectionNotice$()"
           @change="$event => (workingIsChoosingManually = $event)"
         />
         <KButton
@@ -178,12 +178,6 @@
       const isSaveSettingsDisabled = computed(() => {
         return workingIsChoosingManually.value === props.settings?.isChoosingManually;
       });
-      const clearSelectionNotice = computed(() => {
-        if (!props.selectedResources.length && !props.selectedQuestions.length) {
-          return null;
-        }
-        return clearSelectionNotice$();
-      });
 
       onMounted(() => {
         if (!props.contentId) {
@@ -205,7 +199,7 @@
         exerciseQuestions,
         workingIsChoosingManually,
         isSaveSettingsDisabled,
-        clearSelectionNotice,
+        clearSelectionNotice$,
         saveSettings,
         saveSettingsAction$,
         selectFromChannels$,
