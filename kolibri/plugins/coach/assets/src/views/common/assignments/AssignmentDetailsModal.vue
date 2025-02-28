@@ -80,9 +80,9 @@
             </KGridItem>
           </template>
           <KGridItem
-            :layout4="{ span: 3 }"
-            :layout8="{ span: 7 }"
-            :layout12="{ span: 11 }"
+            :layout4="{ span: 4 }"
+            :layout8="{ span: 8 }"
+            :layout12="{ span: 12 }"
           >
             <KTextbox
               v-if="showDescriptionField"
