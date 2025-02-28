@@ -53,10 +53,7 @@
               :layout8="{ span: 1, alignment: 'left' }"
               :layout12="{ span: 1, alignment: 'left' }"
             >
-              <KIcon
-                icon="circleCheckmark"
-                :class="windowIsSmall ? 'style-icon' : 'checkmark-style-icon'"
-              />
+              <br >
             </KGridItem>
             <KGridItem
               :layout4="{ span: 3 }"
