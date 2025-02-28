@@ -43,6 +43,7 @@
               :invalidText="titleIsInvalidText"
               :showInvalidText="titleIsInvalid"
               :disabled="disabled || formIsSubmitted"
+              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
               @input="showTitleError = false"
               @keydown.enter="submitData"
             />
@@ -173,7 +174,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const {
         recipientsLabel$,
         descriptionLabel$,
@@ -190,6 +191,7 @@
       } = coachStrings;
       return {
         windowIsSmall,
+        windowIsLarge,
         recipientsLabel$,
         descriptionLabel$,
         titleLabel$,
@@ -460,7 +462,6 @@
   /deep/ .textbox {
     width: 100% !important;
     max-width: 100%;
-    margin-left: -1em;
   }
 
   /deep/ .ui-select-feedback {
