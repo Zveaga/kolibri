@@ -331,6 +331,7 @@
   }
 
   .side-panel-subtitle {
+    margin: 16px 0;
     font-size: 16px;
     font-weight: 600;
   }
