@@ -14,7 +14,7 @@
           icon="back"
           @click="goBack()"
         />
-        <h1 class="side-panel-title">{{ title }}</h1>
+        <h1 class="side-panel-title">{{ title }} {{  searchTerms }}</h1>
       </div>
     </template>
     <template #default="{ isScrolled }">
@@ -403,6 +403,11 @@
             contains_quiz: selectPracticeQuiz ? true : null,
           },
           annotator: annotateTopicsWithDescendantCounts,
+        },
+        quizSearch: {
+          filters: {
+            kind: ContentNodeKinds.EXERCISE,
+          },
         },
       });
 

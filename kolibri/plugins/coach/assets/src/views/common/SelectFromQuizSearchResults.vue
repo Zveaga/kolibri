@@ -68,10 +68,7 @@
         const { topicId } = instance.proxy.$route.query;
         if (topicId) {
           instance.proxy.$router.push({
-            name:
-              this.target === SelectionTarget.LESSON
-                ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
-                : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+            name:PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
             query: {
               topicId,
             },
@@ -79,10 +76,7 @@
           return;
         }
         instance.proxy.$router.push({
-          name:
-            this.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+          name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
         });
       }
       if (!props.displayingSearchResults) {
