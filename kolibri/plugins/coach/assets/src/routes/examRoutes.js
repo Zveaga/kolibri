@@ -17,8 +17,8 @@ import SelectFromTopicTree from '../views/common/resourceSelection/subPages/Sele
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import ManageSelectedQuestions from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/ManageSelectedQuestions.vue';
-import SelectFromQuizSearchResults from '../views/common/SelectFromQuizSearchResults.vue';
-import SearchQuizFilters from '../views/common/SearchQuizFilters.vue';
+import SelectFromQuizSearchResults from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/SelectFromQuizSearchResults.vue';
+import SearchQuizFilters from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/SearchQuizFilters.vue';
 import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,

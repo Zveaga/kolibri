@@ -5,7 +5,7 @@
     v-model="searchTermsComputed"
     accordion
     showChannels
-    :showActivities="!isQuiz"
+    :showActivities="false"
     :title="topic && searchInFolder$({ folder: topic.title })"
     @categorySearchOpen="handleCategorySearchOpen"
   />
@@ -19,11 +19,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { PageNames } from '../../constants';
-  import { SelectionTarget } from './resourceSelection/contants';
-  /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
-   */
+  import { PageNames } from '../../../../../../constants';
 
   export default {
     name: 'SearchQuizFilters',
@@ -38,10 +34,7 @@
         const backRoute = prevRoute.value?.name
           ? prevRoute.value
           : {
-            name:
-              this.target === SelectionTarget.QUIZ
-                ? PageNames.QUIZ_SELECT_RESOURCES_INDEX
-                : PageNames.LESSON_SELECT_RESOURCES_INDEX,
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
           };
         instance.proxy.$router.push(backRoute);
       };
@@ -104,10 +97,6 @@
         required: false,
         default: null,
       },
-      target: {
-        type: String,
-        required: true,
-      },
     },
     computed: {
       searchTermsComputed: {
@@ -117,9 +106,6 @@
         set(value) {
           this.$emit('update:searchTerms', value);
         },
-      },
-      isQuiz() {
-        return this.target === SelectionTarget.QUIZ;
       },
     },
     beforeRouteEnter(to, from, next) {

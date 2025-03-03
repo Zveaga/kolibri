@@ -197,7 +197,7 @@
       },
       target: {
         type: String,
-        required: true,
+        default: SelectionTarget.LESSON,
       },
     },
     computed: {

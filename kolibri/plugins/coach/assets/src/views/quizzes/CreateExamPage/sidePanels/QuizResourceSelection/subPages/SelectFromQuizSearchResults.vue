@@ -49,12 +49,8 @@
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { PageNames } from '../../constants';
-  import UpdatedResourceSelection from './resourceSelection/UpdatedResourceSelection.vue';
-  import { SelectionTarget } from './resourceSelection/contants';
-  /**
-   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
-   */
+  import { PageNames } from '../../../../../../constants';
+  import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
 
   export default {
     name: 'SelectFromQuizSearchResults',
@@ -68,7 +64,7 @@
         const { topicId } = instance.proxy.$route.query;
         if (topicId) {
           instance.proxy.$router.push({
-            name:PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+            name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
             query: {
               topicId,
             },
@@ -173,17 +169,10 @@
     },
     methods: {
       onSearchClick() {
-        if (this.target === SelectionTarget.LESSON) {
-          this.$router.push({
-            name: PageNames.LESSON_SELECT_RESOURCES_SEARCH,
-            query: this.$route.query,
-          });
-        } else {
-          this.$router.push({
-            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
-            query: this.$route.query,
-          });
-        }
+        this.$router.push({
+          name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+          query: this.$route.query,
+        });
       },
       onClearSearch() {
         this.$emit('clearSearch');
@@ -197,7 +186,7 @@
       },
       getTopicLink(topicId) {
         return {
-          name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
+          name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
           query: {
             ...this.$route.query,
             topicId,
