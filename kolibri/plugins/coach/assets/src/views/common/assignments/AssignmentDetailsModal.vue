@@ -79,10 +79,18 @@
               />
             </KGridItem>
           </template>
+          <!--Align with the title input-->
           <KGridItem
-            :layout4="{ span: 4 }"
-            :layout8="{ span: 8 }"
-            :layout12="{ span: 12 }"
+            :layout4="{ span: 1 }"
+            :layout8="{ span: 1 }"
+            :layout12="{ span: 1 }"
+          >
+            <div></div>
+          </KGridItem>
+          <KGridItem
+            :layout4="{ span: 3 }"
+            :layout8="{ span: 7 }"
+            :layout12="{ span: 11 }"
           >
             <KTextbox
               v-if="showDescriptionField"
@@ -91,6 +99,7 @@
               :maxlength="200"
               :disabled="disabled || formIsSubmitted"
               :textArea="true"
+              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
             />
           </KGridItem>
         </KGrid>
