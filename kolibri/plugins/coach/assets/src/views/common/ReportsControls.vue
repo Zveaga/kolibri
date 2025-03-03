@@ -50,7 +50,6 @@
   import pickBy from 'lodash/pickBy';
   import useUser from 'kolibri/composables/useUser';
   import { mapState, mapActions } from 'vuex';
-  import { ref } from 'vue';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -61,10 +60,8 @@
     mixins: [commonCoach],
     setup() {
       const { isAppContext } = useUser();
-      const filteredLearnMap = ref({});
       return {
         isAppContext,
-        filteredLearnMap,
       };
     },
     props: {
@@ -77,14 +74,23 @@
         default: false,
       },
     },
+    data() {
+      return {
+        userSet: new Set(),
+      };
+    },
     computed: {
       ...mapState('classSummary', ['learnerMap']),
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
         return this.isAppContext || this.disableExport;
       },
+      filteredLearnMap() {
+        return Object.fromEntries(
+          Object.entries(this.learnerMap || {}).filter(([key]) => this.userSet.has(key)),
+        );
+      },
       isMainReport() {
-        console.log("isMainReport calling" ,this.filteredLearnMap);
         return (
           [
             PageNames.LEARNERS_ROOT,
@@ -115,7 +121,6 @@
     },
     created() {
       this.isPolling = true;
-      // this.pollClassListSyncStatuses();
       this.pollClassListSyncStatuses();
     },
     beforeDestroy() {
@@ -124,23 +129,15 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       pollClassListSyncStatuses() {
-        if(!this.isPolling){
+        if (!this.isPolling) {
           return;
         }
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
-          const userSet = new Set(data.map(item => item.user));
-          console.log("data ", data);
-          console.log("userset ", userSet);
-          console.log("learnerMap ", this.learnerMap);
-          console.log("filtered map ", Object.fromEntries(
-            Object.entries(this.learnerMap).filter(([key]) => userSet.has(key)),
-          ));
-          this.filteredLearnMap.value = Object.fromEntries(
-            Object.entries(this.learnerMap).filter(([key]) => userSet.has(key)),
-          );
-          console.log(this.filteredLearnMap.value);
+          this.userSet = new Set(data.map(item => item.user));
+          setTimeout(() => {
+            this.pollClassListSyncStatuses();
+          }, '10000');
         });
-
       },
     },
     $trs: {
