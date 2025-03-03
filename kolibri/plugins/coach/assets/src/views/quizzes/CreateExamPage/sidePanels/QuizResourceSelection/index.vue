@@ -4,6 +4,7 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :immersive="isImmersivePage"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="() => null"
   >
@@ -577,6 +578,14 @@
         displayingSearchResults,
         numberOfSelectedQuestions$,
       };
+    },
+    computed: {
+      isImmersivePage() {
+        return (
+          this.$route.name === PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE &&
+          this.$route.query.searchResultTopicId
+        );
+      },
     },
     beforeRouteLeave(_, __, next) {
       if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
