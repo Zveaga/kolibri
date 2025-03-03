@@ -13,6 +13,7 @@ import {
   LearningActivities,
   NoCategories,
   ResourcesNeededTypes,
+  ContentNodeKinds,
 } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
 
@@ -161,7 +162,6 @@ export default function useBaseSearch({
   searchResultsRouteName,
   reloadOnDescendantChange = true,
   fetchContentNodeProgress,
-  quizSearchFilter,
 }) {
   // Get store and router references from the curent instance
   // but allow them to be passed in to allow for dependency
@@ -192,7 +192,6 @@ export default function useBaseSearch({
         searchTerms[key] = obj;
       }
       searchTerms.keywords = query.keywords || '';
-      searchTerms.is_quiz = false;
       return searchTerms;
     },
     set(value) {
@@ -245,7 +244,6 @@ export default function useBaseSearch({
     const getParams = {
       include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
       baseurl: currentBaseUrl,
-      ...quizSearchFilter,
     };
     const descValue = descendant ? get(descendant) : null;
     if (descValue) {
@@ -282,14 +280,13 @@ export default function useBaseSearch({
         fetchContentNodeProgress?.(getParams);
       }
 
-      if(2 == 2){
+      const params = get(route).params;
+      if (params.quizId) {
         getParams.contains_quiz = true;
-        getParams.kind_in = ['topic','exercise'];
+        getParams.kind_in = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
       }
 
-      console.log(getParams);
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
-        console.log(data);
         set(_results, data.results || []);
         set(more, data.more);
         _setAvailableLabels(data.labels);
@@ -463,7 +460,6 @@ export default function useBaseSearch({
     searchMore,
     removeFilterTag,
     clearSearch,
-    
   };
 }
 

@@ -62,7 +62,6 @@ export default function useResourceSelection({
   bookmarks,
   channels,
   topicTree,
-  quizSearchFilter,
 } = {}) {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
@@ -132,7 +131,6 @@ export default function useResourceSelection({
     // As we dont always show the search filters, we dont need to reload the search results
     // each time the topic changes if not needed
     reloadOnDescendantChange: false,
-    quizSearchFilter,
   });
   const searchFetch = {
     data: useSearchObject.results,
