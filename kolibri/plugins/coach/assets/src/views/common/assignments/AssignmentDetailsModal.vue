@@ -43,6 +43,7 @@
               :invalidText="titleIsInvalidText"
               :showInvalidText="titleIsInvalid"
               :disabled="disabled || formIsSubmitted"
+              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
               @input="showTitleError = false"
               @keydown.enter="submitData"
             />
@@ -75,6 +76,14 @@
               />
             </KGridItem>
           </template>
+          <!--Align with the title input-->
+          <KGridItem
+            :layout4="{ span: 1 }"
+            :layout8="{ span: 1 }"
+            :layout12="{ span: 1 }"
+          >
+            <div></div>
+          </KGridItem>
           <KGridItem
             :layout4="{ span: 3 }"
             :layout8="{ span: 7 }"
@@ -87,6 +96,7 @@
               :maxlength="200"
               :disabled="disabled || formIsSubmitted"
               :textArea="true"
+              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
             />
           </KGridItem>
         </KGrid>
@@ -170,7 +180,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const {
         recipientsLabel$,
         descriptionLabel$,
@@ -187,6 +197,7 @@
       } = coachStrings;
       return {
         windowIsSmall,
+        windowIsLarge,
         recipientsLabel$,
         descriptionLabel$,
         titleLabel$,
@@ -457,7 +468,6 @@
   /deep/ .textbox {
     width: 100% !important;
     max-width: 100%;
-    margin-left: -1em;
   }
 
   /deep/ .ui-select-feedback {
