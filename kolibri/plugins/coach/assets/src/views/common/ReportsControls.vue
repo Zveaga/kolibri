@@ -133,6 +133,9 @@
           return;
         }
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (!data || !Array.isArray(data)) {
+            return;
+          }
           this.userSet = new Set(data.map(item => item.user));
           setTimeout(() => {
             this.pollClassListSyncStatuses();
