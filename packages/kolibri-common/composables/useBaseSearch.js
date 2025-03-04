@@ -281,7 +281,7 @@ export default function useBaseSearch({
       }
 
       const params = get(route).params;
-      if (params.quizId) {
+      if (params?.quizId) {
         getParams.contains_quiz = true;
         getParams.kind_in = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
       }
