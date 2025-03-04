@@ -41,7 +41,7 @@
         :topicsLink="topicsLink"
       />
 
-      <h2>
+      <h2 class="resource-title">
         <KLabeledIcon :label="contentNode.kind">
           <template #icon>
             <LearningActivityIcon :kind="learningActivities" />
@@ -381,6 +381,10 @@
 
   .no-shink {
     flex-shrink: 0;
+  }
+
+  .resource-title {
+    margin: 25px 0;
   }
 
 </style>
