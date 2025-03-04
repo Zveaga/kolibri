@@ -45,7 +45,7 @@
     <KCheckbox
       :checked="isChoosingManually"
       :label="chooseQuestionsManuallyLabel$()"
-      :description="clearSelectionNotice"
+      :description="clearSelectionNotice$()"
       @change="$event => (isChoosingManually = $event)"
     />
   </div>
@@ -145,19 +145,13 @@
       });
 
       const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
-      const clearSelectionNotice = computed(() => {
-        if (!props.selectedResources.length && !props.selectedQuestions.length) {
-          return null;
-        }
-        return clearSelectionNotice$();
-      });
 
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
-        clearSelectionNotice,
+        clearSelectionNotice$,
         questionCountIsEditable,
         maxQuestions: computed(() => props.settings.maxQuestions),
         maxNumberOfQuestions$,
@@ -186,14 +180,6 @@
       isLanding: {
         type: Boolean,
         default: false,
-      },
-      selectedQuestions: {
-        type: Array,
-        required: true,
-      },
-      selectedResources: {
-        type: Array,
-        required: true,
       },
     },
     beforeRouteEnter(to, from, next) {
