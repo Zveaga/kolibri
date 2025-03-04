@@ -9,6 +9,7 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailScaleType="contain"
     thumbnailAlign="right"
+    style="min-height: 160px"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
@@ -21,6 +22,14 @@
     </template>
 
     <template #belowTitle>
+      <div>
+        <KTextTruncator
+          v-if="contentNode.description"
+          :text="contentNode.description"
+          :maxLines="2"
+          style="margin-bottom: 0.5rem"
+        />
+      </div>
       <slot name="belowTitle"></slot>
       <MetadataChips :tags="metadataTags" />
     </template>

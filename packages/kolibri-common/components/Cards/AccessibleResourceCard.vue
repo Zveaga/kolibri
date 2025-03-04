@@ -9,6 +9,7 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
     thumbnailScaleType="contain"
+    style="min-height: 160px"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">
