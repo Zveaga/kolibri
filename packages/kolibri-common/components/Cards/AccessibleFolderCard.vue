@@ -4,12 +4,12 @@
     :to="to"
     :headingLevel="headingLevel"
     :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
-    thumbnailDisplay="small"
+    thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
     thumbnailScaleType="contain"
     thumbnailAlign="right"
-    style="min-height: 160px"
+    :preserveFooter="true"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
@@ -93,31 +93,6 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .k-horizontal-with-small-thumbnail {
-    .k-upper-card-area {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .k-around-title {
-      width: 75%;
-      padding-bottom: 0;
-    }
-
-    .k-footer {
-      width: 75%;
-    }
-
-    .k-thumbnail {
-      width: 25%;
-      margin: 0 !important;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-  }
-
   .chips-wrapper {
     display: flex;
     justify-content: space-between;
@@ -136,14 +111,6 @@
     padding: 0;
     margin: 4px;
     font-size: 12px;
-  }
-
-  .default-folder-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    font-size: 48px;
   }
 
 </style>

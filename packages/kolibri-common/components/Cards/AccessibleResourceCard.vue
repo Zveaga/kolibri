@@ -9,7 +9,6 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
     thumbnailScaleType="contain"
-    style="min-height: 160px"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">
@@ -103,34 +102,6 @@
 
 
 <style lang="scss" scoped>
-
-  /deep/ .k-horizontal-with-large-thumbnail {
-    .k-upper-card-area {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .k-below-title {
-      padding: 0;
-    }
-
-    .k-around-title {
-      width: 75%;
-      padding-bottom: 0;
-    }
-
-    .k-footer {
-      width: 75%;
-      padding: 0 0.5rem 0.5rem 0;
-    }
-
-    .k-thumbnail {
-      width: 25%;
-      margin: 0;
-    }
-  }
 
   .default-resource-icon {
     display: flex;
