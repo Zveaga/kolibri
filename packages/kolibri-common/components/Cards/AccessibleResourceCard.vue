@@ -21,10 +21,14 @@
           v-if="contentNode.description"
           :text="contentNode.description"
           :maxLines="2"
-          style="margin-bottom: 0.5rem"
+          style="margin-bottom: 1em"
         />
         <slot name="belowTitle"></slot>
         <MetadataChips :tags="metadataTags" />
+        <div
+          v-if="!contentNode.description"
+          style="min-height: 17px"
+        ></div>
       </div>
     </template>
     <template #footer>
@@ -33,8 +37,12 @@
           :icon="isBookmarked ? 'bookmark' : 'bookmarkEmpty'"
           size="mini"
           :color="$themePalette.grey.v_700"
-          :ariaLabel="coreString('savedFromBookmarks')"
-          :tooltip="coreString('savedFromBookmarks')"
+          :ariaLabel="
+            isBookmarked ? coreString('removeFromBookmarks') : coreString('saveToBookmarks')
+          "
+          :tooltip="
+            isBookmarked ? coreString('removeFromBookmarks') : coreString('saveToBookmarks')
+          "
           @click.stop="$emit('toggleBookmark', contentNode.id)"
         />
       </div>
