@@ -145,7 +145,6 @@
       const workingResourcesBackup = [...(this.$store.state.lessonSummary.workingResources || [])];
 
       return {
-        PageNames,
         currentAction: '',
         ReportsLessonTabs,
         workingResourcesBackup,
