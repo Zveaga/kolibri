@@ -92,6 +92,7 @@
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import useUser from 'kolibri/composables/useUser';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
@@ -106,6 +107,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { coreString } = commonCoreStrings.methods;
+      const { sendPoliteMessage } = useKLiveRegion();
       // Map of contentnode_id to bookmark resource ID
       const bookmarks = ref({});
       // Map of contentNode IDs to bookmark resource IDs
@@ -133,6 +136,7 @@
           url: urls['kolibri:core:bookmarks_detail'](contentnode_id),
         }).then(() => {
           getBookmarks();
+          sendPoliteMessage(coreString('removedFromBookmarks'));
         });
       }
 
@@ -146,6 +150,7 @@
           },
         }).then(() => {
           getBookmarks();
+          sendPoliteMessage(coreString('savedToBookmarks'));
         });
       }
 
