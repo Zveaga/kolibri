@@ -17,7 +17,7 @@
     "chalk": "4.1.2",
     "commander": "^13.1.0",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^10.0.1",
+    "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jest-dom": "^5.5.0",
