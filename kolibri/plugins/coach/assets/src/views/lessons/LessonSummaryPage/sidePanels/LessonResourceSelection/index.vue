@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="backAction$()"
+          :ariaLabel="backAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -147,7 +149,7 @@
         createSnackbar(saveLessonError$());
       }
 
-      const { saveAndFinishAction$, continueAction$, cancelAction$ } = coreStrings;
+      const { saveAndFinishAction$, continueAction$, cancelAction$, backAction$ } = coreStrings;
 
       const subpageLoading = computed(() => {
         const skipLoading = PageNames.LESSON_SELECT_RESOURCES_SEARCH;
@@ -176,6 +178,7 @@
         notifyResourcesAdded,
         notifySaveLessonError,
         removeSearchFilterTag,
+        backAction$,
         cancelAction$,
         continueAction$,
         saveAndFinishAction$,
