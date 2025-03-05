@@ -3,25 +3,27 @@ import { useTimeoutPoll } from '@vueuse/core';
 
 const taskPollers = new Map();
 
-export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000){
-   if(!taskPollers.has(queueName)){
+export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000) {
+  if (!taskPollers.has(queueName)) {
     const consumers = ref(0);
     const tasks = ref([]);
 
-    const {pause, resume, isActive} = useTimeoutPoll(async () => {
-         try{
-            tasks.value = await fetchTaskFunction();
-         }
-          catch(e){
-              console.error(e);
-          }
-    }, interval, { immediate: true });
+    const { pause, resume, isActive } = useTimeoutPoll(
+      async () => {
+        try {
+          tasks.value = await fetchTaskFunction();
+        } catch (e) {
+          console.error(e);
+        }
+      },
+      interval,
+      { immediate: true },
+    );
 
     //TO DECIDE if the key should be uniquely
     // identified by the queueName,
     // queueName + fetchTaskFunction or queueName + fetchTaskFunction + interval
     taskPollers.set(queueName, { consumers, tasks, pause, resume, isActive });
-
   }
 
   const poller = taskPollers.get(queueName);
@@ -41,11 +43,5 @@ export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000){
     }
   });
 
-   return { tasks: poller.tasks };
-
+  return { tasks: poller.tasks };
 }
-
-
-
-
-
