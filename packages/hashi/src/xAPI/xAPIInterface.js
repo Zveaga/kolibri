@@ -69,16 +69,22 @@ export default class xAPI extends BaseShim {
    * be calculated.
    */
   __calculateProgress() {
-    const successStatement = find(
+    const possibleSuccessStatement = find(
       this.data[STATEMENT],
       s =>
         !s.error &&
         (s.verb.id === XAPIVerbMap.mastered ||
           s.verb.id === XAPIVerbMap.passed ||
-          s.verb.id === XAPIVerbMap.completed),
+          s.verb.id === XAPIVerbMap.completed ||
+          s.verb.id === XAPIVerbMap.answered),
     );
-    if (successStatement) {
-      return 1;
+    if (possibleSuccessStatement) {
+      if (possibleSuccessStatement.verb.id !== XAPIVerbMap.answered) {
+        return 1;
+      }
+      if (possibleSuccessStatement?.result?.completion) {
+        return 1;
+      }
     }
     // If there has been any interaction return some progress, otherwise null.
     return Object.keys(this.data[STATEMENT] || {}).length ? 0.01 : null;
