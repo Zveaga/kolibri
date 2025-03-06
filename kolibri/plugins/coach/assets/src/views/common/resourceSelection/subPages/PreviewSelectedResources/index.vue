@@ -193,7 +193,6 @@
         questions,
         loading,
         SelectionTarget,
-        redirectBack,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         exerciseQuestions,
@@ -323,11 +322,9 @@
     },
     methods: {
       handleAddResource() {
-        this.redirectBack();
         this.$emit('selectResources', [this.contentNode]);
       },
       handleRemoveResource() {
-        this.redirectBack();
         this.$emit('deselectResources', [this.contentNode]);
       },
       topicsLink(topicId) {
