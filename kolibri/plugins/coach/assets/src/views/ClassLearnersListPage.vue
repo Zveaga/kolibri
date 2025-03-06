@@ -52,7 +52,7 @@
         <template #tbody>
           <tbody>
             <tr
-              v-for="learner in learnersWithLearnOnlyDevices"
+              v-for="learner in learnerMap"
               :key="learner.id"
             >
               <td>
@@ -122,12 +122,6 @@
       ...mapState('classSummary', ['learnerMap']),
       className() {
         return this.$store.state.classSummary.name;
-      },
-      learnersWithLearnOnlyDevices() {
-        const lods = Object.fromEntries(
-          Object.entries(this.learnerMap).filter(([key]) => key in this.classSyncStatusList),
-        );
-        return lods;
       },
       syncStatusOptions() {
         const options = [];

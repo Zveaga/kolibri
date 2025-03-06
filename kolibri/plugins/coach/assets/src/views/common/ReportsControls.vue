@@ -120,26 +120,15 @@
       },
     },
     created() {
-      this.isPolling = true;
-      this.pollClassListSyncStatuses();
-    },
-    beforeDestroy() {
-      this.isPolling = false;
+      this.fetchClassListSyncStatus();
     },
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
-      pollClassListSyncStatuses() {
-        if (!this.isPolling) {
-          return;
-        }
+      fetchClassListSyncStatus() {
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
-          if (!data || !Array.isArray(data)) {
-            return;
+          if (Array.isArray(data)) {
+            this.userSet = new Set(data.map(item => item.user));
           }
-          this.userSet = new Set(data.map(item => item.user));
-          setTimeout(() => {
-            this.pollClassListSyncStatuses();
-          }, '10000');
         });
       },
     },
