@@ -81,7 +81,7 @@
     "webpack-merge": "^6.0.1"
   },
   "engines": {
-    "node": "18.x",
+    "node": ">= 18.20.0",
     "npm": ">= 8"
   }
 }
