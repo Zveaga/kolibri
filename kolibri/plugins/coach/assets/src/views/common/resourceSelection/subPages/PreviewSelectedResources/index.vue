@@ -153,8 +153,6 @@
         }
         return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
       };
-      props.setTitle(getTitle());
-      props.setGoBack(null);
 
       const redirectBack = () => {
         if (prevRoute.value?.name) {
@@ -167,6 +165,9 @@
               : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
       };
+
+      props.setTitle(getTitle());
+      props.setGoBack(redirectBack);
 
       const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
       const saveSettings = () => {
