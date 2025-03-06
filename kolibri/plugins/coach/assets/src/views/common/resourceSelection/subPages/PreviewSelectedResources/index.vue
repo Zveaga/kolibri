@@ -153,8 +153,6 @@
         }
         return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
       };
-      props.setTitle(getTitle());
-      props.setGoBack(null);
 
       const redirectBack = () => {
         if (prevRoute.value?.name) {
@@ -167,6 +165,9 @@
               : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
         });
       };
+
+      props.setTitle(getTitle());
+      props.setGoBack(redirectBack);
 
       const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
       const saveSettings = () => {
@@ -193,7 +194,6 @@
         questions,
         loading,
         SelectionTarget,
-        redirectBack,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         exerciseQuestions,
@@ -323,11 +323,9 @@
     },
     methods: {
       handleAddResource() {
-        this.redirectBack();
         this.$emit('selectResources', [this.contentNode]);
       },
       handleRemoveResource() {
-        this.redirectBack();
         this.$emit('deselectResources', [this.contentNode]);
       },
       topicsLink(topicId) {
