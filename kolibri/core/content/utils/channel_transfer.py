@@ -19,13 +19,15 @@ logger = logging.getLogger(__name__)
 
 
 class DummyJob:
+    def __init__(self):
+        # same default values as in the Job contructor
+        self.progress = 0
+        self.total_progress = 0
+
     def is_cancelled(self):
         return False
 
     def check_for_cancel(self):
-        pass
-
-    def start_progress(self, total):
         pass
 
     def update_progress(self, bytes_transferred, extra_data=None):
@@ -53,10 +55,11 @@ def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolde
     progress_extra_data = {"channel_id": channel_id}
 
     with filetransfer:
-        job.start_progress(total=filetransfer.transfer_size)
+        job.update_progress(0, filetransfer.transfer_size)
 
         def progress_callback(bytes_transferred):
-            job.update_progress(bytes_transferred, extra_data=progress_extra_data)
+            job.update_progress(bytes_transferred + job.progress, job.total_progress)
+            job.update_metadata(**progress_extra_data)
 
         filetransfer.run(progress_callback)
 
