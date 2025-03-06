@@ -40,15 +40,11 @@
                 :color="$themeTokens.primary"
               />
             </template>
-            <template
+            <KIcon
               v-if="category.nested"
-              #iconAfter
-            >
-              <KIcon
-                icon="chevronRight"
-                class="category-icon-after"
-              />
-            </template>
+              icon="chevronRight"
+              class="category-icon-after"
+            />
           </KButton>
           <KButton
             :text="coreString('otherCategories')"
@@ -412,31 +408,30 @@
     margin-bottom: 1em;
   }
 
+  .category-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.25em 0.5em;
+    font-weight: normal;
+    text-align: left;
+    text-transform: none;
+  }
+
   .category-icon {
-    position: absolute;
-    top: 50%;
-    left: 0.5em;
-    width: 32px;
-    height: 32px;
-    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    margin-right: 1em;
   }
 
   .category-icon-after {
     position: absolute;
-    top: 50%;
+    top: 0.75em;
     right: 0.5em;
-    transform: translateY(-50%);
-  }
-
-  .category-button {
-    // Ensure the child KIcons' absolute positioning anchors to this button
-    position: relative;
-    width: 100%;
-    padding: 0.25em 0.5em 0.25em 3.5em;
-    font-weight: normal;
-    text-align: left;
-    // KButton text formatting overrides
-    text-transform: unset;
+    width: 20px;
+    height: 20px;
+    margin-left: 0.5em;
   }
 
   .category-button:not(:last-child) {
