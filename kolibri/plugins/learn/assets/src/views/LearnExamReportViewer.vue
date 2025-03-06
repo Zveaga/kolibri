@@ -99,8 +99,8 @@
       },
       reportVisible() {
         const quiz = this.activeClassesQuizzes.find(q => q.id === this.exam.id) || this.exam;
-        // Show report if quiz is closed or if instant_report_visibility is true
-        return quiz.archive || quiz.instant_report_visibility;
+        // Show report if instant_report_visibility is true or null, or if quiz is closed
+        return quiz.instant_report_visibility !== false || quiz.archive;
       },
       showQuizReportComingSoonModal() {
         return !this.reportVisible && !this.loading;

@@ -86,8 +86,9 @@
         return '';
       },
       reportVisible() {
-        // Show report if quiz is closed or instant_report_visibility is true
-        return this.quiz.archive || this.quiz.instant_report_visibility;
+        const { instant_report_visibility, archive } = this.quiz;
+        // Show report if instant_report_visibility is true or null, if the quiz is closed
+        return instant_report_visibility !== false || archive;
       },
     },
     $trs: {
