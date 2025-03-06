@@ -16,9 +16,7 @@ function makeWrapper({ targetFacility } = {}) {
         send: sendMachineEvent,
       },
       state: {
-        value: {
-          targetFacility,
-        },
+        targetFacility,
       },
     },
     localVue,

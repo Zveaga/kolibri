@@ -15,12 +15,10 @@ function makeWrapper({ targetFacility, targetAccount, fullname, username } = {})
         state: { value: 'requireAccountCreds' },
       },
       state: {
-        value: {
-          targetFacility,
-          targetAccount,
-          fullname,
-          username,
-        },
+        targetFacility,
+        targetAccount,
+        fullname,
+        username,
       },
     },
     localVue,

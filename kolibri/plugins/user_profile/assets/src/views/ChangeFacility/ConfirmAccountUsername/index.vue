@@ -50,13 +50,13 @@
     inject: ['changeFacilityService', 'state'],
     computed: {
       targetFacility() {
-        return get(this.state, 'value.targetFacility');
+        return get(this.state, 'targetFacility');
       },
       username() {
-        return get(this.state, 'value.username');
+        return get(this.state, 'username');
       },
       usernameExists() {
-        return get(this.state, 'value.accountExists');
+        return get(this.state, 'accountExists');
       },
       isCreateAccountButtonDisabled() {
         return !get(this.targetFacility, 'learner_can_sign_up');

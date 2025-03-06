@@ -12,11 +12,9 @@ function makeWrapper({ targetFacility, targetAccount, username } = {}) {
         send: sendMachineEvent,
       },
       state: {
-        value: {
-          targetFacility,
-          targetAccount,
-          username,
-        },
+        targetFacility,
+        targetAccount,
+        username,
       },
     },
     localVue,
