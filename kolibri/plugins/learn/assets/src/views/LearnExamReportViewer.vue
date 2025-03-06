@@ -57,6 +57,7 @@
   import useUser from 'kolibri/composables/useUser';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { PageNames, ClassesPageNames } from '../constants';
+  import useLearnerResources from '../composables/useLearnerResources';
 
   export default {
     name: 'LearnExamReportViewer',
@@ -72,7 +73,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const { full_name, user_id } = useUser();
-      return { userName: full_name, userId: user_id };
+      const { activeClassesQuizzes } = useLearnerResources();
+      return { userName: full_name, userId: user_id, activeClassesQuizzes };
     },
     computed: {
       ...mapState('examReportViewer', [
@@ -96,8 +98,9 @@
         };
       },
       reportVisible() {
+        const quiz = this.activeClassesQuizzes.find(q => q.id === this.exam.id) || this.exam;
         // Show report if quiz is closed or if instant_report_visibility is true
-        return this.exam.archive || this.exam.instant_report_visibility;
+        return quiz.archive || quiz.instant_report_visibility;
       },
     },
     methods: {
