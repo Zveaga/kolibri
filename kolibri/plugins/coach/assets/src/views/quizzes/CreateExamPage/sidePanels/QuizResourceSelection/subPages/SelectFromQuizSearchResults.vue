@@ -32,7 +32,6 @@
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
-      :target="target"
       :getResourceLink="getResourceLink"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -140,10 +139,6 @@
        */
       getResourceLink: {
         type: Function,
-        required: true,
-      },
-      target: {
-        type: String,
         required: true,
       },
     },

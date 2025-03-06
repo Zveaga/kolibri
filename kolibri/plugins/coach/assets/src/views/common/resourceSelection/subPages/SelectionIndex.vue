@@ -23,7 +23,6 @@
         v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="mb-24"
         :settings="settings"
-        :hideSetting="true"
         @searchClick="onSearchClick"
       />
       <div
