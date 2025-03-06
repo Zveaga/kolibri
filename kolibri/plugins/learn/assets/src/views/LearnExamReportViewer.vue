@@ -33,7 +33,7 @@
         </p>
       </div>
     </KPageContainer>
-    <div v-else>
+    <div v-else-if="showQuizReportComingSoonModal">
       <KModal
         :title="$tr('quizReportComingSoon')"
         :submitText="coreString('closeAction')"
@@ -101,6 +101,9 @@
         const quiz = this.activeClassesQuizzes.find(q => q.id === this.exam.id) || this.exam;
         // Show report if quiz is closed or if instant_report_visibility is true
         return quiz.archive || quiz.instant_report_visibility;
+      },
+      showQuizReportComingSoonModal() {
+        return !this.reportVisible && !this.loading;
       },
     },
     methods: {
