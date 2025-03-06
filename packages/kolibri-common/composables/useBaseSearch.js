@@ -291,8 +291,8 @@ export default function useBaseSearch({
         set(_results, data.results || []);
         set(more, data.more);
         _setAvailableLabels(data.labels);
-        set(searchResultsLoading, false);
       });
+      set(searchResultsLoading, false);
     } else if (descValue) {
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
