@@ -83,7 +83,6 @@
         return [
           PageNames.LEARNERS_ROOT,
           PageNames.LESSONS_ROOT,
-          PageNames.LESSONS_ROOT_BETTER,
           PageNames.EXAMS_ROOT,
           PageNames.EXAM_SUMMARY,
           PageNames.LESSON_SUMMARY,

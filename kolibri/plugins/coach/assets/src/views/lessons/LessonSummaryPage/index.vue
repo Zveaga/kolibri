@@ -136,10 +136,6 @@
         type: Boolean,
         default: true,
       },
-      isTemp: {
-        type: Boolean,
-        default: false,
-      },
     },
     data() {
       const workingResourcesBackup = [...(this.$store.state.lessonSummary.workingResources || [])];
@@ -161,12 +157,7 @@
         return this.$store.state.core.loading;
       },
       lessonSelectionRootPage() {
-        if (this.isTemp) {
-          return this.classRoute(PageNames.LESSON_SELECT_RESOURCES, {
-            lessonId: this.lessonId,
-          });
-        }
-        return this.classRoute(PageNames.LESSON_RESOURCE_SELECTION_ROOT, {
+        return this.classRoute(PageNames.LESSON_SELECT_RESOURCES, {
           lessonId: this.lessonId,
         });
       },

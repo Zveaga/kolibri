@@ -39,8 +39,8 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import { ViewMoreButtonStates } from '../../../constants';
-  import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
-  import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import ContentCardList from './ContentCardList.vue';
+  import ResourceSelectionBreadcrumbs from './ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'UpdatedResourceSelection',

@@ -56,9 +56,9 @@
           <KRouterLink
             v-if="
               selectedResources.length > 0 &&
-                $route.name !== PageNames.LESSON_PREVIEW_SELECTED_RESOURCES
+                $route.name !== PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION
             "
-            :to="{ name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES }"
+            :to="{ name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION }"
           >
             {{ selectedResourcesMessage }}
           </KRouterLink>
@@ -275,7 +275,7 @@
           this.isCloseConfirmationModalOpen = true;
         } else {
           this.$router.push({
-            name: PageNames.LESSON_SUMMARY_BETTER,
+            name: PageNames.LESSON_SUMMARY,
           });
         }
       },
@@ -287,7 +287,7 @@
       },
       getResourceLink(resourceId) {
         return {
-          name: PageNames.LESSON_PREVIEW_RESOURCE,
+          name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_RESOURCE,
           query: {
             ...this.$route.query,
             contentId: resourceId,

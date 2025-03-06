@@ -1,20 +1,11 @@
 import store from 'kolibri/store';
-import {
-  showLessonResourceContentPreview,
-  showLessonResourceSelectionRootPage,
-  showLessonResourceSelectionTopicPage,
-  showLessonSelectionContentPreview,
-  showLessonResourceSearchPage,
-  showLessonResourceBookmarks,
-  showLessonResourceBookmarksMain,
-} from '../modules/lessonResources/handlers';
+import { showLessonResourceContentPreview } from '../modules/lessonResources/handlers';
 import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
 
 import LessonsRootPage from '../views/lessons/LessonsRootPage';
 import LessonSummaryPage from '../views/lessons/LessonSummaryPage';
-import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectionPage';
 import LessonSelectionContentPreviewPage from '../views/lessons/LessonSelectionContentPreviewPage';
 import LessonEditDetailsPage from '../views/lessons/LessonEditDetailsPage';
 import LessonCreationPage from '../views/lessons/LessonCreationPage';
@@ -36,7 +27,6 @@ import {
 } from '../modules/questionDetail/handlers';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
-import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
 import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import SelectFromTopicTree from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
@@ -52,11 +42,6 @@ const {
   CLASS,
   LESSON,
   ALL_LESSONS,
-  ALL_LESSONS_TEMP,
-  LESSONS_TEMP,
-  SELECTION,
-  TOPIC,
-  SEARCH,
   PREVIEW,
   RESOURCE,
   ALL_LEARNERS,
@@ -91,20 +76,6 @@ export default [
     },
   },
   {
-    name: PageNames.LESSONS_ROOT_BETTER,
-    path: OPTIONAL_CLASS + ALL_LESSONS_TEMP,
-    component: LessonsRootPage,
-    handler(toRoute, fromRoute, next) {
-      if (classIdParamRequiredGuard(toRoute, PageNames.LESSONS_ROOT_BETTER, next)) {
-        return;
-      }
-      showLessonsRootPage(store, toRoute.params.classId);
-    },
-    meta: {
-      titleParts: ['lessonsLabel', 'CLASS_NAME'],
-    },
-  },
-  {
     name: PageNames.LESSON_CREATION_ROOT,
     path: CLASS + ALL_LESSONS + '/new',
     component: LessonCreationPage,
@@ -116,26 +87,7 @@ export default [
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
     },
-  },
-  {
-    name: PageNames.LESSON_SUMMARY_BETTER,
-    path: CLASS + LESSONS_TEMP + '/:tabId?',
-    component: LessonSummaryPage,
-    props: {
-      isTemp: true,
-    },
-    meta: {
-      titleParts: ['LESSON_NAME', 'CLASS_NAME'],
-    },
     children: [
-      {
-        name: PageNames.LESSON_EDIT_DETAILS_BETTER,
-        path: 'details/',
-        component: EditLessonDetails,
-        props: {
-          text: 'test',
-        },
-      },
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
         path: 'select-resources/',
@@ -168,12 +120,12 @@ export default [
             component: SelectFromSearchResults,
           },
           {
-            name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+            name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION,
             path: 'preview-resources',
             component: ManageSelectedResources,
           },
           {
-            name: PageNames.LESSON_PREVIEW_RESOURCE,
+            name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_RESOURCE,
             path: 'preview',
             component: PreviewSelectedResources,
             props: toRoute => {
@@ -191,80 +143,6 @@ export default [
     name: PageNames.LESSON_EDIT_DETAILS,
     path: CLASS + LESSON + '/edit',
     component: LessonEditDetailsPage,
-  },
-  {
-    name: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
-    path: CLASS + LESSON + SELECTION,
-    component: LessonResourceSelectionPage,
-    handler(toRoute) {
-      showLessonResourceSelectionRootPage(store, toRoute.params);
-    },
-  },
-  {
-    name: PageNames.LESSON_RESOURCE_SELECTION,
-    path: CLASS + LESSON + SELECTION + TOPIC,
-    component: LessonResourceSelectionPage,
-    handler(toRoute, fromRoute) {
-      // HACK if last page was LessonContentPreview, then we need to make sure
-      // to immediately autosave just in case a change was made there. This gets
-      // called whether or not a change is made, because we don't track changes
-      // enough steps back.
-      let preHandlerPromise;
-      if (fromRoute.name === PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW) {
-        preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
-          lessonId: toRoute.params.lessonId,
-          resources: store.state.lessonSummary.workingResources,
-        });
-      } else {
-        preHandlerPromise = Promise.resolve();
-      }
-      preHandlerPromise.then(() => {
-        showLessonResourceSelectionTopicPage(store, toRoute.params);
-      });
-    },
-  },
-  {
-    name: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
-    path: CLASS + LESSON + SELECTION + SEARCH,
-    component: LessonResourceSelectionPage,
-    handler(toRoute) {
-      showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
-    },
-  },
-  {
-    name: PageNames.LESSON_SELECTION_BOOKMARKS,
-    path: CLASS + LESSON + SELECTION + TOPIC,
-    component: LessonResourceSelectionPage,
-    handler(toRoute, fromRoute) {
-      let preHandlerPromise;
-      if (fromRoute.name === PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW) {
-        preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
-          lessonId: toRoute.params.lessonId,
-          resources: store.state.lessonSummary.workingResources,
-        });
-      } else {
-        preHandlerPromise = Promise.resolve();
-      }
-      preHandlerPromise.then(() => {
-        showLessonResourceBookmarks(store, toRoute.params, toRoute.query);
-      });
-    },
-  },
-  {
-    name: PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
-    path: CLASS + LESSON + SELECTION,
-    component: LessonResourceSelectionPage,
-    handler(toRoute) {
-      showLessonResourceBookmarksMain(store, toRoute.params, toRoute.query);
-    },
-  },
-  {
-    name: PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW,
-    path: CLASS + LESSON + SELECTION + PREVIEW,
-    component: LessonSelectionContentPreviewPage,
-    handler(toRoute) {
-      showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
-    },
   },
   {
     name: PageNames.RESOURCE_CONTENT_PREVIEW,
