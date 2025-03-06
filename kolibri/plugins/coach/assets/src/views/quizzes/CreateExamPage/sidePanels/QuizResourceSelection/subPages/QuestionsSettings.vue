@@ -92,7 +92,13 @@
           sectionTitle: displaySectionTitle(activeSection.value, activeSectionIndex.value),
         }),
       );
-      props.setGoBack(null);
+      const redirectBack = props.isLanding
+        ? null
+        : () => {
+          instance.proxy.$router.go(-1);
+        };
+
+      props.setGoBack(redirectBack);
 
       const workingQuestionCount = ref(props.settings.questionCount);
       const workingIsChoosingManually = ref(Boolean(props.settings.isChoosingManually));
