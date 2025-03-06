@@ -6,7 +6,7 @@
       class="mr-16"
     >
       <KIcon icon="onDevice" />
-      {{ addedIndicator$() }}
+      {{ selectedIndicator$() }}
     </span>
 
     <KButton
@@ -18,7 +18,7 @@
     />
     <KButton
       v-else
-      :text="addText$()"
+      :text="selectResource$()"
       :primary="false"
       :disabled="isActionDisabled"
       @click="$emit('addResource')"
@@ -37,12 +37,12 @@
     name: 'ResourceActionButton',
     setup() {
       const { removeAction$ } = coreStrings;
-      const { addText$, addedIndicator$ } = searchAndFilterStrings;
+      const { selectResource$, selectedIndicator$ } = searchAndFilterStrings;
 
       return {
-        addText$,
+        selectResource$,
         removeAction$,
-        addedIndicator$,
+        selectedIndicator$,
       };
     },
     props: {
