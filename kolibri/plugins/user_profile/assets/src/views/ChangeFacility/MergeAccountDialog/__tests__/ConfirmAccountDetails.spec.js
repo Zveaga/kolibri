@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import { FacilityUserGender } from 'kolibri/constants';
 import ConfirmAccountDetails from '../ConfirmAccountDetails';
@@ -11,11 +12,11 @@ function makeWrapper({ targetFacility, targetAccount, username } = {}) {
       changeFacilityService: {
         send: sendMachineEvent,
       },
-      state: {
+      state: computed(() => ({
         targetFacility,
         targetAccount,
         username,
-      },
+      })),
     },
     localVue,
   });
