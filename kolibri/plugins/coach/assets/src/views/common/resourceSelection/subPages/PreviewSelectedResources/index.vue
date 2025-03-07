@@ -111,7 +111,7 @@
   import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
   import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
-  import ResourceSelectionBreadcrumbs from '../../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import QuestionsAccordion from '../../../QuestionsAccordion.vue';
   import PreviewContent from './PreviewContent';
