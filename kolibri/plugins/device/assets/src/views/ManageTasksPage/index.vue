@@ -52,6 +52,7 @@
           :style="{ borderBottomColor: $themePalette.grey.v_300 }"
           @clickclear="handleClickClear(task)"
           @clickcancel="handleClickCancel(task)"
+          @restart="restartTask(task)"
           @update-title="updateAppBarTitle"
         />
       </transition-group>
@@ -210,6 +211,9 @@
       },
       handleClickCancel(task) {
         TaskResource.cancel(task.id);
+      },
+      restartTask(task) {
+        TaskResource.restart(task.id);
       },
       handleClickClearAll() {
         TaskResource.clearAll();
