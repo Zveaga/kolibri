@@ -21,18 +21,12 @@ export default function useTaskPooling(queueName) {
       { immediate: true },
     );
 
-    //TO DECIDE if the key should be uniquely
-    // identified by the queueName,
-    // queueName + fetchTaskFunction or queueName + fetchTaskFunction + interval
     taskPollers.set(queueName, { consumers, tasks, pause, resume, isActive });
   }
 
   const poller = taskPollers.get(queueName);
   poller.consumers.value++;
 
-  console.log('Current number of consuemrs for the queue ', queueName, poller.consumers.value);
-  //log the current value of taskPollers map
-  console.log('Current value of taskPollers map', taskPollers);
 
   onMounted(() => {
     if (!poller.isActive) {

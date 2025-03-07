@@ -272,13 +272,6 @@
         });
       },
       filteredTasks() {
-        console.log(this.tasks);
-        this.tasks.forEach(task => {
-          console.log(task);
-          console.log(task.extra_metadata.device_id);
-          console.log(this.device.id);
-          console.log(this.facilityId);
-        });
         return this.tasks.filter(
           task =>
             (this.isKdp || task.extra_metadata.device_id === this.device.id) &&
@@ -324,6 +317,36 @@
           (!this.dayIsSet && this.dayRequired) ||
           !this.selectedItem.value
         );
+      },
+    },
+    watch: {
+      currentTask() {
+        if (this.currentTask) {
+          const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
+          const day = enqueueAt.getDay();
+          const hours = enqueueAt.getHours();
+          const minutes = enqueueAt.getMinutes();
+          this.selectedItem =
+            this.selectArray.find(item => item.value === this.currentTask.repeat_interval) || {};
+          this.selectedDay = this.getDays.find(item => item.value === day) || {};
+          for (const time of this.SyncTime) {
+            // Because there can be some drift in the task scheduling process,
+            // we round the 'scheduled' time to the nearest 30 minutes
+            if (
+              time.minutes === 0 &&
+              ((time.hours === hours && minutes < 15) ||
+                (time.hours === hours + 1 && minutes >= 45))
+            ) {
+              this.selectedTime = time;
+              break;
+            }
+            if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
+              this.selectedTime = time;
+              break;
+            }
+          }
+          this.retryFlag = Boolean(this.currentTask.retry_interval);
+        }
       },
     },
     created() {
@@ -415,55 +438,14 @@
           })
           .catch(() => {
             this.createTaskFailedSnackbar();
-            if (this.currentTask) {
-              this.fetchSyncTasks();
-            }
+            // if (this.currentTask) {
+            //   this.fetchSyncTasks();
+            // }
           });
       },
 
       goBack() {
         this.$router.push(this.goBackRoute);
-      },
-      // pollFetchSyncTasks() {
-      //   this.pollInterval = setInterval(() => {
-      //     this.fetchSyncTasks();
-      //   }, 10000);
-      // },
-      fetchSyncTasks() {
-        this.$nextTick(() => {
-          if (this.currentTask) {
-            const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
-            const day = enqueueAt.getDay();
-            const hours = enqueueAt.getHours();
-            const minutes = enqueueAt.getMinutes();
-            this.selectedItem =
-              this.selectArray.find(item => item.value === this.currentTask.repeat_interval) || {};
-            this.selectedDay = this.getDays.find(item => item.value === day) || {};
-            for (const time of this.SyncTime) {
-              // Because there can be some drift in the task scheduling process,
-              // we round the 'scheduled' time to the nearest 30 minutes
-              if (
-                time.minutes === 0 &&
-                ((time.hours === hours && minutes < 15) ||
-                  (time.hours === hours + 1 && minutes >= 45))
-              ) {
-                this.selectedTime = time;
-                break;
-              }
-              if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
-                this.selectedTime = time;
-                break;
-              }
-            }
-            this.retryFlag = Boolean(this.currentTask.retry_interval);
-            // if (this.currentTaskRunning) {
-            //   this.pollFetchSyncTasks();
-            // } else {
-            //   clearInterval(this.pollInterval);
-            //   this.pollInterval = null;
-            // }
-          }
-        });
       },
       fetchDevice() {
         if (this.isKdp) {
@@ -473,12 +455,10 @@
             device_name: kdpNameTranslator.$tr('syncToKDP'),
             base_url: '',
           };
-          this.fetchSyncTasks();
           return;
         }
         NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
-          this.fetchSyncTasks();
         });
       },
     },
