@@ -1,9 +1,10 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useTimeoutPoll } from '@vueuse/core';
+import TaskResource from 'kolibri/apiResources/TaskResource';
 
 const taskPollers = new Map();
 
-export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000) {
+export default function useTaskPooling(queueName) {
   if (!taskPollers.has(queueName)) {
     const consumers = ref(0);
     const tasks = ref([]);
@@ -11,12 +12,12 @@ export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000) {
     const { pause, resume, isActive } = useTimeoutPoll(
       async () => {
         try {
-          tasks.value = await fetchTaskFunction();
+          tasks.value = await TaskResource.list({ queue: queueName });
         } catch (e) {
           console.error(e);
         }
       },
-      interval,
+      5000,
       { immediate: true },
     );
 
@@ -28,6 +29,10 @@ export function useTaskPooling(queueName, fetchTaskFunction, interval = 5000) {
 
   const poller = taskPollers.get(queueName);
   poller.consumers.value++;
+
+  console.log("Current number of consuemrs for the queue ", queueName, poller.consumers.value);
+  //log the current value of taskPollers map
+  console.log("Current value of taskPollers map", taskPollers);
 
   onMounted(() => {
     if (!poller.isActive) {
