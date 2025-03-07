@@ -41,7 +41,7 @@
           },
           { label: this.coreString('deleteAction'), value: 'DELETE' },
         ];
-        if (!this.exam?.archive) {
+        if (!this.exam?.data_model_version > 2) {
           options.unshift({
             label: this.exam?.draft
               ? this.coreString('editAction')
