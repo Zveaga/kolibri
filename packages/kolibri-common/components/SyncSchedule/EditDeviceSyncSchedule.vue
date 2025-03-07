@@ -193,7 +193,7 @@
       BottomAppBar,
     },
     mixins: [commonCoreStrings],
-    setup () {
+    setup() {
       const { tasks } = useTaskPooling('facility_task');
       return { tasks };
     },
@@ -294,10 +294,10 @@
           : this.device.device_name;
       },
       currentTask() {
-        return  this.filteredTasks.length ? this.filteredTasks[0] : null;
+        return this.filteredTasks.length ? this.filteredTasks[0] : null;
       },
       currentTaskRunning() {
-        return  this.currentTask?.status === TaskStatuses.RUNNING;
+        return this.currentTask?.status === TaskStatuses.RUNNING;
       },
       timeRequired() {
         return this.selectedItem.value > oneHour;
@@ -437,8 +437,7 @@
             const hours = enqueueAt.getHours();
             const minutes = enqueueAt.getMinutes();
             this.selectedItem =
-              this.selectArray.find(item => item.value === this.currentTask.repeat_interval) ||
-              {};
+              this.selectArray.find(item => item.value === this.currentTask.repeat_interval) || {};
             this.selectedDay = this.getDays.find(item => item.value === day) || {};
             for (const time of this.SyncTime) {
               // Because there can be some drift in the task scheduling process,
