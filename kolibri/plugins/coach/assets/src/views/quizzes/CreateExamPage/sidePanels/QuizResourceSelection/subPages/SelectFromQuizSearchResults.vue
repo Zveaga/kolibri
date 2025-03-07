@@ -166,7 +166,7 @@
       onSearchClick() {
         this.$router.push({
           name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
-          query: this.$route.query,
+          query: { ...this.$route.query, filter_quiz: true },
         });
       },
       onClearSearch() {
