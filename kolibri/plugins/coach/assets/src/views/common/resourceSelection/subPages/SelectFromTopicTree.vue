@@ -59,7 +59,7 @@
       :hasMore="hasMore"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
-      :multi="!settings?.selectPracticeQuiz"
+      :multi="settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
       :target="target"
