@@ -9,6 +9,7 @@
     <transition :name="showAppNavView ? 'bottom-nav' : 'side-nav'">
       <div
         v-show="navShown"
+        ref="sideNavInside"
         class="side-nav"
         :class="showAppNavView ? 'bottom-offset' : ''"
         :style="{
@@ -271,6 +272,8 @@
   import TotalPoints from './TotalPoints';
   import SideNavDivider from './SideNavDivider';
   import BottomNavigationBar from './BottomNavigationBar';
+  import { useSwipe } from '@vueuse/core';
+  import {ref,onMounted,getCurrentInstance} from 'vue'
 
   // Explicit ordered list of roles for nav item sorting
   const navItemRoleOrder = [
@@ -298,7 +301,22 @@
       BottomNavigationBar,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, { emit }) {
+      const instance = getCurrentInstance();
+      const isRtl = instance?.proxy.isRtl;
+
+      const sideNavInside = ref(null);
+      useSwipe(sideNavInside, {
+        threshold: 100,
+        onSwipeEnd: (e, direction) => {
+          if (direction === 'left' && !isRtl) {
+            emit('toggleSideNav');
+          }
+          else if (direction === 'right' && isRtl) {
+            emit('toggleSideNav');
+          }
+        },
+      });
       const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const {
         canManageContent,
@@ -330,6 +348,8 @@
         userSyncStatus: status,
         userLastSynced: lastSynced,
         navItems,
+        sideNavInside,
+
       };
     },
     props: {
