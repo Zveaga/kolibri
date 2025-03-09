@@ -475,14 +475,6 @@ class ImportChannelTestCase(TestCase):
 
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    def _create_dummy_job(self, is_cancelled=True, check_for_cancel_return=True):
-        dummy = MagicMock()
-        dummy.is_cancelled.return_value = is_cancelled
-        dummy.check_for_cancel.return_value = check_for_cancel_return
-        dummy.start_progress.return_value = None
-        dummy.update_progress.return_value = None
-        return dummy
-
     @patch(
         "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_url"
     )
