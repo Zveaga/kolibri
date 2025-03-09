@@ -454,6 +454,15 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_bytes_to_transfer, 0)
 
 
+def create_dummy_job(is_cancelled=True, check_for_cancel_return=True):
+    dummy = MagicMock()
+    dummy.is_cancelled.return_value = is_cancelled
+    dummy.check_for_cancel.return_value = check_for_cancel_return
+    dummy.start_progress.return_value = None
+    dummy.update_progress.return_value = None
+    return dummy
+
+
 @patch("kolibri.core.content.utils.channel_import.import_channel_from_local_db")
 @patch(
     "kolibri.core.content.management.commands.importchannel.AsyncCommand.start_progress"
@@ -492,7 +501,7 @@ class ImportChannelTestCase(TestCase):
         import_channel_mock,
     ):
 
-        dummy_job = self._create_dummy_job()
+        dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         fd, local_path = tempfile.mkstemp()
         os.close(fd)
@@ -524,7 +533,7 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        dummy_job = self._create_dummy_job()
+        dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         fd1, local_dest_path = tempfile.mkstemp()
         fd2, local_src_path = tempfile.mkstemp()
@@ -545,7 +554,7 @@ class ImportChannelTestCase(TestCase):
     def test_remote_import_sslerror(
         self, get_current_job_mock, start_progress_mock, import_channel_mock
     ):
-        dummy_job = self._create_dummy_job()
+        dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         SSLERROR = SSLError(
             ["SSL routines", "ssl3_get_record", "decryption failed or bad record mac"]
@@ -581,7 +590,7 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        dummy_job = self._create_dummy_job()
+        dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
         dummy_job.check_for_cancel.assert_called_with()
@@ -596,7 +605,7 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
-        dummy_job = self._create_dummy_job()
+        dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
         # Get the current content cache key and sleep a bit to ensure
         # time has elapsed before it's updated.
@@ -2109,28 +2118,19 @@ class ExportChannelTestCase(TestCase):
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @patch(
-        "kolibri.core.content.management.commands.exportchannel.AsyncCommand.start_progress"
+        "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_path"
     )
-    @patch(
-        "kolibri.core.content.management.commands.exportchannel.paths.get_content_database_file_path"
-    )
-    @patch("kolibri.core.content.management.commands.exportchannel.transfer.FileCopy")
-    @patch(
-        "kolibri.core.content.management.commands.exportchannel.AsyncCommand.check_for_cancel"
-    )
-    @patch(
-        "kolibri.core.content.management.commands.exportchannel.AsyncCommand.is_cancelled",
-        return_value=True,
-    )
+    @patch("kolibri.core.content.utils.channel_transfer.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
     def test_cancel_during_transfer(
         self,
-        is_cancelled_mock,
-        cancel_mock,
+        get_current_job_mock,
         FileCopyMock,
         local_path_mock,
-        start_progress_mock,
     ):
         # Make sure we clean up a database file that is canceled during export
+        dummy_job = create_dummy_job()
+        get_current_job_mock.return_value = dummy_job
         fd1, local_dest_path = tempfile.mkstemp()
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
@@ -2139,9 +2139,9 @@ class ExportChannelTestCase(TestCase):
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
         FileCopyMock.assert_called_with(
-            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
+            local_src_path, local_dest_path, cancel_check=dummy_job.is_cancelled
         )
-        cancel_mock.assert_called_with()
+        dummy_job.check_for_cancel.assert_called_with()
         self.assertTrue(os.path.exists(local_dest_path))
 
 

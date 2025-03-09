@@ -195,3 +195,30 @@ def transfer_channel(
         os.remove(new_channel_dest)
 
     return dest
+
+
+def export_channel(channel_id, destination):
+    job = get_job()
+    data_dir = os.path.realpath(destination)
+    logger.info(
+        "Exporting channel database for channel id {} to {}".format(
+            channel_id, data_dir
+        )
+    )
+    src = paths.get_content_database_file_path(channel_id)
+    dest = paths.get_content_database_file_path(channel_id, datafolder=data_dir)
+    logger.debug("Source file: {}".format(src))
+    logger.debug("Destination file: {}".format(dest))
+    with transfer.FileCopy(src, dest, cancel_check=job.is_cancelled) as copy:
+        job.update_progress(0, copy.transfer_size)
+
+        def progress_callback(bytes_transferred):
+            new_progress = job.progress + bytes_transferred
+            job.update_progress(new_progress, job.total_progress)
+
+        try:
+            copy.run(progress_update=progress_callback)
+        except transfer.TransferCanceled:
+            pass
+        # Reraise any cancellation
+        job.check_for_cancel()
