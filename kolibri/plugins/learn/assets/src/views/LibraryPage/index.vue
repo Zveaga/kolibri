@@ -473,9 +473,10 @@
         }
       },
       gridOffset() {
+        const paddingTop = this.deviceId ? (this.windowIsLarge ? '64px' : '32px') : null;
         return this.isRtl
-          ? { paddingRight: `${this.sidePanelWidth + 24}px` }
-          : { paddingLeft: `${this.sidePanelWidth + 24}px` };
+          ? { paddingRight: `${this.sidePanelWidth + 24}px`, paddingTop }
+          : { paddingLeft: `${this.sidePanelWidth + 24}px`, paddingTop };
       },
       sidePanelWidth() {
         if (
