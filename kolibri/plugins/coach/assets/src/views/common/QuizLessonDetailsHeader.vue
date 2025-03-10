@@ -28,10 +28,10 @@
     </div>
     <MissingResourceAlert v-if="resource.missing_resource" />
     <UiAlert
-      v-if="isFromOldKolibiri && hideAlert"
+      v-if="isFromOldKolibri && showAlert"
       type="warning"
       class="old-kolibri-banner"
-      @dismiss="hideAlert = false"
+      @dismiss="showAlert = false"
     >
       <span>
         {{ warningForQuizFromOldKolibri$() }}
@@ -82,7 +82,7 @@
     },
     data() {
       return {
-        hideAlert: true,
+        showAlert: true,
       };
     },
     computed: {
@@ -105,7 +105,7 @@
       isOldDataModelVersion() {
         return this.exam.data_model_version < 3;
       },
-      isFromOldKolibiri() {
+      isFromOldKolibri() {
         return this.isOldDataModelVersion && !this.isExamDraft && !this.isActive;
       },
     },
