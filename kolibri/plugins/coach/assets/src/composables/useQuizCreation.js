@@ -126,15 +126,15 @@ export default function useQuizCreation() {
     });
   }
 
-  function _insertItemsAt(baseArray, itemsToInsert, index) {
-    const validatedIndex = [null, -1].includes(index) ? baseArray.length : index;
-    const indexToInsertAt = Math.min(validatedIndex, baseArray.length);
+  function _insertItemsAt(baseArray, itemsToInsert, index = null) {
+    let indexToInsertAt = index;
+    if (index === null || index < 0 || index > baseArray.length) {
+      indexToInsertAt = baseArray.length;
+    }
 
-    return [
-      ...baseArray.slice(0, indexToInsertAt),
-      ...itemsToInsert,
-      ...baseArray.slice(indexToInsertAt),
-    ];
+    const baseArrayCopy = [...baseArray];
+    baseArrayCopy.splice(indexToInsertAt, 0, ...itemsToInsert);
+    return baseArrayCopy;
   }
 
   function addQuestionsToSectionFromResources({
