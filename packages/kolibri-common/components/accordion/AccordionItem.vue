@@ -26,17 +26,21 @@
             >
               <slot name="leading-actions"></slot>
             </div>
-            <span>
+            <span
+              :style="{
+                color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
+              }"
+            >
               {{ title }}
             </span>
           </div>
           <div class="trailing-actions">
+            <slot name="trailing-actions"></slot>
             <KIconButton
               tabindex="-1"
               :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
               @click.stop="toggle"
             />
-            <slot name="trailing-actions"></slot>
           </div>
         </div>
       </button>
@@ -77,6 +81,10 @@
       title: {
         type: String,
         required: true,
+      },
+      disabledTitle: {
+        type: Boolean,
+        default: false,
       },
       headerAppearanceOverrides: {
         type: [Object, String],

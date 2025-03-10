@@ -193,6 +193,14 @@
               @click="deleteQuestions"
             />
           </template>
+          <template #question-trailing-actions="{ question }">
+            <KIconButton
+              icon="refresh"
+              :ariaLabel="replaceAction$()"
+              :tooltip="replaceAction$()"
+              @click="handleReplaceQuestionClick(question, $event)"
+            />
+          </template>
         </QuestionsAccordion>
       </div>
     </KTabsPanel>
@@ -275,6 +283,7 @@
         activeResourceMap,
         activeQuestions,
         selectedActiveQuestions,
+        setQuestionItemToReplace,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -302,6 +311,7 @@
         addSection,
         removeSection,
         displaySectionTitle,
+        setQuestionItemToReplace,
 
         // Computed
         allSections,
@@ -404,6 +414,14 @@
             params: { ...this.getCurrentRouteParams(), sectionIndex },
           });
         }
+      },
+      handleReplaceQuestionClick(question, $event) {
+        $event.stopPropagation();
+        this.setQuestionItemToReplace(question.item);
+        this.$router.push({
+          name: PageNames.QUIZ_PREVIEW_RESOURCE,
+          query: { contentId: question.exercise_id },
+        });
       },
       handleConfirmDelete() {
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);

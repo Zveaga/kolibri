@@ -253,6 +253,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Manual question selection is off',
     context: 'A message that appears when the user has disabled the manual selection of questions',
   },
+  replacingThisQuestionLabel: {
+    message: 'Replacing this question',
+    context: 'A label for the question that is being replaced',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;

@@ -210,10 +210,13 @@
         updateSection,
         addQuestionsToSection,
         addQuestionsToSectionFromResources,
+        removeQuestionFromSection,
         allQuestionsInQuiz,
         allResourceMap,
         activeQuestions,
         addSection,
+        questionItemToReplace,
+        setQuestionItemToReplace,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
@@ -238,11 +241,16 @@
       };
 
       const showManualSelectionNotice = ref(false);
+
+      /**
+       * Selection settings for the current resource selection session
+       */
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
         isChoosingManually: null,
         selectPracticeQuiz,
+        questionItemToReplace: questionItemToReplace.value,
       });
       watch(
         activeQuestions,
@@ -275,6 +283,13 @@
           resetSelection();
         }
       });
+
+      if (settings.value.questionItemToReplace) {
+        settings.value = {
+          ...settings.value,
+          isChoosingManually: true,
+        };
+      }
 
       const {
         questionsUnusedInSection$,
@@ -418,6 +433,8 @@
       }
 
       function handleClosePanel() {
+        setWorkingResourcePool();
+        setQuestionItemToReplace(null);
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
@@ -563,6 +580,7 @@
         setWorkingResourcePool,
         removeSearchFilterTag,
         clearSearch,
+        removeQuestionFromSection,
         settings,
         disableSave,
         saveButtonLabel,
@@ -602,6 +620,17 @@
     },
     methods: {
       saveSelectedResource() {
+        let removedQuestionIdx;
+        if (this.settings.questionItemToReplace) {
+          removedQuestionIdx = this.removeQuestionFromSection(
+            this.settings.questionItemToReplace,
+            this.activeSectionIndex,
+          );
+          this.removeQuestionFromSection(
+            this.settings.questionItemToReplace,
+            this.activeSectionIndex,
+          );
+        }
         if (this.settings.selectPracticeQuiz) {
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
@@ -626,22 +655,21 @@
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
             resources: this.workingResourcePool,
+            insertAt: removedQuestionIdx,
           });
         } else {
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
             resourcePool: this.workingResourcePool,
             questionCount: this.settings.questionCount,
+            insertAt: removedQuestionIdx,
+            excludedQuestionItems: this.settings.questionItemToReplace
+              ? [this.settings.questionItemToReplace]
+              : [],
           });
         }
 
-        this.setWorkingResourcePool();
-        this.$router.replace({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: {
-            ...this.$route.params,
-          },
-        });
+        this.handleClosePanel();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
