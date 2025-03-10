@@ -112,4 +112,14 @@
     font-size: 12px;
   }
 
+  .default-folder-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    max-height: 160px;
+    font-size: 48px;
+  }
+
 </style>
