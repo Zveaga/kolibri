@@ -111,6 +111,11 @@
 
 <style lang="scss" scoped>
 
+  /deep/ .k-with-selection-controls {
+    justify-content: flex-end !important;
+    max-width: 580px;
+  }
+
   .default-resource-icon {
     display: flex;
     align-items: center;
