@@ -19,6 +19,7 @@
       <div>
         <KTextTruncator
           v-if="contentNode.description"
+          class="truncator"
           :text="contentNode.description"
           :maxLines="2"
           style="margin-bottom: 1em"
@@ -133,6 +134,15 @@
       width: 32px !important;
       height: 32px !important;
       line-height: 0px;
+    }
+  }
+
+  /* Override KTextTruncator's use of break-word to avoid
+     the description text breaking weirdly on long words
+     which results in the card being too wide */
+  /deep/ .truncator {
+    span {
+      overflow-wrap: anywhere !important;
     }
   }
 
