@@ -33,7 +33,7 @@
         </p>
       </div>
     </KPageContainer>
-    <div v-else>
+    <div v-else-if="showQuizReportComingSoonModal">
       <KModal
         :title="$tr('quizReportComingSoon')"
         :submitText="coreString('closeAction')"
@@ -57,6 +57,7 @@
   import useUser from 'kolibri/composables/useUser';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { PageNames, ClassesPageNames } from '../constants';
+  import useLearnerResources from '../composables/useLearnerResources';
 
   export default {
     name: 'LearnExamReportViewer',
@@ -72,7 +73,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const { full_name, user_id } = useUser();
-      return { userName: full_name, userId: user_id };
+      const { activeClassesQuizzes } = useLearnerResources();
+      return { userName: full_name, userId: user_id, activeClassesQuizzes };
     },
     computed: {
       ...mapState('examReportViewer', [
@@ -96,8 +98,12 @@
         };
       },
       reportVisible() {
-        // Show report if quiz is closed or if instant_report_visibility is true
-        return this.exam.archive || this.exam.instant_report_visibility;
+        const quiz = this.activeClassesQuizzes.find(q => q.id === this.exam.id) || this.exam;
+        // Show report if instant_report_visibility is true or null, or if quiz is closed
+        return quiz.instant_report_visibility !== false || quiz.archive;
+      },
+      showQuizReportComingSoonModal() {
+        return !this.reportVisible && !this.loading;
       },
     },
     methods: {

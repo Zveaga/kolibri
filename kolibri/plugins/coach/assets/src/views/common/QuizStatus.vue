@@ -417,9 +417,9 @@
         }
       },
       reportVisibilityStatus() {
-        return this.exam.instant_report_visibility
-          ? this.coachString('afterLearnerSubmitsQuizLabel')
-          : this.coachString('afterCoachEndsQuizLabel');
+        return this.exam.instant_report_visibility === false
+          ? this.coachString('afterCoachEndsQuizLabel')
+          : this.coachString('afterLearnerSubmitsQuizLabel');
       },
       layout12Label() {
         return { span: this.$isPrint ? 3 : 12 };
