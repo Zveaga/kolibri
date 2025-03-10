@@ -626,10 +626,6 @@
             this.settings.questionItemToReplace,
             this.activeSectionIndex,
           );
-          this.removeQuestionFromSection(
-            this.settings.questionItemToReplace,
-            this.activeSectionIndex,
-          );
         }
         if (this.settings.selectPracticeQuiz) {
           if (this.workingResourcePool.length !== 1) {
