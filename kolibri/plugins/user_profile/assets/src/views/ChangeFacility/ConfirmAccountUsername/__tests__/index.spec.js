@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import { shallowMount, mount } from '@vue/test-utils';
 import ConfirmAccountUsername from '../index.vue';
 
@@ -8,11 +9,7 @@ function makeWrapper({ targetFacility } = {}) {
       changeFacilityService: {
         send: sendMachineEvent,
       },
-      state: {
-        value: {
-          targetFacility,
-        },
-      },
+      state: computed(() => ({ targetFacility })),
     },
   });
 }

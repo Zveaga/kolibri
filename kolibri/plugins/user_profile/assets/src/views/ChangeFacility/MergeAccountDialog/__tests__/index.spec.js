@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import MergeAccountDialog from '../index.vue';
 
@@ -14,14 +15,12 @@ function makeWrapper({ targetFacility, targetAccount, fullname, username } = {})
         send: sendMachineEvent,
         state: { value: 'requireAccountCreds' },
       },
-      state: {
-        value: {
-          targetFacility,
-          targetAccount,
-          fullname,
-          username,
-        },
-      },
+      state: computed(() => ({
+        targetFacility,
+        targetAccount,
+        fullname,
+        username,
+      })),
     },
     localVue,
   });
