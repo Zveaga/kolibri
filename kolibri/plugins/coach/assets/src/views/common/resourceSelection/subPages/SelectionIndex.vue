@@ -207,6 +207,13 @@
         };
       },
     },
+    beforeRouteEnter(_, __, next) {
+      next(vm => {
+        // Whenever we land here, we want to fetch the bookmarks again
+        // in case the user has added or removed some within the side panel
+        vm.bookmarksFetch.fetchData();
+      });
+    },
     methods: {
       selectFromChannelsLink(channel) {
         if (this.target === SelectionTarget.LESSON) {
