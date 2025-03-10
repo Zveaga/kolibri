@@ -66,6 +66,7 @@
         v-if="showButton"
         :text="coreString('viewMoreAction')"
         :primary="false"
+        style="margin-top: 2em"
         @click="$emit('moreresults')"
       />
       <KCircularLoader
