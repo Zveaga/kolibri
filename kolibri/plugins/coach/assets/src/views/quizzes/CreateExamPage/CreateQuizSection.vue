@@ -141,9 +141,6 @@
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionsLabel$() }}
             </h2>
-            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
-              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
-            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -261,7 +258,6 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -273,7 +269,6 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        replacementQuestionPool,
         // Computed
         addQuestionsToSelection,
         removeQuestionsFromSelection,
@@ -299,7 +294,6 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -318,7 +312,6 @@
         activeSectionIndex,
         activeSection,
         activeResourceMap,
-        replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,
 

@@ -62,7 +62,6 @@ class CoachToolsModule extends KolibriApp {
       const skipLoading = [
         PageNames.EXAM_CREATION_ROOT,
         PageNames.QUIZ_SECTION_EDITOR,
-        PageNames.QUIZ_REPLACE_QUESTIONS,
         PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.QUIZ_SELECT_RESOURCES_INDEX,

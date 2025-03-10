@@ -85,7 +85,6 @@ describe('useQuizCreation', () => {
       activeSection,
       activeQuestions,
       selectedActiveQuestions,
-      // replacementQuestionPool,
     } = useQuizCreation());
     initializeQuiz();
   });

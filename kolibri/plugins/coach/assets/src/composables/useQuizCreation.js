@@ -7,7 +7,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject, getCurrentInstance, watch } from 'vue';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 // TODO: Probably move this to this file's local dir
-import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';
+import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
@@ -197,19 +197,6 @@ export default function useQuizCreation() {
     updateSection({ sectionIndex, questions: questionsToAdd, resourcePool: resources });
   }
 
-  function handleReplacement(replacements) {
-    const questions = activeQuestions.value.map(question => {
-      if (selectedActiveQuestions.value.includes(question.item)) {
-        return replacements.shift();
-      }
-      return question;
-    });
-    updateSection({
-      sectionIndex: get(activeSectionIndex),
-      questions,
-    });
-  }
-
   /** @returns {QuizSection}
    * Adds a section to the quiz and returns it */
   function addSection() {
@@ -365,10 +352,6 @@ export default function useQuizCreation() {
     );
   }
 
-  function clearSelectedQuestions() {
-    set(_selectedQuestionIds, []);
-  }
-
   // Utilities
 
   // Computed properties
@@ -413,13 +396,6 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<String[]>}
    * All QuizQuestion.items the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
-  /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's exercises that
-   *                                         are not in `questions` */
-  const replacementQuestionPool = computed(() => {
-    const excludedQuestions = get(allQuestionsInQuiz).map(q => q.item);
-    const questionsMap = getExerciseQuestionsMap(get(activeResourcePool), excludedQuestions);
-    return Object.values(questionsMap).reduce((acc, questions) => [...acc, ...questions], []);
-  });
 
   /** @type {ComputedRef<Array<QuizQuestion>>} A list of all questions in the quiz */
   const allQuestionsInQuiz = computed(() => {
@@ -465,14 +441,12 @@ export default function useQuizCreation() {
   provide('updateSection', updateSection);
   provide('addQuestionsToSection', addQuestionsToSection);
   provide('addQuestionsToSectionFromResources', addQuestionsToSectionFromResources);
-  provide('handleReplacement', handleReplacement);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
   provide('updateQuiz', updateQuiz);
   provide('removeQuestionFromSection', removeQuestionFromSection);
   provide('addQuestionsToSelection', addQuestionsToSelection);
   provide('removeQuestionsFromSelection', removeQuestionsFromSelection);
-  provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('allSections', allSections);
   provide('activeSectionIndex', activeSectionIndex);
   provide('activeSection', activeSection);
@@ -483,7 +457,6 @@ export default function useQuizCreation() {
   provide('allResourceMap', allResourceMap);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
-  provide('replacementQuestionPool', replacementQuestionPool);
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
   provide('questionItemToReplace', questionItemToReplace);
   provide('setQuestionItemToReplace', setQuestionItemToReplace);
@@ -493,12 +466,10 @@ export default function useQuizCreation() {
     saveQuiz,
     updateSection,
     addQuestionsToSectionFromResources,
-    handleReplacement,
     addSection,
     removeSection,
     initializeQuiz,
     updateQuiz,
-    clearSelectedQuestions,
     addQuestionsToSelection,
     removeQuestionsFromSelection,
     setQuestionItemToReplace,
@@ -514,7 +485,6 @@ export default function useQuizCreation() {
     activeResourceMap,
     activeQuestions,
     selectedActiveQuestions,
-    replacementQuestionPool,
     selectAllLabel,
     allSectionsEmpty,
     noQuestionsSelected,
@@ -527,14 +497,12 @@ export function injectQuizCreation() {
   const updateSection = inject('updateSection');
   const addQuestionsToSection = inject('addQuestionsToSection');
   const addQuestionsToSectionFromResources = inject('addQuestionsToSectionFromResources');
-  const handleReplacement = inject('handleReplacement');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
   const updateQuiz = inject('updateQuiz');
   const removeQuestionFromSection = inject('removeQuestionFromSection');
   const addQuestionsToSelection = inject('addQuestionsToSelection');
   const removeQuestionsFromSelection = inject('removeQuestionsFromSelection');
-  const clearSelectedQuestions = inject('clearSelectedQuestions');
   const allSections = inject('allSections');
   const activeSectionIndex = inject('activeSectionIndex');
   const activeSection = inject('activeSection');
@@ -544,7 +512,6 @@ export function injectQuizCreation() {
   const allResourceMap = inject('allResourceMap');
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
-  const replacementQuestionPool = inject('replacementQuestionPool');
   const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
   const questionItemToReplace = inject('questionItemToReplace');
   const setQuestionItemToReplace = inject('setQuestionItemToReplace');
@@ -555,11 +522,9 @@ export function injectQuizCreation() {
     updateSection,
     addQuestionsToSection,
     addQuestionsToSectionFromResources,
-    handleReplacement,
     addSection,
     removeSection,
     updateQuiz,
-    clearSelectedQuestions,
     removeQuestionFromSection,
     addQuestionsToSelection,
     removeQuestionsFromSelection,
@@ -576,7 +541,6 @@ export function injectQuizCreation() {
     allResourceMap,
     activeQuestions,
     selectedActiveQuestions,
-    replacementQuestionPool,
     questionItemToReplace,
   };
 }
