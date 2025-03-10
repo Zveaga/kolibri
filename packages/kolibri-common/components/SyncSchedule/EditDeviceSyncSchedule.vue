@@ -31,6 +31,7 @@
                 :style="selectorStyle"
                 :options="selectArray"
                 :label="$tr('frequency')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -43,6 +44,7 @@
                 :style="selectorStyle"
                 :options="getDays"
                 :label="$tr('day')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -55,6 +57,7 @@
                 :style="selectorStyle"
                 :options="SyncTime"
                 :label="$tr('time')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -78,7 +81,7 @@
             <KCheckbox
               :checked="retryFlag"
               :disabled="currentTaskRunning"
-              @change="retryFlag = !retryFlag"
+              @change="handleRetryCheckboxChange"
             >
               {{ $tr('checkboxLabel') }}
             </KCheckbox>
@@ -222,9 +225,9 @@
         device: null,
         now: null,
         selectedItem: {},
-        // tasks: [],
         selectedDay: {},
         selectedTime: {},
+        userHasEdited: false,
       };
     },
     computed: {
@@ -321,7 +324,7 @@
     },
     watch: {
       currentTask() {
-        if (this.currentTask) {
+        if (this.currentTask && !this.userHasEdited) {
           const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
           const day = enqueueAt.getDay();
           const hours = enqueueAt.getHours();
@@ -438,12 +441,8 @@
           })
           .catch(() => {
             this.createTaskFailedSnackbar();
-            // if (this.currentTask) {
-            //   this.fetchSyncTasks();
-            // }
           });
       },
-
       goBack() {
         this.$router.push(this.goBackRoute);
       },
@@ -460,6 +459,13 @@
         NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
         });
+      },
+      handleUserInput() {
+        this.userHasEdited = true;
+      },
+      handleRetryCheckboxChange() {
+        this.retryFlag = !this.retryFlag;
+        this.handleUserInput();
       },
     },
     $trs: {

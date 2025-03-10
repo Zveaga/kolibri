@@ -1,8 +1,11 @@
+import logger from 'kolibri-logging';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useTimeoutPoll } from '@vueuse/core';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 
 const taskPollers = new Map();
+
+const logging = logger.getLogger(__filename);
 
 export default function useTaskPooling(queueName) {
   if (!taskPollers.has(queueName)) {
@@ -14,7 +17,7 @@ export default function useTaskPooling(queueName) {
         try {
           tasks.value = await TaskResource.list({ queue: queueName });
         } catch (e) {
-          console.error(e);
+          logging.error('Error while fetching tasks', e);
         }
       },
       5000,
@@ -25,11 +28,10 @@ export default function useTaskPooling(queueName) {
   }
 
   const poller = taskPollers.get(queueName);
-  poller.consumers.value++;
-
 
   onMounted(() => {
-    if (!poller.isActive) {
+    poller.consumers.value++;
+    if (!poller.isActive.value) {
       poller.resume();
     }
   });
