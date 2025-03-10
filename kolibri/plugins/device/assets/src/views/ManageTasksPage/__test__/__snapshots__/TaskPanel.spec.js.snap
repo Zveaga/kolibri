@@ -22,11 +22,15 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
       Started by 'Tester'
     </p>
   </div>
-  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
-      <!---->
-      <!----> <span class="link-text">Clear</span>
-      <!---->
-      <!----></button></div>
+  <div class="buttons button-group"><span class="button-group-item"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
+    <!---->
+    <!----> <span class="link-text">Retry</span>
+    <!---->
+    <!----></button></span><span class="button-group-item"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
+    <!---->
+    <!----> <span class="link-text">Clear</span>
+    <!---->
+    <!----></button></span></div>
 </div>
 `;
 
@@ -52,10 +56,14 @@ exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk
       Started by 'Tester'
     </p>
   </div>
-  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
-      <!---->
-      <!----> <span class="link-text">Clear</span>
-      <!---->
-      <!----></button></div>
+  <div class="buttons button-group"><span class="button-group-item"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
+    <!---->
+    <!----> <span class="link-text">Retry</span>
+    <!---->
+    <!----></button></span><span class="button-group-item"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_1y0ur7h"><span class="icon-container"></span>
+    <!---->
+    <!----> <span class="link-text">Clear</span>
+    <!---->
+    <!----></button></span></div>
 </div>
 `;
