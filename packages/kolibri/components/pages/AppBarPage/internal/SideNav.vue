@@ -267,13 +267,13 @@
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
   import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
+  import { useSwipe } from '@vueuse/core';
+  import { ref, getCurrentInstance } from 'vue';
   import SyncStatusDisplay from '../../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
   import TotalPoints from './TotalPoints';
   import SideNavDivider from './SideNavDivider';
   import BottomNavigationBar from './BottomNavigationBar';
-  import { useSwipe } from '@vueuse/core';
-  import {ref,getCurrentInstance} from 'vue'
 
   // Explicit ordered list of roles for nav item sorting
   const navItemRoleOrder = [
@@ -311,8 +311,7 @@
         onSwipeEnd: (e, direction) => {
           if (direction === 'left' && !isRtl) {
             emit('toggleSideNav');
-          }
-          else if (direction === 'right' && isRtl) {
+          } else if (direction === 'right' && isRtl) {
             emit('toggleSideNav');
           }
         },
@@ -349,7 +348,6 @@
         userLastSynced: lastSynced,
         navItems,
         sideNavInside,
-
       };
     },
     props: {

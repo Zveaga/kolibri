@@ -3,7 +3,11 @@
   <!-- TODO useScrollPosition to set scrollPosition...
     here or in router, but somewhere -->
   <div class="main">
-    <div v-if="windowIsSmall" ref="swipeZone" class="swipe-zone"></div>
+    <div
+      v-if="windowIsSmall"
+      ref="swipeZone"
+      class="swipe-zone"
+    ></div>
 
     <ScrollingHeader :scrollPosition="0">
       <transition mode="out-in">
@@ -60,11 +64,11 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
+  import { ref, getCurrentInstance } from 'vue';
+  import { useSwipe } from '@vueuse/core';
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './internal/AppBar';
   import SideNav from './internal/SideNav';
-  import { ref,getCurrentInstance} from 'vue';
-  import { useSwipe } from '@vueuse/core';
 
   export default {
     name: 'AppBarPage',
@@ -76,15 +80,14 @@
     mixins: [commonCoreStrings],
     setup() {
       const instance = getCurrentInstance();
-      const isRtl =ref(instance?.proxy.isRtl);
+      const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'right' && !navShown.value && !isRtl.value) {
             navShown.value = true;
-          }
-          else if (direction === 'left' && !navShown.value && isRtl.value) {
+          } else if (direction === 'left' && !navShown.value && isRtl.value) {
             navShown.value = true;
           }
         },
@@ -97,7 +100,6 @@
         swipeZone,
         navShown,
         isRtl,
-
       };
     },
     props: {
@@ -250,10 +252,8 @@
     left: 0;
     z-index: 5;
     width: 30px;
-    opacity: 0;
     background: red;
+    opacity: 0;
   }
-
- 
 
 </style>
