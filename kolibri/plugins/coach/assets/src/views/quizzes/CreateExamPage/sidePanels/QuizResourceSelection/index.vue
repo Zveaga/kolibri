@@ -405,6 +405,12 @@
           },
           annotator: annotateTopicsWithDescendantCounts,
         },
+        search: {
+          filters: {
+            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            contains_quiz: selectPracticeQuiz ? true : null,
+          },
+        },
       });
 
       function handleCancelClose() {
