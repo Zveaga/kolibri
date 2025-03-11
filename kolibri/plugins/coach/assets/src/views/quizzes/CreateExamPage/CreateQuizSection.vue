@@ -176,13 +176,6 @@
         >
           <template #header-trailing-actions>
             <KIconButton
-              icon="refresh"
-              :tooltip="replaceAction$()"
-              :aria-label="replaceAction$()"
-              :disabled="!canReplaceQuestions"
-              @click="handleReplaceSelection"
-            />
-            <KIconButton
               icon="trash"
               :tooltip="coreString('deleteAction')"
               :aria-label="coreString('deleteAction')"
@@ -321,16 +314,9 @@
     data() {
       return {
         showDeleteConfirmation: false,
-        showNotEnoughResourcesModal: false,
       };
     },
     computed: {
-      canReplaceQuestions() {
-        return (
-          this.selectedActiveQuestions.length > 0 &&
-          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
-        );
-      },
       tabsWrapperStyles() {
         return {
           paddingTop: '1rem',
@@ -426,16 +412,6 @@
           this.focusActiveSectionTab();
         });
         this.showDeleteConfirmation = false;
-      },
-      handleReplaceSelection() {
-        if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
-          this.showNotEnoughResourcesModal = true;
-        } else {
-          this.$router.push({
-            name: PageNames.QUIZ_REPLACE_QUESTIONS,
-            params: this.getCurrentRouteParams(),
-          });
-        }
       },
       handleActiveSectionAction(opt) {
         switch (opt.id) {
