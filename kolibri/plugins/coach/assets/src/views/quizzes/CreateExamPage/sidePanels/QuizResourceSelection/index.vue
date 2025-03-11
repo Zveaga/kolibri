@@ -19,10 +19,6 @@
       </div>
     </template>
     <template #default="{ isScrolled }">
-         <div v-if="subpageLoading">">
-        <KCircularLoader />
-      </div>
-
       <div
         v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
         class="alert-warning d-flex-between"
@@ -66,8 +62,11 @@
           {{ maximumContentSelectedWarning }}
         </span>
       </div>
+      <div v-if="subpageLoading">
+        <KCircularLoader />
+      </div>
       <router-view
-        v-if="!loading"
+        v-else
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -380,7 +379,7 @@
           filters: { kind: ContentNodeKinds.EXERCISE },
           annotator: results => results.filter(isPracticeQuiz),
         },
-        
+
         channels: {
           filters: {
             contains_exercise: true,
@@ -406,17 +405,12 @@
           },
           annotator: annotateTopicsWithDescendantCounts,
         },
-        quizSearch: {
-          filters: {
-            kind: ContentNodeKinds.EXERCISE,
-          },
-        },
       });
-      
+
       function handleCancelClose() {
         showCloseConfirmation.value = false;
       }
-      
+
       function handleClosePanel() {
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -428,15 +422,14 @@
           query: { ...route.value.query },
         });
       }
-      
+
       const workingPoolHasChanged = computed(() => {
         return Boolean(workingResourcePool.value.length);
       });
       const subpageLoading = computed(() => {
-        const skipLoading = PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS;
-        return loading.value && instance.proxy.$route.name !== skipLoading;
-      }
-      );
+        const skipLoading = PageNames.QUIZ_SELECT_RESOURCES_SEARCH;
+        return loading.value && route.value.name !== skipLoading;
+      });
 
       const workingPoolQuestionsCount = computed(() => {
         if (settings.value.isChoosingManually) {
@@ -551,7 +544,6 @@
         searchFetch,
         channelsFetch,
         bookmarksFetch,
-        loading,
         selectionRules,
         selectAllRules,
         unselectableResourceIds,

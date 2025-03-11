@@ -281,11 +281,11 @@ export default function useBaseSearch({
         fetchContentNodeProgress?.(getParams);
       }
 
-      const query = get(route).query;
-      if (query?.filter_quiz) {
-        getParams.contains_quiz = true;
-        getParams.kind_in = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
-      }
+      // const query = get(route).query;
+      // if (query?.filter_quiz) {
+      getParams.contains_quiz = true;
+      getParams.kind_in = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
+      // }
 
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(_results, data.results || []);
