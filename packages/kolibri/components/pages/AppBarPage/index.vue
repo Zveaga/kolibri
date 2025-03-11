@@ -99,7 +99,6 @@
         isAppContext,
         swipeZone,
         navShown,
-        isRtl,
       };
     },
     props: {
