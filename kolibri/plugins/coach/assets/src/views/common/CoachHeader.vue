@@ -7,13 +7,6 @@
         <slot name="actions"></slot>
       </div>
     </div>
-    <div class="class-name-label">
-      <KIcon
-        icon="classes"
-        class="class-name-icon"
-      />
-      <span>{{ className }}</span>
-    </div>
   </div>
 
 </template>
@@ -21,7 +14,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  //import { mapState } from 'vuex';
 
   export default {
     name: 'CoachHeader',
@@ -30,9 +23,6 @@
         type: String,
         required: true,
       },
-    },
-    computed: {
-      ...mapState('classSummary', { className: 'name' }),
     },
   };
 
@@ -45,18 +35,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .class-name-icon {
-    position: relative;
-    top: 0.4em;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
-  }
-
-  .class-name-label {
-    margin-bottom: 16px;
   }
 
 </style>
