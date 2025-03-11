@@ -19,7 +19,7 @@
       </div>
     </template>
     <template #default="{ isScrolled }">
-      <div v-if="loading">
+         <div v-if="subpageLoading">">
         <KCircularLoader />
       </div>
 
@@ -380,6 +380,7 @@
           filters: { kind: ContentNodeKinds.EXERCISE },
           annotator: results => results.filter(isPracticeQuiz),
         },
+        
         channels: {
           filters: {
             contains_exercise: true,
@@ -411,11 +412,11 @@
           },
         },
       });
-
+      
       function handleCancelClose() {
         showCloseConfirmation.value = false;
       }
-
+      
       function handleClosePanel() {
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -427,10 +428,15 @@
           query: { ...route.value.query },
         });
       }
-
+      
       const workingPoolHasChanged = computed(() => {
         return Boolean(workingResourcePool.value.length);
       });
+      const subpageLoading = computed(() => {
+        const skipLoading = PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS;
+        return loading.value && instance.proxy.$route.name !== skipLoading;
+      }
+      );
 
       const workingPoolQuestionsCount = computed(() => {
         if (settings.value.isChoosingManually) {
@@ -577,6 +583,7 @@
         numberOfSelectedResources$,
         displayingSearchResults,
         numberOfSelectedQuestions$,
+        subpageLoading,
       };
     },
     computed: {
