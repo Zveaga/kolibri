@@ -44,8 +44,8 @@
       :selectedResourcesSize="selectedResourcesSize"
       :displayingSearchResults="displayingSearchResults"
       @clearSearch="clearSearch"
-      @selectResources="selectResources"
-      @deselectResources="deselectResources"
+      @selectResources="handleSelectResources"
+      @deselectResources="handleDeselectResources"
       @setSelectedResources="setSelectedResources"
       @removeSearchFilterTag="removeSearchFilterTag"
     />
@@ -97,7 +97,9 @@
   import { mapState, mapActions, mapMutations } from 'vuex';
   import { computed, getCurrentInstance } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -113,6 +115,7 @@
     },
     setup() {
       const instance = getCurrentInstance();
+      const { sendPoliteMessage } = useKLiveRegion();
       const {
         loading,
         topic,
@@ -157,6 +160,16 @@
       });
 
       const defaultTitle = manageLessonResourcesTitle$();
+      // Ensure we send polite aria message when the user selects/deselects resources
+      const { numberOfSelectedResources$ } = searchAndFilterStrings;
+      function handleSelectResources($evt) {
+        selectResources($evt);
+        sendPoliteMessage(numberOfSelectedResources$({ count: selectedResources?.value.length }));
+      }
+      function handleDeselectResources($evt) {
+        deselectResources($evt);
+        sendPoliteMessage(numberOfSelectedResources$({ count: selectedResources?.value.length }));
+      }
 
       return {
         defaultTitle,
@@ -172,8 +185,8 @@
         SelectionTarget,
         displayingSearchResults,
         clearSearch,
-        selectResources,
-        deselectResources,
+        handleSelectResources,
+        handleDeselectResources,
         setSelectedResources,
         notifyResourcesAdded,
         notifySaveLessonError,
