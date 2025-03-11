@@ -273,7 +273,7 @@
   import SideNavDivider from './SideNavDivider';
   import BottomNavigationBar from './BottomNavigationBar';
   import { useSwipe } from '@vueuse/core';
-  import {ref,onMounted,getCurrentInstance} from 'vue'
+  import {ref,getCurrentInstance} from 'vue'
 
   // Explicit ordered list of roles for nav item sorting
   const navItemRoleOrder = [

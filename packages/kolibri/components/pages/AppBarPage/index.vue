@@ -3,7 +3,7 @@
   <!-- TODO useScrollPosition to set scrollPosition...
     here or in router, but somewhere -->
   <div class="main">
-    <div v-if="windowIsSmall" ref="swipeZone" :class="{ 'rtl-swipe-zone': isRtl.value }" class="swipe-zone"></div>
+    <div v-if="windowIsSmall" ref="swipeZone" class="swipe-zone"></div>
 
     <ScrollingHeader :scrollPosition="0">
       <transition mode="out-in">
@@ -254,9 +254,6 @@
     background: red;
   }
 
-  .rtl-swipe-zone {
-    right: 0;
-    left: auto;
-  }
+ 
 
 </style>
