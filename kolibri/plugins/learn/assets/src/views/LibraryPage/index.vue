@@ -333,10 +333,6 @@
 
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
-          if (!channels.length && isUserLoggedIn) {
-            router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-            return;
-          }
           if (!channels.length && baseurl) {
             router.replace({ name: PageNames.LIBRARY });
             return;
