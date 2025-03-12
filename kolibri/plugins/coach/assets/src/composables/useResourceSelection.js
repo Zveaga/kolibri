@@ -156,13 +156,13 @@ export default function useResourceSelection({
       topic.value = newTopic;
     }
     if (topicTree?.annotator) {
-      const annotatedResults = await topicTree.annotator(newTopic.children.results);
+      const annotatedResults = await topicTree.annotator(newTopic.children?.results || []);
       return {
         ...newTopic.children,
         results: annotatedResults,
       };
     }
-    return newTopic.children;
+    return newTopic.children || { results: [] };
   };
 
   const treeFetch = useFetch({
