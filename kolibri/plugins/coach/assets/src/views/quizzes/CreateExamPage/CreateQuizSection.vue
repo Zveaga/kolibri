@@ -176,6 +176,12 @@
         >
           <template #header-trailing-actions>
             <KIconButton
+              icon="refresh"
+              :ariaLabel="replaceAction$()"
+              :tooltip="replaceAction$()"
+              @click="handleBulkReplacementQuestionsClick(question)"
+            />
+            <KIconButton
               icon="trash"
               :tooltip="coreString('deleteAction')"
               :aria-label="coreString('deleteAction')"
@@ -216,6 +222,7 @@
 
 <script>
 
+  import uniq from 'lodash/uniq';
   import logging from 'kolibri-logging';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import {
@@ -401,6 +408,25 @@
           name: PageNames.QUIZ_PREVIEW_RESOURCE,
           query: { contentId: question.exercise_id },
         });
+      },
+      handleBulkReplacementQuestionsClick() {
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+        const questionItems = questions.map(question => question.item);
+        const questionsExercises = uniq(questions.map(question => question.exercise_id));
+
+        this.setQuestionItemsToReplace(questionItems);
+        if (questionsExercises.length === 1 && questionsExercises[0]) {
+          this.$router.push({
+            name: PageNames.QUIZ_PREVIEW_RESOURCE,
+            query: { contentId: questionsExercises[0] },
+          });
+        } else {
+          this.$router.push({
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          });
+        }
       },
       handleConfirmDelete() {
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
