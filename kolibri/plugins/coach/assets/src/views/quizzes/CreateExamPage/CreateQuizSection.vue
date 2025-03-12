@@ -179,6 +179,7 @@
               icon="refresh"
               :ariaLabel="replaceAction$()"
               :tooltip="replaceAction$()"
+              :disabled="selectedActiveQuestions.length === 0"
               @click="handleBulkReplacementQuestionsClick(question)"
             />
             <KIconButton
