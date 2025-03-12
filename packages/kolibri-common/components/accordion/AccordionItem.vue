@@ -147,6 +147,7 @@
 
       .header-content {
         display: flex;
+        gap: 4px;
         align-items: center;
         justify-content: space-between;
       }
