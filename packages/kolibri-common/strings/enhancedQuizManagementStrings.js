@@ -69,6 +69,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addNumberOfQuestions: {
     message: 'Add { count, number } { count, plural, one { question } other { questions }}',
   },
+  replaceNumberOfQuestions: {
+    message: 'Replace { count, number } { count, plural, one { question } other { questions }}',
+  },
   selectResourcesDescription: {
     message: "Add questions to '{ sectionTitle }'",
   },
@@ -228,6 +231,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       'Select up to { count, number } { count, plural, one { resource } other { resources }}',
     context:
       'A message that informs the user about the maximum number of resources they can select',
+  },
+  selectNQuestions: {
+    message: 'Select { count, number } { count, plural, one { question } other { questions }}',
+    context: 'A message that informs the user about the number of questions they need to select',
   },
   selectUpToNQuestions: {
     message:

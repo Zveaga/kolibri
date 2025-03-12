@@ -150,11 +150,7 @@
               "
               :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
             >
-              {{
-                numberOfSelectedQuestions$({
-                  count: workingQuestions.length,
-                })
-              }}
+              {{ numberOfSelectedQuestionsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -298,6 +294,7 @@
         tooManyQuestions$,
         selectQuiz$,
         addNumberOfQuestions$,
+        replaceNumberOfQuestions$,
         maximumResourcesSelectedWarning$,
         maximumQuestionsSelectedWarning$,
         manualSelectionOnNotice$,
@@ -478,6 +475,9 @@
         if (selectPracticeQuiz) {
           return selectQuiz$();
         }
+        if (settings.value.isInReplaceMode) {
+          return replaceNumberOfQuestions$({ count: settings.value.questionCount });
+        }
         if (settings.value.isChoosingManually) {
           return addNumberOfQuestions$({ count: workingQuestions.value.length });
         }
@@ -488,14 +488,16 @@
         if (selectPracticeQuiz) {
           return !workingPoolHasChanged.value;
         }
-        return (
-          !workingPoolHasChanged.value ||
-          (!settings.value.isChoosingManually &&
-            workingPoolQuestionsCount.value < settings.value.questionCount) ||
-          settings.value.questionCount < 1 ||
-          tooManyQuestions.value ||
-          settings.value.questionCount.value > settings.value.maxQuestions
-        );
+        const disabledConditions = [
+          !workingPoolHasChanged.value,
+          settings.value.questionCount < 1,
+          tooManyQuestions.value,
+          settings.value.questionCount > settings.value.maxQuestions,
+        ];
+        if (!settings.value.isChoosingManually || settings.value.isInReplaceMode) {
+          disabledConditions.push(workingPoolQuestionsCount.value < settings.value.questionCount);
+        }
+        return disabledConditions.some(Boolean);
       });
 
       const title = ref('');
@@ -536,7 +538,11 @@
       });
 
       const maximumContentSelectedWarning = computed(() => {
-        if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
+        if (
+          settings.value.questionCount <= 0 ||
+          remainingSelectableContent.value > 0 ||
+          settings.value.isInReplaceMode
+        ) {
           return null;
         }
         if (settings.value.isChoosingManually) {
@@ -545,8 +551,24 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$, numberOfSelectedQuestions$, dismissAction$ } =
-        searchAndFilterStrings;
+      const {
+        numberOfSelectedResources$,
+        numberOfSelectedQuestions$,
+        dismissAction$,
+        NOutOfMSelectedQuestions$,
+      } = searchAndFilterStrings;
+
+      const numberOfSelectedQuestionsLabel = computed(() => {
+        if (settings.value.isInReplaceMode) {
+          return NOutOfMSelectedQuestions$({
+            count: workingQuestions.value.length,
+            total: settings.value.questionItemsToReplace.length,
+          });
+        }
+        return numberOfSelectedQuestions$({
+          count: workingQuestions.value.length,
+        });
+      });
 
       return {
         title,
@@ -586,6 +608,7 @@
         settings,
         disableSave,
         saveButtonLabel,
+        numberOfSelectedQuestionsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -600,7 +623,6 @@
         manualSelectionOffNotice$,
         numberOfSelectedResources$,
         displayingSearchResults,
-        numberOfSelectedQuestions$,
         subpageLoading,
       };
     },

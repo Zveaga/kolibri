@@ -63,6 +63,7 @@
           :checked="workingIsChoosingManually"
           :label="chooseQuestionsManuallyLabel$()"
           :description="clearSelectionNotice$()"
+          :disabled="Boolean(settings?.isInReplaceMode)"
           @change="$event => (workingIsChoosingManually = $event)"
         />
         <KButton
@@ -178,7 +179,10 @@
         });
       };
       const isSaveSettingsDisabled = computed(() => {
-        return workingIsChoosingManually.value === props.settings?.isChoosingManually;
+        return (
+          props.settings?.isInReplaceMode ||
+          workingIsChoosingManually.value === props.settings?.isChoosingManually
+        );
       });
 
       onMounted(() => {
