@@ -63,13 +63,13 @@ export default function useQuizCreation() {
   /**
    * Question item to be replaced in the next save operation
    */
-  const _questionItemToReplace = ref(null);
+  const _questionItemsToReplace = ref(null);
 
-  function setQuestionItemToReplace(item) {
-    set(_questionItemToReplace, item);
+  function setQuestionItemsToReplace(item) {
+    set(_questionItemsToReplace, item);
   }
 
-  const questionItemToReplace = computed(() => get(_questionItemToReplace));
+  const questionItemsToReplace = computed(() => get(_questionItemsToReplace));
 
   // ------------------
   // Section Management
@@ -126,24 +126,7 @@ export default function useQuizCreation() {
     });
   }
 
-  function _insertItemsAt(baseArray, itemsToInsert, index = null) {
-    let indexToInsertAt = index;
-    if (index === null || index < 0 || index > baseArray.length) {
-      indexToInsertAt = baseArray.length;
-    }
-
-    const baseArrayCopy = [...baseArray];
-    baseArrayCopy.splice(indexToInsertAt, 0, ...itemsToInsert);
-    return baseArrayCopy;
-  }
-
-  function addQuestionsToSectionFromResources({
-    sectionIndex,
-    resourcePool,
-    questionCount,
-    insertAt = null,
-    excludedQuestionItems = [],
-  }) {
+  function addQuestionsToSectionFromResources({ sectionIndex, resourcePool, questionCount }) {
     const targetSection = get(allSections)[sectionIndex];
     if (!targetSection) {
       throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
@@ -163,12 +146,35 @@ export default function useQuizCreation() {
       // Seed the random number generator with a random number
       Math.floor(Math.random() * 1000),
       // Exclude the questions that are already in the entire quiz
-      [...excludedQuestionItems, ...get(allQuestionsInQuiz).map(q => q.item)],
+      get(allQuestionsInQuiz).map(q => q.item),
     );
 
-    const questions = _insertItemsAt(targetSection.questions, newQuestions, insertAt);
+    const questions = [...targetSection.questions, ...newQuestions];
 
     updateSection({ sectionIndex, questions, resourcePool });
+  }
+
+  /**
+   * Replace `questionItemsToReplace` questions in the `baseQuestions` array with the
+   * `replacements` questions
+   * @param {Array<Question>} baseQuestions base questions array
+   * @param {Array<string>} questionItemsToReplace question items to replace
+   * @param {Array<Question>} replacements array of questions to replace the question items
+   * @returns
+   */
+  function _replaceQuestions(baseQuestions, questionItemsToReplace, replacements) {
+    if (questionItemsToReplace.length !== replacements.length) {
+      throw new TypeError(
+        'The number of question items to replace must match the number of replacements',
+      );
+    }
+    const newQuestions = baseQuestions.map(question => {
+      if (questionItemsToReplace.includes(question.item)) {
+        return replacements.shift();
+      }
+      return question;
+    });
+    return newQuestions;
   }
 
   /**
@@ -178,7 +184,7 @@ export default function useQuizCreation() {
    * @param {QuizQuestion[]} options.questions - The questions array to add
    * @param {QuizExercise[]} options.resources - The resources to add to the exercise map
    */
-  function addQuestionsToSection({ sectionIndex, questions, resources, insertAt }) {
+  function addQuestionsToSection({ sectionIndex, questions, resources, questionItemsToReplace }) {
     const targetSection = get(allSections)[sectionIndex];
     if (!targetSection) {
       throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
@@ -192,7 +198,16 @@ export default function useQuizCreation() {
       q => !targetSection.questions.map(q => q.item).includes(q.item),
     );
 
-    const questionsToAdd = _insertItemsAt(targetSection.questions, newQuestions, insertAt);
+    let questionsToAdd;
+    if (questionItemsToReplace?.length) {
+      questionsToAdd = _replaceQuestions(
+        targetSection.questions,
+        questionItemsToReplace,
+        newQuestions,
+      );
+    } else {
+      questionsToAdd = [...targetSection.questions, ...newQuestions];
+    }
 
     updateSection({ sectionIndex, questions: questionsToAdd, resourcePool: resources });
   }
@@ -220,26 +235,6 @@ export default function useQuizCreation() {
       // Always need to have at least one section
       addSection();
     }
-  }
-
-  /**
-   * Remove a question from the specified section and returns the index of the removed question
-   * @param {string} questionItem Question item to remove
-   * @param {number} sectionIndex Index of the section to remove the question from
-   */
-  function removeQuestionFromSection(questionItem, sectionIndex) {
-    const targetSection = get(allSections)[sectionIndex];
-    if (!targetSection) {
-      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
-    }
-    const { questions } = targetSection;
-    const questionIndex = questions.findIndex(q => q.item === questionItem);
-    const newQuestions = questions.filter(q => q.item !== questionItem);
-    updateSection({
-      sectionIndex,
-      questions: newQuestions,
-    });
-    return questionIndex;
   }
 
   watch(activeSectionIndex, () => {
@@ -352,6 +347,10 @@ export default function useQuizCreation() {
     );
   }
 
+  function clearSelectedQuestions() {
+    set(_selectedQuestionIds, []);
+  }
+
   // Utilities
 
   // Computed properties
@@ -444,9 +443,9 @@ export default function useQuizCreation() {
   provide('addSection', addSection);
   provide('removeSection', removeSection);
   provide('updateQuiz', updateQuiz);
-  provide('removeQuestionFromSection', removeQuestionFromSection);
   provide('addQuestionsToSelection', addQuestionsToSelection);
   provide('removeQuestionsFromSelection', removeQuestionsFromSelection);
+  provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('allSections', allSections);
   provide('activeSectionIndex', activeSectionIndex);
   provide('activeSection', activeSection);
@@ -458,8 +457,8 @@ export default function useQuizCreation() {
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
-  provide('questionItemToReplace', questionItemToReplace);
-  provide('setQuestionItemToReplace', setQuestionItemToReplace);
+  provide('questionItemsToReplace', questionItemsToReplace);
+  provide('setQuestionItemsToReplace', setQuestionItemsToReplace);
 
   return {
     // Methods
@@ -472,7 +471,7 @@ export default function useQuizCreation() {
     updateQuiz,
     addQuestionsToSelection,
     removeQuestionsFromSelection,
-    setQuestionItemToReplace,
+    setQuestionItemsToReplace,
 
     // Computed
     quizHasChanged,
@@ -500,9 +499,9 @@ export function injectQuizCreation() {
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
   const updateQuiz = inject('updateQuiz');
-  const removeQuestionFromSection = inject('removeQuestionFromSection');
   const addQuestionsToSelection = inject('addQuestionsToSelection');
   const removeQuestionsFromSelection = inject('removeQuestionsFromSelection');
+  const clearSelectedQuestions = inject('clearSelectedQuestions');
   const allSections = inject('allSections');
   const activeSectionIndex = inject('activeSectionIndex');
   const activeSection = inject('activeSection');
@@ -513,8 +512,8 @@ export function injectQuizCreation() {
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
-  const questionItemToReplace = inject('questionItemToReplace');
-  const setQuestionItemToReplace = inject('setQuestionItemToReplace');
+  const questionItemsToReplace = inject('questionItemsToReplace');
+  const setQuestionItemsToReplace = inject('setQuestionItemsToReplace');
 
   return {
     // Methods
@@ -525,10 +524,10 @@ export function injectQuizCreation() {
     addSection,
     removeSection,
     updateQuiz,
-    removeQuestionFromSection,
+    clearSelectedQuestions,
     addQuestionsToSelection,
     removeQuestionsFromSelection,
-    setQuestionItemToReplace,
+    setQuestionItemsToReplace,
 
     // Computed
     allQuestionsInQuiz,
@@ -541,6 +540,6 @@ export function injectQuizCreation() {
     allResourceMap,
     activeQuestions,
     selectedActiveQuestions,
-    questionItemToReplace,
+    questionItemsToReplace,
   };
 }

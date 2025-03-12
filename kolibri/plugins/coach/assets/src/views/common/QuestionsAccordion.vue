@@ -57,7 +57,7 @@
         >
           <AccordionItem
             :title="displayQuestionTitle(question, getQuestionContent(question).title)"
-            :disabledTitle="questionItemToReplace === question.item"
+            :disabledTitle="questionItemsToReplace?.includes(question.item)"
             :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
               userSelect: dragActive ? 'none !important' : 'text',
@@ -88,7 +88,7 @@
               />
             </template>
             <template #trailing-actions>
-              <span v-if="questionItemToReplace === question.item">
+              <span v-if="questionItemsToReplace?.includes(question.item)">
                 {{ replacingThisQuestionLabel$() }}
               </span>
               <slot
@@ -171,7 +171,7 @@
         if (
           props.disabled ||
           props.unselectableQuestionItems?.includes(question.item) ||
-          props.questionItemToReplace === question.item
+          props.questionItemsToReplace?.includes(question.item)
         ) {
           return true;
         }
@@ -185,7 +185,7 @@
       }
 
       function questionIsChecked(question) {
-        if (props.questionItemToReplace === question.item) {
+        if (props.questionItemsToReplace?.includes(question.item)) {
           return false;
         }
         if (props.unselectableQuestionItems?.includes(question.item)) {
@@ -306,8 +306,8 @@
        * If provided, the question with this item will appear as disabled
        * and with a `Replacing this question` message.
        */
-      questionItemToReplace: {
-        type: String,
+      questionItemsToReplace: {
+        type: Array,
         required: false,
         default: null,
       },

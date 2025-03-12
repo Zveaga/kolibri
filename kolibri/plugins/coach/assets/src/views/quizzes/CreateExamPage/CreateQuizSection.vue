@@ -271,7 +271,7 @@
         activeResourceMap,
         activeQuestions,
         selectedActiveQuestions,
-        setQuestionItemToReplace,
+        setQuestionItemsToReplace,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -298,7 +298,7 @@
         addSection,
         removeSection,
         displaySectionTitle,
-        setQuestionItemToReplace,
+        setQuestionItemsToReplace,
 
         // Computed
         allSections,
@@ -396,7 +396,7 @@
       },
       handleReplaceQuestionClick(question, $event) {
         $event.stopPropagation();
-        this.setQuestionItemToReplace(question.item);
+        this.setQuestionItemsToReplace([question.item]);
         this.$router.push({
           name: PageNames.QUIZ_PREVIEW_RESOURCE,
           query: { contentId: question.exercise_id },

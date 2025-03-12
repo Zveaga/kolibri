@@ -82,7 +82,7 @@
         :maxSelectableQuestions="settings?.questionCount"
         :selectedQuestions="selectedQuestionItems"
         :unselectableQuestionItems="unselectableQuestionItems"
-        :questionItemToReplace="settings?.questionItemToReplace"
+        :questionItemsToReplace="settings?.questionItemsToReplace"
         @selectQuestions="handleSelectQuestions"
         @deselectQuestions="handleDeselectQuestionss"
       />
