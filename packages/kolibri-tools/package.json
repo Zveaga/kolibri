@@ -22,7 +22,7 @@
     "@babel/plugin-syntax-import-assertions": "^7.26.0",
     "@babel/plugin-transform-runtime": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
-    "@rushstack/eslint-patch": "^1.10.5",
+    "@rushstack/eslint-patch": "^1.11.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
     "@testing-library/vue": "^5",
