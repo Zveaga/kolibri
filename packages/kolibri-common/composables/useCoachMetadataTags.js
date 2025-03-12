@@ -1,12 +1,9 @@
-//import { availableLanguages } from 'kolibri/utils/i18n';
-//import uniq from 'lodash/uniq';
-import { ref } from 'vue';
 import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 import { ActivitiesLookup, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 
 /**
- * Create a tag Object
+ * Create a tag Object that can be used to display metadata
  * @param {string} label - text to display
  * @param {string} key - unique key for the tag - should map to le-utils constants
  * @param {string} icon - icon to display (mapping to KIcon)
@@ -22,8 +19,6 @@ function createTag(label, key, icon) {
 export function useCoachMetadataTags(contentNode) {
   const { durationEstimation } = useLearningActivities(contentNode);
 
-  const tags = ref([]);
-
   function getKindTag() {
     if (contentNode.kind === ContentNodeKinds.CHANNEL) {
       return createTag(coreStrings.$tr('channel'), 'channel');
@@ -38,6 +33,10 @@ export function useCoachMetadataTags(contentNode) {
     return contentNode.categories.map(category => createTag(coreString(category), category));
   };
 
+  /*
+   * These are unused for now due to design decisions as we're only
+   * showing up to 3 tags on a resource card (in coach) - these may
+   * be useful in the future.
   const getLevelTags = () => {
     if (!contentNode.grade_levels) return [];
     return contentNode.grade_levels.map(grade_levels =>
@@ -48,6 +47,7 @@ export function useCoachMetadataTags(contentNode) {
   const getLanguageTag = () => {
     return createTag(contentNode.lang.lang_name, contentNode.lang.id);
   };
+  */
 
   const getActivityTags = () => {
     if (!contentNode.learning_activities) return [];
@@ -76,14 +76,6 @@ export function useCoachMetadataTags(contentNode) {
     return [createTag(durationEstimation.value, contentNode.duration)];
   };
 
-  const getSpecificCategoryTag = () => {
-    if (!contentNode.categories) return [];
-    const specificCategories = contentNode.categories.filter(
-      category => category.split('.').length > 2,
-    );
-    return specificCategories.map(category => createTag(coreString(category), category));
-  };
-
   const getFolderTags = () => {
     return [getKindTag()];
   };
@@ -97,28 +89,7 @@ export function useCoachMetadataTags(contentNode) {
     return getResourceTags();
   };
 
-  if (
-    contentNode.kind === ContentNodeKinds.CHANNEL ||
-    contentNode.kind === ContentNodeKinds.TOPIC
-  ) {
-    tags.value = [
-      getKindTag(),
-      ...getCategoryTags().slice(0, 3),
-      ...getLevelTags().slice(0, 3),
-      getLanguageTag(),
-    ];
-  } else {
-    tags.value = [
-      ...getActivityTags(),
-      //getDurationTag(),
-      ...getLevelTags(),
-      ...getSpecificCategoryTag(),
-      getLanguageTag(),
-    ].slice(0, 3);
-  }
-
   return {
-    tags,
     getChannelTags,
     getFolderTags,
     getResourceTags,
