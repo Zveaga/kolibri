@@ -7,11 +7,10 @@ const taskPollers = new Map();
 
 const logging = logger.getLogger(__filename);
 
-export default function useTaskPooling(queueName) {
+export default function useTaskPolling(queueName) {
   if (!taskPollers.has(queueName)) {
     const consumers = ref(0);
     const tasks = ref([]);
-
     const { pause, resume, isActive } = useTimeoutPoll(
       async () => {
         try {

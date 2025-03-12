@@ -159,7 +159,7 @@
   import { now } from 'kolibri/utils/serverClock';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
-  import useTaskPooling from '../../composables/useTaskPooling';
+  import useTaskPolling from '../../composables/useTaskPolling';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
 
@@ -197,7 +197,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { tasks } = useTaskPooling('facility_task');
+      const { tasks } = useTaskPolling('facility_task');
       return { tasks };
     },
     props: {
