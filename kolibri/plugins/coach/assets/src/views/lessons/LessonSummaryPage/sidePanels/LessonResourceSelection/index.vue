@@ -25,6 +25,7 @@
       v-else
       :setTitle="setTitle"
       :setGoBack="setGoBack"
+      :defaultTitle="defaultTitle"
       :topic="topic"
       :disabled="isSaving"
       :treeFetch="treeFetch"
@@ -136,7 +137,12 @@
       function notifyResourcesAdded(count) {
         createSnackbar(resourcesAddedWithCount$({ count }));
       }
-      const { saveLessonError$, closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
+      const {
+        saveLessonError$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
+        manageLessonResourcesTitle$,
+      } = coachStrings;
       function notifySaveLessonError() {
         createSnackbar(saveLessonError$());
       }
@@ -148,7 +154,10 @@
         return loading.value && instance.proxy.$route.name !== skipLoading;
       });
 
+      const defaultTitle = manageLessonResourcesTitle$();
+
       return {
+        defaultTitle,
         subpageLoading,
         selectedResources,
         topic,

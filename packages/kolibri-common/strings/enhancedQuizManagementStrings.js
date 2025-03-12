@@ -75,6 +75,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   selectResourcesDescription: {
     message: "Add questions to '{ sectionTitle }'",
   },
+  replaceQuestionsInSection: {
+    message: 'Replace questions in { sectionTitle }',
+    context: 'Title for the section where the user can replace questions',
+  },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
   },

@@ -70,6 +70,7 @@
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
+        :defaultTitle="defaultTitle"
         :sectionTitle="sectionTitle"
         :selectedResources="workingResourcePool"
         :selectedQuestions="workingQuestions"
@@ -299,6 +300,9 @@
         maximumQuestionsSelectedWarning$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
+        selectResourcesDescription$,
+        selectPracticeQuizLabel$,
+        replaceQuestionsInSection$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -570,6 +574,17 @@
         });
       });
 
+      const getDefaultTitle = () => {
+        if (selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        if (settings.value.isInReplaceMode) {
+          return replaceQuestionsInSection$({ sectionTitle: sectionTitle.value });
+        }
+        return selectResourcesDescription$({ sectionTitle: sectionTitle.value });
+      };
+      const defaultTitle = getDefaultTitle();
+
       return {
         title,
         goBack,
@@ -577,6 +592,7 @@
         continueAction,
         SelectionTarget,
         sectionTitle,
+        defaultTitle,
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,

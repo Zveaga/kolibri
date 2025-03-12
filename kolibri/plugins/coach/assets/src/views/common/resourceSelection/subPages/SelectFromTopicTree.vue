@@ -82,8 +82,6 @@
   import { computed, getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { coachStrings } from '../../commonCoachStrings';
   import { PageNames } from '../../../../constants';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
@@ -101,11 +99,8 @@
     },
     setup(props) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
-      const { manageLessonResourcesTitle$ } = coachStrings;
       const instance = getCurrentInstance();
 
-      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
-        enhancedQuizManagementStrings;
       const { backToSearchResultsLabel$ } = searchAndFilterStrings;
 
       const routeQuery = instance.proxy.$route.query;
@@ -115,13 +110,7 @@
         if (isTopicFromSearchResult.value) {
           return backToSearchResultsLabel$();
         }
-        if (props.target === SelectionTarget.LESSON) {
-          return manageLessonResourcesTitle$();
-        }
-        if (props.settings.selectPracticeQuiz) {
-          return selectPracticeQuizLabel$();
-        }
-        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
+        return props.defaultTitle;
       };
       props.setTitle(getTitle());
 
@@ -205,6 +194,10 @@
         type: Function,
         default: () => {},
       },
+      defaultTitle: {
+        type: String,
+        required: true,
+      },
       topic: {
         type: Object,
         required: true,
@@ -247,15 +240,6 @@
       target: {
         type: String,
         required: true,
-      },
-      /**
-       * The title of the section (valid just for quizzes).
-       * @type {string}
-       */
-      sectionTitle: {
-        type: String,
-        required: false,
-        default: null,
       },
       /**
        * Selection settings used for quizzes.
