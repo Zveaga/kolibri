@@ -175,6 +175,7 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -302,7 +303,7 @@
         manualSelectionOffNotice$,
         selectResourcesDescription$,
         selectPracticeQuizLabel$,
-        replaceQuestionsInSection$,
+        replaceQuestions$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -579,11 +580,27 @@
           return selectPracticeQuizLabel$();
         }
         if (settings.value.isInReplaceMode) {
-          return replaceQuestionsInSection$({ sectionTitle: sectionTitle.value });
+          return replaceQuestions$({ sectionTitle: sectionTitle.value });
         }
         return selectResourcesDescription$({ sectionTitle: sectionTitle.value });
       };
       const defaultTitle = getDefaultTitle();
+
+      const { createSnackbar } = useSnackbar();
+      function notifyChanges() {
+        const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } =
+          enhancedQuizManagementStrings;
+
+        const message$ = settings.value.isInReplaceMode
+          ? numberOfQuestionsReplaced$
+          : numberOfQuestionsAdded$;
+
+        createSnackbar(
+          message$({
+            count: workingQuestions.value.length || settings.value.questionCount,
+          }),
+        );
+      }
 
       return {
         title,
@@ -598,6 +615,7 @@
         addSection,
         workingPoolHasChanged,
         tooManyQuestions,
+        notifyChanges,
         handleClosePanel,
         handleCancelClose,
         topic,
@@ -699,7 +717,7 @@
           // could be removed, so we need to clear it
           this.clearQuizSelectedQuestions();
         }
-
+        this.notifyChanges();
         this.handleClosePanel();
       },
       // The message put onto the content's card when listed
