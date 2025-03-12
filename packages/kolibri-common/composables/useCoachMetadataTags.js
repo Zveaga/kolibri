@@ -18,6 +18,20 @@ function createTag(label, key, icon) {
 
 export function useCoachMetadataTags(contentNode) {
   const { durationEstimation } = useLearningActivities(contentNode);
+  // With no kind, we know it is a CHANNEL.
+  // Channel API response is shaped a little differently than Topics and Resources
+  // so we make sure we have the right shape.
+  if (!contentNode.kind) {
+    contentNode.lang = { lang_name: contentNode.lang_name, id: contentNode.lang_code };
+    // The grade_levels and categories fields are stored as
+    // comma-separated strings in the database
+    contentNode.grade_levels = contentNode.included_grade_levels
+      ? contentNode.included_grade_levels.split(',')
+      : [];
+    contentNode.categories = contentNode.included_categories
+      ? contentNode.included_categories.split(',')
+      : [];
+  }
 
   function getKindTag() {
     if (contentNode.kind === ContentNodeKinds.CHANNEL) {
@@ -33,10 +47,6 @@ export function useCoachMetadataTags(contentNode) {
     return contentNode.categories.map(category => createTag(coreString(category), category));
   };
 
-  /*
-   * These are unused for now due to design decisions as we're only
-   * showing up to 3 tags on a resource card (in coach) - these may
-   * be useful in the future.
   const getLevelTags = () => {
     if (!contentNode.grade_levels) return [];
     return contentNode.grade_levels.map(grade_levels =>
@@ -47,7 +57,6 @@ export function useCoachMetadataTags(contentNode) {
   const getLanguageTag = () => {
     return createTag(contentNode.lang.lang_name, contentNode.lang.id);
   };
-  */
 
   const getActivityTags = () => {
     if (!contentNode.learning_activities) return [];
@@ -86,7 +95,7 @@ export function useCoachMetadataTags(contentNode) {
 
   // Placeholder for possible need to handle lanugage tags gracefully
   const getChannelTags = () => {
-    return getResourceTags();
+    return [getLanguageTag(), ...getResourceTags(), ...getLevelTags()];
   };
 
   return {

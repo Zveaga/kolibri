@@ -57,18 +57,7 @@
     mixins: [commonCoach],
     setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
-      // A little data massaging to make the metadata passable to useCoachMetadataTags
-      const contentNode = props.contentNode;
-      contentNode.lang = {};
 
-      // The grade_levels and categories fields are stored as
-      // comma-separated strings in the database
-      contentNode.grade_levels = contentNode.included_grade_levels
-        ? contentNode.included_grade_levels.split(',')
-        : [];
-      contentNode.categories = contentNode.included_categories
-        ? contentNode.included_categories.split(',')
-        : [];
       const { getChannelTags } = useCoachMetadataTags(props.contentNode);
       return {
         getChannelTags,
