@@ -1,6 +1,12 @@
 <template>
 
   <div>
+    <QuizResourceSelectionHeader
+      v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
+      class="mb-24"
+      :settings="settings"
+      @searchClick="onSearchClick"
+    />
     <div
       v-if="bookmarksCount > 0"
       class="mb-24"
@@ -19,12 +25,6 @@
         />
       </div>
 
-      <QuizResourceSelectionHeader
-        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
-        class="mb-24"
-        :settings="settings"
-        @searchClick="onSearchClick"
-      />
       <div
         v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
         class="d-flex-end mb-24"
