@@ -21,7 +21,7 @@ export function useCoachMetadataTags(contentNode) {
   // With no kind, we know it is a CHANNEL.
   // Channel API response is shaped a little differently than Topics and Resources
   // so we make sure we have the right shape.
-  if (!contentNode.kind) {
+  if (!contentNode.kind || contentNode.kind === ContentNodeKinds.CHANNEL) {
     contentNode.lang = { lang_name: contentNode.lang_name, id: contentNode.lang_code };
     // The grade_levels and categories fields are stored as
     // comma-separated strings in the database
