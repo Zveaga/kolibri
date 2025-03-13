@@ -1,14 +1,20 @@
 import logging
+import os
 
+from django.db.models import Sum
 from le_utils.constants import content_kinds
 
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
+from kolibri.core.content.utils.channel_transfer import DummyJob
+from kolibri.core.content.utils.channel_transfer import get_job
 from kolibri.core.content.utils.content_request import propagate_contentnode_removal
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
+from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.utils.lock import db_lock
 
 
@@ -84,3 +90,54 @@ def delete_metadata(
     clear_channel_stats(channel.id)
 
     return total_resource_number, delete_all_metadata
+
+
+def delete_content(
+    channel_id,
+    node_ids,
+    exclude_node_ids,
+    force_delete,
+    ignore_admin_flags=True,
+    update_content_requests=True,
+):
+    job = get_job()
+    try:
+        channel = ChannelMetadata.objects.get(pk=channel_id)
+    except ChannelMetadata.DoesNotExist:
+        raise KeyError("Channel matching id {id} does not exist".format(id=channel_id))
+
+    (total_resource_number, delete_all_metadata,) = delete_metadata(
+        channel,
+        node_ids,
+        exclude_node_ids,
+        force_delete,
+        ignore_admin_flags,
+        update_content_requests,
+    )
+    unused_files = LocalFile.objects.get_unused_files()
+    # Get the number of files that are being deleted
+    unused_files_count = unused_files.count()
+    deleted_bytes = unused_files.aggregate(size=Sum("file_size"))["size"] or 0
+    # check job is not instance of DummyJob
+    if not isinstance(job, DummyJob):
+        job.extra_metadata["file_size"] = deleted_bytes
+        job.extra_metadata["total_resources"] = total_resource_number
+        job.save_meta()
+    additional_progress = sum((1, bool(delete_all_metadata)))
+    target_progress = unused_files_count + additional_progress
+    current_progress = 0
+    for _ in LocalFile.objects.delete_unused_files():
+        current_progress += 1
+        job.update_progress(current_progress, target_progress)
+    with db_lock():
+        LocalFile.objects.delete_orphan_file_objects()
+    current_progress += 1
+    job.update_progress(current_progress, target_progress)
+    if delete_all_metadata:
+        try:
+            os.remove(get_content_database_file_path(channel_id))
+        except OSError:
+            pass
+        current_progress += 1
+        job.update_progress(current_progress, target_progress)
+    job.update_progress(target_progress, target_progress)
