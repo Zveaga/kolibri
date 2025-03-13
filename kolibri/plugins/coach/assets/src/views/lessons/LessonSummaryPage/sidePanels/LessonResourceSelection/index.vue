@@ -54,7 +54,12 @@
       v-if="$route.name !== PageNames.LESSON_SELECT_RESOURCES_SEARCH"
       #bottomNavigation
     >
-      <div class="bottom-nav-container">
+      <div
+        class="bottom-nav-container"
+        :style="{
+          marginBottom: isAppContextAndTouchDevice ? '56px' : '0px',
+        }"
+      >
         <KButtonGroup>
           <KRouterLink
             v-if="
@@ -103,6 +108,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { isTouchDevice } from 'kolibri/utils/browserInfo';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
@@ -170,8 +177,13 @@
         deselectResources($evt);
         sendPoliteMessage(numberOfSelectedResources$({ count: selectedResources?.value.length }));
       }
+      const { isAppContext } = useUser();
+      const isAppContextAndTouchDevice = computed(() => {
+        return isAppContext.value && isTouchDevice;
+      });
 
       return {
+        isAppContextAndTouchDevice,
         defaultTitle,
         subpageLoading,
         selectedResources,
