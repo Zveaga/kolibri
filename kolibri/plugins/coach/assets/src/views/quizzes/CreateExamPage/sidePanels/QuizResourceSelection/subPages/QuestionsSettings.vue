@@ -2,8 +2,15 @@
 
   <div>
     <div class="mb-20">
-      {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
+      {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
     </div>
+    <UiAlert
+      v-if="showAlert && addableQuestionCount < settings.maxQuestions"
+      type="warning"
+      @dismiss="showAlert = false"
+    >
+      {{ insufficientResources$({ count: addableQuestionCount }) }}
+    </UiAlert>
     <div class="number-question">
       <div>
         <KTextbox
@@ -62,6 +69,7 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
 
@@ -71,11 +79,22 @@
 
   export default {
     name: 'SelectFromBookmarks',
-    components: {},
+    components: {
+      UiAlert,
+    },
     setup(props) {
       const prevRoute = ref(null);
+      const showAlert = ref(true);
       const instance = getCurrentInstance();
       const router = instance.proxy.$router;
+
+      const { data: channels } = props.channelsFetch;
+
+      const addableQuestionCount = computed(() => {
+        return channels.value.reduce((total, currentObject) => {
+          return total + currentObject.num_assessments;
+        }, 0);
+      });
 
       const {
         questionsSettingsLabel$,
@@ -86,6 +105,7 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
+      const { insufficientResources$, saveSettingsAction$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -138,7 +158,6 @@
         });
       };
 
-      const { saveSettingsAction$ } = searchAndFilterStrings;
       const { continueAction$ } = coreStrings;
       const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
 
@@ -164,15 +183,22 @@
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        showAlert,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
         questionCountIsEditable,
-        maxQuestions: computed(() => props.settings.maxQuestions),
+        maxQuestions: computed(() =>
+          addableQuestionCount.value > props.settings.maxQuestions
+            ? props.settings.maxQuestions
+            : addableQuestionCount.value,
+        ),
         maxNumberOfQuestions$,
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         chooseQuestionsManuallyLabel$,
+        insufficientResources$,
+        addableQuestionCount,
       };
     },
     props: {
@@ -195,6 +221,10 @@
       isLanding: {
         type: Boolean,
         default: false,
+      },
+      channelsFetch: {
+        type: Object,
+        required: true,
       },
     },
     beforeRouteEnter(to, from, next) {

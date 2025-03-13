@@ -141,4 +141,10 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Save settings',
     context: 'Button label to save resource selection settings',
   },
+  insufficientResources: {
+    message:
+      'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, consider adding more resources to your library.',
+    context:
+      'Message to indicate that the resources are not sufficient for the user to create a quiz.',
+  },
 });
