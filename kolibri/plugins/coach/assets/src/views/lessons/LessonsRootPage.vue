@@ -304,18 +304,12 @@
           value: group.id,
         }));
 
-        const learnerOptions = this.learners.map(learner => ({
-          label: learner.name,
-          value: learner.id,
-        }));
-
         return [
           {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
           ...groupOptions,
-          ...learnerOptions,
         ];
       },
     },
