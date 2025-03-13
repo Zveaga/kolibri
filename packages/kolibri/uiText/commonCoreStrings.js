@@ -188,9 +188,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "An action that removes a resource or topic from a user's bookmarks. The opposite of 'Save to bookmarks'.",
   },
+  removedFromBookmarks: {
+    message: 'Removed from bookmarks',
+    context: 'A message indicating that a user has removed a resource from bookmarks',
+  },
   saveToBookmarks: {
     message: 'Save to bookmarks',
     context: "An action that adds a resource or topic to a user's bookmarks",
+  },
+  savedToBookmarks: {
+    message: 'Saved to bookmarks',
+    context: 'A message indicating that a user has saved a resource to bookmarks',
   },
   zoomIn: {
     message: 'Zoom in',

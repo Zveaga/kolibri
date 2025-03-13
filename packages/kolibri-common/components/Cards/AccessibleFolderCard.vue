@@ -7,35 +7,39 @@
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
-    thumbnailScaleType="centerInside"
+    thumbnailScaleType="contain"
     thumbnailAlign="right"
+    :preserveFooter="true"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
         <KIcon
           icon="topic"
           :color="$themePalette.grey.v_700"
+          style="top: 0"
         />
       </div>
     </template>
 
     <template #belowTitle>
-      <div
-        class="header-bar"
-        :style="headerStyles"
-      >
-        <KIcon
-          icon="topic"
-          :color="$themePalette.grey.v_800"
-          class="folder-header-bar"
+      <div>
+        <KTextTruncator
+          v-if="contentNode.description"
+          :text="contentNode.description"
+          :maxLines="2"
+          style="min-height: 17px; margin-bottom: 1em"
         />
-        <p
-          class="folder-header-text"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          {{ coreString('folder') }}
-        </p>
+        <slot name="belowTitle"></slot>
+        <MetadataChips :tags="metadataTags" />
+        <div
+          v-if="!contentNode.description"
+          style="min-height: 17px"
+        ></div>
       </div>
+    </template>
+
+    <template #select>
+      <slot name="select"></slot>
     </template>
   </KCard>
 
@@ -44,17 +48,26 @@
 
 <script>
 
+  import { toRefs } from 'vue';
   import { validateLinkObject } from 'kolibri/utils/validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
+  import MetadataChips from 'kolibri-common/components/MetadataChips';
 
   export default {
     name: 'AccessibleFolderCard',
+    components: {
+      MetadataChips,
+    },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
+      const { contentNode } = toRefs(props);
       const { windowBreakpoint } = useKResponsiveWindow();
+      const { getFolderTags } = useCoachMetadataTags(contentNode.value);
 
       return {
+        metadataTags: getFolderTags(),
         windowBreakpoint,
       };
     },
@@ -77,18 +90,6 @@
         default: null,
       },
     },
-    computed: {
-      headerStyles() {
-        return {
-          color: this.$themeTokens.text,
-          borderRadius: '4px',
-          height: '24px',
-          width: '74px',
-          margin: '0',
-          backgroundColor: this.$themePalette.grey.v_100,
-        };
-      },
-    },
   };
 
 </script>
@@ -96,7 +97,7 @@
 
 <style lang="scss" scoped>
 
-  .header-bar {
+  .chips-wrapper {
     display: flex;
     justify-content: space-between;
     height: 38px;
@@ -122,6 +123,7 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    max-height: 160px;
     font-size: 48px;
   }
 
