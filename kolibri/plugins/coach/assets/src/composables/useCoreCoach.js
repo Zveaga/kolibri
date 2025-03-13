@@ -1,7 +1,10 @@
+import find from 'lodash/find';
 import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'vue';
 import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
+import useUser from 'kolibri/composables/useUser';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const logging = logger.getLogger(__filename);
@@ -14,8 +17,25 @@ export default function useCoreCoach(store) {
   const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
   const classId = computed(() => get(route).params.classId);
   const groups = computed(() => store.getters['classSummary/groups']);
+  const { isSuperuser } = useUser();
+  const { facilities } = useFacilities();
+
   function getAppBarTitle() {
-    return coachStrings.$tr('coachLabel');
+    let facilityName;
+    // Using coachStrings.$tr() here because mixins are not applied
+    // prior to props being processed.
+    const { facility_id, name } = store.state.classSummary;
+    if (facility_id && get(facilities).length > 1 && get(isSuperuser)) {
+      const match = find(get(facilities), { id: facility_id }) || {};
+      facilityName = match.name;
+    }
+    if (facilityName && name) {
+      return coachStrings.$tr('coachLabelWithOneName', {
+        name: facilityName,
+      });
+    } else {
+      return coachStrings.$tr('coachLabel');
+    }
   }
 
   function formatPageTitle() {
