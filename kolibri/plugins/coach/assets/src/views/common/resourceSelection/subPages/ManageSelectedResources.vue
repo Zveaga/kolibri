@@ -20,6 +20,9 @@
         <Draggable
           v-for="(resource, index) in selectedResources"
           :key="resource.id"
+          :style="{
+            background: $themeTokens.surface,
+          }"
         >
           <div
             class="resource-row"
