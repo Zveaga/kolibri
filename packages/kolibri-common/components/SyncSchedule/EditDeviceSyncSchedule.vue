@@ -437,7 +437,12 @@
         promise
           .then(() => {
             this.goBack();
-            this.showSnackbarNotification('syncAdded');
+            if (this.currentTask) {
+              // the sync schedule has already been created and we are editing it
+              this.showSnackbarNotification('syncUpdated');
+            } else {
+              this.showSnackbarNotification('syncAdded');
+            }
           })
           .catch(() => {
             this.createTaskFailedSnackbar();
