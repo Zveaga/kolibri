@@ -12,6 +12,7 @@ from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
+from kolibri.core.content.utils.channel_transfer import export_channel
 from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
@@ -463,11 +464,8 @@ def diskexport(
 
     drive = get_mounted_drive_by_id(drive_id)
 
-    call_command(
-        "exportchannel",
-        channel_id,
-        drive.datafolder,
-    )
+    export_channel(channel_id, drive.datafolder)
+
     call_command(
         "exportcontent",
         channel_id,
