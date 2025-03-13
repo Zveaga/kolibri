@@ -82,6 +82,7 @@
           <KButton
             ref="addQuestionsButton"
             primary
+            hasDropdown
             :text="coreString('optionsLabel')"
           >
             <template #menu>
@@ -154,6 +155,7 @@
             <KButton
               primary
               :text="coreString('optionsLabel')"
+              hasDropdown
             >
               <template #menu>
                 <KDropdownMenu
