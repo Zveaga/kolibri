@@ -24,6 +24,7 @@
     />
 
     <UpdatedResourceSelection
+      :isSelectable="!settings.isChoosingManually"
       :contentList="contentList"
       :hasMore="hasMore"
       :cardsHeadingLevel="2"
@@ -47,7 +48,6 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../../constants';
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
 
@@ -79,9 +79,8 @@
       }
 
       const { selectFromChannels$, searchLabel$ } = coreStrings;
-      const { selectPracticeQuizLabel$ } = enhancedQuizManagementStrings;
 
-      props.setTitle(selectPracticeQuizLabel$());
+      props.setTitle(props.defaultTitle);
       props.setGoBack(null);
 
       const { data, hasMore, fetchMore, loadingMore } = props.searchFetch;
@@ -103,6 +102,10 @@
       setGoBack: {
         type: Function,
         default: () => {},
+      },
+      defaultTitle: {
+        type: String,
+        required: true,
       },
       /**
        * Fetch object for fetching search results.
@@ -140,6 +143,14 @@
       getResourceLink: {
         type: Function,
         required: true,
+      },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {

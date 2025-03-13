@@ -69,6 +69,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addNumberOfQuestions: {
     message: 'Add { count, number } { count, plural, one { question } other { questions }}',
   },
+  replaceNumberOfQuestions: {
+    message: 'Replace { count, number } { count, plural, one { question } other { questions }}',
+  },
   selectResourcesDescription: {
     message: "Add questions to '{ sectionTitle }'",
   },
@@ -148,6 +151,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfReplacementsAvailable: {
     message:
       '{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}',
+  },
+  numberOfQuestionsAdded: {
+    message:
+      '{ count, number } { count, plural, one { question successfully added } other { questions successfully added }} ',
   },
   numberOfQuestionsReplaced: {
     message:
@@ -229,6 +236,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'A message that informs the user about the maximum number of resources they can select',
   },
+  selectNQuestions: {
+    message: 'Select { count, number } { count, plural, one { question } other { questions }}',
+    context: 'A message that informs the user about the number of questions they need to select',
+  },
   selectUpToNQuestions: {
     message:
       'Select up to { count, number } { count, plural, one { question } other { questions }}',
@@ -252,6 +263,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   manualSelectionOffNotice: {
     message: 'Manual question selection is off',
     context: 'A message that appears when the user has disabled the manual selection of questions',
+  },
+  replacingThisQuestionLabel: {
+    message: 'Replacing this question',
+    context: 'A label for the question that is being replaced',
   },
 });
 

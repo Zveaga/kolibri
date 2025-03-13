@@ -75,6 +75,7 @@
     setup(props) {
       const prevRoute = ref(null);
       const instance = getCurrentInstance();
+      const router = instance.proxy.$router;
 
       const {
         questionsSettingsLabel$,
@@ -92,6 +93,14 @@
           sectionTitle: displaySectionTitle(activeSection.value, activeSectionIndex.value),
         }),
       );
+
+      if (props.settings.isInReplaceMode) {
+        // guard against opening settings page in replace mode
+        router.replace({
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        });
+      }
+
       const redirectBack = props.isLanding
         ? null
         : () => {

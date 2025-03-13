@@ -70,6 +70,7 @@
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
+        :defaultTitle="defaultTitle"
         :sectionTitle="sectionTitle"
         :selectedResources="workingResourcePool"
         :selectedQuestions="workingQuestions"
@@ -150,11 +151,7 @@
               "
               :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
             >
-              {{
-                numberOfSelectedQuestions$({
-                  count: workingQuestions.length,
-                })
-              }}
+              {{ numberOfSelectedQuestionsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -178,6 +175,7 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -214,6 +212,9 @@
         allResourceMap,
         activeQuestions,
         addSection,
+        questionItemsToReplace,
+        setQuestionItemsToReplace,
+        clearSelectedQuestions: clearQuizSelectedQuestions,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
@@ -238,11 +239,17 @@
       };
 
       const showManualSelectionNotice = ref(false);
+
+      /**
+       * Selection settings for the current resource selection session
+       */
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
         isChoosingManually: null,
         selectPracticeQuiz,
+        isInReplaceMode: Boolean(questionItemsToReplace.value?.length),
+        questionItemsToReplace: questionItemsToReplace.value,
       });
       watch(
         activeQuestions,
@@ -276,15 +283,27 @@
         }
       });
 
+      if (settings.value.isInReplaceMode) {
+        settings.value = {
+          ...settings.value,
+          isChoosingManually: true,
+          maxQuestions: settings.value.questionItemsToReplace.length,
+        };
+      }
+
       const {
         questionsUnusedInSection$,
         tooManyQuestions$,
         selectQuiz$,
         addNumberOfQuestions$,
+        replaceNumberOfQuestions$,
         maximumResourcesSelectedWarning$,
         maximumQuestionsSelectedWarning$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
+        selectResourcesDescription$,
+        selectPracticeQuizLabel$,
+        replaceQuestions$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -418,6 +437,8 @@
       }
 
       function handleClosePanel() {
+        setWorkingResourcePool();
+        setQuestionItemsToReplace([]);
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
@@ -459,6 +480,9 @@
         if (selectPracticeQuiz) {
           return selectQuiz$();
         }
+        if (settings.value.isInReplaceMode) {
+          return replaceNumberOfQuestions$({ count: settings.value.questionCount });
+        }
         if (settings.value.isChoosingManually) {
           return addNumberOfQuestions$({ count: workingQuestions.value.length });
         }
@@ -469,14 +493,16 @@
         if (selectPracticeQuiz) {
           return !workingPoolHasChanged.value;
         }
-        return (
-          !workingPoolHasChanged.value ||
-          (!settings.value.isChoosingManually &&
-            workingPoolQuestionsCount.value < settings.value.questionCount) ||
-          settings.value.questionCount < 1 ||
-          tooManyQuestions.value ||
-          settings.value.questionCount.value > settings.value.maxQuestions
-        );
+        const disabledConditions = [
+          !workingPoolHasChanged.value,
+          settings.value.questionCount < 1,
+          tooManyQuestions.value,
+          settings.value.questionCount > settings.value.maxQuestions,
+        ];
+        if (!settings.value.isChoosingManually || settings.value.isInReplaceMode) {
+          disabledConditions.push(workingPoolQuestionsCount.value < settings.value.questionCount);
+        }
+        return disabledConditions.some(Boolean);
       });
 
       const title = ref('');
@@ -517,7 +543,11 @@
       });
 
       const maximumContentSelectedWarning = computed(() => {
-        if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
+        if (
+          settings.value.questionCount <= 0 ||
+          remainingSelectableContent.value > 0 ||
+          settings.value.isInReplaceMode
+        ) {
           return null;
         }
         if (settings.value.isChoosingManually) {
@@ -526,8 +556,51 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$, numberOfSelectedQuestions$, dismissAction$ } =
-        searchAndFilterStrings;
+      const {
+        numberOfSelectedResources$,
+        numberOfSelectedQuestions$,
+        dismissAction$,
+        NOutOfMSelectedQuestions$,
+      } = searchAndFilterStrings;
+
+      const numberOfSelectedQuestionsLabel = computed(() => {
+        if (settings.value.isInReplaceMode) {
+          return NOutOfMSelectedQuestions$({
+            count: workingQuestions.value.length,
+            total: settings.value.questionItemsToReplace.length,
+          });
+        }
+        return numberOfSelectedQuestions$({
+          count: workingQuestions.value.length,
+        });
+      });
+
+      const getDefaultTitle = () => {
+        if (selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        if (settings.value.isInReplaceMode) {
+          return replaceQuestions$({ sectionTitle: sectionTitle.value });
+        }
+        return selectResourcesDescription$({ sectionTitle: sectionTitle.value });
+      };
+      const defaultTitle = getDefaultTitle();
+
+      const { createSnackbar } = useSnackbar();
+      function notifyChanges() {
+        const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } =
+          enhancedQuizManagementStrings;
+
+        const message$ = settings.value.isInReplaceMode
+          ? numberOfQuestionsReplaced$
+          : numberOfQuestionsAdded$;
+
+        createSnackbar(
+          message$({
+            count: workingQuestions.value.length || settings.value.questionCount,
+          }),
+        );
+      }
 
       return {
         title,
@@ -536,11 +609,13 @@
         continueAction,
         SelectionTarget,
         sectionTitle,
+        defaultTitle,
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,
         workingPoolHasChanged,
         tooManyQuestions,
+        notifyChanges,
         handleClosePanel,
         handleCancelClose,
         topic,
@@ -563,9 +638,11 @@
         setWorkingResourcePool,
         removeSearchFilterTag,
         clearSearch,
+        clearQuizSelectedQuestions,
         settings,
         disableSave,
         saveButtonLabel,
+        numberOfSelectedQuestionsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -580,7 +657,6 @@
         manualSelectionOffNotice$,
         numberOfSelectedResources$,
         displayingSearchResults,
-        numberOfSelectedQuestions$,
         subpageLoading,
       };
     },
@@ -626,6 +702,7 @@
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
             resources: this.workingResourcePool,
+            questionItemsToReplace: this.settings.questionItemsToReplace,
           });
         } else {
           this.addQuestionsToSectionFromResources({
@@ -635,13 +712,13 @@
           });
         }
 
-        this.setWorkingResourcePool();
-        this.$router.replace({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: {
-            ...this.$route.params,
-          },
-        });
+        if (this.settings.isInReplaceMode) {
+          // After a successful replacement session the quiz selected questions
+          // could be removed, so we need to clear it
+          this.clearQuizSelectedQuestions();
+        }
+        this.notifyChanges();
+        this.handleClosePanel();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {

@@ -141,9 +141,6 @@
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionsLabel$() }}
             </h2>
-            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
-              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
-            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -180,10 +177,10 @@
           <template #header-trailing-actions>
             <KIconButton
               icon="refresh"
+              :ariaLabel="replaceAction$()"
               :tooltip="replaceAction$()"
-              :aria-label="replaceAction$()"
-              :disabled="!canReplaceQuestions"
-              @click="handleReplaceSelection"
+              :disabled="selectedActiveQuestions.length === 0"
+              @click="handleBulkReplacementQuestionsClick(question)"
             />
             <KIconButton
               icon="trash"
@@ -191,6 +188,14 @@
               :aria-label="coreString('deleteAction')"
               :disabled="selectedActiveQuestions.length === 0"
               @click="deleteQuestions"
+            />
+          </template>
+          <template #question-trailing-actions="{ question }">
+            <KIconButton
+              icon="refresh"
+              :ariaLabel="replaceAction$()"
+              :tooltip="replaceAction$()"
+              @click="handleReplaceQuestionClick(question, $event)"
             />
           </template>
         </QuestionsAccordion>
@@ -218,6 +223,7 @@
 
 <script>
 
+  import uniq from 'lodash/uniq';
   import logging from 'kolibri-logging';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import {
@@ -253,7 +259,6 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -265,7 +270,6 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        replacementQuestionPool,
         // Computed
         addQuestionsToSelection,
         removeQuestionsFromSelection,
@@ -275,6 +279,7 @@
         activeResourceMap,
         activeQuestions,
         selectedActiveQuestions,
+        setQuestionItemsToReplace,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -290,7 +295,6 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -302,13 +306,13 @@
         addSection,
         removeSection,
         displaySectionTitle,
+        setQuestionItemsToReplace,
 
         // Computed
         allSections,
         activeSectionIndex,
         activeSection,
         activeResourceMap,
-        replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,
 
@@ -318,16 +322,9 @@
     data() {
       return {
         showDeleteConfirmation: false,
-        showNotEnoughResourcesModal: false,
       };
     },
     computed: {
-      canReplaceQuestions() {
-        return (
-          this.selectedActiveQuestions.length > 0 &&
-          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
-        );
-      },
       tabsWrapperStyles() {
         return {
           paddingTop: '1rem',
@@ -405,6 +402,33 @@
           });
         }
       },
+      handleReplaceQuestionClick(question, $event) {
+        $event.stopPropagation();
+        this.setQuestionItemsToReplace([question.item]);
+        this.$router.push({
+          name: PageNames.QUIZ_PREVIEW_RESOURCE,
+          query: { contentId: question.exercise_id },
+        });
+      },
+      handleBulkReplacementQuestionsClick() {
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+        const questionItems = questions.map(question => question.item);
+        const questionsExercises = uniq(questions.map(question => question.exercise_id));
+
+        this.setQuestionItemsToReplace(questionItems);
+        if (questionsExercises.length === 1 && questionsExercises[0]) {
+          this.$router.push({
+            name: PageNames.QUIZ_PREVIEW_RESOURCE,
+            query: { contentId: questionsExercises[0] },
+          });
+        } else {
+          this.$router.push({
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          });
+        }
+      },
       handleConfirmDelete() {
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
         const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
@@ -415,16 +439,6 @@
           this.focusActiveSectionTab();
         });
         this.showDeleteConfirmation = false;
-      },
-      handleReplaceSelection() {
-        if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
-          this.showNotEnoughResourcesModal = true;
-        } else {
-          this.$router.push({
-            name: PageNames.QUIZ_REPLACE_QUESTIONS,
-            params: this.getCurrentRouteParams(),
-          });
-        }
       },
       handleActiveSectionAction(opt) {
         switch (opt.id) {

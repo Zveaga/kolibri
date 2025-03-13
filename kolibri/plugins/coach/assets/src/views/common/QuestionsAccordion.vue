@@ -57,6 +57,7 @@
         >
           <AccordionItem
             :title="displayQuestionTitle(question, getQuestionContent(question).title)"
+            :disabledTitle="questionItemsToReplace?.includes(question.item)"
             :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
               userSelect: dragActive ? 'none !important' : 'text',
@@ -85,6 +86,15 @@
                   (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
                 "
               />
+            </template>
+            <template #trailing-actions>
+              <span v-if="questionItemsToReplace?.includes(question.item)">
+                {{ replacingThisQuestionLabel$() }}
+              </span>
+              <slot
+                name="question-trailing-actions"
+                :question="question"
+              ></slot>
             </template>
             <template #content>
               <div
@@ -152,12 +162,17 @@
       const dragActive = ref(false);
 
       const { upLabel$, downLabel$ } = searchAndFilterStrings;
-      const { selectAllLabel$, expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
+      const { selectAllLabel$, expandAll$, collapseAll$, replacingThisQuestionLabel$ } =
+        enhancedQuizManagementStrings;
 
       const { moveUpOne, moveDownOne } = useDrag();
 
       function questionCheckboxDisabled(question) {
-        if (props.disabled || props.unselectableQuestionItems?.includes(question.item)) {
+        if (
+          props.disabled ||
+          props.unselectableQuestionItems?.includes(question.item) ||
+          props.questionItemsToReplace?.includes(question.item)
+        ) {
           return true;
         }
         if (
@@ -170,6 +185,9 @@
       }
 
       function questionIsChecked(question) {
+        if (props.questionItemsToReplace?.includes(question.item)) {
+          return false;
+        }
         if (props.unselectableQuestionItems?.includes(question.item)) {
           return true;
         }
@@ -238,6 +256,7 @@
         selectAllLabel$,
         expandAll$,
         collapseAll$,
+        replacingThisQuestionLabel$,
       };
     },
     props: {
@@ -279,6 +298,15 @@
        * and should not be selectable.
        */
       unselectableQuestionItems: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      /**
+       * If provided, the question with this item will appear as disabled
+       * and with a `Replacing this question` message.
+       */
+      questionItemsToReplace: {
         type: Array,
         required: false,
         default: null,

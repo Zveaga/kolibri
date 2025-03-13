@@ -96,9 +96,7 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../constants';
-  import { coachStrings } from '../../commonCoachStrings';
   import { SelectionTarget } from '../contants';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
@@ -127,21 +125,7 @@
         searchLabel$,
       } = coreStrings;
 
-      const { selectResourcesDescription$, selectPracticeQuizLabel$ } =
-        enhancedQuizManagementStrings;
-      const { manageLessonResourcesTitle$ } = coachStrings;
-
-      const getTitle = () => {
-        if (props.target === SelectionTarget.LESSON) {
-          return manageLessonResourcesTitle$();
-        }
-        if (props.settings.selectPracticeQuiz) {
-          return selectPracticeQuizLabel$();
-        }
-        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
-      };
-
-      props.setTitle(getTitle());
+      props.setTitle(props.defaultTitle);
       props.setGoBack(null);
 
       return {
@@ -164,6 +148,10 @@
       setGoBack: {
         type: Function,
         default: () => {},
+      },
+      defaultTitle: {
+        type: String,
+        required: true,
       },
       /**
        * Fetch object for fetching channels.
@@ -188,15 +176,6 @@
       target: {
         type: String,
         required: true,
-      },
-      /**
-       * The title of the section (valid just for quizzes).
-       * @type {string}
-       */
-      sectionTitle: {
-        type: String,
-        required: false,
-        default: null,
       },
       /**
        * Selection settings used for quizzes.

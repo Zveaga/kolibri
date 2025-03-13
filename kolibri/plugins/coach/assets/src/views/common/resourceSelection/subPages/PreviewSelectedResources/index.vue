@@ -63,6 +63,7 @@
           :checked="workingIsChoosingManually"
           :label="chooseQuestionsManuallyLabel$()"
           :description="clearSelectionNotice$()"
+          :disabled="Boolean(settings?.isInReplaceMode)"
           @change="$event => (workingIsChoosingManually = $event)"
         />
         <KButton
@@ -82,6 +83,7 @@
         :maxSelectableQuestions="settings?.questionCount"
         :selectedQuestions="selectedQuestionItems"
         :unselectableQuestionItems="unselectableQuestionItems"
+        :questionItemsToReplace="settings?.questionItemsToReplace"
         @selectQuestions="handleSelectQuestions"
         @deselectQuestions="handleDeselectQuestionss"
       />
@@ -108,7 +110,6 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
   import { SelectionTarget } from '../../contants.js';
-  import { coachStrings } from '../../../commonCoachStrings.js';
   import { PageNames } from '../../../../../constants/index.js';
   import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
@@ -135,24 +136,9 @@
       const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
         props.contentId,
       );
-      const { manageLessonResourcesTitle$ } = coachStrings;
       const { selectFromChannels$ } = coreStrings;
-      const {
-        selectResourcesDescription$,
-        selectPracticeQuizLabel$,
-        chooseQuestionsManuallyLabel$,
-        clearSelectionNotice$,
-      } = enhancedQuizManagementStrings;
-
-      const getTitle = () => {
-        if (props.target === SelectionTarget.LESSON) {
-          return manageLessonResourcesTitle$();
-        }
-        if (props.settings.selectPracticeQuiz) {
-          return selectPracticeQuizLabel$();
-        }
-        return selectResourcesDescription$({ sectionTitle: props.sectionTitle });
-      };
+      const { chooseQuestionsManuallyLabel$, clearSelectionNotice$ } =
+        enhancedQuizManagementStrings;
 
       const redirectBack = () => {
         if (prevRoute.value?.name) {
@@ -166,7 +152,7 @@
         });
       };
 
-      props.setTitle(getTitle());
+      props.setTitle(props.defaultTitle);
       props.setGoBack(redirectBack);
 
       const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
@@ -177,7 +163,10 @@
         });
       };
       const isSaveSettingsDisabled = computed(() => {
-        return workingIsChoosingManually.value === props.settings?.isChoosingManually;
+        return (
+          props.settings?.isInReplaceMode ||
+          workingIsChoosingManually.value === props.settings?.isChoosingManually
+        );
       });
 
       onMounted(() => {
@@ -219,6 +208,10 @@
         type: Function,
         default: () => {},
       },
+      defaultTitle: {
+        type: String,
+        required: true,
+      },
       selectedResources: {
         type: Array,
         required: true,
@@ -258,15 +251,6 @@
        */
       settings: {
         type: Object,
-        required: false,
-        default: null,
-      },
-      /**
-       * The title of the section (valid just for quizzes).
-       * @type {string}
-       */
-      sectionTitle: {
-        type: String,
         required: false,
         default: null,
       },
