@@ -7,24 +7,32 @@
       :settings="settings"
       @searchClick="onSearchClick"
     />
+    <!-- flexDirection is set to row-reverse to align the search button to the right
+         when we have no bookmarks and thus, no selectFromBookmarks$ string -->
+    <div
+      v-if="target === SelectionTarget.LESSON"
+      class="subheader"
+      :style="{
+        flexDirection: bookmarksCount > 0 ? 'row' : 'row-reverse',
+      }"
+    >
+      <div
+        v-if="bookmarksCount > 0"
+        class="side-panel-subtitle"
+      >
+        {{ selectFromBookmarks$() }}
+      </div>
+      <KButton
+        icon="filter"
+        :text="searchLabel$()"
+        @click="onSearchClick"
+      />
+    </div>
+
     <div
       v-if="bookmarksCount > 0"
       class="mb-24"
     >
-      <div
-        v-if="target === SelectionTarget.LESSON"
-        class="subheader"
-      >
-        <div class="side-panel-subtitle">
-          {{ selectFromBookmarks$() }}
-        </div>
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-          @click="onSearchClick"
-        />
-      </div>
-
       <div
         v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
         class="d-flex-end mb-24"
