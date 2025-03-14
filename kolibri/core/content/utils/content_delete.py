@@ -10,7 +10,6 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
-from kolibri.core.content.utils.channel_transfer import DummyJob
 from kolibri.core.content.utils.channel_transfer import get_job
 from kolibri.core.content.utils.content_request import propagate_contentnode_removal
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
@@ -118,11 +117,9 @@ def delete_content(
     # Get the number of files that are being deleted
     unused_files_count = unused_files.count()
     deleted_bytes = unused_files.aggregate(size=Sum("file_size"))["size"] or 0
-    # check job is not instance of DummyJob
-    if not isinstance(job, DummyJob):
-        job.extra_metadata["file_size"] = deleted_bytes
-        job.extra_metadata["total_resources"] = total_resource_number
-        job.save_meta()
+    job.extra_metadata["file_size"] = deleted_bytes
+    job.extra_metadata["total_resources"] = total_resource_number
+    job.save_meta()
     additional_progress = sum((1, bool(delete_all_metadata)))
     target_progress = unused_files_count + additional_progress
     current_progress = 0
