@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError
-from django.core.management import call_command
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -17,6 +16,7 @@ from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_delete import delete_content
+from kolibri.core.content.utils.content_export import export_content
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
@@ -467,8 +467,7 @@ def diskexport(
 
     export_channel(channel_id, drive.datafolder)
 
-    call_command(
-        "exportcontent",
+    export_content(
         channel_id,
         drive.datafolder,
         node_ids=node_ids,
