@@ -20,6 +20,9 @@
         <Draggable
           v-for="(resource, index) in selectedResources"
           :key="resource.id"
+          :style="{
+            background: $themeTokens.surface,
+          }"
         >
           <div
             class="resource-row"
@@ -252,10 +255,7 @@
     display: flex;
     gap: 8px;
     justify-content: space-between;
-
-    &:not(:first-of-type) {
-      margin-top: 16px;
-    }
+    padding-top: 16px;
 
     &:last-of-type {
       border-width: 0 !important;
