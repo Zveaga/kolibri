@@ -30,20 +30,20 @@
     </div>
 
     <div
+      v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+      class="d-flex-end mb-24"
+    >
+      <KButton
+        icon="filter"
+        :text="searchLabel$()"
+        @click="onSearchClick"
+      />
+    </div>
+
+    <div
       v-if="bookmarksCount > 0"
       class="mb-24"
     >
-      <div
-        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
-        class="d-flex-end mb-24"
-      >
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-          @click="onSearchClick"
-        />
-      </div>
-
       <KCardGrid
         layout="1-1-1"
         :layoutOverride="gridLayoutOverrides"
