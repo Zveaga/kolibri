@@ -116,7 +116,7 @@
   import get from 'lodash/get';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
-  import { ref } from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -140,9 +140,10 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
       const closeConfirmationToRoute = ref(null);
       const { createSnackbar } = useSnackbar();
-      const { classId, groups } = useCoreCoach();
+      const { classId, initClassInfo, groups } = useCoreCoach();
       const {
         quizHasChanged,
         quiz,
@@ -154,6 +155,8 @@
       } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
+
+      initClassInfo().then(() => store.dispatch('notLoading'));
 
       const {
         saveAndClose$,
