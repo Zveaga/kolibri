@@ -205,6 +205,9 @@
       },
     },
     watch: {
+      password(newPass) {
+        this.$emit('passwordChanged', newPass);
+      },
       selectedUser(user) {
         // user will be null unless an existing user is selected
         if (user) {
