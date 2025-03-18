@@ -35,6 +35,7 @@
               :label="title"
             />
           </div>
+          <slot name="quizNotStarted"></slot>
           <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
             v-if="pastTries.length > 1 && !isSurvey"
@@ -84,9 +85,6 @@
         :hideStatus="true"
         :isSurvey="isSurvey"
       />
-      <div v-if="!answerState">
-        {{ coreString('quizNotStartedText') }}
-      </div>
     </template>
 
     <template
@@ -353,6 +351,10 @@
         type: Boolean,
         default: false,
       },
+      isActive: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -472,7 +474,7 @@
       },
     },
     created() {
-      if (this.userId) {
+      if (this.userId && this.isActive) {
         this.loadAttempts();
         this.loadAllTries();
       }
