@@ -105,6 +105,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
 
@@ -114,6 +115,7 @@
       SidePanelModal,
     },
     setup() {
+      usePreviousRoute();
       const instance = getCurrentInstance();
       const { sendPoliteMessage } = useKLiveRegion();
       const {

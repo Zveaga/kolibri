@@ -92,6 +92,7 @@
 
 <script>
 
+  import { watch } from 'vue';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
@@ -99,10 +100,10 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { getCurrentInstance, ref, watch } from 'vue';
   import { coachStrings } from '../../commonCoachStrings.js';
   import { PageNames } from '../../../../constants/index.js';
   import { SelectionTarget } from '../contants.js';
+  import { useGoBack } from '../../../../composables/usePreviousRoute.js';
 
   export default {
     name: 'ManageSelectedResources',
@@ -114,8 +115,6 @@
       LearningActivityIcon,
     },
     setup(props) {
-      const prevRoute = ref(null);
-
       const {
         upLabel$,
         downLabel$,
@@ -126,22 +125,17 @@
       } = searchAndFilterStrings;
       const { lessonLabel$, sizeLabel$ } = coachStrings;
 
-      const instance = getCurrentInstance();
-      const router = instance.proxy.$router;
-
-      const redirectBack = () => {
-        if (prevRoute.value?.name) {
-          return router.push(prevRoute.value);
-        }
-        router.push({
+      const goBack = useGoBack({
+        fallbackRoute: {
           name:
             props.target === SelectionTarget.LESSON
               ? PageNames.LESSON_SELECT_RESOURCES_INDEX
               : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
-      };
+        },
+      });
+
       props.setTitle(numberOfSelectedResources$({ count: props.selectedResources.length }));
-      props.setGoBack(redirectBack);
+      props.setGoBack(goBack);
 
       watch(
         () => props.selectedResources,
@@ -151,8 +145,6 @@
       );
 
       return {
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         SelectionTarget,
         upLabel$,
         downLabel$,
@@ -215,11 +207,6 @@
           width: `100%`,
         };
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
     methods: {
       bytesForHumans,

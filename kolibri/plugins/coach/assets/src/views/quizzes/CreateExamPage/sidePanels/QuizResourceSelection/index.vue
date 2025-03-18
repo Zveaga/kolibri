@@ -188,6 +188,7 @@
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
@@ -200,6 +201,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePreviousRoute();
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
