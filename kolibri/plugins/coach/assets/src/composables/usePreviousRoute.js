@@ -59,8 +59,11 @@ export function useGoBack({ fallbackRoute, getFallbackRoute }) {
     }
 
     if (getFallbackRoute) {
-      router.push(getFallbackRoute());
+      return router.push(getFallbackRoute());
     }
+
+    // eslint-disable-next-line no-console
+    console.warn('No fallback route provided to navigate back. No action taken.');
   }
 
   return goBack;
