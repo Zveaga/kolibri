@@ -95,6 +95,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   expandAll: {
     message: 'Expand all',
   },
+  autoReplaceAction: {
+    message: 'Auto-replace',
+  },
   replaceAction: {
     message: 'Replace',
   },

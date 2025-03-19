@@ -176,11 +176,17 @@
         >
           <template #header-trailing-actions>
             <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              @click="handleBulkAutoReplaceQuestionsClick"
+            />
+            <KIconButton
               icon="refresh"
               :ariaLabel="replaceAction$()"
               :tooltip="replaceAction$()"
               :disabled="selectedActiveQuestions.length === 0"
-              @click="handleBulkReplacementQuestionsClick(question)"
+              @click="handleBulkReplacementQuestionsClick"
             />
             <KIconButton
               icon="trash"
@@ -191,6 +197,12 @@
             />
           </template>
           <template #question-trailing-actions="{ question }">
+            <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              @click="handleAutoReplaceQuestionClick(question, $event)"
+            />
             <KIconButton
               icon="refresh"
               :ariaLabel="replaceAction$()"
@@ -258,9 +270,11 @@
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
+        autoReplaceAction$,
         questionsLabel$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        numberOfQuestionsReplaced$,
         questionsDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -278,8 +292,10 @@
         activeSection,
         activeResourceMap,
         activeQuestions,
+        clearSelectedQuestions,
         selectedActiveQuestions,
         setQuestionItemsToReplace,
+        autoReplaceQuestions,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -295,6 +311,8 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
+        autoReplaceAction$,
+        numberOfQuestionsReplaced$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -306,7 +324,9 @@
         addSection,
         removeSection,
         displaySectionTitle,
+        clearSelectedQuestions,
         setQuestionItemsToReplace,
+        autoReplaceQuestions,
 
         // Computed
         allSections,
@@ -401,6 +421,18 @@
             params: { ...this.getCurrentRouteParams(), sectionIndex },
           });
         }
+      },
+      autoReplace(questions) {
+        this.autoReplaceQuestions(questions);
+        this.clearSelectedQuestions();
+        this.createSnackbar(this.numberOfQuestionsReplaced$({ count: questions.length }));
+      },
+      handleAutoReplaceQuestionClick(question, $event) {
+        this.autoReplace([question.item]);
+        $event.stopPropagation();
+      },
+      handleBulkAutoReplaceQuestionsClick() {
+        this.autoReplace(this.selectedActiveQuestions);
       },
       handleReplaceQuestionClick(question, $event) {
         $event.stopPropagation();
