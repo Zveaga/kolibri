@@ -512,6 +512,7 @@ export default function useQuizCreation() {
   provide('questionItemsToReplace', questionItemsToReplace);
   provide('setQuestionItemsToReplace', setQuestionItemsToReplace);
   provide('autoReplaceQuestions', autoReplaceQuestions);
+  provide('activeExercisesUnusedQuestionsMap', activeExercisesUnusedQuestionsMap);
 
   return {
     // Methods
@@ -568,6 +569,7 @@ export function injectQuizCreation() {
   const questionItemsToReplace = inject('questionItemsToReplace');
   const setQuestionItemsToReplace = inject('setQuestionItemsToReplace');
   const autoReplaceQuestions = inject('autoReplaceQuestions');
+  const activeExercisesUnusedQuestionsMap = inject('activeExercisesUnusedQuestionsMap');
 
   return {
     // Methods
@@ -596,5 +598,6 @@ export function injectQuizCreation() {
     activeQuestions,
     selectedActiveQuestions,
     questionItemsToReplace,
+    activeExercisesUnusedQuestionsMap,
   };
 }

@@ -179,6 +179,7 @@
               icon="autoReplace"
               :ariaLabel="autoReplaceAction$()"
               :tooltip="autoReplaceAction$()"
+              :disabled="!isSelectedQuestionsAutoReplaceable"
               @click="handleBulkAutoReplaceQuestionsClick"
             />
             <KIconButton
@@ -201,6 +202,7 @@
               icon="autoReplace"
               :ariaLabel="autoReplaceAction$()"
               :tooltip="autoReplaceAction$()"
+              :disabled="!isQuestionAutoReplaceable(question)"
               @click="handleAutoReplaceQuestionClick(question, $event)"
             />
             <KIconButton
@@ -296,6 +298,7 @@
         selectedActiveQuestions,
         setQuestionItemsToReplace,
         autoReplaceQuestions,
+        activeExercisesUnusedQuestionsMap,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -335,7 +338,7 @@
         activeResourceMap,
         activeQuestions,
         selectedActiveQuestions,
-
+        activeExercisesUnusedQuestionsMap,
         createSnackbar,
       };
     },
@@ -391,6 +394,32 @@
             disabled: this.activeQuestions.length >= MAX_QUESTIONS_PER_QUIZ_SECTION,
           },
         ];
+      },
+      isSelectedQuestionsAutoReplaceable() {
+        if (this.selectedActiveQuestions.length === 0) {
+          return false;
+        }
+
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+
+        const questionCountPerExercise = {};
+        questions.forEach(question => {
+          if (!questionCountPerExercise[question.exercise_id]) {
+            questionCountPerExercise[question.exercise_id] = 0;
+          }
+          questionCountPerExercise[question.exercise_id] += 1;
+        });
+
+        // Return true if the number of available questions for each exercise is greater
+        // than or equal to the number of questions we need to replace
+        return Object.entries(questionCountPerExercise).every(([exerciseId, count]) => {
+          if (!this.activeExercisesUnusedQuestionsMap[exerciseId]?.length) {
+            return false;
+          }
+          return this.activeExercisesUnusedQuestionsMap[exerciseId].length >= count;
+        });
       },
     },
     created() {
@@ -547,6 +576,9 @@
         const count = this.selectedActiveQuestions.length;
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
+      },
+      isQuestionAutoReplaceable(question) {
+        return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
       },
     },
   };
