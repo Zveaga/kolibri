@@ -258,7 +258,12 @@
           this.focusOnInvalidField();
           return;
         } else {
-          this.$emit('submit');
+          const payload = {
+            password: this.password,
+            username: this.username,
+            full_name: this.fullName,
+          };
+          this.$emit('submit', payload);
 
           if (!this.doNotContinue) {
             this.wizardService.send({
