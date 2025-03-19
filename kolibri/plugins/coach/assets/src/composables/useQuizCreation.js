@@ -437,6 +437,10 @@ export default function useQuizCreation() {
     }
   });
 
+  /**
+   * Map of exercise id to array of question items that are not used for each exercise
+   * @type {ComputedRef<Object.<string, string[]>>}
+   */
   const activeExercisesUnusedQuestionsMap = computed(() => {
     const map = {};
     for (const exercise of Object.values(get(activeResourceMap))) {
@@ -448,6 +452,12 @@ export default function useQuizCreation() {
     return map;
   });
 
+  /**
+   * Method to replace questions in `questionItems` with new questions selected from
+   * the unused questions of the exercises that each question belongs to.
+   * @param {Array<string>} questionItems
+   * @throws {Error} If there are no enough unused questions in the exercise to replace a question
+   */
   function autoReplaceQuestions(questionItems = []) {
     if (!questionItems?.length) {
       return;
