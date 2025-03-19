@@ -24,13 +24,8 @@
           :navigateTo="navigateTo"
           :questions="questions"
           :sections="exam.question_sources"
-          :isQuizActive="exam.active"
           @noCompleteTries="noCompleteTries"
-        >
-          <template #unStartedQuiz>
-            {{ coreString('quizNotStartedText') }}
-          </template>
-        </ExamReport>
+        />
       </div>
       <div v-else>
         <p class="no-exercise">

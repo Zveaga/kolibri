@@ -62,13 +62,12 @@
       </KGrid>
     </template>
 
-    <template #subheader>
-      <slot
-        v-if="!answerState && !isQuizActive"
-        name="unStartedQuiz"
-      ></slot>
+    <template
+      v-if="!loading"
+      #subheader
+    >
       <KSelect
-        v-if="pastTries.length > 1 && !loading"
+        v-if="pastTries.length > 1"
         :value="pastTriesOptions[tryIndex]"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
@@ -78,7 +77,7 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length && !loading"
+        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
@@ -351,10 +350,6 @@
         type: Boolean,
         default: false,
       },
-      isQuizActive: {
-        type: Boolean,
-        required: true,
-      },
     },
     data() {
       return {
@@ -474,7 +469,7 @@
       },
     },
     created() {
-      if (this.userId && this.isQuizActive) {
+      if (this.userId) {
         this.loadAttempts();
         this.loadAllTries();
       }

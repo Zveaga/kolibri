@@ -19,11 +19,7 @@
       :questions="questions"
       :isQuiz="isQuiz"
       :isSurvey="isSurvey"
-    >
-      <template #unStartedQuiz>
-        {{ coreString('quizNotStartedText') }}
-      </template>
-    </ExamReport>
+    />
   </KPageContainer>
 
 </template>

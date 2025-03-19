@@ -19,12 +19,7 @@
         :navigateTo="navigateTo"
         :questions="questions"
         :sections="exam.question_sources"
-        :isQuizActive="exam.active"
-      >
-        <template #unStartedQuiz>
-          {{ coreString('quizNotStartedText') }}
-        </template>
-      </ExamReport>
+      />
     </KPageContainer>
   </CoachImmersivePage>
 
@@ -35,7 +30,6 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { PageNames } from '../../../constants';
@@ -46,7 +40,7 @@
       ExamReport,
       CoachImmersivePage,
     },
-    mixins: [commonCoach, commonCoreStrings],
+    mixins: [commonCoach],
     data() {
       return {
         prevRoute: null,
@@ -106,13 +100,6 @@
       width: 200px;
       height: 200px;
     }
-  }
-
-  .not-started {
-    display: flex;
-    width: calc(100% - 100px);
-    margin-top: 1em;
-    margin-left: 10em;
   }
 
 </style>

@@ -23,9 +23,6 @@
         {{ isSurvey ? $tr('submitAgainButton') : $tr('tryAgainButton') }}
       </KButton>
     </template>
-    <template #unStartedQuiz>
-      {{ coreString('quizNotStartedText') }}
-    </template>
   </ExamReport>
 
 </template>
