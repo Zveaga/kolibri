@@ -277,7 +277,7 @@
       filteredTasks() {
         return this.tasks.filter(
           task =>
-            (this.isKdp || task.extra_metadata.device_id === this.device.id) &&
+            (this.isKdp || task.extra_metadata.device_id === this.device?.id) &&
             task.facility_id === this.facilityId &&
             task.type === this.taskType &&
             // Only show tasks that are repeating indefinitely
