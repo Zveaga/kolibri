@@ -2,6 +2,41 @@ import pickBy from 'lodash/pickBy';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { _userState } from '../mappers';
+
+export function fetchSortedFacilityUsersHandler(store, { column, order, page, page_size  }) {
+  store.commit('userManagement/SET_STATE', { dataLoading: true });
+
+  const orderingParam = order === 'desc' ? `-${column}` : column || null;
+  const shouldResolve = samePageCheckGenerator(store);
+
+  return FacilityUserResource.fetchCollection({
+    getParams: pickBy({
+      ordering: orderingParam, // Pass the ordering parameter
+      page,
+      page_size,
+    }),
+    force: true,
+  })
+    .then(users => {
+      if (shouldResolve()) {
+        // Map the response data to your state as required
+        const mappedUsers = users.results.map(_userState);
+        console.log('Ordered Facility Users:', mappedUsers);
+        store.commit('userManagement/SET_STATE', {
+          facilityUsers: mappedUsers,
+          totalPages: users.total_pages,
+          usersCount: users.count,
+        });
+      }
+      store.commit('userManagement/SET_STATE', { dataLoading: false });
+      store.dispatch('userManagement/notLoading');
+    })
+    .catch(error => {
+      shouldResolve() ? store.dispatch('userManagement/handleApiError', { error, reloadOnReconnect: true }) : null;
+      store.commit('userManagement/SET_STATE', { dataLoading: false });
+      store.dispatch('userManagement/notLoading');
+    });
+}
 // An action for setting up the initial state of the app by fetching data from the server
 export function showUserPage(store, toRoute, fromRoute) {
   store.commit('userManagement/SET_STATE', { dataLoading: true });

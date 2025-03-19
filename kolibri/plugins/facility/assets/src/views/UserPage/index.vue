@@ -67,6 +67,9 @@
           :rows="tableRows"
           :dataLoading="dataLoading"
           :emptyMessage="emptyMessageForItems(facilityUsers, search)"
+          sortable
+          disableBuiltinSorting
+          @changeSort="changeSortHandler"
         >
           <template #header="{ header, colIndex }">
             <span :class="{ visuallyhidden: colIndex === 5 }">{{ header.label }}</span>
@@ -338,6 +341,47 @@
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
     methods: {
+      changeSortHandler({ sortKey, sortOrder }) {
+        this.sortKey = sortKey;
+        this.sortOrder = sortOrder;
+        const column = 'birth_year'; // Set the column to 'birth_year'
+        const order = sortOrder; // Use the sortOrder from the handler
+        const page = this.$route.query.page || 1;
+        const page_size = this.$route.query.page_size || 30;
+        console.log(`Stored sortKey: ${this.sortKey}, sortOrder: ${this.sortOrder}, column: ${column}`);
+        if (sortOrder) {
+          // If sortOrder is "asc" or "desc", fetch sorted data and update the route
+          this.$store
+            .dispatch('userManagement/fetchSortedFacilityUsers', { column, order, page, page_size })
+            .then(() => {
+              console.log('Facility users fetched and updated');
+              this.$router.push({
+                path: this.$route.path,
+                query: {
+                  ...this.$route.query,
+                  ordering: column,
+                  order,
+                  page,
+                  page_size,
+                },
+              });
+            })
+            .catch(err => {
+              console.error('Failed to fetch sorted data:', err);
+            });
+        } else {
+          // If sortOrder is undefined, remove ordering and order from the route
+          const { ordering, order, ...query } = this.$route.query;
+          this.$router.push({
+            path: this.$route.path,
+            query: {
+              ...query,
+              page,
+              page_size,
+            },
+          });
+        }
+      },
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');
