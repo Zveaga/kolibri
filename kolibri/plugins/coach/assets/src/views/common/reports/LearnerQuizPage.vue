@@ -19,12 +19,9 @@
         :navigateTo="navigateTo"
         :questions="questions"
         :sections="exam.question_sources"
-        :isActive="exam.active"
+        :isQuizActive="exam.active"
       >
-        <template
-          v-if="!exam.active"
-          #quizNotStarted
-        >
+        <template #unStartedQuiz>
           {{ coreString('quizNotStartedText') }}
         </template>
       </ExamReport>

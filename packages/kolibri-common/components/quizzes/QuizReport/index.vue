@@ -35,7 +35,6 @@
               :label="title"
             />
           </div>
-          <slot name="quizNotStarted"></slot>
           <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
             v-if="pastTries.length > 1 && !isSurvey"
@@ -63,12 +62,13 @@
       </KGrid>
     </template>
 
-    <template
-      v-if="!loading"
-      #subheader
-    >
+    <template #subheader>
+      <slot
+        v-if="!answerState && !isQuizActive"
+        name="unStartedQuiz"
+      ></slot>
       <KSelect
-        v-if="pastTries.length > 1"
+        v-if="pastTries.length > 1 && !loading"
         :value="pastTriesOptions[tryIndex]"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
@@ -78,7 +78,7 @@
         @change="navigateToTry"
       />
       <CurrentTryOverview
-        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
+        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length && !loading"
         :userId="userId"
         :currentTry="currentTry"
         :totalQuestions="questions.length"
@@ -351,9 +351,9 @@
         type: Boolean,
         default: false,
       },
-      isActive: {
+      isQuizActive: {
         type: Boolean,
-        default: false,
+        required: true,
       },
     },
     data() {
@@ -474,7 +474,7 @@
       },
     },
     created() {
-      if (this.userId && this.isActive) {
+      if (this.userId && this.isQuizActive) {
         this.loadAttempts();
         this.loadAllTries();
       }
