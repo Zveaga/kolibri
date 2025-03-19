@@ -573,10 +573,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Important: please remember this account information. Write it down if needed.',
     context: 'Helper/information text to remind user to take note of their account information.',
   },
-  quizNotStartedText: {
-    message: 'Quiz not started',
-    context: 'Message displayed to indicate that a quiz has not been started by a learner.',
-  },
 
   // Learning Activities
   all: {
