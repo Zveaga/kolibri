@@ -1,5 +1,6 @@
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
+import shuffled from 'kolibri-common/utils/shuffled.js';
 import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { validateObject, objectWithDefaults } from 'kolibri/utils/objectSpecs';
@@ -7,7 +8,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject, getCurrentInstance, watch } from 'vue';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 // TODO: Probably move this to this file's local dir
-import selectQuestions from '../utils/selectQuestions.js';
+import selectQuestions, { exerciseToQuestionArray } from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
@@ -436,6 +437,67 @@ export default function useQuizCreation() {
     }
   });
 
+  /**
+   * Map of exercise id to array of question items that are not used for each exercise
+   * @type {ComputedRef<Object.<string, string[]>>}
+   */
+  const activeExercisesUnusedQuestionsMap = computed(() => {
+    const map = {};
+    for (const exercise of Object.values(get(activeResourceMap))) {
+      const unusedQuestions = exercise.assessmentmetadata.assessment_item_ids
+        .map(aid => `${exercise.id}:${aid}`)
+        .filter(qid => !get(allQuestionsInQuiz).find(q => q.item === qid));
+      map[exercise.id] = unusedQuestions;
+    }
+    return map;
+  });
+
+  /**
+   * Method to replace questions in `questionItems` with new questions selected from
+   * the unused questions of the exercises that each question belongs to.
+   * @param {Array<string>} questionItems
+   * @throws {Error} If there are no enough unused questions in the exercise to replace a question
+   */
+  function autoReplaceQuestions(questionItems = []) {
+    if (!questionItems?.length) {
+      return;
+    }
+    const questionsToReplace = questionItems
+      .map(questionItem => get(activeQuestions).find(q => q.item === questionItem))
+      .filter(Boolean);
+    const exercises = uniq(questionsToReplace.map(q => q.exercise_id));
+
+    const shuffledExercisesUnusedQuestionsMap = {};
+    exercises.forEach(exerciseId => {
+      const unusedQuestions = get(activeExercisesUnusedQuestionsMap)[exerciseId];
+      if (!unusedQuestions?.length) {
+        throw new Error(`No unused questions found for exercise ${exerciseId}`);
+      }
+      const shuffledQuestionItems = shuffled(unusedQuestions);
+      const exerciseQuestions = exerciseToQuestionArray(_exerciseMap[exerciseId]);
+      const shuffledQuestions = shuffledQuestionItems.map(item =>
+        exerciseQuestions.find(q => q.item === item),
+      );
+      shuffledExercisesUnusedQuestionsMap[exerciseId] = shuffledQuestions;
+    });
+
+    const newQuestions = questionsToReplace.map(question => {
+      const exerciseId = question.exercise_id;
+      const unusedQuestions = shuffledExercisesUnusedQuestionsMap[exerciseId];
+      const newQuestion = unusedQuestions.pop();
+      if (!newQuestion) {
+        throw new Error(`No enough unused questions found for exercise ${exerciseId}`);
+      }
+      return newQuestion;
+    });
+
+    const questionItemsToReplace = questionsToReplace.map(q => q.item);
+    const baseQuestions = get(activeQuestions);
+
+    const questionsToAdd = _replaceQuestions(baseQuestions, questionItemsToReplace, newQuestions);
+    updateSection({ sectionIndex: get(activeSectionIndex), questions: questionsToAdd });
+  }
+
   provide('allQuestionsInQuiz', allQuestionsInQuiz);
   provide('updateSection', updateSection);
   provide('addQuestionsToSection', addQuestionsToSection);
@@ -459,6 +521,8 @@ export default function useQuizCreation() {
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
   provide('questionItemsToReplace', questionItemsToReplace);
   provide('setQuestionItemsToReplace', setQuestionItemsToReplace);
+  provide('autoReplaceQuestions', autoReplaceQuestions);
+  provide('activeExercisesUnusedQuestionsMap', activeExercisesUnusedQuestionsMap);
 
   return {
     // Methods
@@ -514,6 +578,8 @@ export function injectQuizCreation() {
   const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
   const questionItemsToReplace = inject('questionItemsToReplace');
   const setQuestionItemsToReplace = inject('setQuestionItemsToReplace');
+  const autoReplaceQuestions = inject('autoReplaceQuestions');
+  const activeExercisesUnusedQuestionsMap = inject('activeExercisesUnusedQuestionsMap');
 
   return {
     // Methods
@@ -528,6 +594,7 @@ export function injectQuizCreation() {
     addQuestionsToSelection,
     removeQuestionsFromSelection,
     setQuestionItemsToReplace,
+    autoReplaceQuestions,
 
     // Computed
     allQuestionsInQuiz,
@@ -541,5 +608,6 @@ export function injectQuizCreation() {
     activeQuestions,
     selectedActiveQuestions,
     questionItemsToReplace,
+    activeExercisesUnusedQuestionsMap,
   };
 }

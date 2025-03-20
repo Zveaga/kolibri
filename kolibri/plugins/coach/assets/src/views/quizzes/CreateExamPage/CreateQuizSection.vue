@@ -176,11 +176,18 @@
         >
           <template #header-trailing-actions>
             <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              :disabled="!isSelectedQuestionsAutoReplaceable"
+              @click="handleBulkAutoReplaceQuestionsClick"
+            />
+            <KIconButton
               icon="refresh"
               :ariaLabel="replaceAction$()"
               :tooltip="replaceAction$()"
               :disabled="selectedActiveQuestions.length === 0"
-              @click="handleBulkReplacementQuestionsClick(question)"
+              @click="handleBulkReplacementQuestionsClick"
             />
             <KIconButton
               icon="trash"
@@ -191,6 +198,13 @@
             />
           </template>
           <template #question-trailing-actions="{ question }">
+            <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              :disabled="!isQuestionAutoReplaceable(question)"
+              @click="handleAutoReplaceQuestionClick(question, $event)"
+            />
             <KIconButton
               icon="refresh"
               :ariaLabel="replaceAction$()"
@@ -258,9 +272,11 @@
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
+        autoReplaceAction$,
         questionsLabel$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        numberOfQuestionsReplaced$,
         questionsDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -278,8 +294,11 @@
         activeSection,
         activeResourceMap,
         activeQuestions,
+        clearSelectedQuestions,
         selectedActiveQuestions,
         setQuestionItemsToReplace,
+        autoReplaceQuestions,
+        activeExercisesUnusedQuestionsMap,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -295,6 +314,8 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
+        autoReplaceAction$,
+        numberOfQuestionsReplaced$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -306,7 +327,9 @@
         addSection,
         removeSection,
         displaySectionTitle,
+        clearSelectedQuestions,
         setQuestionItemsToReplace,
+        autoReplaceQuestions,
 
         // Computed
         allSections,
@@ -315,7 +338,7 @@
         activeResourceMap,
         activeQuestions,
         selectedActiveQuestions,
-
+        activeExercisesUnusedQuestionsMap,
         createSnackbar,
       };
     },
@@ -372,6 +395,32 @@
           },
         ];
       },
+      isSelectedQuestionsAutoReplaceable() {
+        if (this.selectedActiveQuestions.length === 0) {
+          return false;
+        }
+
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+
+        const questionCountPerExercise = {};
+        questions.forEach(question => {
+          if (!questionCountPerExercise[question.exercise_id]) {
+            questionCountPerExercise[question.exercise_id] = 0;
+          }
+          questionCountPerExercise[question.exercise_id] += 1;
+        });
+
+        // Return true if the number of available questions for each exercise is greater
+        // than or equal to the number of questions we need to replace
+        return Object.entries(questionCountPerExercise).every(([exerciseId, count]) => {
+          if (!this.activeExercisesUnusedQuestionsMap[exerciseId]?.length) {
+            return false;
+          }
+          return this.activeExercisesUnusedQuestionsMap[exerciseId].length >= count;
+        });
+      },
     },
     created() {
       const { query } = this.$route;
@@ -401,6 +450,18 @@
             params: { ...this.getCurrentRouteParams(), sectionIndex },
           });
         }
+      },
+      autoReplace(questions) {
+        this.autoReplaceQuestions(questions);
+        this.clearSelectedQuestions();
+        this.createSnackbar(this.numberOfQuestionsReplaced$({ count: questions.length }));
+      },
+      handleAutoReplaceQuestionClick(question, $event) {
+        this.autoReplace([question.item]);
+        $event.stopPropagation();
+      },
+      handleBulkAutoReplaceQuestionsClick() {
+        this.autoReplace(this.selectedActiveQuestions);
       },
       handleReplaceQuestionClick(question, $event) {
         $event.stopPropagation();
@@ -515,6 +576,9 @@
         const count = this.selectedActiveQuestions.length;
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
+      },
+      isQuestionAutoReplaceable(question) {
+        return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
       },
     },
   };
