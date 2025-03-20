@@ -28,6 +28,9 @@ ENVIRONMENT_VARIABLES = {
     "KOLIBRI_APK_VERSION_NAME": {
         "description": "Version name for the Kolibri APK (Android Installer)",
     },
+    "KOLIBRI_NO_C_EXTENSIONS": {
+        "description": "Disable C extensions.",
+    },
     "LISTEN_PID": {
         "description": """
             The PID of the process to listen for signals from -
@@ -149,6 +152,7 @@ def set_env():
     from the distributed version in case it exists before importing anything
     else.
     """
+
     monkey_patch_markdown()
     monkey_patch_distutils()
 
@@ -156,8 +160,9 @@ def set_env():
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
-    # Add path for c extensions to sys.path
-    prepend_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+    if not os.environ.get("KOLIBRI_NO_C_EXTENSIONS", False):
+        # Add path for c extensions to sys.path
+        prepend_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
 
     # Depends on Django, so we need to wait until our dist has been registered.
     forward_port_cgi_module()
