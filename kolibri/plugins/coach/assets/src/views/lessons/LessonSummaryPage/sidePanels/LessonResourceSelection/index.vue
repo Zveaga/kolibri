@@ -17,7 +17,7 @@
           :ariaLabel="backAction$()"
           @click="goBack()"
         />
-        <h1 class="side-panel-title">{{ title }}</h1>
+        <h1 class="side-panel-title">{{ sidePanelTitle }}</h1>
       </div>
     </template>
     <div v-if="subpageLoading">
@@ -110,10 +110,12 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import { truncateSidePanelTitle } from '../../../../../utils/truncateSidePanelTitle';
 
   export default {
     name: 'LessonResourceSelection',
@@ -123,6 +125,7 @@
     setup() {
       const instance = getCurrentInstance();
       const { sendPoliteMessage } = useKLiveRegion();
+      const { windowWidth } = useKResponsiveWindow();
       const {
         loading,
         topic,
@@ -209,6 +212,7 @@
         saveAndFinishAction$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
+        windowWidth,
       };
     },
     data() {
@@ -252,6 +256,9 @@
       },
       lessonTitle() {
         return this.currentLesson.title;
+      },
+      sidePanelTitle() {
+        return truncateSidePanelTitle(this.title, this.windowWidth, this.goBack);
       },
     },
     methods: {
@@ -342,6 +349,7 @@
   .side-panel-title {
     margin: 0;
     font-size: 18px;
+    white-space: nowrap;
   }
 
   .bottom-nav-container {
