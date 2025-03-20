@@ -428,7 +428,7 @@
         },
         search: {
           filters: {
-            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            kind: ContentNodeKinds.EXERCISE,
             contains_quiz: selectPracticeQuiz ? true : null,
           },
         },
