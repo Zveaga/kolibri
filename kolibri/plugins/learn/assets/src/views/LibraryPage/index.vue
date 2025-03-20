@@ -49,16 +49,20 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1 class="channels-label">
-            {{ channelsLabel }}
-          </h1>
-          <p
-            v-if="isLocalLibraryEmpty"
-            data-test="nothing-in-lib-label"
-            class="nothing-in-lib-label"
-          >
-            {{ coreString('nothingInLibraryLearner') }}
-          </p>
+          <NoResourcePage v-if="isChannelEmpty && isLearner" />
+          <div v-else>
+            <h1 class="channels-label">
+              {{ channelsLabel }}
+            </h1>
+            <p
+              v-if="isLocalLibraryEmpty"
+              data-test="nothing-in-lib-label"
+              class="nothing-in-lib-label"
+            >
+              {{ coreString('nothingInLibraryLearner') }}
+            </p>
+          </div>
+
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
             data-test="channel-cards"
@@ -77,7 +81,7 @@
           />
           <!-- Other Libraries -->
           <OtherLibraries
-            v-if="showOtherLibraries"
+            v-if="showOtherLibraries && !isLearner"
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
@@ -211,6 +215,7 @@
   import PostSetupModalGroup from '../../../../../device/assets/src/views/PostSetupModalGroup.vue';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
+  import NoResourcePage from './NoResourcePage';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -233,6 +238,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
+      NoResourcePage,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -244,6 +250,7 @@
         isUserLoggedIn,
         isCoach,
         isAdmin,
+        isLearner,
         isSuperuser,
         canManageContent,
         isLearnerOnlyImport,
@@ -282,6 +289,7 @@
 
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
+      const isChannelEmpty = ref(false);
 
       function _showChannels(channels, baseurl) {
         if (get(isUserLoggedIn) && !baseurl) {
@@ -333,9 +341,8 @@
 
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
-          if (!channels.length && get(isAdmin) && get(isSuperuser)) {
-            router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-            return;
+          if (!channels.length) {
+            set(isChannelEmpty, true);
           }
 
           if (!channels.length && baseurl) {
@@ -414,6 +421,8 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        isLearner,
+        isChannelEmpty,
       };
     },
     props: {
