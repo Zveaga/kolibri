@@ -105,7 +105,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
-    <router-view />
+    <router-view v-if="quizInitialized" />
   </CoachImmersivePage>
 
 </template>
