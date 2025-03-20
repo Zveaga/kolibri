@@ -40,6 +40,7 @@
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
+  import { useGoBack } from '../../../../composables/usePreviousRoute';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
@@ -58,15 +59,16 @@
 
       props.setTitle(selectFromBookmarks$());
 
-      const redirectBack = () => {
-        instance.proxy.$router.push({
+      const goBack = useGoBack({
+        fallbackRoute: {
           name:
             props.target === SelectionTarget.LESSON
               ? PageNames.LESSON_SELECT_RESOURCES_INDEX
               : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
-      };
-      props.setGoBack(redirectBack);
+        },
+      });
+
+      props.setGoBack(goBack);
 
       const channelsLink = {
         name:

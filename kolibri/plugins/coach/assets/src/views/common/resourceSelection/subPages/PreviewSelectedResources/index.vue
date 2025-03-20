@@ -111,6 +111,7 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
   import { SelectionTarget } from '../../contants.js';
   import { PageNames } from '../../../../../constants/index.js';
+  import { useGoBack } from '../../../../../composables/usePreviousRoute.js';
   import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
@@ -129,9 +130,7 @@
       ResourceSelectionBreadcrumbs,
     },
     setup(props) {
-      const prevRoute = ref(null);
       const instance = getCurrentInstance();
-      const router = instance.proxy.$router;
 
       const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
         props.contentId,
@@ -140,20 +139,31 @@
       const { chooseQuestionsManuallyLabel$, clearSelectionNotice$ } =
         enhancedQuizManagementStrings;
 
-      const redirectBack = () => {
-        if (prevRoute.value?.name) {
-          return router.push(prevRoute.value);
-        }
-        router.push({
-          name:
-            props.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
-      };
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          if (contentNode.value) {
+            const parentRouteName =
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+                : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE;
+            return {
+              name: parentRouteName,
+              query: {
+                topicId: contentNode.value.parent,
+              },
+            };
+          }
+          return {
+            name:
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+                : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          };
+        },
+      });
 
       props.setTitle(props.defaultTitle);
-      props.setGoBack(redirectBack);
+      props.setGoBack(goBack);
 
       const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
       const saveSettings = () => {
@@ -171,7 +181,7 @@
 
       onMounted(() => {
         if (!props.contentId) {
-          redirectBack();
+          goBack();
         }
       });
 
@@ -183,8 +193,6 @@
         questions,
         loading,
         SelectionTarget,
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         exerciseQuestions,
         workingIsChoosingManually,
         isSaveSettingsDisabled,
@@ -299,11 +307,6 @@
       selectedQuestionItems() {
         return this.selectedQuestions.map(q => q.item);
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
     methods: {
       handleAddResource() {
