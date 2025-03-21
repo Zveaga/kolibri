@@ -10,6 +10,7 @@
     @shouldFocusFirstEl="findFirstEl()"
   >
     <template #header>
+      <h1 class="sidepanel-title">{{ editSectionLabel$() }}</h1>
       <KIconButton
         v-if="canGoBack"
         icon="back"
@@ -26,6 +27,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'vue';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
 
   export default {
@@ -40,7 +42,7 @@
 
       const canGoBack = ref(false);
       const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
-
+      const { editSectionLabel$ } = enhancedQuizManagementStrings;
       function handleClosePanel() {
         router.push({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -71,6 +73,7 @@
         canGoBack,
         showSidePanel,
         handleClosePanel,
+        editSectionLabel$,
       };
     },
     methods: {
@@ -84,3 +87,12 @@
   };
 
 </script>
+
+
+<style scoped>
+
+  .sidepanel-title {
+    font-size: 18px;
+  }
+
+</style>
