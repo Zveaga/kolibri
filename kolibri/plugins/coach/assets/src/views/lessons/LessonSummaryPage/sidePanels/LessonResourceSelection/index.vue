@@ -72,7 +72,7 @@
           </KRouterLink>
           <KButton
             primary
-            :disabled="isSaving"
+            :disabled="selectedResources.length < 1 || isSaving"
             :text="saveAndFinishAction$()"
             @click="save"
           />
