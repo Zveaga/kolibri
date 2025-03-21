@@ -49,18 +49,21 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <NoResourcePage v-if="isChannelEmpty && isLearner" />
-          <div v-else>
-            <h1 class="channels-label">
+          <div>
+            <h1
+              v-if="!isLocalLibraryEmpty"
+              class="channels-label"
+            >
               {{ channelsLabel }}
             </h1>
-            <p
+            <!-- <p
               v-if="isLocalLibraryEmpty"
               data-test="nothing-in-lib-label"
               class="nothing-in-lib-label"
             >
               {{ coreString('nothingInLibraryLearner') }}
-            </p>
+            </p> -->
+            <NoResourcePage v-if="isLocalLibraryEmpty" />
           </div>
 
           <ChannelCardGroupGrid
@@ -81,9 +84,10 @@
           />
           <!-- Other Libraries -->
           <OtherLibraries
-            v-if="showOtherLibraries && !isLearner"
+            v-if="showOtherLibraries"
             data-test="other-libraries"
             :injectedtr="injecttr"
+            @availableNetworkDevices="availableNetworkDevices"
           />
         </div>
 
@@ -289,7 +293,6 @@
 
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
-      const isChannelEmpty = ref(false);
 
       function _showChannels(channels, baseurl) {
         if (get(isUserLoggedIn) && !baseurl) {
@@ -341,10 +344,6 @@
 
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
-          if (!channels.length) {
-            set(isChannelEmpty, true);
-          }
-
           if (!channels.length && baseurl) {
             router.replace({ name: PageNames.LIBRARY });
             return;
@@ -421,8 +420,6 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
-        isLearner,
-        isChannelEmpty,
       };
     },
     props: {

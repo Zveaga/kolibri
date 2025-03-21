@@ -1,6 +1,6 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+  <div>
     <h1>{{ $tr('header') }}</h1>
     <p>
       <KExternalLink
@@ -12,7 +12,7 @@
     <p v-if="showLearnerText">
       {{ $tr('learnerText') }}
     </p>
-  </LearnAppBarPage>
+  </div>
 
 </template>
 
