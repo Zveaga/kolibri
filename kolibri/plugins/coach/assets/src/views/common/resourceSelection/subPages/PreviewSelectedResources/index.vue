@@ -95,6 +95,8 @@
         :questions="questions"
         :isExercise="false"
       />
+
+      <PreviewMetadata :contentNode="contentNode" />
     </div>
   </div>
 
@@ -103,12 +105,12 @@
 
 <script>
 
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { getCurrentInstance, onMounted, ref, computed } from 'vue';
   import { ContentNodeKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
   import { SelectionTarget } from '../../contants.js';
   import { PageNames } from '../../../../../constants/index.js';
   import { useGoBack } from '../../../../../composables/usePreviousRoute.js';
@@ -117,11 +119,13 @@
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import QuestionsAccordion from '../../../QuestionsAccordion.vue';
   import PreviewContent from './PreviewContent';
+  import PreviewMetadata from './PreviewMetadata';
   import ResourceActionButton from './ResourceActionButton.vue';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
+      PreviewMetadata,
       PreviewContent,
       QuestionsAccordion,
       LearningActivityIcon,
