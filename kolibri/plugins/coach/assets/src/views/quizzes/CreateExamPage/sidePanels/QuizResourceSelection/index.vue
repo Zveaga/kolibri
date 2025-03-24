@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -67,6 +69,7 @@
       </div>
       <router-view
         v-else
+        v-autofocus-first-el
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -182,7 +185,7 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { coachStrings } from '../../../../common/commonCoachStrings';
@@ -193,11 +196,15 @@
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
+    },
+    directives: {
+      autofocusFirstEl,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -604,6 +611,8 @@
         );
       }
 
+      const { goBackAction$ } = coreStrings;
+
       return {
         title,
         goBack,
@@ -633,6 +642,8 @@
         unselectableQuestionItems,
         maximumContentSelectedWarning,
         showManualSelectionNotice,
+        subpageLoading,
+        displayingSearchResults,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         addToWorkingQuestions,
@@ -654,12 +665,11 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
+        goBackAction$,
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
         numberOfSelectedResources$,
-        displayingSearchResults,
-        subpageLoading,
       };
     },
     computed: {

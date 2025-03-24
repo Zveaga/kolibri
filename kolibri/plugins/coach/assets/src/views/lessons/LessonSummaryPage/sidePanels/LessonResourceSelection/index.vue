@@ -13,8 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
-          :tooltip="backAction$()"
-          :ariaLabel="backAction$()"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -25,6 +25,7 @@
     </div>
     <router-view
       v-else
+      v-autofocus-first-el
       :setTitle="setTitle"
       :setGoBack="setGoBack"
       :defaultTitle="defaultTitle"
@@ -115,11 +116,15 @@
   import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'LessonResourceSelection',
     components: {
       SidePanelModal,
+    },
+    directives: {
+      autofocusFirstEl,
     },
     setup() {
       usePreviousRoute();
@@ -161,7 +166,7 @@
         createSnackbar(saveLessonError$());
       }
 
-      const { saveAndFinishAction$, continueAction$, cancelAction$, backAction$ } = coreStrings;
+      const { saveAndFinishAction$, continueAction$, cancelAction$, goBackAction$ } = coreStrings;
 
       const subpageLoading = computed(() => {
         const skipLoading = PageNames.LESSON_SELECT_RESOURCES_SEARCH;
@@ -205,7 +210,7 @@
         notifyResourcesAdded,
         notifySaveLessonError,
         removeSearchFilterTag,
-        backAction$,
+        goBackAction$,
         cancelAction$,
         continueAction$,
         saveAndFinishAction$,
