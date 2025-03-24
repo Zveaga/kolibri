@@ -41,7 +41,6 @@ export default {
     // Some KDS components like KBreadcrumbs needs at least 2 ticks to be properly rendered
     await nextTick();
     await nextTick();
-    await nextTick();
     const firstFocusableElement = getFirstFocusableElement(el);
     if (firstFocusableElement) {
       firstFocusableElement.focus();
