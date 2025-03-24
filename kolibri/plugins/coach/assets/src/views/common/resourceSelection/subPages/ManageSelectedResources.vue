@@ -8,83 +8,60 @@
       <p>{{ lessonLabel$() }}: {{ lessonTitle }}</p>
       <p>{{ sizeLabel$() }}: {{ bytesForHumans(selectedResourcesSize) }}</p>
     </div>
-    <DragContainer
-      v-if="selectedResources.length > 0"
-      :items="selectedResources"
-      @sort="$emit('setSelectedResources', $event.newArray)"
-    >
-      <transition-group
-        tag="div"
-        name="list"
+    <div v-if="selectedResources.length > 0">
+      <div
+        v-for="resource in selectedResources"
+        :key="resource.id"
       >
-        <Draggable
-          v-for="(resource, index) in selectedResources"
-          :key="resource.id"
-          :style="{
-            background: $themeTokens.surface,
-          }"
+        <div
+          class="resource-row"
+          :style="rowStyles"
         >
-          <div
-            class="resource-row"
-            :style="rowStyles"
-          >
-            <div class="row-content">
-              <DragHandle v-if="selectedResources.length > 1 && !disabled">
-                <DragSortWidget
-                  :moveUpText="upLabel$"
-                  :moveDownText="downLabel$"
-                  :noDrag="true"
-                  :isFirst="index === 0"
-                  :isLast="index === selectedResources.length - 1"
-                  @moveUp="() => {}"
-                  @moveDown="() => {}"
-                />
-              </DragHandle>
-              <LearningActivityIcon
-                :kind="resource.learning_activities[0]"
-                class="icon-style"
-              />
-              <div>
-                <span class="arrange-item-block">
-                  <span>
-                    <KRouterLink
-                      :text="resource.title"
-                      :to="getResourceLink(resource.id)"
-                      style="font-size: 14px"
-                    />
-                  </span>
-                  <p
-                    class="resource-size"
-                    :style="{
-                      color: $themeTokens.annotation,
-                    }"
-                  >
-                    {{ bytesForHumans(getResourceSize(resource)) }}
-                  </p>
+          <div class="row-content">
+            <LearningActivityIcon
+              :kind="resource.learning_activities[0]"
+              class="icon-style"
+            />
+            <div>
+              <span class="arrange-item-block">
+                <span>
+                  <KRouterLink
+                    :text="resource.title"
+                    :to="getResourceLink(resource.id)"
+                    style="font-size: 14px"
+                  />
                 </span>
-              </div>
+                <p
+                  class="resource-size"
+                  :style="{
+                    color: $themeTokens.annotation,
+                  }"
+                >
+                  {{ bytesForHumans(getResourceSize(resource)) }}
+                </p>
+              </span>
             </div>
-            <span class="row-actions">
-              <KIconButton
-                icon="emptyTopic"
-                :ariaLabel="openParentFolderLabel$()"
-                :tooltip="openParentFolderLabel$()"
-                :disabled="disabled"
-                @click="navigateToParent(resource)"
-              />
-
-              <KIconButton
-                icon="minus"
-                :ariaLabel="removeResourceLabel$()"
-                :tooltip="removeResourceLabel$()"
-                :disabled="disabled"
-                @click="removeResource(resource)"
-              />
-            </span>
           </div>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
+          <span class="row-actions">
+            <KIconButton
+              icon="emptyTopic"
+              :ariaLabel="openParentFolderLabel$()"
+              :tooltip="openParentFolderLabel$()"
+              :disabled="disabled"
+              @click="navigateToParent(resource)"
+            />
+
+            <KIconButton
+              icon="minus"
+              :ariaLabel="removeResourceLabel$()"
+              :tooltip="removeResourceLabel$()"
+              :disabled="disabled"
+              @click="removeResource(resource)"
+            />
+          </span>
+        </div>
+      </div>
+    </div>
     <p v-else>
       {{ emptyResourceList$() }}
     </p>
@@ -96,10 +73,6 @@
 <script>
 
   import { watch } from 'vue';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -111,16 +84,10 @@
   export default {
     name: 'ManageSelectedResources',
     components: {
-      DragSortWidget,
-      DragContainer,
-      DragHandle,
-      Draggable,
       LearningActivityIcon,
     },
     setup(props) {
       const {
-        upLabel$,
-        downLabel$,
         emptyResourceList$,
         removeResourceLabel$,
         openParentFolderLabel$,
@@ -149,8 +116,6 @@
 
       return {
         SelectionTarget,
-        upLabel$,
-        downLabel$,
         sizeLabel$,
         lessonLabel$,
         emptyResourceList$,
