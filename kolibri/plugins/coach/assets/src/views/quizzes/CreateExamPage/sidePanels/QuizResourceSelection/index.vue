@@ -15,7 +15,7 @@
           icon="back"
           @click="goBack()"
         />
-        <h1 class="side-panel-title">{{ sidePanelTitle }}</h1>
+        <h1 class="side-panel-title">{{ title }}</h1>
       </div>
     </template>
     <template #default="{ isScrolled }">
@@ -185,10 +185,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
-  import { truncateSidePanelTitle } from '../../../../../utils/truncateSidePanelTitle';
   import { PageNames } from '../../../../../constants/index';
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
@@ -204,7 +202,6 @@
     setup() {
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
-      const { windowWidth } = useKResponsiveWindow();
       const {
         activeSection,
         activeSectionIndex,
@@ -661,7 +658,6 @@
         numberOfSelectedResources$,
         displayingSearchResults,
         subpageLoading,
-        windowWidth,
       };
     },
     computed: {
@@ -670,9 +666,6 @@
           this.$route.name === PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE &&
           this.$route.query.searchResultTopicId
         );
-      },
-      sidePanelTitle() {
-        return truncateSidePanelTitle(this.title, this.windowWidth, this.goBack);
       },
     },
     beforeRouteLeave(_, __, next) {
@@ -769,7 +762,9 @@
 
   .side-panel-title {
     margin-top: 15px;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
