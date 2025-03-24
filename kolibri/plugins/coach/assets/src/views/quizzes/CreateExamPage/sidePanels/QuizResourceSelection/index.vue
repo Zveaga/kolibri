@@ -134,27 +134,11 @@
             </span>
             <KRouterLink
               v-else-if="
-                !settings.isChoosingManually &&
-                  workingResourcePool.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
+                numberOfSelectedElementsLabel && $route.name !== previewSelectedElementsPage
               "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
+              :to="{ name: previewSelectedElementsPage }"
             >
-              {{
-                numberOfSelectedResources$({
-                  count: workingResourcePool.length,
-                })
-              }}
-            </KRouterLink>
-            <KRouterLink
-              v-else-if="
-                settings.isChoosingManually &&
-                  workingQuestions.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
-              "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
-            >
-              {{ numberOfSelectedQuestionsLabel }}
+              {{ numberOfSelectedElementsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -183,6 +167,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -572,7 +557,19 @@
         NOutOfMSelectedQuestions$,
       } = searchAndFilterStrings;
 
+      const numberOfSelectedResourcesLabel = computed(() => {
+        if (!workingResourcePool.value.length) {
+          return '';
+        }
+        return numberOfSelectedResources$({
+          count: workingResourcePool.value.length,
+        });
+      });
+
       const numberOfSelectedQuestionsLabel = computed(() => {
+        if (!workingQuestions.value.length) {
+          return '';
+        }
         if (settings.value.isInReplaceMode) {
           return NOutOfMSelectedQuestions$({
             count: workingQuestions.value.length,
@@ -582,6 +579,27 @@
         return numberOfSelectedQuestions$({
           count: workingQuestions.value.length,
         });
+      });
+
+      const numberOfSelectedElementsLabel = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return numberOfSelectedQuestionsLabel.value;
+        }
+        return numberOfSelectedResourcesLabel.value;
+      });
+
+      const { sendPoliteMessage } = useKLiveRegion();
+      watch(numberOfSelectedElementsLabel, () => {
+        if (numberOfSelectedElementsLabel.value) {
+          sendPoliteMessage(numberOfSelectedElementsLabel.value);
+        }
+      });
+
+      const previewSelectedElementsPage = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS;
+        }
+        return PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES;
       });
 
       const getDefaultTitle = () => {
@@ -655,7 +673,8 @@
         settings,
         disableSave,
         saveButtonLabel,
-        numberOfSelectedQuestionsLabel,
+        previewSelectedElementsPage,
+        numberOfSelectedElementsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -669,7 +688,6 @@
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
-        numberOfSelectedResources$,
       };
     },
     computed: {
