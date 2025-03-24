@@ -8,7 +8,7 @@
     <div class="report-controls-buttons">
       <KRouterLink
         v-if="isMainReport"
-        :text="$tr('viewLearners')"
+        :text="coachString('viewLearners')"
         appearance="basic-link"
         :to="classLearnersListRoute"
       />
@@ -76,7 +76,7 @@
     },
     data() {
       return {
-        userSet: new Set(),
+        userList: [],
       };
     },
     computed: {
@@ -87,7 +87,7 @@
       },
       filteredLearnMap() {
         return Object.fromEntries(
-          Object.entries(this.learnerMap || {}).filter(([key]) => this.userSet.has(key)),
+          Object.entries(this.learnerMap || {}).filter(([key]) => this.userList.includes(key)),
         );
       },
       isMainReport() {
@@ -127,16 +127,9 @@
       fetchClassListSyncStatus() {
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
           if (Array.isArray(data)) {
-            this.userSet = new Set(data.map(item => item.user));
+            this.userList = data.map(item => item.user);
           }
         });
-      },
-    },
-    $trs: {
-      viewLearners: {
-        message: 'View learner devices',
-        context:
-          "Option in the Reports > Quizzes section which allows coach to view a list of the learners' devices.\n\nLearner devices are ones that have Kolibri features for learners, but not those for coaches and admins.",
       },
     },
   };
