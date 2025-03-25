@@ -234,8 +234,8 @@
         activeLesson: null,
         filterSelection: {},
         filterRecipents: {
-          label: this.entireClassLabel$(),
-          value: this.entireClassLabel$(),
+          label: this.coreString('allLabel'),
+          value: this.coreString('allLabel'),
         },
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
@@ -304,18 +304,16 @@
           value: group.id,
         }));
 
-        const learnerOptions = this.learners.map(learner => ({
-          label: learner.name,
-          value: learner.id,
-        }));
-
         return [
+          {
+            label: this.coreString('allLabel'),
+            value: this.coreString('allLabel'),
+          },
           {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
           ...groupOptions,
-          ...learnerOptions,
         ];
       },
     },
@@ -450,10 +448,16 @@
           lessonToReturn = lessonToReturn.filter(lesson => lesson.active === isVisibleFilter);
         }
 
-        if (this.filterRecipents.label !== this.entireClassLabel$()) {
-          lessonToReturn = lessonToReturn.filter(lesson => {
-            return lesson.recipientNames.includes(this.filterRecipents.label);
-          });
+        if (this.filterRecipents.label !== this.coreString('allLabel')) {
+          if (this.filterRecipents.label !== this.entireClassLabel$()) {
+            lessonToReturn = lessonToReturn.filter(lesson => {
+              return lesson.recipientNames.includes(this.filterRecipents.label);
+            });
+          } else {
+            lessonToReturn = lessonToReturn.filter(lesson => {
+              return lesson.recipientNames.length === 0 && lesson.groupNames.length === 0;
+            });
+          }
         }
 
         return lessonToReturn;
