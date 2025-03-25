@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -67,6 +69,7 @@
       </div>
       <router-view
         v-else
+        v-autofocus-first-el="!isLandingRoute"
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -131,27 +134,11 @@
             </span>
             <KRouterLink
               v-else-if="
-                !settings.isChoosingManually &&
-                  workingResourcePool.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
+                numberOfSelectedElementsLabel && $route.name !== previewSelectedElementsPage
               "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
+              :to="{ name: previewSelectedElementsPage }"
             >
-              {{
-                numberOfSelectedResources$({
-                  count: workingResourcePool.length,
-                })
-              }}
-            </KRouterLink>
-            <KRouterLink
-              v-else-if="
-                settings.isChoosingManually &&
-                  workingQuestions.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
-              "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
-            >
-              {{ numberOfSelectedQuestionsLabel }}
+              {{ numberOfSelectedElementsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -180,9 +167,10 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { coachStrings } from '../../../../common/commonCoachStrings';
@@ -193,15 +181,21 @@
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
     },
+    directives: {
+      autofocusFirstEl,
+    },
     mixins: [commonCoreStrings],
     setup() {
-      usePreviousRoute();
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
@@ -565,7 +559,19 @@
         NOutOfMSelectedQuestions$,
       } = searchAndFilterStrings;
 
+      const numberOfSelectedResourcesLabel = computed(() => {
+        if (!workingResourcePool.value.length) {
+          return '';
+        }
+        return numberOfSelectedResources$({
+          count: workingResourcePool.value.length,
+        });
+      });
+
       const numberOfSelectedQuestionsLabel = computed(() => {
+        if (!workingQuestions.value.length) {
+          return '';
+        }
         if (settings.value.isInReplaceMode) {
           return NOutOfMSelectedQuestions$({
             count: workingQuestions.value.length,
@@ -575,6 +581,27 @@
         return numberOfSelectedQuestions$({
           count: workingQuestions.value.length,
         });
+      });
+
+      const numberOfSelectedElementsLabel = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return numberOfSelectedQuestionsLabel.value;
+        }
+        return numberOfSelectedResourcesLabel.value;
+      });
+
+      const { sendPoliteMessage } = useKLiveRegion();
+      watch(numberOfSelectedElementsLabel, () => {
+        if (numberOfSelectedElementsLabel.value) {
+          sendPoliteMessage(numberOfSelectedElementsLabel.value);
+        }
+      });
+
+      const previewSelectedElementsPage = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS;
+        }
+        return PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES;
       });
 
       const getDefaultTitle = () => {
@@ -604,6 +631,8 @@
         );
       }
 
+      const { goBackAction$ } = coreStrings;
+
       return {
         title,
         goBack,
@@ -615,6 +644,7 @@
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,
+        isLandingRoute,
         workingPoolHasChanged,
         tooManyQuestions,
         notifyChanges,
@@ -633,6 +663,8 @@
         unselectableQuestionItems,
         maximumContentSelectedWarning,
         showManualSelectionNotice,
+        subpageLoading,
+        displayingSearchResults,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         addToWorkingQuestions,
@@ -644,7 +676,8 @@
         settings,
         disableSave,
         saveButtonLabel,
-        numberOfSelectedQuestionsLabel,
+        previewSelectedElementsPage,
+        numberOfSelectedElementsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -654,12 +687,10 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
+        goBackAction$,
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
-        numberOfSelectedResources$,
-        displayingSearchResults,
-        subpageLoading,
       };
     },
     computed: {

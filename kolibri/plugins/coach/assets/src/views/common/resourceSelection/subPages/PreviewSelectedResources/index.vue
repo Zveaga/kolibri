@@ -2,7 +2,10 @@
 
   <div>
     <KCircularLoader v-if="loading && !contentNode" />
-    <div v-else>
+    <div
+      v-else
+      v-autofocus-first-el
+    >
       <div
         v-if="target === SelectionTarget.LESSON"
         class="channel-header"
@@ -118,6 +121,7 @@
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import QuestionsAccordion from '../../../QuestionsAccordion.vue';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl.js';
   import PreviewContent from './PreviewContent';
   import PreviewMetadata from './PreviewMetadata';
   import ResourceActionButton from './ResourceActionButton.vue';
@@ -132,6 +136,9 @@
       ResourceActionButton,
       QuizResourceSelectionHeader,
       ResourceSelectionBreadcrumbs,
+    },
+    directives: {
+      autofocusFirstEl,
     },
     setup(props) {
       const instance = getCurrentInstance();
