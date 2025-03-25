@@ -311,6 +311,10 @@ class ChannelThumbnailView(View):
         return HttpResponse(thumbnail, content_type=mimetype)
 
 
+def _split_text_field(text):
+    return text.split(",") if text else []
+
+
 class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
@@ -341,6 +345,10 @@ class BaseChannelMetadataMixin(object):
         "available": "root__available",
         "lang_code": "root__lang__lang_code",
         "lang_name": "root__lang__lang_name",
+        "included_categories": lambda x: _split_text_field(x["included_categories"]),
+        "included_grade_levels": lambda x: _split_text_field(
+            x["included_grade_levels"]
+        ),
     }
 
     def get_queryset(self):
@@ -611,10 +619,6 @@ def map_file(file):
         }
     )
     return file
-
-
-def _split_text_field(text):
-    return text.split(",") if text else []
 
 
 class BaseContentNodeMixin(object):
