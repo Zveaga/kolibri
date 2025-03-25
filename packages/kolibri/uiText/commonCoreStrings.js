@@ -1590,6 +1590,7 @@ const nonconformingKeys = {
   OTHER_SUPPLIES: 'needsMaterials',
   FOR_BEGINNERS: 'forBeginners',
   BASIC_SKILLS: 'allLevelsBasicSkills',
+  PROFESSIONAL: 'specializedProfessionalTraining',
   FOUNDATIONS: 'basicSkills',
   foundations: 'basicSkills',
   foundationsLogicAndCriticalThinking: 'logicAndCriticalThinking',
