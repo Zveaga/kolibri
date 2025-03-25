@@ -405,6 +405,10 @@
 
         return [
           {
+            label: this.coreString('allLabel'),
+            value: this.coreString('allLabel'),
+          },
+          {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
@@ -435,11 +439,19 @@
 
         const recipientsFilter = this.recipientSelected.value;
 
-        if (recipientsFilter !== this.entireClassLabel$()) {
-          selectedExams = selectedExams.filter(
-            exam =>
-              exam.groups.includes(recipientsFilter) || exam.learner_ids.includes(recipientsFilter),
-          );
+        if (recipientsFilter !== this.coreString('allLabel')) {
+          if (recipientsFilter !== this.entireClassLabel$()) {
+            selectedExams = selectedExams.filter(exam => {
+              return (
+                exam.groups.includes(recipientsFilter) ||
+                exam.learner_ids.includes(recipientsFilter)
+              );
+            });
+          } else {
+            selectedExams = selectedExams.filter(
+              exam => exam.groups.length === 0 && exam.learner_ids.length === 0,
+            );
+          }
         }
         return selectedExams.map(quiz => {
           const learnersForQuiz = this.getLearnersForExam(quiz);
