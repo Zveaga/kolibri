@@ -11,7 +11,8 @@ function isFocusable(el) {
   }
   if (el.offsetParent === null && window.getComputedStyle(el).position !== 'fixed') {
     // If the element or any of its ancestors is set display none,
-    // it will have offsetParent set to null.
+    // it will have offsetParent set to null. If the element is fixed, it will also
+    // have offsetParent set to null, but this doesnt means it has display none.
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
     return false;
   }
