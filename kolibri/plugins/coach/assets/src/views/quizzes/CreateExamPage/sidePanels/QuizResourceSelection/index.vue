@@ -763,8 +763,11 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .side-panel-title {
-    margin-top: 20px;
+    margin-top: 15px;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .choosing-manually-label {

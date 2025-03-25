@@ -29,7 +29,7 @@
                 flexDirection: closeButtonIconType === 'close' ? 'row' : 'row-reverse',
               }"
             >
-              <div>
+              <div style="overflow: hidden">
                 <slot name="header"> </slot>
               </div>
               <KIconButton

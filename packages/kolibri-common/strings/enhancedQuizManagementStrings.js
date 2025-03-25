@@ -85,7 +85,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Maximum number of questions is { count, number }',
   },
   replaceQuestions: {
-    message: 'Replace questions in { sectionTitle }',
+    message: "Replace questions in '{ sectionTitle }'",
   },
   collapseAll: {
     message: 'Collapse all',

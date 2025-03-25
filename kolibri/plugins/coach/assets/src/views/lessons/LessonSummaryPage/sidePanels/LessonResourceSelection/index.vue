@@ -343,7 +343,10 @@
 
   .side-panel-title {
     margin: 0;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .bottom-nav-container {
