@@ -58,6 +58,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Option to view all elements that make up a class. For example, all quizzes or all lessons.',
   },
+  viewLearners: {
+    message: 'View learner devices',
+    context: 'View a list of learners in a class.',
+  },
 
   // labels, phrases, titles, headers...
   activityLabel: {
