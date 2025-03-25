@@ -45,8 +45,8 @@
       :selectedResourcesSize="selectedResourcesSize"
       :displayingSearchResults="displayingSearchResults"
       @clearSearch="clearSearch"
-      @selectResources="handleSelectResources"
-      @deselectResources="handleDeselectResources"
+      @selectResources="selectResources"
+      @deselectResources="deselectResources"
       @setSelectedResources="setSelectedResources"
       @removeSearchFilterTag="removeSearchFilterTag"
     />
@@ -64,7 +64,7 @@
         <KButtonGroup>
           <KRouterLink
             v-if="
-              selectedResources.length > 0 &&
+              selectedResourcesMessage &&
                 $route.name !== PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION
             "
             :to="{ name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION }"
@@ -101,11 +101,10 @@
 
   import uniqBy from 'lodash/uniqBy';
   import { mapState, mapActions, mapMutations } from 'vuex';
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance, watch } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -176,19 +175,37 @@
       });
 
       const defaultTitle = manageLessonResourcesTitle$();
-      // Ensure we send polite aria message when the user selects/deselects resources
-      const { numberOfSelectedResources$ } = searchAndFilterStrings;
-      function handleSelectResources($evt) {
-        selectResources($evt);
-        sendPoliteMessage(numberOfSelectedResources$({ count: selectedResources?.value.length }));
-      }
-      function handleDeselectResources($evt) {
-        deselectResources($evt);
-        sendPoliteMessage(numberOfSelectedResources$({ count: selectedResources?.value.length }));
-      }
       const { isAppContext } = useUser();
       const isAppContextAndTouchDevice = computed(() => {
         return isAppContext.value && isTouchDevice;
+      });
+
+      const selectedResourcesSize = computed(() => {
+        let size = 0;
+        selectedResources.value.forEach(resource => {
+          const { files = [] } = resource;
+          files.forEach(file => {
+            size += file.file_size || 0;
+          });
+        });
+        return size;
+      });
+
+      const { someResourcesSelected$ } = coachStrings;
+      const selectedResourcesMessage = computed(() => {
+        if (!selectedResources.value.length) {
+          return '';
+        }
+        return someResourcesSelected$({
+          count: selectedResources.value.length,
+          bytesText: bytesForHumans(selectedResourcesSize.value),
+        });
+      });
+
+      watch(selectedResourcesMessage, () => {
+        if (selectedResourcesMessage.value) {
+          sendPoliteMessage(selectedResourcesMessage.value);
+        }
       });
 
       return {
@@ -205,10 +222,12 @@
         isLandingRoute,
         selectionRules,
         SelectionTarget,
+        selectedResourcesSize,
         displayingSearchResults,
+        selectedResourcesMessage,
         clearSearch,
-        handleSelectResources,
-        handleDeselectResources,
+        selectResources,
+        deselectResources,
         setSelectedResources,
         notifyResourcesAdded,
         notifySaveLessonError,
@@ -232,23 +251,6 @@
     },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
-      selectedResourcesSize() {
-        let size = 0;
-        this.selectedResources.forEach(resource => {
-          const { files = [] } = resource;
-          files.forEach(file => {
-            size += file.file_size || 0;
-          });
-        });
-        return size;
-      },
-      selectedResourcesMessage() {
-        const { someResourcesSelected$ } = coachStrings;
-        return someResourcesSelected$({
-          count: this.selectedResources.length,
-          bytesText: bytesForHumans(this.selectedResourcesSize),
-        });
-      },
       unselectableResourceIds() {
         return this.workingResources.map(resource => resource.contentnode_id);
       },
