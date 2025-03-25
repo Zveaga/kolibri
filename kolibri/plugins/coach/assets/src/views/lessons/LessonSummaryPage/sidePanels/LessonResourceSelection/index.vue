@@ -25,7 +25,7 @@
     </div>
     <router-view
       v-else
-      v-autofocus-first-el
+      v-autofocus-first-el="!isLandingRoute"
       :setTitle="setTitle"
       :setGoBack="setGoBack"
       :defaultTitle="defaultTitle"
@@ -127,7 +127,9 @@
       autofocusFirstEl,
     },
     setup() {
-      usePreviousRoute();
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const instance = getCurrentInstance();
       const { sendPoliteMessage } = useKLiveRegion();
       const {
@@ -200,6 +202,7 @@
         channelsFetch,
         bookmarksFetch,
         searchTerms,
+        isLandingRoute,
         selectionRules,
         SelectionTarget,
         displayingSearchResults,

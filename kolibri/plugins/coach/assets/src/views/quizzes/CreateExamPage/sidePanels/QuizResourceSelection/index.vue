@@ -69,7 +69,7 @@
       </div>
       <router-view
         v-else
-        v-autofocus-first-el
+        v-autofocus-first-el="!isLandingRoute"
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -193,7 +193,9 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      usePreviousRoute();
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
@@ -642,6 +644,7 @@
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,
+        isLandingRoute,
         workingPoolHasChanged,
         tooManyQuestions,
         notifyChanges,
