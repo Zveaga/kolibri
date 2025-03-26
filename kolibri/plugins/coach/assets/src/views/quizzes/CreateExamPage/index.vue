@@ -300,7 +300,7 @@
       }
       this.quizInitialized = true;
     },
-    destroy() {
+    destroyed() {
       window.removeEventListener('beforeunload', this.beforeUnload);
     },
     methods: {
