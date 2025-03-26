@@ -465,7 +465,6 @@
     padding: 1em;
     margin-top: 1em;
     background-color: #ffffff;
-    border-top: 1px solid black;
   }
 
   /deep/ .textbox {
