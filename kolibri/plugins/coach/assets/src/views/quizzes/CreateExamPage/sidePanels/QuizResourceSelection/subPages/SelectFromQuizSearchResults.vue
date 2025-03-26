@@ -24,16 +24,20 @@
     />
 
     <UpdatedResourceSelection
+      :disabled="disabled"
       :isSelectable="!settings.isChoosingManually"
       :contentList="contentList"
       :hasMore="hasMore"
       :cardsHeadingLevel="2"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
       :getResourceLink="getResourceLink"
+      :contentCardMessage="contentCardMessage"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
     />
@@ -124,6 +128,15 @@
         type: Array,
         required: true,
       },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
       searchTerms: {
         type: Object,
         required: true,
@@ -151,6 +164,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {

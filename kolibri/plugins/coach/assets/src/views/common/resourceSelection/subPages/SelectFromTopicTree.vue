@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="topic">
     <template v-if="!isTopicFromSearchResult">
       <div
         v-if="target === SelectionTarget.LESSON"
