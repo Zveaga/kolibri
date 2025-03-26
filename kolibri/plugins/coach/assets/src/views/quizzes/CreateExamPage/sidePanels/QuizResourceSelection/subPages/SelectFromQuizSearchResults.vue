@@ -1,10 +1,17 @@
 <template>
 
   <div v-if="displayingSearchResults">
-    <div class="channels-header">
-      <span class="side-panel-subtitle">
-        {{ selectFromChannels$() }}
-      </span>
+    <QuizResourceSelectionHeader
+      v-if="!settings.selectPracticeQuiz"
+      class="mb-16"
+      :settings="settings"
+      @searchClick="onSearchClick"
+    />
+
+    <div
+      v-else
+      class="d-flex-end mb-16"
+    >
       <KButton
         icon="filter"
         :text="searchLabel$()"
@@ -54,10 +61,12 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
+  import QuizResourceSelectionHeader from '../../../../../common/resourceSelection/QuizResourceSelectionHeader.vue';
 
   export default {
     name: 'SelectFromQuizSearchResults',
     components: {
+      QuizResourceSelectionHeader,
       SearchChips,
       UpdatedResourceSelection,
     },
@@ -82,7 +91,7 @@
         redirectBack();
       }
 
-      const { selectFromChannels$, searchLabel$ } = coreStrings;
+      const { searchLabel$ } = coreStrings;
 
       props.setTitle(props.defaultTitle);
       props.setGoBack(null);
@@ -94,7 +103,6 @@
         fetchMore,
         loadingMore,
         searchLabel$,
-        selectFromChannels$,
         redirectBack,
       };
     },
