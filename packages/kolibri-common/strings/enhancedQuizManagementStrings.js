@@ -34,9 +34,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addMoreQuestionsLabel: {
     message: 'Add more questions',
   },
-  sectionSettings: {
-    message: 'Section settings',
-  },
   sectionTitle: {
     message: 'Section title',
   },
