@@ -88,6 +88,7 @@
         :settings.sync="settings"
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
+        :bookmarksCardMessage="bookmarksCardMessage"
         :getResourceLink="getResourceLink"
         :unselectableResourceIds="unselectableResourceIds"
         :unselectableQuestionItems="unselectableQuestionItems"
@@ -648,6 +649,17 @@
         );
       }
 
+      const bookmarksCardMessage = bookmarks => {
+        const unusedQuestions = bookmarks.reduce((total, bookmark) => {
+          const unused = unusedQuestionsCount(bookmark);
+          if (unused === -1) {
+            return total;
+          }
+          return total + unused;
+        }, 0);
+        return questionsUnusedInSection$({ count: unusedQuestions });
+      };
+
       const { goBackAction$ } = coreStrings;
 
       return {
@@ -708,6 +720,7 @@
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
+        bookmarksCardMessage,
       };
     },
     computed: {
