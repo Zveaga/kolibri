@@ -162,6 +162,7 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import { useMemoize } from '@vueuse/core';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
@@ -364,15 +365,31 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = content => {
-        const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-          aid => `${content.id}:${aid}`,
-        );
-        const questionsItemsUnused = questionItems
-          .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
-          .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
-        return questionsItemsUnused.length;
-      };
+      const unusedQuestionsCount = useMemoize(content => {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+            aid => `${content.id}:${aid}`,
+          );
+          const questionsItemsUnused = questionItems
+            .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+            .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+          return questionsItemsUnused.length;
+        }
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          const total = content.num_assessments;
+          const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
+            const questionNode = allResourceMap.value[question.exercise_id];
+            for (const ancestor of questionNode.ancestors) {
+              if (ancestor.id === content.id) {
+                return num + 1;
+              }
+            }
+            return num;
+          }, 0);
+          return total - numberOfQuestionsSelected;
+        }
+        return -1;
+      });
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -756,9 +773,6 @@
       // The message put onto the content's card when listed
       contentCardMessage(content) {
         if (this.settings.selectPracticeQuiz) {
-          return;
-        }
-        if (content.kind !== ContentNodeKinds.EXERCISE) {
           return;
         }
 

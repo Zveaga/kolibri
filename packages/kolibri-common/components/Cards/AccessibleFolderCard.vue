@@ -23,13 +23,13 @@
 
     <template #belowTitle>
       <div>
+        <slot name="belowTitle"></slot>
         <KTextTruncator
           v-if="contentNode.description"
           :text="contentNode.description"
           :maxLines="2"
           style="min-height: 17px; margin-bottom: 1em"
         />
-        <slot name="belowTitle"></slot>
         <MetadataChips :tags="metadataTags" />
         <div
           v-if="!contentNode.description"

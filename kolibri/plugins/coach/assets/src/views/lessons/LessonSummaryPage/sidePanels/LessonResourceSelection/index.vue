@@ -44,6 +44,7 @@
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
       :displayingSearchResults="displayingSearchResults"
+      :contentCardMessage="contentCardMessage"
       @clearSearch="clearSearch"
       @selectResources="selectResources"
       @deselectResources="deselectResources"
@@ -104,6 +105,7 @@
   import { computed, getCurrentInstance, watch } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import { ContentNodeKinds } from 'kolibri/constants';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
@@ -191,7 +193,7 @@
         return size;
       });
 
-      const { someResourcesSelected$ } = coachStrings;
+      const { someResourcesSelected$, numberOfResources$ } = coachStrings;
       const selectedResourcesMessage = computed(() => {
         if (!selectedResources.value.length) {
           return '';
@@ -207,6 +209,12 @@
           sendPoliteMessage(selectedResourcesMessage.value);
         }
       });
+
+      const contentCardMessage = content => {
+        if (!content.kind || content.kind === ContentNodeKinds.CHANNEL) {
+          return numberOfResources$({ value: content.total_resource_count });
+        }
+      };
 
       return {
         isAppContextAndTouchDevice,
@@ -225,6 +233,7 @@
         selectedResourcesSize,
         displayingSearchResults,
         selectedResourcesMessage,
+        contentCardMessage,
         clearSearch,
         selectResources,
         deselectResources,

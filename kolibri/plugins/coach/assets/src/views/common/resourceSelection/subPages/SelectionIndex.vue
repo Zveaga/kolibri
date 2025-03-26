@@ -98,7 +98,16 @@
           :contentNode="channel"
           :to="selectFromChannelsLink(channel)"
           :headingLevel="3"
-        />
+        >
+          <template #belowTitle>
+            <div
+              v-if="contentCardMessage(channel)"
+              style="margin: 0 0 0.5rem"
+            >
+              {{ contentCardMessage(channel) }}
+            </div>
+          </template>
+        </AccessibleChannelCard>
       </KCardGrid>
     </div>
   </div>
@@ -198,6 +207,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {
