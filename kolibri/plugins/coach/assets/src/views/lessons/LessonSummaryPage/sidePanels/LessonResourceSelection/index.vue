@@ -214,6 +214,9 @@
         if (!content.kind || content.kind === ContentNodeKinds.CHANNEL) {
           return numberOfResources$({ value: content.total_resource_count });
         }
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return numberOfResources$({ value: content.on_device_resources });
+        }
       };
 
       return {

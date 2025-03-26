@@ -621,6 +621,15 @@ def map_file(file):
     return file
 
 
+# A map of fields that did not used to be in the BaseContentNodeMixin
+# but now are - the map gives a default value for these to be filled in with
+# if not present on an API request from a contentnode public API endpoint
+contentnode_previously_omitted_fields = {
+    "learner_needs": [],
+    "on_device_resources": None,
+}
+
+
 class BaseContentNodeMixin(object):
     """
     A base mixin for viewsets that need to return the same format of data
@@ -645,6 +654,7 @@ class BaseContentNodeMixin(object):
         "license_name",
         "license_owner",
         "num_coach_contents",
+        "on_device_resources",
         "options",
         "parent",
         "sort_order",
@@ -800,11 +810,12 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 response_data["admin_imported"] = (
                     response_data["id"] in self.locally_admin_imported_ids
                 )
-                if "learner_needs" not in response_data:
-                    # We accidentally omitted learner_needs from previous versions
-                    # of the public API, so we add it back in here,
-                    # so that remote data and local data have consistent structure.
-                    response_data["learner_needs"] = []
+                # As we evolve the contentnode public API, we use this to backfill
+                # values so that remote responses have consistent structure
+                # regardless of the version of Kolibri exposing the endpoint.
+                for key, default_value in contentnode_previously_omitted_fields.items():
+                    if key not in response_data:
+                        response_data[key] = default_value
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
@@ -916,20 +927,6 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = list(queryset.order_by("?")[:max_results].values_list("id", flat=True))
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
-
-    @action(detail=False)
-    def descendant_counts(self, request):
-        """
-        Return the number of descendants for each node in the queryset.
-        """
-        # Don't allow unfiltered queries
-        if not self.request.query_params:
-            return Response([])
-        queryset = self.filter_queryset(self.get_queryset())
-
-        data = queryset.values("id", "on_device_resources")
-
-        return Response(data)
 
     @action(detail=False)
     def descendants_assessments(self, request):
