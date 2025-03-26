@@ -145,24 +145,28 @@
             dataType: 'string',
             minWidth: '150px',
             width: '20%',
+            columnId: this.coreString('classNameLabel'),
           },
           {
             label: this.coreString('coachesLabel'),
             dataType: 'undefined',
             minWidth: '150px',
             width: '30%',
+            columnId: this.coreString('coachesLabel'),
           },
           {
             label: this.coreString('learnersLabel'),
             dataType: 'number',
             minWidth: '150px',
             width: '20%',
+            columnId: this.coreString('learnersLabel'),
           },
           {
             label: this.coreString('userActionsColumnHeader'),
             dataType: 'undefined',
             minWidth: '150px',
             width: '30%',
+            columnId: this.coreString('userActionsColumnHeader'),
           },
         ];
       },
