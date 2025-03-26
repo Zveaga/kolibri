@@ -76,7 +76,9 @@
             :inline="true"
           />
         </ReportsControls>
-        <CoreTable>
+        <CoreTable
+          :emptyMessage="quizzes.length > 0 ? coreString('noResultsLabel') : $tr('noExams')"
+        >
           <template #headers>
             <th>{{ titleLabel$() }}</th>
             <th style="position: relative">
@@ -156,19 +158,6 @@
             </transition-group>
           </template>
         </CoreTable>
-
-        <p v-if="!quizzes.length">
-          {{ $tr('noExams') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizStarted$() && !startedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizNotStarted$() && !notStartedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizEnded$() && !endedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
 
         <!-- Modals for Close & Open of quiz from right-most column -->
         <KModal

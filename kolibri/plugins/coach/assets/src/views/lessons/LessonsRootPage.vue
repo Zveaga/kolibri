@@ -43,7 +43,7 @@
 
         <CoreTable
           :dataLoading="lessonsAreLoading"
-          :emptyMessage="$tr('noLessons')"
+          :emptyMessage="lessons.length > 0 ? coreString('noResultsLabel') : $tr('noLessons')"
         >
           <template #headers>
             <th>{{ coachString('titleLabel') }}</th>
@@ -116,10 +116,6 @@
           </template>
         </CoreTable>
 
-        <p v-if="showNoResultsLabel">
-          {{ coreString('noResultsLabel') }}
-        </p>
-
         <KModal
           v-if="showLessonIsVisibleModal && !userHasDismissedModal"
           :title="coachString('makeLessonVisibleTitle')"
@@ -187,7 +183,6 @@
   import Vue, { set } from 'vue';
   import { mapState, mapActions } from 'vuex';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
-  import countBy from 'lodash/countBy';
   import { LESSON_VISIBILITY_MODAL_DISMISSED, ERROR_CONSTANTS } from 'kolibri/constants';
   import Lockr from 'lockr';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -261,28 +256,8 @@
           value: filter,
         }));
       },
-      activeLessonCounts() {
-        return countBy(this.lessons, 'active');
-      },
       newLessonRoute() {
         return { name: PageNames.LESSON_CREATION_ROOT };
-      },
-      hasVisibleLessons() {
-        return this.activeLessonCounts.true;
-      },
-      hasNonVisibleLessons() {
-        return this.activeLessonCounts.false;
-      },
-      showNoResultsLabel() {
-        if (!this.lessons.length) {
-          return false;
-        } else if (this.filterSelection.value === 'filterLessonVisible') {
-          return !this.hasVisibleLessons;
-        } else if (this.filterSelection.value === 'filterLessonNotVisible') {
-          return !this.hasNonVisibleLessons;
-        } else {
-          return false;
-        }
       },
       calcTotalSizeOfVisibleLessons() {
         if (this.lessons && this.lessons.length) {
