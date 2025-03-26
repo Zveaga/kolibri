@@ -21,7 +21,6 @@
 
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
-  import LearnAppBarPage from '../LearnAppBarPage';
   import commonLearnStrings from '../commonLearnStrings';
 
   export default {
@@ -30,9 +29,6 @@
       return {
         title: this.$tr('documentTitle'),
       };
-    },
-    components: {
-      LearnAppBarPage,
     },
     mixins: [commonLearnStrings],
     setup() {

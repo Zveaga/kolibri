@@ -203,7 +203,6 @@
       // under Jest, and causes problems.
       // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
       const explore$ = coreStrings.$tr ? coreStrings.$tr('explore') : '';
-      this.$emit('availableNetworkDevices', networkDevicesWithChannels);
 
       return {
         devicesWithChannelsExist,
@@ -226,6 +225,22 @@
     },
     props: {
       injectedtr: { type: Function, required: true },
+    },
+    watch: {
+      devicesWithChannelsExist: {
+        handler(newValue) {
+          this.$emit('availableNetworkDevices', newValue);
+        },
+        deep: true,
+      },
+    },
+    mounted() {
+      this.showDevices();
+    },
+    methods: {
+      showDevices() {
+        this.$emit('availableNetworkDevices', this.devicesWithChannelsExist);
+      },
     },
   };
 

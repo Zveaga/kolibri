@@ -49,22 +49,18 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <div>
-            <h1
-              v-if="!isLocalLibraryEmpty"
-              class="channels-label"
-            >
+          <div v-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
+            <h1 class="channels-label">
               {{ channelsLabel }}
             </h1>
-            <!-- <p
-              v-if="isLocalLibraryEmpty"
+            <p
               data-test="nothing-in-lib-label"
               class="nothing-in-lib-label"
             >
               {{ coreString('nothingInLibraryLearner') }}
-            </p> -->
-            <NoResourcePage v-if="isLocalLibraryEmpty" />
+            </p>
           </div>
+          <NoResourcePage v-else />
 
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
@@ -254,7 +250,6 @@
         isUserLoggedIn,
         isCoach,
         isAdmin,
-        isLearner,
         isSuperuser,
         canManageContent,
         isLearnerOnlyImport,
@@ -434,6 +429,7 @@
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
+        isNetworkLibraryAvailable: false,
       };
     },
     computed: {
@@ -557,6 +553,9 @@
       },
       injecttr(...args) {
         return this.$tr(...args);
+      },
+      availableNetworkDevices(e) {
+        this.isNetworkLibraryAvailable = e;
       },
     },
     $trs: {
