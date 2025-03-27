@@ -25,12 +25,12 @@
         @toggleBookmark="toggleBookmark"
       >
         <template #belowTitle>
-          <div
+          <KTextTruncator
             v-if="contentCardMessage(content)"
-            style="margin: 0 0 0.5rem"
-          >
-            {{ contentCardMessage(content) }}
-          </div>
+            :text="contentCardMessage(content)"
+            :maxLines="1"
+            style="margin-bottom: 8px"
+          />
         </template>
         <template #select>
           <KCheckbox

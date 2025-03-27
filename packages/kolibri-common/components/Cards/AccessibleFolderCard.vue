@@ -24,11 +24,12 @@
     <template #belowTitle>
       <div>
         <slot name="belowTitle"></slot>
+        <br v-if="contentNode.description" >
         <KTextTruncator
           v-if="contentNode.description"
           :text="contentNode.description"
           :maxLines="2"
-          style="min-height: 17px; margin-bottom: 1em"
+          style="min-height: 17px; margin-bottom: 8px"
         />
         <MetadataChips :tags="metadataTags" />
         <div

@@ -69,9 +69,11 @@
             />
           </template>
           <template #belowTitle>
-            <span>
-              {{ wrappedBookmarksCardMessage }}
-            </span>
+            <KTextTruncator
+              v-if="wrappedBookmarksCardMessage"
+              :text="wrappedBookmarksCardMessage"
+              :maxLines="1"
+            />
           </template>
         </KCard>
       </KCardGrid>
@@ -100,12 +102,12 @@
           :headingLevel="3"
         >
           <template #belowTitle>
-            <div
+            <KTextTruncator
               v-if="contentCardMessage(channel)"
-              style="margin: 0 0 0.5rem"
-            >
-              {{ contentCardMessage(channel) }}
-            </div>
+              :text="contentCardMessage(channel)"
+              :maxLines="1"
+              style="margin-bottom: 8px"
+            />
           </template>
         </AccessibleChannelCard>
       </KCardGrid>
