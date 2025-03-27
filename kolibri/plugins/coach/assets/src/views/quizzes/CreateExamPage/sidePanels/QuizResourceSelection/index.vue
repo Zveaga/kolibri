@@ -650,6 +650,9 @@
       }
 
       const bookmarksCardMessage = bookmarks => {
+        if (isPracticeQuiz) {
+          return;
+        }
         const unusedQuestions = bookmarks.reduce((total, bookmark) => {
           const unused = unusedQuestionsCount(bookmark);
           if (unused === -1) {
