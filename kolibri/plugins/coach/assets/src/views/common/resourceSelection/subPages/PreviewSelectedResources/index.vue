@@ -181,6 +181,7 @@
         instance.proxy.$emit('update:settings', {
           ...props.settings,
           isChoosingManually: workingIsChoosingManually.value,
+          questionCount: Math.min(10, props.settings?.maxQuestions || 10),
         });
       };
       const isSaveSettingsDisabled = computed(() => {

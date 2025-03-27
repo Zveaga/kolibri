@@ -230,10 +230,6 @@
        */
       const workingQuestions = ref([]);
 
-      const getDefaultQuestionCount = maxQuestions => {
-        return Math.min(10, maxQuestions);
-      };
-
       const showManualSelectionNotice = ref(false);
 
       /**
@@ -254,7 +250,7 @@
           newSettings.maxQuestions = MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length;
           if (newSettings.questionCount === null) {
             // initialize questionCount if it hasn't been set yet
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
+            newSettings.questionCount = Math.min(10, newSettings.maxQuestions);
           }
           settings.value = newSettings;
         },
@@ -271,8 +267,6 @@
 
           if (newSettings.isChoosingManually) {
             newSettings.questionCount = newSettings.maxQuestions;
-          } else {
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
 
           resetSelection();
