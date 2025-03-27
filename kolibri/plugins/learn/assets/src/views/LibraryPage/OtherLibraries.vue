@@ -228,14 +228,11 @@
     },
     watch: {
       devicesWithChannelsExist: {
-        handler(newValue) {
-          this.$emit('availableNetworkDevices', newValue);
+        handler() {
+          this.$nextTick(this.showDevices);
         },
         deep: true,
       },
-    },
-    mounted() {
-      this.showDevices();
     },
     methods: {
       showDevices() {

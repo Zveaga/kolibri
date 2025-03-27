@@ -49,7 +49,13 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <div v-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
+          <h1
+            v-if="!isLocalLibraryEmpty"
+            class="channels-label"
+          >
+            {{ channelsLabel }}
+          </h1>
+          <div v-else-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
             <h1 class="channels-label">
               {{ channelsLabel }}
             </h1>
@@ -429,7 +435,7 @@
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
-        isNetworkLibraryAvailable: false,
+        isNetworkLibraryAvailable: true,
       };
     },
     computed: {
