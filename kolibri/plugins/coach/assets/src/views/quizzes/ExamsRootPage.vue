@@ -437,9 +437,11 @@
               );
             });
           } else {
-            selectedExams = selectedExams.filter(
-              exam => exam.groups.length === 0 && exam.learner_ids.length === 0,
-            );
+            selectedExams = selectedExams.filter(exam => {
+              const hasNoGroups = !exam.groups || exam.groups.length === 0;
+              const hasNoLearners = !exam.learner_ids || exam.learner_ids.length === 0;
+              return hasNoGroups && hasNoLearners;
+            });
           }
         }
         return selectedExams.map(quiz => {
