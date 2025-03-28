@@ -47,6 +47,7 @@
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 
