@@ -70,7 +70,8 @@
             :inline="true"
           />
           <KSelect
-            v-model="recipientSelected"
+            v-model="recipientsFilter"
+            :value="{ label: coreString('allLabel'), value: coreString('allLabel') }"
             :label="recipientsLabel$()"
             :options="recipientOptions"
             :inline="true"
@@ -351,6 +352,10 @@
       return {
         channels: [],
         isLoading: true,
+        recipientsFilter: {
+          label: this.coreString('allLabel'),
+          value: this.coreString('allLabel'),
+        },
       };
     },
     computed: {
