@@ -21,7 +21,7 @@
       :selectAllRules="selectAllRules"
       :getResourceLink="getResourceLink"
       :selectedResources="selectedResources"
-      :contentCardMessage="contentCardMessage"
+      :contentCardMessage="wrappedContentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -79,7 +79,11 @@
 
       const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
 
-      const contentCardMessage = content => {
+      const wrappedContentCardMessage = content => {
+        const propsMessage = props.contentCardMessage(content);
+        if (propsMessage) {
+          return propsMessage;
+        }
         if (!content.bookmark?.created) {
           return null;
         }
@@ -104,7 +108,7 @@
         fetchMore,
         loadingMore,
         isSelectable,
-        contentCardMessage,
+        wrappedContentCardMessage,
         SelectionTarget,
       };
     },
@@ -163,6 +167,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => {},
       },
       /**
        * Function that receives a resourceId and returns a link to the resource.

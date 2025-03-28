@@ -80,6 +80,7 @@ export default function useResourceSelection({
       return {
         ...response,
         results: annotatedResults,
+        count: annotatedResults.length,
       };
     }
     return response;

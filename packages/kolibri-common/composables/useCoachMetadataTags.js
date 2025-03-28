@@ -23,14 +23,8 @@ export function useCoachMetadataTags(contentNode) {
   // so we make sure we have the right shape.
   if (!contentNode.kind || contentNode.kind === ContentNodeKinds.CHANNEL) {
     contentNode.lang = { lang_name: contentNode.lang_name, id: contentNode.lang_code };
-    // The grade_levels and categories fields are stored as
-    // comma-separated strings in the database
-    contentNode.grade_levels = contentNode.included_grade_levels
-      ? contentNode.included_grade_levels.split(',')
-      : [];
-    contentNode.categories = contentNode.included_categories
-      ? contentNode.included_categories.split(',')
-      : [];
+    contentNode.grade_levels = contentNode.included_grade_levels;
+    contentNode.categories = contentNode.included_categories;
   }
 
   function getKindTag() {
