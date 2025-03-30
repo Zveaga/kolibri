@@ -41,4 +41,5 @@ INTERNAL_PLUGINS = [
     "kolibri.plugins.user_profile",
     "kolibri.plugins.policies",
     "kolibri.plugins.bloompub_viewer",
+    "kolibri.plugins.safe_html5_viewer",
 ]
