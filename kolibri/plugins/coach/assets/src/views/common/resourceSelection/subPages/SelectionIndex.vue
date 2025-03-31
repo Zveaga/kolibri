@@ -23,6 +23,7 @@
         {{ selectFromBookmarks$() }}
       </div>
       <KButton
+        v-if="bookmarksCount > 0"
         icon="filter"
         :text="searchLabel$()"
         @click="onSearchClick"
@@ -34,6 +35,7 @@
       class="d-flex-end mb-24"
     >
       <KButton
+        v-if="channels.length > 0"
         icon="filter"
         :text="searchLabel$()"
         @click="onSearchClick"
