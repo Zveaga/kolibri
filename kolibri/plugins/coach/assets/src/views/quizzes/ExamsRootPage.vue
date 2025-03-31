@@ -303,8 +303,8 @@
       });
 
       const recipientSelected = ref({
-        label: entireClassLabel$(),
-        value: entireClassLabel$(),
+        label: filterQuizAll$(),
+        value: filterQuizAll$(),
       });
 
       return {
@@ -394,8 +394,8 @@
 
         return [
           {
-            label: this.coreString('allLabel'),
-            value: this.coreString('allLabel'),
+            label: this.filterQuizAll$(),
+            value: this.filterQuizAll$(),
           },
           {
             label: this.entireClassLabel$(),
@@ -428,7 +428,7 @@
 
         const recipientsFilter = this.recipientSelected.value;
 
-        if (recipientsFilter !== this.coreString('allLabel')) {
+        if (recipientsFilter !== this.filterQuizAll$()) {
           if (recipientsFilter !== this.entireClassLabel$()) {
             selectedExams = selectedExams.filter(exam => {
               return (
