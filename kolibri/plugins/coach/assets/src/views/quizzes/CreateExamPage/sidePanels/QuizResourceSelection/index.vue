@@ -175,6 +175,7 @@
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
@@ -499,7 +500,9 @@
 
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
-          return !workingPoolHasChanged.value;
+          return (
+            !workingPoolHasChanged.value && route.value.name !== PageNames.QUIZ_PREVIEW_RESOURCE
+          );
         }
         const disabledConditions = [
           !workingPoolHasChanged.value,
@@ -737,8 +740,18 @@
       }
     },
     methods: {
-      saveSelectedResource() {
+      async saveSelectedResource() {
         if (this.settings.selectPracticeQuiz) {
+          if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
+            try {
+              const contentNode = await ContentNodeResource.fetchModel({
+                id: this.$route.query.contentId,
+              });
+              this.setWorkingResourcePool([contentNode]);
+            } catch (e) {
+              this.$store.dispatch('handleApiError', e);
+            }
+          }
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
