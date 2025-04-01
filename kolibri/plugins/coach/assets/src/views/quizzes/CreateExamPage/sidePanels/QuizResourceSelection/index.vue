@@ -631,19 +631,13 @@
       const defaultTitle = getDefaultTitle();
 
       const { createSnackbar } = useSnackbar();
-      function notifyChanges() {
-        const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } =
-          enhancedQuizManagementStrings;
-
+      const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } = enhancedQuizManagementStrings;
+      function notifyChanges(count) {
         const message$ = settings.value.isInReplaceMode
           ? numberOfQuestionsReplaced$
           : numberOfQuestionsAdded$;
 
-        createSnackbar(
-          message$({
-            count: workingQuestions.value.length || settings.value.questionCount,
-          }),
-        );
+        createSnackbar(message$({ count }));
       }
 
       const bookmarksCardMessage = bookmarks => {
@@ -741,6 +735,7 @@
     },
     methods: {
       async saveSelectedResource() {
+        let numQuestions;
         if (this.settings.selectPracticeQuiz) {
           if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
             try {
@@ -757,6 +752,8 @@
           }
           const remainder = exerciseToQuestionArray(this.workingResourcePool[0]);
 
+          numQuestions = remainder.length;
+
           let sectionIndex = this.activeSectionIndex;
           while (remainder.length) {
             if (sectionIndex !== this.activeSectionIndex) {
@@ -771,6 +768,7 @@
             sectionIndex++;
           }
         } else if (this.settings.isChoosingManually) {
+          numQuestions = this.workingQuestions.length;
           this.addQuestionsToSection({
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
@@ -778,6 +776,7 @@
             questionItemsToReplace: this.settings.questionItemsToReplace,
           });
         } else {
+          numQuestions = this.settings.questionCount;
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
             resourcePool: this.workingResourcePool,
@@ -790,7 +789,7 @@
           // could be removed, so we need to clear it
           this.clearQuizSelectedQuestions();
         }
-        this.notifyChanges();
+        this.notifyChanges(numQuestions);
         this.handleClosePanel();
       },
       // The message put onto the content's card when listed
