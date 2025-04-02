@@ -10,7 +10,7 @@ Feature: Quizzes
     When I go to *Coach > Quizzes*
     Then I see the *Quizzes* page
     	And I see the *New quiz* button
-    	And I see the class name, the total size of quizzes visible to learners, filters by status and recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
+    	And I see the class name, the total size of quizzes visible to learners, filters by status and recipients, *Print report* and *Export as CSV* icons
     	And I see a table with all of the quizzes with the following columns: *Title*, *Average score*, *Progress*, *Recipients*, *Size*, *Status*
 
 	Scenario: Coach creates a new quiz for the entire class and starts it
@@ -18,6 +18,7 @@ Feature: Quizzes
     	And I select *Create new quiz*
     Then I see the *Create new quiz* modal
     	And I see an empty *Title* field
+    	And I see the *Report visibility* drop-down with the *After learner submit quiz* option selected by default
     	And I see the *Recipients* section with the *Entire class* option selected by default
       And I see the *Section order* section with the *Fixed* option selected by default
     	And I see a *Section 1* tab with the following description text: *There are no questions in this section. To add questions, select resources from the available channels.*
@@ -25,15 +26,20 @@ Feature: Quizzes
       And I see that both the *Save* and *Save and close* buttons are disabled
     When I fill in the title for the quiz
     	And I click the *Add questions* button
+    Then I see the *Questions settings for 'Section 1'* modal
+    	And I see the *Number of questions* field with 10 set as default value
+    	And I see the unchecked checkbox *Choose questions manually*
+    	And I see an active *Continue* button at the bottom
+    When I click the *Continue* button
     Then I see the *Add questions to 'Section 1'* modal
-      And I see *Current number of questions in this section: 0*
-    	And I see a search field
-      And I see *You can only select a total of 100 questions or fewer.*
-      And I see a list with the available channel resources
+      And I see *Select up to 10 resources*
+    	And I see a *Settings* and a *Search* button next to it
+      And I see the *Select from channels* and a list with the available channels
     When I click on a channel card
       And I select an exercise with enough questions
       And I click the *Add NN questions* button
     Then I am back at the *Create new quiz* page
+    	And I see the *N questions successfully added* snackbar message
       And I see that the questions are added to *Section 1*
     When I click the *Save and close* button
     Then I am back at *Coach > Quizzes*
@@ -48,9 +54,9 @@ Feature: Quizzes
     When I click on the title of a quiz
     Then I see the quiz summary page
     	And I see the quiz title, the *Preview* button and the *...* button next to it
-    	And I see the side panel with *Report visible to learners* status, *Recipients*, *Average score*, *Class*, *Question order*, *Size*, *Date created*
+    	And I see the side panel with *Recipients*, *Average score*, *Report visibility*, *Class*, *Section order*, *Size*, *Date created*
     	And I see the *Learners* tab with the learners table
-    	And there are the following columns: *Title*, *Progress* and *Score* and *Groups*
+    	And there are the following columns: *Name*, *Progress* and *Groups*
     	And I see the *Difficult questions* tab
     When I click on the *Difficult questions* tab
     Then I see a table with the difficult questions
@@ -61,7 +67,7 @@ Feature: Quizzes
     When I click on the title of the quiz
     Then I see the quiz details page
     When I click the *...* drop-down
-      And I select the *Edit details* option
+      And I select the *Edit* option
     Then I see the quiz editor modal
     When I make some changes to the quiz
       And I click the *Save and close* button
@@ -77,8 +83,18 @@ Feature: Quizzes
     When I click the *...* button
       And I select *Edit details*
     Then I see the full-page *Edit quiz details* modal
-    When I change the *Recipients* by selecting one of the groups or some individual learners
-      And I click *Save and close* button
+    When I select the *Groups and individual learners* radio button
+    Then I see a *Select* link next to it
+    When I click the *Select* link
+    Then I see the *Select groups and individual learners* modal
+    	And I see all of the available groups
+    	And I see a *Search for a user* search field
+    	And I see a table with all individual learners
+    When I select the desired recipients
+    	And I click *Save*
+    Then I am back at the quiz editor page
+    	And I can see the selected recipients under the *Groups and individual learners* radio button
+    When I click the *Save and close* button
     Then I am back at *Coach - '<class>' > Quizzes
       	And I see the snackbar message *Changes saved successfully*
 				And I see the change under *Recipients* in the quizzes table
@@ -119,14 +135,24 @@ Feature: Quizzes
       And there are created groups with learners
       And I've added a title for the quiz
       And there are sections with questions in the quiz
-    When I select a group from the *Recipients* section
-      And I click the *Save and close* button
-    Then I am back at *Coach > Quizzes*
-      And I see the *Changes saved successfully* snackbar message
-      And I see the newly created quiz
-    When I click on the title of the quiz
+    When I select the *Groups and individual learners* radio button
+    Then I see a *Select* link next to it
+    When I click the *Select* link
+    Then I see the *Select groups and individual learners* modal
+    	And I see all of the available groups
+    	And I see a *Search for a user* search field
+    	And I see a table with all individual learners
+    When I select the desired group or groups
+    	And I click *Save*
+    Then I am back at the quiz editor page
+    	And I can see the selected groups under the *Groups and individual learners* radio button
+    When I click the *Save and close* button
+    Then I am back at *Coach - '<class>' > Quizzes
+      	And I see the snackbar message *Changes saved successfully*
+				And I see the change under *Recipients* in the quizzes table
+		When I click the title of the quiz
     Then I see the quiz details page
-      And I see the group name under the *Recipients* section
+      And I see the groups under the *Recipients* section
     When I click the *Start quiz* button
     Then I see the *Start quiz* modal
     When I click *Continue*
@@ -137,13 +163,21 @@ Feature: Quizzes
     Given I am at *Coach > Quizzes > Create new quiz*
       And I've added a title for the quiz
       And there are sections with questions in the quiz
-    When I select the *Individual learners* checkbox from the *Recipients* section
-    Then I see the *Select individual learners* table
-    When I select some of the learners
-      And I click the *Save and close* button
-    Then I am back at *Coach > Quizzes*
-      And I see the *Changes saved successfully* snackbar message
-      And I see the newly created quiz
+    When I select the *Groups and individual learners* radio button
+    Then I see a *Select* link next to it
+    When I click the *Select* link
+    Then I see the *Select groups and individual learners* modal
+    	And I see all of the available groups
+    	And I see a *Search for a user* search field
+    	And I see a table with all individual learners
+    When I select the desired individual learners
+    	And I click *Save*
+    Then I am back at the quiz editor page
+    	And I can see the selected recipients under the *Groups and individual learners* radio button
+    When I click the *Save and close* button
+    Then I am back at *Coach - '<class>' > Quizzes
+      	And I see the snackbar message *Changes saved successfully*
+				And I see the change under *Recipients* in the quizzes table
     When I click on the title of the quiz
     Then I see the quiz details page
       And I see the names of the learners under the *Recipients* section
@@ -162,11 +196,13 @@ Feature: Quizzes
       And I fill in the *Description (optional)*
       And I select the type of question order, either *Randomized* or *Fixed*
       And I click on *Add questions*
-    Then I see the *Add questions to 'Section 2'* modal
-    When I select the desired number of questions
+    Then I see the *Questions settings for '<section title>'* modal
+    When I click *Continue*
+    Then I see the *Add questions to '<section title>'* modal
+    When I select the desired resources
       And I click the *Add NN questions* button
     Then I am back at the quiz details page
-      And I see that the questions are added to *Section 2*
+      And I see the newly added *'<section title>'* section and all of its questions
 
    Scenario: Coach can edit a section
    	Given I am at the *Create new quiz* modal
@@ -177,8 +213,7 @@ Feature: Quizzes
    		And I see the *Section title* and *Description (optional)* fields
    		And I see the radio buttons for the *Question order* with *Randomized* selected by default
    		And I see the *Current number of questions in this section: NN* text
-   		And I see an *Add questions* button
-   		And I see the *Section order* section with all of the available sections
+   		And I see the *Add more questions* button
    	When I change one or several of the available settings
    		And I click the *Apply settings* button
    	Then I am back at quiz details page
@@ -186,12 +221,50 @@ Feature: Quizzes
 
    Scenario: Coach can delete a section
    	Given I am at the *Create new quiz* modal
+   		And there are created sections with added questions
    	When I click the *Options* button
    		And I select the *Delete section* button
-   	Then I see a *Delete section* modal with the following text: *Are you sure you want to delete 'Section N'?*
+   	Then I see a *Delete section* modal with the following text: *Are you sure you want to delete '<section title>'?*
    	When I click the *Delete* button
-   	Then I see a snackbar message *'Section N' deleted*
+   	Then I see a snackbar message *'<section title>' deleted*
    		And I am brought back to the previous existing section
+
+  Scenario: Coach can add more questions to a section
+    Given I am at the *Create new quiz* modal
+      And there are created sections with added questions
+    When I click the *Options* button
+   		And I select the *Add more questions* button
+    Then I see the *Questions settings for '<section title>'* modal
+    	And I see the *Number of questions* field with 10 set as default value
+    	And I see the unchecked checkbox *Choose questions manually*
+    	And I see an active *Continue* button at the bottom
+    When I select the *Choose questions manually* checkbox
+    	And I click the *Continue* button
+    Then I see the *Add questions to '<section title>'* modal
+      And I see *Select up to NN resources*
+    	And I see a *Settings* and a *Search* button next to it
+      And I see the *Select from channels* and a list with the available channels
+    When I click on a channel card
+      And I click on an exercise with unassigned questions
+    Then I see the title of the exercise
+    	And I see a selected *Choose questions manually* checkbox and disabled *Save settings* button next to it
+    	And I see a table with all of the available questions
+    When I select the desired questions
+      And I click the *Add NN questions* button
+    Then I am back at the *Create new quiz* page
+      And I see the *Question list* with all the newly added questions
+
+  Scenario: Coach can add questions from bookmarked resources
+    Given I am at the *Add questions to '<section title>'* modal
+      And there are bookmarked exercises on the device
+    When I click the *Bookmarks* card
+    Then I see the *Select from bookmarks* modal
+    	And I see all of the bookmarked resources
+    When I click on an exercise with unassigned questions
+    	And I select the desired questions
+      And I click the *Add NN questions* button
+    Then I am back at the *Create new quiz* page
+      And I see the *Question list* with all the newly added questions
 
    Scenario: Coach can change the order of the questions
    	Given I am at the *Create new quiz* modal
@@ -295,20 +368,6 @@ Feature: Quizzes
     When I select the *Fixed* radio button
       And I click the *Apply settings* button
     Then I am back at the *Create new quiz* modal #NOTE: This should be further discussed as there is no clear indication whether the questions are randomized or not. Even if I've selected the *Fixed* option I'm still able to reorder them.
-
-  Scenario: Coach can add questions from bookmarked resources
-    Given I am at the *Create new quiz* modal
-      And there are bookmarked exercises on the device
-    When I click the *Add questions* button
-    Then I see the *Add questions to 'Section N'* modal
-      And I see the following text: *Select from bookmarks*
-      And I see a *Bookmarks* card with the number of bookmarked exercises
-    When I click on the *Bookmarks* card
-    Then I see a list with the available bookmarked exercises
-    When I select one or several exercises
-      And I click the *Add N questions* button
-    Then I am back at the *Create new quiz* page
-      And I see the *Question list* with all the imported questions
 
   Scenario: Coach can search for specific questions
     Given I am at the *Create new quiz* modal
