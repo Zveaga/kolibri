@@ -175,6 +175,7 @@
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
@@ -499,7 +500,9 @@
 
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
-          return !workingPoolHasChanged.value;
+          return (
+            !workingPoolHasChanged.value && route.value.name !== PageNames.QUIZ_PREVIEW_RESOURCE
+          );
         }
         const disabledConditions = [
           !workingPoolHasChanged.value,
@@ -628,19 +631,13 @@
       const defaultTitle = getDefaultTitle();
 
       const { createSnackbar } = useSnackbar();
-      function notifyChanges() {
-        const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } =
-          enhancedQuizManagementStrings;
-
+      const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } = enhancedQuizManagementStrings;
+      function notifyChanges(count) {
         const message$ = settings.value.isInReplaceMode
           ? numberOfQuestionsReplaced$
           : numberOfQuestionsAdded$;
 
-        createSnackbar(
-          message$({
-            count: workingQuestions.value.length || settings.value.questionCount,
-          }),
-        );
+        createSnackbar(message$({ count }));
       }
 
       const bookmarksCardMessage = bookmarks => {
@@ -737,12 +734,25 @@
       }
     },
     methods: {
-      saveSelectedResource() {
+      async saveSelectedResource() {
+        let numQuestions;
         if (this.settings.selectPracticeQuiz) {
+          if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
+            try {
+              const contentNode = await ContentNodeResource.fetchModel({
+                id: this.$route.query.contentId,
+              });
+              this.setWorkingResourcePool([contentNode]);
+            } catch (e) {
+              this.$store.dispatch('handleApiError', e);
+            }
+          }
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
           const remainder = exerciseToQuestionArray(this.workingResourcePool[0]);
+
+          numQuestions = remainder.length;
 
           let sectionIndex = this.activeSectionIndex;
           while (remainder.length) {
@@ -758,6 +768,7 @@
             sectionIndex++;
           }
         } else if (this.settings.isChoosingManually) {
+          numQuestions = this.workingQuestions.length;
           this.addQuestionsToSection({
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
@@ -765,6 +776,7 @@
             questionItemsToReplace: this.settings.questionItemsToReplace,
           });
         } else {
+          numQuestions = this.settings.questionCount;
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
             resourcePool: this.workingResourcePool,
@@ -777,7 +789,7 @@
           // could be removed, so we need to clear it
           this.clearQuizSelectedQuestions();
         }
-        this.notifyChanges();
+        this.notifyChanges(numQuestions);
         this.handleClosePanel();
       },
       // The message put onto the content's card when listed

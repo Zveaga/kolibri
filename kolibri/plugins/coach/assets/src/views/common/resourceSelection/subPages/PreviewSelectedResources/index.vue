@@ -21,7 +21,7 @@
         />
       </div>
       <QuizResourceSelectionHeader
-        v-if="target === SelectionTarget.QUIZ"
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         hideSearch
         :settings="settings"
       >
@@ -56,7 +56,7 @@
       </h2>
 
       <div
-        v-if="target === SelectionTarget.QUIZ"
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="update-settings-container"
         :style="{
           backgroundColor: $themePalette.grey.v_100,
