@@ -15,6 +15,31 @@
     </UiAlert>
 
     <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
+      <div
+        v-if="hasNoChannels"
+        class="alert banner-spacing"
+        :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+      >
+        <div>
+          <KIcon
+            icon="warning"
+            class="warning-icon"
+            :color="$themePalette.yellow.v_600"
+          />
+        </div>
+
+        <div
+          v-if="hasNoChannels"
+          class="error-message"
+        >
+          <p>{{ noResourcesAvailable$() }}</p>
+          <KExternalLink
+            v-if="deviceContentUrl"
+            :text="$tr('adminLink')"
+            :href="deviceContentUrl"
+          />
+        </div>
+      </div>
       <AssignmentDetailsModal
         v-if="quizInitialized"
         ref="detailsModal"
@@ -69,7 +94,7 @@
         </KGrid>
       </div>
 
-      <CreateQuizSection v-if="quizInitialized && quiz.draft" />
+      <CreateQuizSection v-if="quizInitialized && quiz.draft && channels.length > 0" />
 
       <BottomAppBar>
         <span
@@ -118,10 +143,13 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import { ref, getCurrentInstance } from 'vue';
   import pickBy from 'lodash/pickBy';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { coachStrings } from '../../common/commonCoachStrings';
@@ -140,10 +168,20 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const channels = ref([]);
       const store = getCurrentInstance().proxy.$store;
       const closeConfirmationToRoute = ref(null);
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, groups } = useCoreCoach();
+      const { canManageContent } = useUser();
+
+      function _loadChannels() {
+        return ContentNodeResource.fetchCollection({}).then(res => {
+          channels.value = res;
+        });
+      }
+      _loadChannels();
+
       const {
         quizHasChanged,
         quiz,
@@ -167,6 +205,7 @@
         fixedLabel$,
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        noResourcesAvailable$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -195,6 +234,9 @@
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
         createSnackbar,
+        channels,
+        noResourcesAvailable$,
+        canManageContent,
       };
     },
     provide() {
@@ -235,6 +277,17 @@
           return this.$tr('createNewExamLabel');
         }
         return this.quiz.title;
+      },
+      deviceContentUrl() {
+        const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
+        if (deviceContentUrl && this.canManageContent) {
+          return `${deviceContentUrl()}#/content`;
+        }
+
+        return '';
+      },
+      hasNoChannels() {
+        return this.channels.length === 0;
       },
     },
     watch: {
@@ -368,6 +421,10 @@
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
       },
+      adminLink: {
+        message: 'Import channels to your device',
+        context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
+      },
     },
   };
 
@@ -387,6 +444,32 @@
 
   .edit-section-order-btn {
     margin-left: 2em;
+  }
+
+  .alert {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    padding: 0.5em;
+    padding-left: 2em;
+    margin: 1em auto 0;
+  }
+
+  .warning-icon {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    width: 24px;
+    height: 24px;
+  }
+
+  .error-message {
+    margin-left: 3em;
+    font-size: 14px;
+  }
+
+  .banner-spacing {
+    margin: 0 0 1em;
   }
 
 </style>
