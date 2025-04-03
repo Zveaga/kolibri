@@ -105,7 +105,7 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
-      const { insufficientResources$, saveSettingsAction$ } = searchAndFilterStrings;
+      const { insufficientResources$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -154,8 +154,8 @@
         goBack();
       };
 
-      const { continueAction$ } = coreStrings;
-      const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
+      const { continueAction$, saveAction$ } = coreStrings;
+      const continueText = props.isLanding ? continueAction$() : saveAction$();
 
       onMounted(() => {
         props.setContinueAction({
