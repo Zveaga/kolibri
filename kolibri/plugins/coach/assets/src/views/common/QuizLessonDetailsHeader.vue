@@ -102,11 +102,11 @@
       isExamDraft() {
         return this.exam.draft;
       },
-      isOldDataModelVersion() {
+      isExamOldVersion() {
         return this.exam.data_model_version < 3;
       },
       isFromOldKolibri() {
-        return this.isOldDataModelVersion && !this.isExamDraft && !this.isActive;
+        return this.isExamOldVersion && !this.isExamDraft && !this.isActive;
       },
     },
   };
