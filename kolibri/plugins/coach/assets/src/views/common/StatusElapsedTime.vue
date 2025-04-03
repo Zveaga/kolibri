@@ -210,6 +210,22 @@
         context:
           'Indicates that a quiz was made visible a number of days prior to the current date.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      hiddenMinutesAgo: {
+        message: 'Hidden {minutes} {minutes, plural, one {minute} other {minutes}} ago',
+        context:
+          'Indicates that a lesson was made not visible to a learner a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+      },
+      hiddenHoursAgo: {
+        message: 'Hidden {hours} {hours, plural, one {hour} other {hours}} ago',
+        context:
+          'Indicates that a lesson was made not visible to a learner a number of hours prior to the current time, but the time is always less than one day ago',
+      },
+      hiddenDaysAgo: {
+        message: 'Hidden {days} {days, plural, one {day} other {days}} ago',
+        context:
+          'Indicates that a lesson was made not visible to a learner a number of days prior to the current date.',
+      },
     },
   };
 

@@ -378,7 +378,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context: 'Label for the switch that controls the visibility of the quiz report to learners.',
   },
   afterLearnerSubmitsQuizLabel: {
-    message: 'After learner submits quiz',
+    message: 'After learner submits the quiz',
     context: 'Refers to option for learners to see their quiz report after they submit their quiz.',
   },
   afterCoachEndsQuizLabel: {
@@ -387,12 +387,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Refers to option for learners to see their quiz report only after the coach ends the quiz.',
   },
   afterLearnerSubmitsQuizDescription: {
-    message: 'Learners see their quiz report immediately after submitting',
+    message: 'Learners can see their quiz report immediately after they submit',
     context:
       'Description of the "After coach ends the quiz" option for quiz report visibility to learners.',
   },
   afterCoachEndsQuizDescription: {
-    message: 'Learners see their quiz report only when the coach ends the quiz',
+    message: 'Learners can only see their quiz report after the coach ends the quiz',
     context:
       'Description of the "After learner submits quiz" option for quiz report visibility to learners.',
   },
@@ -678,9 +678,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       "Indicates the amount of resources selected along with the file size. For example:\n\n'727 resources selected (22 GB)'",
   },
   manageLessonResourcesTitle: {
-    message: 'Manage lesson resources',
-    context:
-      "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
+    message: 'Add resources to lesson',
+    context: "In the 'Add resources to lesson' coaches can add new resource material to a lesson.",
   },
   groupsAndLearnersLabel: {
     message: 'Groups and individual learners',

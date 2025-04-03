@@ -72,7 +72,7 @@
         <KButton
           class="no-shink"
           appearance="flat-button"
-          :text="saveSettingsAction$()"
+          :text="saveAction$()"
           :disabled="isSaveSettingsDisabled"
           @click="saveSettings"
         />
@@ -108,7 +108,6 @@
 
 <script>
 
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { getCurrentInstance, onMounted, ref, computed } from 'vue';
   import { ContentNodeKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -146,7 +145,7 @@
       const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
         props.contentId,
       );
-      const { selectFromChannels$ } = coreStrings;
+      const { selectFromChannels$, saveAction$ } = coreStrings;
       const { chooseQuestionsManuallyLabel$, clearSelectionNotice$ } =
         enhancedQuizManagementStrings;
 
@@ -197,8 +196,6 @@
         }
       });
 
-      const { saveSettingsAction$ } = searchAndFilterStrings;
-
       return {
         contentNode,
         ancestors,
@@ -210,7 +207,7 @@
         isSaveSettingsDisabled,
         clearSelectionNotice$,
         saveSettings,
-        saveSettingsAction$,
+        saveAction$,
         selectFromChannels$,
         chooseQuestionsManuallyLabel$,
       };

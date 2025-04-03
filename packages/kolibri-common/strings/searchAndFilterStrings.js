@@ -76,7 +76,7 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context: 'Message displayed when no questions are selected',
   },
   searchInFolder: {
-    message: "Search in '{folder}'",
+    message: "Search in folder '{folder}'",
     context: 'Title for search resources in folder',
   },
   resultsCount: {
@@ -137,13 +137,9 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Dismiss',
     context: 'Button label to dismiss a notification',
   },
-  saveSettingsAction: {
-    message: 'Save settings',
-    context: 'Button label to save resource selection settings',
-  },
   insufficientResources: {
     message:
-      'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, consider adding more resources to your library.',
+      'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, contact your administrator to add more resources to your library.',
     context:
       'Message to indicate that the resources are not sufficient for the user to create a quiz.',
   },
