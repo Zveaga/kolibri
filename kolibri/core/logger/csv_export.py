@@ -21,13 +21,14 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
+from kolibri.core.utils.csv import validate_open_csv_params
 
 
 logger = logging.getLogger(__name__)
 
 CSV_EXPORT_FILENAMES = {
-    "session": "{}_{}_content_session_logs_from_{}_to_{}.csv",
-    "summary": "{}_{}_content_summary_logs_from_{}_to_{}.csv",
+    "session": "log_export/{}_{}_content_session_logs_from_{}_to_{}.csv",
+    "summary": "log_export/{}_{}_content_summary_logs_from_{}_to_{}.csv",
 }
 
 CACHE_TIMEOUT = 60 * 10
@@ -240,8 +241,18 @@ classes_info = {
 
 
 def csv_file_generator(
-    facility, log_type, filepath, start_date, end_date, overwrite=False
+    facility,
+    log_type,
+    start_date,
+    end_date,
+    overwrite=False,
+    storage_filepath=None,
+    local_filepath=None,
 ):
+    validate_open_csv_params(storage_filepath, local_filepath)
+
+    if local_filepath and not overwrite and os.path.exists(local_filepath):
+        raise ValueError("{} already exists".format(local_filepath))
 
     if log_type not in ("summary", "session"):
         raise ValueError(
@@ -256,8 +267,6 @@ def csv_file_generator(
         else parser.parse(end_date) + datetime.timedelta(days=1)
     )
 
-    if not overwrite and os.path.exists(filepath):
-        raise ValueError("{} already exists".format(filepath))
     queryset = log_info["queryset"].filter(
         dataset_id=facility.dataset_id,
     )
@@ -285,11 +294,11 @@ def csv_file_generator(
         label for _, label in topic_headers
     ]
 
-    csv_file = open_csv_for_writing(filepath)
-
-    with csv_file as f:
+    with open_csv_for_writing(
+        storage_filepath=storage_filepath,
+        local_filepath=local_filepath,
+    ) as f:
         writer = csv.DictWriter(f, header_labels)
-        logger.info("Creating csv file {filename}".format(filename=filepath))
         writer.writeheader()
         for item in queryset.select_related("user", "user__facility").values(
             *log_info["db_columns"]
