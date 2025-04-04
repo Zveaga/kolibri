@@ -12,9 +12,9 @@ Feature: Coach manages lesson resources
 		When I click on the *Manage resources* button
 		Then I see the *Manage lesson resources* side panel
 			And I see the *Select from bookmarks* label and the *Bookmarks* card below it
+			And I see a *Search* button next to the *Select from bookmarks* label
 			And I see the *Select from channels* card label and the channel cards for the available channels below it
-			And I see a *Search* button next to the *Select from channels* label
-			And I see a *Save & Finish* button at the lower right corner of the panel
+			And I see a disabled *Save & finish* button at the lower right corner of the panel
 		When I click the *Close* icon
 		Then I am back at the lesson page
 
@@ -24,8 +24,8 @@ Feature: Coach manages lesson resources
 		When I click on the *Bookmarks* card
 		Then I see a list of my bookmarked resources with a checkbox for each one of them
 		When I select one or several bookmarked resources
-		Then I see the *N resouce(s)selected (N MB)* link to the left of the *Save & Finish* button
-		When I click the *Save & Finish* button
+		Then I see the *N resource(s)selected (N MB)* link to the left of the *Save & finish* button
+		When I click the *Save & finish* button
 		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
 			And I see a *N resource(s) added* snackbar message
 			And I can see that the selected resources are added to the list with lesson resources
@@ -37,8 +37,8 @@ Feature: Coach manages lesson resources
 		When I click on a folder with resources
 		Then I can see the list with available resources
 		When I select one or several resources
-		Then I see the *N resouce(s)selected (N MB)* link to the left of the *Save & Finish* button
-		When I click the *Save & Finish* button
+		Then I see the *N resource(s)selected (N MB)* link to the left of the *Save & finish* button
+		When I click the *Save & finish* button
 		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
 			And I see a *N resource(s) added* snackbar message
 			And I can see that the selected resources are added to the list with lesson resources
@@ -48,24 +48,27 @@ Feature: Coach manages lesson resources
 			And I can see a list with resources
 		When I click on a resource
 		Then I am able to preview the resource
-		When I click the *Add* button above the resource
-		Then the resource is added to the lesson #To be further clarified
+		When I click the *Select resource* button above the resource
+		Then the button changes to *Remove*
+			And I see a green check mark and *Selected* to the left of it
+		When I click the *Save & finish* button
+		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
+			And I see a *N resource(s) added* snackbar message
+			And I can see that the selected resources are added to the list with lesson resources
 
-	Scenario: Coach can view and reorder or remove the selected resources
+	Scenario: Coach can view and remove selected resources
 		Given I am viewing the *Manage lesson resources* side panel
 			And I have already selected several resources
-		When I click the *N resouce(s)selected (N MB)* link to the left of the *Save & Finish* button
+		When I click the *N resource(s)selected (N MB)* link to the left of the *Save & finish* button
 		Then I see the *N resources selected* page
 			And I see the lesson name and the total side of the selected resources
-			And I see a list with the resources with option to reorder them
-			And I see a folder icon and a remove icon for each resource
-		When I move the cursor over the reorder icon for a resource
-    Then it transforms to a hand
-    When I drag and drop a resource up or down
-    Then I see the resource in its new position
+			And I see a list with the resources with a folder icon and a remove icon for each resource
     When I click on the remove icon for a resource
     Then I can see that it's removed from the list
-    When I click the *Save & Finish* button
+    When I click on the folder next to a resource
+    Then I go to the parent folder of the resource
+    	And I can see that the resource is selected
+    When I click the *Save & finish* button
 		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
 			And I see a *N resource(s) added* snackbar message
 			And I can see that the selected resources are added to the list with lesson resources
@@ -84,7 +87,7 @@ Feature: Coach manages lesson resources
 			And I see the keyword with an option to remove it
 			And I see a *Clear all* label next to it
 		When I select one or several of the available results
-			And I click the *Save & Finish* button
+			And I click the *Save & finish* button
 		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
 			And I can see that the selected resources are added to the list with lesson resources
 
@@ -96,7 +99,7 @@ Feature: Coach manages lesson resources
 			And I see the applied filter with an option to remove it
 			And I see a *Clear all* label next to it
 		When I select one or several of the available results
-			And I click the *Save & Finish* button
+			And I click the *Save & finish* button
 		Then I am back at the *Coach > <class> > Lesson > <lesson>* page
 			And I can see that the selected resources are added to the list with lesson resources
 
