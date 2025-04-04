@@ -176,7 +176,7 @@ def add_ancestors_info(row, ancestors, max_depth):
     ancestors = ancestors[1:]
     row.update(
         {
-            f"Topic level {level + 1}": ancestors[level]["title"]
+            f"Folder level {level + 1}": ancestors[level]["title"]
             if level < len(ancestors)
             else ""
             for level in range(max_depth)
@@ -285,7 +285,7 @@ def csv_file_generator(
     )
     # len of topic headers should be equal to the max depth of the content node
     topic_headers = [
-        (f"Topic level {i+1}", _(f"Topic level {i+1}"))
+        (f"Folder level {i+1}", _(f"Folder level {i+1}"))
         for i in range(get_max_ancestor_depth(queryset))
     ]
 
