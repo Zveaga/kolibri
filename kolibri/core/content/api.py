@@ -21,7 +21,6 @@ from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
-from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
@@ -464,7 +463,7 @@ class ContentNodeFilter(FilterSet):
     ids = UUIDInFilter(method="filter_ids")
     kind = ChoiceFilter(
         method="filter_kind",
-        choices=(content_kinds.choices + (("content", _("Resource")),)),
+        choices=(content_kinds.choices + (("content", "Resource"),)),
     )
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
@@ -1863,7 +1862,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         except NetworkLocationResponseFailure as e:
             if e.response.status_code == 404:
                 raise Http404(
-                    _("The requested channel does not exist on the content server")
+                    "The requested channel does not exist on the content server"
                 )
 
     @staticmethod
