@@ -36,8 +36,8 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
-                    :moveUpText="moveChannelUpLabel$"
-                    :moveDownText="moveChannelDownLabel$"
+                    :moveUpText="moveUpLabel$"
+                    :moveDownText="moveDownLabel$"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
@@ -69,7 +69,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
@@ -92,13 +92,13 @@
       useContentTasks();
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
-      const { moveChannelUpLabel$, moveChannelDownLabel$ } = searchAndFilterStrings;
+      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
 
       return {
         canManageContent,
         createSnackbar,
-        moveChannelUpLabel$,
-        moveChannelDownLabel$,
+        moveUpLabel$,
+        moveDownLabel$,
       };
     },
     data() {

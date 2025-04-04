@@ -28,8 +28,8 @@
             >
               <DragSortWidget
                 class="drag-title"
-                :moveUpText="upLabel$"
-                :moveDownText="downLabel$"
+                :moveUpText="moveUpLabel$"
+                :moveDownText="moveDownLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
@@ -92,12 +92,11 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../constants/index';
   import { coachStrings } from '../../../../common/commonCoachStrings.js';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
@@ -119,7 +118,7 @@
 
       const { activeSectionIndex, activeSection, allSections, updateQuiz } = injectQuizCreation();
 
-      const { upLabel$, downLabel$ } = searchAndFilterStrings;
+      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
 
       const { moveDownOne, moveUpOne } = useDrag();
 
@@ -171,8 +170,8 @@
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
-        upLabel$,
-        downLabel$,
+        moveUpLabel$,
+        moveDownLabel$,
       };
     },
     computed: {
