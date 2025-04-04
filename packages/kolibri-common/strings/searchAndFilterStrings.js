@@ -36,7 +36,7 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context: 'Refers to changing the order of resources in a lesson.',
   },
   saveLessonResources: {
-    message: 'save & finish',
+    message: 'Save & finish',
     context: 'Button to save resources in a lesson',
   },
   numberOfSelectedResources: {
