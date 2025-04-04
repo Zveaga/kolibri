@@ -29,8 +29,8 @@
             >
               <div class="move-handle">
                 <DragSortWidget
-                  :moveUpText="moveResourceUpButtonDescription$"
-                  :moveDownText="moveResourceDownButtonDescription$"
+                  :moveUpText="moveUpLabel$"
+                  :moveDownText="moveDownLabel$"
                   :isFirst="index === 0"
                   :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
@@ -107,10 +107,9 @@
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coachStrings } from '../../common/commonCoachStrings';
   import { PageNames } from '../../../constants';
 
@@ -130,15 +129,14 @@
     setup() {
       const { createSnackbar, clearSnackbar } = useSnackbar();
       const { noResourcesInLessonLabel$ } = coachStrings;
-      const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
-        searchAndFilterStrings;
+      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
       return {
         PageNames,
         noResourcesInLessonLabel$,
         createSnackbar,
         clearSnackbar,
-        moveResourceUpButtonDescription$,
-        moveResourceDownButtonDescription$,
+        moveUpLabel$,
+        moveDownLabel$,
       };
     },
     props: {

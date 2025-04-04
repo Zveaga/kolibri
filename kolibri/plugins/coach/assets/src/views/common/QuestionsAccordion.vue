@@ -67,8 +67,8 @@
               <DragHandle v-if="isSortable">
                 <div>
                   <DragSortWidget
-                    :moveUpText="upLabel$"
-                    :moveDownText="downLabel$"
+                    :moveUpText="moveUpLabel$"
+                    :moveDownText="moveDownLabel$"
                     :noDrag="true"
                     :isFirst="index === 0"
                     :isLast="index === questions.length - 1"
@@ -145,7 +145,7 @@
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useDrag from './useDrag.js';
 
   export default {
@@ -161,7 +161,7 @@
     setup(props) {
       const dragActive = ref(false);
 
-      const { upLabel$, downLabel$ } = searchAndFilterStrings;
+      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
       const { selectAllLabel$, expandAll$, collapseAll$, replacingThisQuestionLabel$ } =
         enhancedQuizManagementStrings;
 
@@ -251,8 +251,8 @@
         displayQuestionTitle,
         questionCheckboxDisabled,
 
-        upLabel$,
-        downLabel$,
+        moveUpLabel$,
+        moveDownLabel$,
         selectAllLabel$,
         expandAll$,
         collapseAll$,

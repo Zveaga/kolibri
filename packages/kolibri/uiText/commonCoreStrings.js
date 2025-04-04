@@ -1569,6 +1569,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Your library',
     context: '',
   },
+
+  // aria and a11y related strings
+  moveUpLabel: {
+    message: 'Move up',
+    context: 'Label for the button that moves a resource up in the list. Not visible in the UI.',
+  },
+  moveDownLabel: {
+    message: 'Move down',
+    context: 'Label for the button that moves a resource down in the list. Not visible in the UI.',
+  },
 });
 
 /**
