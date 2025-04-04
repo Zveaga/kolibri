@@ -211,8 +211,6 @@ class UserCSVExportTestCase(APITestCase):
         cls.admin = FacilityUserFactory.create(facility=cls.facility)
         cls.user1 = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_admin(cls.admin)
-
-    def test_csv_download_anonymous_permissions(self):
         try:
             call_command(
                 "bulkexportusers",
@@ -226,6 +224,7 @@ class UserCSVExportTestCase(APITestCase):
             # decided to bypass it this way for now
             pass
 
+    def test_csv_download_anonymous_permissions(self):
         response = self.client.get(
             reverse(
                 "kolibri:kolibri.plugins.facility:download_csv_file",
@@ -235,12 +234,6 @@ class UserCSVExportTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_csv_download_non_admin_permissions(self):
-        call_command(
-            "bulkexportusers",
-            use_storage=True,
-            overwrite=True,
-        )
-
         self.client.login(
             username=self.user1.username,
             password=DUMMY_PASSWORD,
@@ -255,11 +248,6 @@ class UserCSVExportTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_csv_download_admin_permissions(self):
-        call_command(
-            "bulkexportusers",
-            use_storage=True,
-            overwrite=True,
-        )
         self.client.login(
             username=self.admin.username,
             password=DUMMY_PASSWORD,
