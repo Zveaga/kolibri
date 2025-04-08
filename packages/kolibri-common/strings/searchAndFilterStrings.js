@@ -7,10 +7,6 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context:
       'Label for a section of the page that contains options for searching and filtering content',
   },
-  saveLessonResources: {
-    message: 'Save & finish',
-    context: 'Button to save resources in a lesson',
-  },
   numberOfSelectedResources: {
     message:
       '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',

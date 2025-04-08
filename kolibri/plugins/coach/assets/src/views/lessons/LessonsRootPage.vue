@@ -460,7 +460,7 @@
       noLessons: {
         message: 'You do not have any lessons',
         context:
-          "Text displayed in the 'Lessons' tab of the coach page if there are no lessons created",
+          "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
       dontShowAgain: {
         message: "Don't show this message again",
