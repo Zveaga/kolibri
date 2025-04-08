@@ -679,7 +679,8 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   manageLessonResourcesTitle: {
     message: 'Add resources to lesson',
-    context: "In the 'Add resources to lesson' coaches can add new resource material to a lesson.",
+    context:
+      "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
   },
   groupsAndLearnersLabel: {
     message: 'Groups and individual learners',

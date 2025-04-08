@@ -231,8 +231,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   clearSelectionNotice: {
     message: 'Changing this setting will remove your current selections',
-    context:
-      'A message that informs the user that changing this setting will remove any questions or resources they have selected so far to add to their quiz.',
+    context: 'A message that informs the user that changing a setting will remove their selections',
   },
   selectUpToNResources: {
     message:

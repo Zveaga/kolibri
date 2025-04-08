@@ -166,12 +166,12 @@
       pageTitle: {
         message: `Edit lesson details for '{title}'`,
         context:
-          "Page title for page which coach accesses using the 'Edit details' option on the Lessons tab.",
+          "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
       },
       appBarTitle: {
         message: 'Edit lesson details',
         context:
-          "Title of window that displays when coach uses the 'Edit details' option on the 'Lessons' tab.",
+          "Title of window that displays when coach uses the 'Edit details' option on the 'Plan' tab.",
       },
       submitErrorMessage: {
         message: 'There was a problem saving your changes',

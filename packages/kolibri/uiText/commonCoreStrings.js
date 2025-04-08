@@ -131,7 +131,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'When a user edits an entity en Kolibri that changes some piece of information about it, they need to save those changes.',
   },
   saveAndFinishAction: {
-    message: 'Save & Finish',
+    message: 'Save & finish',
     context:
       'When a user edits an entity in Kolibri and no more changes are needed so we close the given view after that.',
   },
@@ -1071,11 +1071,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   selectFromBookmarks: {
     message: 'Select from bookmarks',
     context: "Option on the 'Manage lesson resources' page.",
-  },
-  savedFromBookmarks: {
-    message: 'Saved from bookmarks',
-    context:
-      'Notification message after user clicked the bookmark icon button, indicating the resource has been  saved.',
   },
   numberOfBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
