@@ -28,8 +28,6 @@
             >
               <DragSortWidget
                 class="drag-title"
-                :moveUpText="moveUpLabel$"
-                :moveDownText="moveDownLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
@@ -92,7 +90,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
@@ -117,8 +115,6 @@
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
       const { activeSectionIndex, activeSection, allSections, updateQuiz } = injectQuizCreation();
-
-      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
 
       const { moveDownOne, moveUpOne } = useDrag();
 
@@ -170,8 +166,6 @@
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
-        moveUpLabel$,
-        moveDownLabel$,
       };
     },
     computed: {

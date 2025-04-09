@@ -27,8 +27,6 @@
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
-                      :moveUpText="moveUpLabel$"
-                      :moveDownText="moveDownLabel$"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
@@ -112,15 +110,12 @@
       Draggable,
     },
     setup() {
-      const { resourcesLabel$, removeAction$, progressLabel$, moveUpLabel$, moveDownLabel$ } =
-        coreStrings;
+      const { resourcesLabel$, removeAction$, progressLabel$ } = coreStrings;
       const { noResourcesInLessonLabel$, titleLabel$, avgTimeSpentLabel$ } = coachStrings;
 
       return {
         resourcesLabel$,
         removeAction$,
-        moveUpLabel$,
-        moveDownLabel$,
         noResourcesInLessonLabel$,
         titleLabel$,
         progressLabel$,
