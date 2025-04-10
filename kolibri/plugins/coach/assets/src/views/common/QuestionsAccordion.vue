@@ -56,7 +56,7 @@
           }"
         >
           <AccordionItem
-            :title="displayQuestionTitle(question, getQuestionContent(question).title)"
+            :title="displayQuestionTitle(question, getQuestionContent(question)?.title)"
             :disabledTitle="questionItemsToReplace?.includes(question.item)"
             :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
@@ -100,6 +100,7 @@
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
                 <ContentRenderer
+                  v-if="getQuestionContent(question).available"
                   :ref="`contentRenderer-${question.item}`"
                   :kind="getQuestionContent(question).kind"
                   :lang="getQuestionContent(question).lang"
@@ -115,6 +116,13 @@
                   @updateContentState="() => null"
                   @error="err => $emit('error', err)"
                 />
+                <div v-else>
+                  <KIcon
+                    icon="warning"
+                    :style="{ fill: $themePalette.yellow.v_600 }"
+                  />
+                  {{ coreString('resourceNotFoundOnDevice') }}
+                </div>
                 <slot
                   name="questionExtraContent"
                   :question="question"
@@ -142,6 +150,7 @@
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import useDrag from './useDrag.js';
 
@@ -155,6 +164,7 @@
       AccordionItem,
       AccordionContainer,
     },
+    mixins: [commonCoreStrings],
     setup(props) {
       const dragActive = ref(false);
 
