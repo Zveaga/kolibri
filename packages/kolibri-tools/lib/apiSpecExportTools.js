@@ -1,6 +1,6 @@
 const path = require('node:path');
 const { writeSourceToFile } = require('kolibri-format');
-const kolibriPackageJson = require('../../kolibri/package.json');
+const kolibriPackageJson = require('kolibri/package.json');
 const glob = require('./glob');
 
 const apiSpec = kolibriPackageJson.exports || {};
@@ -13,7 +13,8 @@ function generateApiKeys(apiSpec) {
   return (
     Object.keys(apiSpec)
       // Filter out the export for the root package '.' as we don't need to expose that
-      .filter(key => key !== '.')
+      // nor the package.json export.
+      .filter(key => key !== '.' && key !== './package.json')
       // Add the kolibri prefix and remove the leading '.' to make a full import path
       // e.g. './urls' -> 'kolibri/urls'
       .map(key => 'kolibri' + key.slice(1))
@@ -67,6 +68,7 @@ function rebuildApiSpec() {
     // we can update the right hand side of this
     newApiSpec[specValue] = specValue === '.' ? './index' : specValue;
   }
+  newApiSpec['./package.json'] = './package.json';
   const updatedKolibriPackageJson = {
     ...kolibriPackageJson,
     exports: newApiSpec,
