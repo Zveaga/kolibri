@@ -46,7 +46,7 @@
   "ConfirmMerge.consequences": "",
   "CreateAccount.description": "",
   "CreatePassword.description": "",
-  "CreatePassword.documentTitle": "",
+  "CreatePassword.documentTitle": "შექმენით ახალი პაროლი",
   "CreatePassword.hint": "",
   "GenderSelect.placeholder": "სქესის მითითება",
   "MergeAccountDialog.doNotKnowPassword": "",
