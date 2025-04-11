@@ -14,6 +14,18 @@ describe('Translation Extraction Utilities', () => {
     // Create a temporary directory for our test files
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'i18n-tests-'));
 
+    // Utility function to create test files
+    function createTestFile(filename, content) {
+      const filePath = path.join(tempDir, filename);
+      // Ensure the directory exists before writing the file
+      const dirname = path.dirname(filePath);
+      if (!fs.existsSync(dirname)) {
+        fs.mkdirSync(dirname, { recursive: true });
+      }
+      fs.writeFileSync(filePath, content);
+      return filePath;
+    }
+
     // Create all test files upfront
     filePaths.textFile = createTestFile('file.txt', 'This is not a JS or Vue file');
     filePaths.emptyJs = createTestFile('empty.js', '');
@@ -41,6 +53,83 @@ describe('Translation Extraction Utilities', () => {
         key: 'Message string'
       });
     `,
+    );
+
+    filePaths.someModule = createTestFile(
+      'some/module.js',
+      `
+      // Just a simple module to be imported
+      export default function someFunction() {
+        return 'Hello from some module';
+      }
+      `,
+    );
+
+    filePaths.dynamicImportTarget = createTestFile(
+      'path/to/dynamically/imported/file.js',
+      `
+      // A module to be dynamically imported
+      export default function dynamicFunction() {
+        return 'Hello from dynamically imported file';
+      }
+      `,
+    );
+
+    filePaths.requiredFileTarget = createTestFile(
+      'path/to/required/file.js',
+      `
+      // A module to be required
+      module.exports = function requiredFunction() {
+        return 'Hello from required file';
+      };
+      `,
+    );
+
+    // Now create the files that do the importing
+    filePaths.dynamicImport = createTestFile(
+      'dynamic-import.js',
+      `
+      // Static imports
+      import standardImport from './some/module';
+
+      // Dynamic imports
+      import('./path/to/dynamically/imported/file.js').then(module => {
+        // do something with the module
+      });
+
+      const translator = createTranslator('namespace', {
+        key: 'Message string'
+      });
+      `,
+    );
+
+    filePaths.requireImport = createTestFile(
+      'require-import.js',
+      `
+      // Standard require
+      const standardRequire = require('./some/module');
+
+      // Dynamic require
+      const dynamicRequire = require('./path/to/required/file.js');
+
+      const translator = createTranslator('namespace', {
+        key: 'Message string'
+      });
+      `,
+    );
+
+    filePaths.badDynamicImport = createTestFile(
+      'bad-dynamic-import.js',
+      `
+      // Unresolvable dynamic import
+      import('./non/existent/module.js').catch(err => {
+        console.log('Handled error', err);
+      });
+
+      const translator = createTranslator('namespace', {
+        key: 'Message string'
+      });
+      `,
     );
 
     // Circular dependencies
@@ -209,20 +298,9 @@ describe('Translation Extraction Utilities', () => {
   afterAll(() => {
     // Clean up all temporary files and directory after all tests
     if (tempDir && fs.existsSync(tempDir)) {
-      const files = fs.readdirSync(tempDir);
-      files.forEach(file => {
-        fs.unlinkSync(path.join(tempDir, file));
-      });
-      fs.rmdirSync(tempDir);
+      fs.rmSync(tempDir, { recursive: true });
     }
   });
-
-  // Utility function to create test files
-  function createTestFile(filename, content) {
-    const filePath = path.join(tempDir, filename);
-    fs.writeFileSync(filePath, content);
-    return filePath;
-  }
 
   describe('File Type Handling', () => {
     it('should silently ignore non-js/vue files', () => {
@@ -264,6 +342,34 @@ describe('Translation Extraction Utilities', () => {
       astUtils.recurseForStrings(filePaths.circularA, [], visited, false);
 
       // The code should handle the circular dependency without error
+      expect(logging.error).not.toHaveBeenCalled();
+      expect(process.exit).not.toHaveBeenCalled();
+    });
+
+    it('should handle dynamic imports using import()', () => {
+      const fileNames = astUtils.getImportFileNames(filePaths.dynamicImport, []);
+
+      // Assuming getFileNameForImport will resolve the path correctly
+      expect(fileNames.some(name => name.includes('path/to/dynamically/imported/file.js'))).toBe(
+        true,
+      );
+      expect(logging.error).not.toHaveBeenCalled();
+      expect(process.exit).not.toHaveBeenCalled();
+    });
+
+    it('should handle dynamic imports using require()', () => {
+      const fileNames = astUtils.getImportFileNames(filePaths.requireImport, []);
+
+      // Assuming getFileNameForImport will resolve the path correctly
+      expect(fileNames.some(name => name.includes('path/to/required/file.js'))).toBe(true);
+      expect(logging.error).not.toHaveBeenCalled();
+      expect(process.exit).not.toHaveBeenCalled();
+    });
+
+    it('should handle unresolvable dynamic imports without error', () => {
+      astUtils.getImportFileNames(filePaths.badDynamicImport, []);
+
+      // The function should silently handle the error
       expect(logging.error).not.toHaveBeenCalled();
       expect(process.exit).not.toHaveBeenCalled();
     });

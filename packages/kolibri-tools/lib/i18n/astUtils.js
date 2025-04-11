@@ -198,22 +198,37 @@ function getImportFileNames(filePath, ignore) {
   if (ast) {
     traverse(ast, {
       pre: astNode => {
+        let fileImportedFrom;
+        // Handle static imports (ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)
         if (
           astNode.type === 'ImportDeclaration' ||
           astNode.type === 'ExportNamedDeclaration' ||
           astNode.type === 'ExportAllDeclaration'
         ) {
-          const fileImportedFrom = get(astNode, 'source.value');
-          if (fileImportedFrom) {
-            try {
-              const targetFile = getFileNameForImport(fileImportedFrom, filePath);
-              // Don't return files that we are meant to ignore
-              const filterFiles = glob.sync(targetFile, { ignore });
-              if (filterFiles.length) {
-                fileNames.push(targetFile);
-              }
-            } catch (e) {} // eslint-disable-line no-empty
-          }
+          fileImportedFrom = get(astNode, 'source.value');
+        }
+        // Handle dynamic imports via import()
+        else if (astNode.type === 'CallExpression' && astNode.callee.type === 'Import') {
+          fileImportedFrom = stringFromAnyLiteral(astNode.arguments[0]);
+        }
+        // Handle dynamic imports via require()
+        else if (
+          astNode.type === 'CallExpression' &&
+          astNode.callee.type === 'Identifier' &&
+          astNode.callee.name === 'require'
+        ) {
+          fileImportedFrom = stringFromAnyLiteral(astNode.arguments[0]);
+        }
+
+        if (fileImportedFrom) {
+          try {
+            const targetFile = getFileNameForImport(fileImportedFrom, filePath);
+            // Don't return files that we are meant to ignore
+            const filterFiles = glob.sync(targetFile, { ignore });
+            if (filterFiles.length) {
+              fileNames.push(targetFile);
+            }
+          } catch (e) {} // eslint-disable-line no-empty
         }
       },
     });
