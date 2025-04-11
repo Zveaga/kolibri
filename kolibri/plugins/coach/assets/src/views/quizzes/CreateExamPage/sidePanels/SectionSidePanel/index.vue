@@ -90,10 +90,15 @@
 </script>
 
 
-<style scoped>
+<style lang="scss" scoped>
 
   .sidepanel-title {
+    padding-left: 16px;
     font-size: 18px;
+  }
+
+  /deep/ .header-content {
+    padding-right: 8px;
   }
 
 </style>
