@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <MissingResourceAlert v-if="selectedActiveQuestions.length === 0" />
+    <MissingResourceAlert v-if="Object.keys(activeResourceMap).length === 0" />
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
         :layout4="{ span: 4 }"

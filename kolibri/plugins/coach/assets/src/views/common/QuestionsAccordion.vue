@@ -100,7 +100,7 @@
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
                 <ContentRenderer
-                  v-if="getQuestionContent(question).available"
+                  v-if="getQuestionContent(question)"
                   :ref="`contentRenderer-${question.item}`"
                   :kind="getQuestionContent(question).kind"
                   :lang="getQuestionContent(question).lang"
