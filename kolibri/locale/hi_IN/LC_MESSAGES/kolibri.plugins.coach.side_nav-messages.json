@@ -1,7 +1,7 @@
 {
   "CommonCoachStrings.activityLabel": "गतिविधि",
   "CommonCoachStrings.activityListEmptyState": "कोई गतिविधि नहीं है",
-  "CommonCoachStrings.afterCoachEndsQuizDescription": "प्रशिक्षक द्वारा क्विज़ समाप्त करने के बाद ही शिक्षार्थी अपनी क्विज़ रिपोर्ट देख सकते हैं",
+  "CommonCoachStrings.afterCoachEndsQuizDescription": "कोच द्वारा क्विज़ समाप्त करने के बाद ही शिक्षार्थी अपनी क्विज़ रिपोर्ट देख सकते हैं",
   "CommonCoachStrings.afterCoachEndsQuizLabel": "कोच द्वारा प्रश्नोत्तरी समाप्त करने के बाद",
   "CommonCoachStrings.afterLearnerSubmitsQuizDescription": "शिक्षार्थी अपनी प्रश्नोत्तरी रिपोर्ट सबमिट करने के तुरंत बाद देख सकते हैं",
   "CommonCoachStrings.afterLearnerSubmitsQuizLabel": "शिक्षार्थी द्वारा प्रश्नोत्तरी प्रस्तुत करने के बाद",
