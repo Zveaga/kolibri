@@ -216,7 +216,7 @@
   "CommonCoreStrings.neverPay": "শেখার জন্য কখনোই অর্থ প্রদান করবেন না",
   "CommonCoreStrings.neverPayDescription": "কোলিব্রি এবং এর লাইব্রেরি সবসময় বিনামূল্যে ব্যবহার করা যাবে",
   "CommonCoreStrings.newestResource": "সবচেয়ে নতুন",
-  "CommonCoreStrings.noAvailableResources": "কোনও সংস্থান নেই। এই ডিভাইসে চ্যানেল আমদানি করতে আপনার প্রশাসকের সাথে যোগাযোগ করুন।",
+  "CommonCoreStrings.noAvailableResources": "কোনো সংস্থান পাওয়া যাচ্ছে না। এই ডিভাইসে চ্যানেল ইমপোর্ট করতে আপনার অ্যাডমিনিস্ট্রটরের সাথে যোগাযোগ করুন।",
   "CommonCoreStrings.noEmptyField": "এই স্থান খালি রাখা যাবে না",
   "CommonCoreStrings.noLibraries": "আপনার কাছাকাছি কোনো লাইব্রেরি পাওয়া যায়নি।",
   "CommonCoreStrings.noNearbyFacilities": "আপনার কাছাকাছি এখন কোনো শিক্ষা কেন্দ্র নেই",
@@ -278,7 +278,7 @@
   "CommonCoreStrings.saveAndFinishAction": "সংরক্ষণ করুন এবং শেষ করুন",
   "CommonCoreStrings.saveChangesAction": "পরিবর্তনগুলো সেভ করুন",
   "CommonCoreStrings.saveToBookmarks": "বুকমার্কে যোগ করুন",
-  "CommonCoreStrings.savedToBookmarks": "বুকমার্কে সংরক্ষিত",
+  "CommonCoreStrings.savedToBookmarks": "বুকমার্কে সংরক্ষণ করা হয়েছে",
   "CommonCoreStrings.school": "স্কুল",
   "CommonCoreStrings.sciences": "বিজ্ঞান",
   "CommonCoreStrings.scoreLabel": "নম্বর",
@@ -366,7 +366,7 @@
   "DownloadButton.downloadContent": "ডিভাইসে সংরক্ষণ করুন",
   "DownloadButton.downloadFilename": "{ resourceTitle } ({ fileId }).{ fileExtension }",
   "FilePresetStrings.audio": "অডিও ({fileSize})",
-  "FilePresetStrings.bloompub": "ব্লুম পাব ডকুমেন্ট ({fileSize})",
+  "FilePresetStrings.bloompub": "BloomPub ডকুমেন্ট ({fileSize})",
   "FilePresetStrings.document": "নথি ({fileSize})",
   "FilePresetStrings.epub": "ePub ডকুমেন্ট ({fileSize})",
   "FilePresetStrings.exercise": "অনুশীলনী ({fileSize})",
@@ -440,7 +440,7 @@
   "NotificationStrings.resourcesRemovedNoCount": "{count, plural, one {উপকরণ অপসারিত} other {উপকরণ অপসারিত}}",
   "NotificationStrings.resourcesRemovedWithCount": "{count, number}টি {count, plural, one {উপকরণ অপসারিত} other {উপকরণ অপসারিত}}",
   "NotificationStrings.syncAdded": "সিঙ্ক সময়সূচী যোগ করা হয়েছে",
-  "NotificationStrings.syncUpdated": "সিঙ্ক সময়সূচী আপডেট করা হয়েছে",
+  "NotificationStrings.syncUpdated": "সিঙ্কের সময়সূচী আপডেট করা হয়েছে",
   "NotificationStrings.userCreated": "ব্যবহারকারী তৈরি করা হয়েছে",
   "NotificationStrings.userDeleted": "ব্যবহারকারী মুছে ফেলা হয়েছে",
   "PrivacyInfoModal.kolibriAboutP1": "কোলিব্রি সফটওয়্যারটি ফাউন্ডেশন ফর লার্নিং ইকুয়ালিটি, ইনকর্পোরেটেড দ্বারা নির্মিত। কোলিব্রির পরিষেবার শর্তাবলী এবং গোপনীয়তা নীতিমালাসহ আরও তথ্য এখানে পাওয়া যাবে :",
@@ -508,5 +508,5 @@
   "UpdateNotification.upgradeLearnAndDownload": "আরও জানুন এবং সেটি এখানে ডাউনলোড করুন",
   "UpdateNotification.upgradeMessageGeneric": "কলিব্রির একটি নতুন সংস্করণ পাওয়া যাচ্ছে।",
   "UpdateNotification.upgradeMessageImportant": "কলিব্রির এই সংস্করণে আমরা কিছু ত্রুটি সংশোধনসহ গুরুত্বপূর্ণ একটি আপডেট রিলিজ করেছি।",
-  "UpdateNotification.upgradeMessage_0_18_0": "কোলিব্রি সংস্করণ ০.১৮.০ পাওয়া যাচ্ছে! নতুন বৈশিষ্ট্যগুলির মধ্যে রয়েছে পাঠ এবং কুইজ তৈরির মধ্যে ব্যাপক অনুসন্ধান এবং ফিল্টার, ব্লুম রিডার সমর্থন, কোচে আপডেট করা নেভিগেশন, পাশাপাশি বাগ সংশোধন এবং উন্নতি।"
+  "UpdateNotification.upgradeMessage_0_18_0": "কোলিব্রি সংস্করণ ০.১৮.০ পাওয়া যাচ্ছে! নতুন বৈশিষ্ট্যগুলির মধ্যে রয়েছে পাঠ ও কুইজ তৈরির মধ্যে ব্যাপক অনুসন্ধান ও ফিল্টার করার সুবিধা, ব্লুম রিডার সমর্থন, কোচে আপডেট করা নেভিগেশন, পাশাপাশি ত্রুটি সংশোধন ও উন্নতি।"
 }

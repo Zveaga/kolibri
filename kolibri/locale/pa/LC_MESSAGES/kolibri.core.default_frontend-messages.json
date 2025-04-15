@@ -275,7 +275,7 @@
   "CommonCoreStrings.resourcesSelectedMessage": "ਚੁਣਿਆ ਗਿਆ: {count, number} {count, plural, one {resource} other {resources}} ({size})",
   "CommonCoreStrings.retryAction": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "CommonCoreStrings.saveAction": "ਸੇਵ ਕਰੋ",
-  "CommonCoreStrings.saveAndFinishAction": "ਸੰਭਾਲੋ ਅਤੇ ਸਮਾਪਤ ਕਰੋ",
+  "CommonCoreStrings.saveAndFinishAction": "ਸੁਰੱਖਿਅਤ ਕਰੋ ਅਤੇ ਸਮਾਪਤ ਕਰੋ",
   "CommonCoreStrings.saveChangesAction": "ਕੀਤੇ ਗਏ ਬਦਲਾਅ ਸੁਰੱਖਿਅਤ ਕਰੋ",
   "CommonCoreStrings.saveToBookmarks": "ਬੁੱਕਮਾਰਕ ਵਿੱਚ ਸੰਭਾਲੋ",
   "CommonCoreStrings.savedToBookmarks": "ਬੁੱਕਮਾਰਕਸ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਗਿਆ",

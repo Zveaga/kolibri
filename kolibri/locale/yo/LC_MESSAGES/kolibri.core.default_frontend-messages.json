@@ -203,7 +203,7 @@
   "CommonCoreStrings.menuLabel": "Mẹ́nù",
   "CommonCoreStrings.moreOptions": "Àwọn yíyàn si",
   "CommonCoreStrings.moveDownLabel": "Lọ sí ìsàlẹ̀",
-  "CommonCoreStrings.moveUpLabel": "Yíwájú",
+  "CommonCoreStrings.moveUpLabel": "Lọ sí òkè",
   "CommonCoreStrings.multipleLearningActivities": "Orisirisi àmúṣe ìkẹ́kọ̀ọ́",
   "CommonCoreStrings.music": "Orin",
   "CommonCoreStrings.myDownloadsLabel": "Àwọn ìgbàsílẹ̀ mi",
@@ -216,7 +216,7 @@
   "CommonCoreStrings.neverPay": "Má ṣe sanwó láti kẹ́kọ̀ọ́",
   "CommonCoreStrings.neverPayDescription": "Kòlíbírì àti ibi ìkówèésí rẹ̀ yóò máa wà lọ́fẹ̀ẹ́ nígbà gbogbo",
   "CommonCoreStrings.newestResource": "Àkójọ tuntun",
-  "CommonCoreStrings.noAvailableResources": "Kò sí àwọn ohun èlò tó wà lárọ̀ọ́wọ́tó. Jọwọ kan si olutọju rẹ lati gbe awọn ikanni wọle lori ẹrọ yii.",
+  "CommonCoreStrings.noAvailableResources": "Kò sí àwọn ohun èlò tó wà lárọ̀ọ́wọ́tó. Jọwọ kàn sí alámójútó rẹ láti gbé àwọn ìkànnì wọlé sórí ẹ̀rọ yìí.",
   "CommonCoreStrings.noEmptyField": "Òpó yìí kò lè wà ní òfo",
   "CommonCoreStrings.noLibraries": "Kò sí àwọn ibi ìkówèésí kankan láyìíká rẹ.",
   "CommonCoreStrings.noNearbyFacilities": "Kò sí àwọn ohun èlò ìdánilẹ́kọ̀ọ́ kankan láyìíká rẹ nísinsìnyí",
@@ -278,7 +278,7 @@
   "CommonCoreStrings.saveAndFinishAction": "Fi àpamọ́ & parí",
   "CommonCoreStrings.saveChangesAction": "Ṣe àpamọ́ ìyípadà",
   "CommonCoreStrings.saveToBookmarks": "Ṣàfipamọ́ sí àmì ìwé",
-  "CommonCoreStrings.savedToBookmarks": "A fi pamọ sí àwọn àmì ojúewé",
+  "CommonCoreStrings.savedToBookmarks": "A fi pamọ́ sí àwọn àmì ojú-ewé",
   "CommonCoreStrings.school": "Ilé-Iwe",
   "CommonCoreStrings.sciences": "Ìmọ̀ sáyẹ́nsì",
   "CommonCoreStrings.scoreLabel": "Iye máàkì",
@@ -287,7 +287,7 @@
   "CommonCoreStrings.selectADevice": "Yan ẹ̀rọ kan láti inú ìlujára rẹ",
   "CommonCoreStrings.selectAllOnPageAction": "Yan gbogbo rẹ̀ ní ojú ewé",
   "CommonCoreStrings.selectFromBookmarks": "Yan àwọn àmì ìwé",
-  "CommonCoreStrings.selectFromChannels": "Yan láti inú àwọn ìkànnì",
+  "CommonCoreStrings.selectFromChannels": "Yàn láti inú àwọn ìkànnì",
   "CommonCoreStrings.setPin": "Yan nọ́ńbà ẹlẹ́yọ mẹ́rin láti fi ṣe PIN tuntun rẹ",
   "CommonCoreStrings.settingsLabel": "Àwọn ààtò",
   "CommonCoreStrings.shortActivity": "Iṣẹ́ ṣíṣe kúkurú",
@@ -508,5 +508,5 @@
   "UpdateNotification.upgradeLearnAndDownload": "Ko si ki o si gba nibi",
   "UpdateNotification.upgradeMessageGeneric": "Ẹyà tuntun kan ti Kolibri ti wà.",
   "UpdateNotification.upgradeMessageImportant": "A ti satusile ìmúdójúìwọ̀n pataki pelu atunse si eya Kolibri yii.",
-  "UpdateNotification.upgradeMessage_0_18_0": "Ẹ̀dà Kolibri 0.18.0 ti wà lárọ̀ọ́wọ́tó! Àwọn àfikún àfikún àtúnṣe àti àtúnṣe wà nínú ẹ̀kọ́ àti ìdánwò, àtìlẹ́yìn fún Bloom reader, àtúnṣe ojú-ọ̀nà nínú ẹ̀kọ́, àti àtúnṣe àṣìṣe àti àtúnṣe."
+  "UpdateNotification.upgradeMessage_0_18_0": "Ẹ̀dà Kolibri 0.18.0 ti wà lárọ̀ọ́wọ́tó! Àwọn àbùdá tuntun tí a ṣàfikún jẹ́ ìwádìí lẹ́kùúnrẹ́rẹ́ àti jíjọ̀ ohun nínú ẹ̀kọ́ àti ìṣẹ̀dá ìdánrawò oníbéère, àtìlẹ́yìn fún Bloom reader, àtúnṣe lílọ-bíbọ̀ nínú Kóòṣì, bẹ́ẹ̀ sì ni àtúnṣe àti ìmùdára àwọn àṣìṣe."
 }

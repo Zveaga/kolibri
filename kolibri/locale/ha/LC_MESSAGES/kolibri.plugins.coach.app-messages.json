@@ -475,7 +475,7 @@
   "SidePanelRecipientsSelector.selectAction": "Zaɓi",
   "SidePanelRecipientsSelector.selectedLabel": "Zabio: {selected}",
   "StatusElapsedTime.closed": "Kawo ƙarshe  {relativeTimeAgo}",
-  "StatusElapsedTime.created": "Ƙirƙirarre {relativeTimeAgo}",
+  "StatusElapsedTime.created": "Ƙirƙira {relativeTimeAgo}",
   "StatusElapsedTime.hidden": "Ɓoyayye {relativeTimeAgo}",
   "StatusElapsedTime.madeVisible": "Bayyanawa {relativeTimeAgo}",
   "StatusElapsedTime.opened": "Farawa  {relativeTimeAgo}",
