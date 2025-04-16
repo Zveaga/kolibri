@@ -249,10 +249,18 @@ class Job(object):
         self.storage.save_job_meta(self)
 
     def update_progress(self, progress, total_progress):
-        if self.track_progress:
-            self.progress = progress
-            self.total_progress = total_progress
-            self.storage.update_job_progress(self.job_id, progress, total_progress)
+        if not self.track_progress:
+            return
+        if not isinstance(progress, (int, float)) or not isinstance(
+            total_progress, (int, float)
+        ):
+            logger.warning(
+                f"Tried to set invalid progress values on job {self.job_id} for task {self.func} with progress: {progress} and total_progress {total_progress}"
+            )
+            return
+        self.progress = progress
+        self.total_progress = total_progress
+        self.storage.update_job_progress(self.job_id, progress, total_progress)
 
     def update_metadata(self, **kwargs):
         for key, value in kwargs.items():
