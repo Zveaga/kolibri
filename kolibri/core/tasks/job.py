@@ -373,7 +373,7 @@ class Job(object):
         :return: float corresponding to the total percentage progress of the job.
         """
 
-        if self.total_progress != 0:
+        if self.total_progress != 0 and self.total_progress is not None:
             return float(self.progress) / self.total_progress
         return self.progress
 
