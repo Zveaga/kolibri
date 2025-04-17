@@ -23,7 +23,7 @@
     <template #default="{ isScrolled }">
       <div
         v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
-        class="alert-warning d-flex-between"
+        class="alert d-flex-between"
         :class="{
           shadow: isScrolled,
         }"
@@ -52,7 +52,7 @@
 
       <div
         v-if="maximumContentSelectedWarning"
-        class="alert-warning"
+        class="alert warning"
         :class="{
           shadow: isScrolled,
         }"
@@ -861,14 +861,17 @@
     }
   }
 
-  .alert-warning {
-    position: sticky;
+  .alert {
     top: 0;
-    z-index: 1;
     width: 100%;
     padding: 16px;
     margin-bottom: 16px;
     border-radius: 4px;
+  }
+
+  .alert.warning {
+    position: sticky;
+    z-index: 2;
     transition: $core-time ease;
 
     &.shadow {
