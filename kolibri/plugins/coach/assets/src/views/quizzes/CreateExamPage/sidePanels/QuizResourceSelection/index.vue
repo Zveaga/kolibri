@@ -361,31 +361,37 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = useMemoize(content => {
-        if (content.kind === ContentNodeKinds.EXERCISE) {
-          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-            aid => `${content.id}:${aid}`,
-          );
-          const questionsItemsUnused = questionItems
-            .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
-            .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
-          return questionsItemsUnused.length;
-        }
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
-          const total = content.num_assessments;
-          const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
-            const questionNode = allResourceMap.value[question.exercise_id];
-            for (const ancestor of questionNode.ancestors) {
-              if (ancestor.id === content.id) {
-                return num + 1;
+      const unusedQuestionsCount = useMemoize(
+        content => {
+          if (content.kind === ContentNodeKinds.EXERCISE) {
+            const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+              aid => `${content.id}:${aid}`,
+            );
+            const questionsItemsUnused = questionItems
+              .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+              .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+            return questionsItemsUnused.length;
+          }
+          if (
+            content.kind === ContentNodeKinds.TOPIC ||
+            content.kind === ContentNodeKinds.CHANNEL
+          ) {
+            const total = content.num_assessments;
+            const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
+              const questionNode = allResourceMap.value[question.exercise_id];
+              for (const ancestor of questionNode.ancestors) {
+                if (ancestor.id === content.id) {
+                  return num + 1;
+                }
               }
-            }
-            return num;
-          }, 0);
-          return total - numberOfQuestionsSelected;
-        }
-        return -1;
-      });
+              return num;
+            }, 0);
+            return total - numberOfQuestionsSelected;
+          }
+          return -1;
+        },
+        { getKey: content => content.id },
+      );
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
