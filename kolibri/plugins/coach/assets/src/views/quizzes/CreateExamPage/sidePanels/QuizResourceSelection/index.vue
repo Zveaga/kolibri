@@ -107,7 +107,7 @@
         :cancelText="coreString('cancelAction')"
         :title="closeConfirmationTitle$()"
         @cancel="handleCancelClose"
-        @submit="handleClosePanel"
+        @submit="handleCloseContinue"
       >
         {{ closeConfirmationMessage$() }}
       </KModal>
@@ -445,7 +445,7 @@
         showCloseConfirmation.value = false;
       }
 
-      function handleClosePanel() {
+      function handleCloseContinue() {
         setWorkingResourcePool();
         setQuestionItemsToReplace([]);
         $router.push({
@@ -457,6 +457,14 @@
           },
           query: { ...route.value.query },
         });
+      }
+
+      function handleClosePanel() {
+        if (workingPoolHasChanged.value) {
+          showCloseConfirmation.value = true;
+        } else {
+          handleCloseContinue();
+        }
       }
 
       const workingPoolHasChanged = computed(() => {
@@ -673,6 +681,7 @@
         notifyChanges,
         handleClosePanel,
         handleCancelClose,
+        handleCloseContinue,
         topic,
         showCloseConfirmation,
         treeFetch,
@@ -790,7 +799,7 @@
           this.clearQuizSelectedQuestions();
         }
         this.notifyChanges(numQuestions);
-        this.handleClosePanel();
+        this.handleCloseContinue();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
