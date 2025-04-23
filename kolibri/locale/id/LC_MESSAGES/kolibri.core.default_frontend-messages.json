@@ -366,7 +366,7 @@
   "DownloadButton.downloadContent": "Simpan ke perangkat",
   "DownloadButton.downloadFilename": "{ resourceTitle } ({ fileId }).{ fileExtension }",
   "FilePresetStrings.audio": "Audio ({fileSize})",
-  "FilePresetStrings.bloompub": "Bloom Pub Document ({fileSize})",
+  "FilePresetStrings.bloompub": "Dokumen BloomPUB ({fileSize})",
   "FilePresetStrings.document": "Dokumen ({fileSize})",
   "FilePresetStrings.epub": "Dokumen ePub ({fileSize})",
   "FilePresetStrings.exercise": "Latihan ({fileSize})",
