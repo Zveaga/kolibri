@@ -159,7 +159,7 @@
   "EnhancedQuizManagementStrings.fixedSectionOptionDescription": "Die Abschnitte werden für alle Lernenden in derselben Reihenfolge angezeigt",
   "EnhancedQuizManagementStrings.jumpToQuestion": "Zur Frage",
   "EnhancedQuizManagementStrings.manualSelectionOffNotice": "Die manuelle Fragenauswahl ist deaktiviert",
-  "EnhancedQuizManagementStrings.manualSelectionOnNotice": "Die manuelle Fragenauswahl ist aktiviert",
+  "EnhancedQuizManagementStrings.manualSelectionOnNotice": "Die manuelle Auswahl der Fragen ist aktiviert",
   "EnhancedQuizManagementStrings.maxNumberOfQuestions": "Maximale Anzahl Fragen: { count, number }",
   "EnhancedQuizManagementStrings.maxNumberOfQuestionsInfo": "Es können max. { count, number } { count, plural, one { Frage } other { Fragen }} zu diesem Abschnitt hinzugefügt werden",
   "EnhancedQuizManagementStrings.maximumQuestionsSelectedWarning": "Maximale Anzahl Fragen ausgewählt",
