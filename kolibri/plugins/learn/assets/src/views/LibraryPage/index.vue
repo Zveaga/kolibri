@@ -39,7 +39,6 @@
           content.
           - Otherwise, show search results.
         -->
-        {{ isLoadingNetworkLibraries }}
         <KCircularLoader
           v-if="rootNodesLoading || searchLoading"
           class="loader"
@@ -50,16 +49,17 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <div > 
+          <div>
             <h1
               v-if="!isLocalLibraryEmpty"
               class="channels-label"
             >
               {{ channelsLabel }}
             </h1>
-            <div 
-              v-else-if="isLocalLibraryEmpty && isNetworkLibraryAvailable 
-                && !isLoadingNetworkLibraries"
+            <div
+              v-else-if="
+                isLocalLibraryEmpty && isNetworkLibraryAvailable && !isLoadingNetworkLibraries
+              "
             >
               <h1 class="channels-label">
                 {{ channelsLabel }}
@@ -443,7 +443,7 @@
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
         isNetworkLibraryAvailable: true,
-        isLoadingNetworkLibraries: true
+        isLoadingNetworkLibraries: true,
       };
     },
     computed: {
