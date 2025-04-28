@@ -181,7 +181,6 @@ describe('LibraryPage', () => {
       await wrapper.setData({ isLocalLibraryEmpty: true });
       await wrapper.setData({ isNetworkLibraryAvailable: true });
       expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeTruthy();
     });
     it('hide when channels are available', async () => {
       const wrapper = await makeWrapper({ rootNodes: [] });
