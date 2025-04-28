@@ -63,7 +63,8 @@
     "./utils/redirectBrowser": "./utils/redirectBrowser",
     "./utils/scriptLoader": "./utils/scriptLoader",
     "./utils/serverClock": "./utils/serverClock",
-    "./utils/validators": "./utils/validators"
+    "./utils/validators": "./utils/validators",
+    "./package.json": "./package.json"
   },
   "exposes": [
     "kolibri-logging",
