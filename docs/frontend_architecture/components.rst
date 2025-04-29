@@ -1,7 +1,7 @@
 Vue components
 ==============
 
-We leverage `Vue.js components <https://v2.vuejs.org/v2/guide/components>`__ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://vuejs.org/guide/>`__ thoroughly.
+We leverage `Vue.js components <https://v2.vuejs.org/v2/guide/components>`__ as the primary building blocks for our UI. For general UI development work, this is the most common tool a developer will use. It would be prudent to read through the `Vue.js guide <https://v2.vuejs.org/v2/guide/>`__ thoroughly.
 
 Each component contains HTML with dynamic Vue.js directives, styling which is scoped to that component (written using `SCSS <https://sass-lang.com/>`__), and logic which is also scoped to that component (all code, including that in Vue components should be written using `Bublé compatible ES2015 JavaScript <https://buble.surge.sh/guide/#supported-features>`__).
 
