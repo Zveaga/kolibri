@@ -87,7 +87,7 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 10 }"
         >
-          <span> {{ $tr('reportVisibleToLearnersLabel') }} </span>
+          <span id="toggle-quiz-visibility-label"> {{ $tr('reportVisibleToLearnersLabel') }} </span>
           <StatusElapsedTime
             v-if="exam.active"
             :date="examDateOpened"
@@ -100,7 +100,6 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 2 }"
         >
-          <h3 id="toggle-quiz-visibility-label">Toggle quiz visibility</h3>
           <KSwitch
             name="toggle-quiz-visibility"
             :ariaLabelledBy="'toggle-quiz-visibility-label'"
