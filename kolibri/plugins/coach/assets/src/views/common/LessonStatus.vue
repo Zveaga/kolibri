@@ -12,6 +12,7 @@
         }"
       >
         <KGridItem
+        id="toggle-lesson-visibility-label"
           class="status-label"
           :style="{ marginBottom: 0 }"
           :layout4="{ span: 3 }"
@@ -25,7 +26,6 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 2 }"
         >
-          <h3 id="toggle-lesson-visibility-label">Toggle lesson visibility</h3>
           <KSwitch
             name="toggle-lesson-visibility"
             :ariaLabelledBy="'toggle-lesson-visibility-label'"
