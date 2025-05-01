@@ -47,7 +47,7 @@
             <th>{{ coreString('progressLabel') }}</th>
             <th>{{ $tr('size') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
-            <th id="`toggle-lesson-visibility-label-${lesson.id}`">{{ coachString('lessonVisibleLabel') }}</th>
+            <th :id="`toggle-lesson-visibility-label-${lesson.id}`">{{ coachString('lessonVisibleLabel') }}</th>
           </template>
           <template #tbody>
             <transition-group
@@ -97,8 +97,8 @@
                         :size="26"
                       />
                       <KSwitch
-                        v-else:
-                        key="`switch-${lesson.id}`"
+                        v-else
+                        :key="`switch-${lesson.id}`"
                         name="toggle-lesson-visibility"
                         :ariaLabelledBy="`toggle-lesson-visibility-label-${lesson.id}`"
                         :checked="lesson.active"
