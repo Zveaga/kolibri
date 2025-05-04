@@ -49,10 +49,11 @@
                 type: Object,
                 required: false,
                 default: () => ({}),
-                validator: function (lang) {
-                  return validateObject(lang, {
-                    lang_name: { type: String, required: true },
-                  });
+                spec: {
+                  lang_name: {
+                    type: String,
+                    required: true,
+                  },
                 },
               },
               storage_url: { type: String, required: true },
