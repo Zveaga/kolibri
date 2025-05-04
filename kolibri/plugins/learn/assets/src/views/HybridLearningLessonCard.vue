@@ -61,8 +61,8 @@
           return validateObject(content, {
             id: { type: String, required: true },
             title: { type: String, required: true },
-            thumbnail: { type: String, required: false},
-            description: { type: String, required: false},
+            thumbnail: { type: String, required: false },
+            description: { type: String, required: false },
             num_coach_contents: { type: Number, required: false },
           });
         },
