@@ -23,6 +23,7 @@ class DummyJob:
         # same default values as in the Job contructor
         self.progress = 0
         self.total_progress = 0
+        self.extra_metadata = {}
 
     def is_cancelled(self):
         return False
@@ -31,6 +32,12 @@ class DummyJob:
         pass
 
     def update_progress(self, bytes_transferred, extra_data=None):
+        pass
+
+    def update_metadata(self, **kwargs):
+        pass
+
+    def save_meta(self):
         pass
 
 

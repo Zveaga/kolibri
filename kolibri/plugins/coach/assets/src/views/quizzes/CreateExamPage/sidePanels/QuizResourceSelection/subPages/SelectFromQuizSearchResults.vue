@@ -1,10 +1,17 @@
 <template>
 
   <div v-if="displayingSearchResults">
-    <div class="channels-header">
-      <span class="side-panel-subtitle">
-        {{ selectFromChannels$() }}
-      </span>
+    <QuizResourceSelectionHeader
+      v-if="!settings.selectPracticeQuiz"
+      class="mb-16"
+      :settings="settings"
+      @searchClick="onSearchClick"
+    />
+
+    <div
+      v-else
+      class="d-flex-end mb-16"
+    >
       <KButton
         icon="filter"
         :text="searchLabel$()"
@@ -24,18 +31,23 @@
     />
 
     <UpdatedResourceSelection
+      :disabled="disabled"
       :isSelectable="!settings.isChoosingManually"
       :contentList="contentList"
       :hasMore="hasMore"
       :cardsHeadingLevel="2"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
       :getResourceLink="getResourceLink"
+      :contentCardMessage="contentCardMessage"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 
@@ -50,10 +62,12 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
+  import QuizResourceSelectionHeader from '../../../../../common/resourceSelection/QuizResourceSelectionHeader.vue';
 
   export default {
     name: 'SelectFromQuizSearchResults',
     components: {
+      QuizResourceSelectionHeader,
       SearchChips,
       UpdatedResourceSelection,
     },
@@ -78,7 +92,7 @@
         redirectBack();
       }
 
-      const { selectFromChannels$, searchLabel$ } = coreStrings;
+      const { searchLabel$ } = coreStrings;
 
       props.setTitle(props.defaultTitle);
       props.setGoBack(null);
@@ -90,7 +104,6 @@
         fetchMore,
         loadingMore,
         searchLabel$,
-        selectFromChannels$,
         redirectBack,
       };
     },
@@ -124,6 +137,15 @@
         type: Array,
         required: true,
       },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
       searchTerms: {
         type: Object,
         required: true,
@@ -151,6 +173,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {

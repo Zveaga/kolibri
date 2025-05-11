@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="topic">
     <template v-if="!isTopicFromSearchResult">
       <div
         v-if="target === SelectionTarget.LESSON"
@@ -117,6 +117,17 @@
       const redirectBack = () => {
         const { searchTopicId } = routeQuery;
         if (!isTopicFromSearchResult.value) {
+          if (props.topic?.parent) {
+            return instance.proxy.$router.push({
+              name:
+                props.target === SelectionTarget.LESSON
+                  ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+                  : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+              query: {
+                topicId: props.topic.parent,
+              },
+            });
+          }
           return instance.proxy.$router.push({
             name:
               props.target === SelectionTarget.LESSON

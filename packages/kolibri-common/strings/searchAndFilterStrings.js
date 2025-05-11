@@ -7,38 +7,6 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context:
       'Label for a section of the page that contains options for searching and filtering content',
   },
-  moveChannelUpLabel: {
-    message: 'Move up one',
-    context: 'Label to rearrange channel order. Not seen on UI.',
-  },
-  moveChannelDownLabel: {
-    message: 'Move down one',
-    context: 'Label to rearrange channel order. Not seen on UI.',
-  },
-
-  upLabel: {
-    message: 'Up',
-    context: 'Label to move an item up in a list',
-  },
-
-  downLabel: {
-    message: 'Down',
-    context: 'Label to move an item down in a list',
-  },
-
-  moveResourceUpButtonDescription: {
-    message: 'Move this resource one position up in this lesson',
-    context: 'Refers to changing the order of resources in a lesson.',
-  },
-
-  moveResourceDownButtonDescription: {
-    message: 'Move this resource one position down in this lesson',
-    context: 'Refers to changing the order of resources in a lesson.',
-  },
-  saveLessonResources: {
-    message: 'save & finish',
-    context: 'Button to save resources in a lesson',
-  },
   numberOfSelectedResources: {
     message:
       '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
@@ -76,7 +44,7 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context: 'Message displayed when no questions are selected',
   },
   searchInFolder: {
-    message: "Search in '{folder}'",
+    message: "Search in folder '{folder}'",
     context: 'Title for search resources in folder',
   },
   resultsCount: {
@@ -137,13 +105,9 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Dismiss',
     context: 'Button label to dismiss a notification',
   },
-  saveSettingsAction: {
-    message: 'Save settings',
-    context: 'Button label to save resource selection settings',
-  },
   insufficientResources: {
     message:
-      'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, consider adding more resources to your library.',
+      'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, contact your administrator to add more resources to your library.',
     context:
       'Message to indicate that the resources are not sufficient for the user to create a quiz.',
   },

@@ -85,7 +85,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Maximum number of questions is { count, number }',
   },
   replaceQuestions: {
-    message: 'Replace questions in { sectionTitle }',
+    message: "Replace questions in '{ sectionTitle }'",
   },
   collapseAll: {
     message: 'Collapse all',
@@ -94,6 +94,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   expandAll: {
     message: 'Expand all',
+  },
+  autoReplaceAction: {
+    message: 'Auto-replace',
   },
   replaceAction: {
     message: 'Replace',
@@ -227,7 +230,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context: 'A label for a checkbox that allows the user to manually select questions',
   },
   clearSelectionNotice: {
-    message: 'Changing this setting will clear your current selections',
+    message: 'Changing this setting will remove your current selections',
     context: 'A message that informs the user that changing a setting will remove their selections',
   },
   selectUpToNResources: {
@@ -247,12 +250,12 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       'A message that informs the user about the maximum number of questions they can select',
   },
   maximumResourcesSelectedWarning: {
-    message: 'Maximum resources selected',
+    message: 'Maximum number of resources selected',
     context:
       'A warning message that appears when the user has already selected the maximum number of resources',
   },
   maximumQuestionsSelectedWarning: {
-    message: 'Maximum questions selected',
+    message: 'Maximum number of questions selected',
     context:
       'A warning message that appears when the user has already selected the maximum number of questions',
   },
@@ -265,7 +268,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context: 'A message that appears when the user has disabled the manual selection of questions',
   },
   replacingThisQuestionLabel: {
-    message: 'Replacing this question',
+    message: 'Replace this question',
     context: 'A label for the question that is being replaced',
   },
 });

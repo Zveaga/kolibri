@@ -1,41 +1,51 @@
 <template>
 
   <div>
+    <QuizResourceSelectionHeader
+      v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
+      class="mb-24"
+      :settings="settings"
+      @searchClick="onSearchClick"
+    />
+    <!-- flexDirection is set to row-reverse to align the search button to the right
+         when we have no bookmarks and thus, no selectFromBookmarks$ string -->
+    <div
+      v-if="target === SelectionTarget.LESSON"
+      class="subheader"
+      :style="{
+        flexDirection: bookmarksCount > 0 ? 'row' : 'row-reverse',
+      }"
+    >
+      <div
+        v-if="bookmarksCount > 0"
+        class="side-panel-subtitle"
+      >
+        {{ selectFromBookmarks$() }}
+      </div>
+      <KButton
+        v-if="channels.length > 0"
+        icon="filter"
+        :text="searchLabel$()"
+        @click="onSearchClick"
+      />
+    </div>
+
+    <div
+      v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
+      class="d-flex-end mb-24"
+    >
+      <KButton
+        v-if="channels.length > 0"
+        icon="filter"
+        :text="searchLabel$()"
+        @click="onSearchClick"
+      />
+    </div>
+
     <div
       v-if="bookmarksCount > 0"
       class="mb-24"
     >
-      <div
-        v-if="target === SelectionTarget.LESSON"
-        class="subheader"
-      >
-        <div class="side-panel-subtitle">
-          {{ selectFromBookmarks$() }}
-        </div>
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-          @click="onSearchClick"
-        />
-      </div>
-
-      <QuizResourceSelectionHeader
-        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
-        class="mb-24"
-        :settings="settings"
-        @searchClick="onSearchClick"
-      />
-      <div
-        v-if="target === SelectionTarget.QUIZ && settings.selectPracticeQuiz"
-        class="d-flex-end mb-24"
-      >
-        <KButton
-          icon="filter"
-          :text="searchLabel$()"
-          @click="onSearchClick"
-        />
-      </div>
-
       <KCardGrid
         layout="1-1-1"
         :layoutOverride="gridLayoutOverrides"
@@ -61,9 +71,11 @@
             />
           </template>
           <template #belowTitle>
-            <span>
-              {{ numberOfBookmarks$({ count: bookmarksCount }) }}
-            </span>
+            <KTextTruncator
+              v-if="wrappedBookmarksCardMessage"
+              :text="wrappedBookmarksCardMessage"
+              :maxLines="1"
+            />
           </template>
         </KCard>
       </KCardGrid>
@@ -90,7 +102,16 @@
           :contentNode="channel"
           :to="selectFromChannelsLink(channel)"
           :headingLevel="3"
-        />
+        >
+          <template #belowTitle>
+            <KTextTruncator
+              v-if="contentCardMessage(channel)"
+              :text="contentCardMessage(channel)"
+              :maxLines="1"
+              style="margin-bottom: 8px"
+            />
+          </template>
+        </AccessibleChannelCard>
       </KCardGrid>
     </div>
   </div>
@@ -100,6 +121,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
   import { PageNames } from '../../../../constants';
@@ -118,7 +140,7 @@
     },
     setup(props) {
       const { bookmarksFetch, channelsFetch } = props;
-      const { count: bookmarksCount } = bookmarksFetch;
+      const { count: bookmarksCount, data: bookmarksData } = bookmarksFetch;
 
       const { data: channels } = channelsFetch;
 
@@ -131,6 +153,14 @@
         searchLabel$,
       } = coreStrings;
 
+      const wrappedBookmarksCardMessage = computed(() => {
+        const propsMessage = props.bookmarksCardMessage(bookmarksData.value);
+        if (propsMessage) {
+          return propsMessage;
+        }
+        return numberOfBookmarks$({ count: bookmarksCount.value });
+      });
+
       props.setTitle(props.defaultTitle);
       props.setGoBack(null);
 
@@ -140,7 +170,7 @@
         SelectionTarget,
         selectFromChannels$,
         noAvailableResources$,
-        numberOfBookmarks$,
+        wrappedBookmarksCardMessage,
         bookmarksLabel$,
         selectFromBookmarks$,
         searchLabel$,
@@ -176,6 +206,13 @@
         required: true,
       },
       /**
+       * A function that takes an array of bookmarks and returns a string to describe them.
+       */
+      bookmarksCardMessage: {
+        type: Function,
+        default: () => {},
+      },
+      /**
        * The target entity for the selection.
        * It can be either 'quiz' or 'lesson'.
        */
@@ -190,6 +227,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {

@@ -20,19 +20,19 @@
     </template>
     <template #belowTitle>
       <div>
-        <p style="margin-top: 0">
-          <KTextTruncator
-            :text="coachString('numberOfResources', { value: contentNode.total_resource_count })"
-            :maxLines="1"
-          />
-        </p>
-        <p>
-          <KTextTruncator
-            :text="contentNode.description"
-            :maxLines="3"
-          />
-        </p>
+        <slot name="belowTitle"></slot>
+        <br v-if="contentNode.description" >
+        <KTextTruncator
+          v-if="contentNode.description"
+          :text="contentNode.description"
+          :maxLines="3"
+          style="min-height: 17px; margin-bottom: 8px"
+        />
         <MetadataChips :tags="getChannelTags()" />
+        <div
+          v-if="!contentNode.description"
+          style="min-height: 17px"
+        ></div>
       </div>
     </template>
   </KCard>
@@ -46,7 +46,6 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MetadataChips from 'kolibri-common/components/MetadataChips';
   import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
-  import commonCoach from './../../../../kolibri/plugins/coach/assets/src/views/common';
 
   export default {
     name: 'AccessibleChannelCard',
@@ -54,7 +53,6 @@
       ContentIcon,
       MetadataChips,
     },
-    mixins: [commonCoach],
     setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
 

@@ -2,7 +2,10 @@
 
   <div>
     <KCircularLoader v-if="loading && !contentNode" />
-    <div v-else>
+    <div
+      v-else
+      v-autofocus-first-el
+    >
       <div
         v-if="target === SelectionTarget.LESSON"
         class="channel-header"
@@ -18,7 +21,7 @@
         />
       </div>
       <QuizResourceSelectionHeader
-        v-if="target === SelectionTarget.QUIZ"
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         hideSearch
         :settings="settings"
       >
@@ -53,7 +56,7 @@
       </h2>
 
       <div
-        v-if="target === SelectionTarget.QUIZ"
+        v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
         class="update-settings-container"
         :style="{
           backgroundColor: $themePalette.grey.v_100,
@@ -69,7 +72,7 @@
         <KButton
           class="no-shink"
           appearance="flat-button"
-          :text="saveSettingsAction$()"
+          :text="saveAction$()"
           :disabled="isSaveSettingsDisabled"
           @click="saveSettings"
         />
@@ -95,6 +98,8 @@
         :questions="questions"
         :isExercise="false"
       />
+
+      <PreviewMetadata :contentNode="contentNode" />
     </div>
   </div>
 
@@ -108,19 +113,22 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings.js';
   import { SelectionTarget } from '../../contants.js';
   import { PageNames } from '../../../../../constants/index.js';
+  import { useGoBack } from '../../../../../composables/usePreviousRoute.js';
   import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import QuestionsAccordion from '../../../QuestionsAccordion.vue';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl.js';
   import PreviewContent from './PreviewContent';
+  import PreviewMetadata from './PreviewMetadata';
   import ResourceActionButton from './ResourceActionButton.vue';
 
   export default {
     name: 'PreviewSelectedResources',
     components: {
+      PreviewMetadata,
       PreviewContent,
       QuestionsAccordion,
       LearningActivityIcon,
@@ -128,38 +136,51 @@
       QuizResourceSelectionHeader,
       ResourceSelectionBreadcrumbs,
     },
+    directives: {
+      autofocusFirstEl,
+    },
     setup(props) {
-      const prevRoute = ref(null);
       const instance = getCurrentInstance();
-      const router = instance.proxy.$router;
 
       const { contentNode, ancestors, questions, loading, exerciseQuestions } = useFetchContentNode(
         props.contentId,
       );
-      const { selectFromChannels$ } = coreStrings;
+      const { selectFromChannels$, saveAction$ } = coreStrings;
       const { chooseQuestionsManuallyLabel$, clearSelectionNotice$ } =
         enhancedQuizManagementStrings;
 
-      const redirectBack = () => {
-        if (prevRoute.value?.name) {
-          return router.push(prevRoute.value);
-        }
-        router.push({
-          name:
-            props.target === SelectionTarget.LESSON
-              ? PageNames.LESSON_SELECT_RESOURCES_INDEX
-              : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
-      };
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          if (contentNode.value) {
+            const parentRouteName =
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE
+                : PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE;
+            return {
+              name: parentRouteName,
+              query: {
+                topicId: contentNode.value.parent,
+              },
+            };
+          }
+          return {
+            name:
+              props.target === SelectionTarget.LESSON
+                ? PageNames.LESSON_SELECT_RESOURCES_INDEX
+                : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          };
+        },
+      });
 
       props.setTitle(props.defaultTitle);
-      props.setGoBack(redirectBack);
+      props.setGoBack(goBack);
 
       const workingIsChoosingManually = ref(props.settings?.isChoosingManually);
       const saveSettings = () => {
         instance.proxy.$emit('update:settings', {
           ...props.settings,
           isChoosingManually: workingIsChoosingManually.value,
+          questionCount: Math.min(10, props.settings?.maxQuestions || 10),
         });
       };
       const isSaveSettingsDisabled = computed(() => {
@@ -171,11 +192,9 @@
 
       onMounted(() => {
         if (!props.contentId) {
-          redirectBack();
+          goBack();
         }
       });
-
-      const { saveSettingsAction$ } = searchAndFilterStrings;
 
       return {
         contentNode,
@@ -183,14 +202,12 @@
         questions,
         loading,
         SelectionTarget,
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         exerciseQuestions,
         workingIsChoosingManually,
         isSaveSettingsDisabled,
         clearSelectionNotice$,
         saveSettings,
-        saveSettingsAction$,
+        saveAction$,
         selectFromChannels$,
         chooseQuestionsManuallyLabel$,
       };
@@ -299,11 +316,6 @@
       selectedQuestionItems() {
         return this.selectedQuestions.map(q => q.item);
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
     methods: {
       handleAddResource() {

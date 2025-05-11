@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -21,7 +23,7 @@
     <template #default="{ isScrolled }">
       <div
         v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
-        class="alert-warning d-flex-between"
+        class="alert d-flex-between"
         :class="{
           shadow: isScrolled,
         }"
@@ -50,7 +52,7 @@
 
       <div
         v-if="maximumContentSelectedWarning"
-        class="alert-warning"
+        class="alert warning"
         :class="{
           shadow: isScrolled,
         }"
@@ -67,6 +69,7 @@
       </div>
       <router-view
         v-else
+        v-autofocus-first-el="!isLandingRoute"
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -85,6 +88,7 @@
         :settings.sync="settings"
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
+        :bookmarksCardMessage="bookmarksCardMessage"
         :getResourceLink="getResourceLink"
         :unselectableResourceIds="unselectableResourceIds"
         :unselectableQuestionItems="unselectableQuestionItems"
@@ -103,7 +107,7 @@
         :cancelText="coreString('cancelAction')"
         :title="closeConfirmationTitle$()"
         @cancel="handleCancelClose"
-        @submit="handleClosePanel"
+        @submit="handleCloseContinue"
       >
         {{ closeConfirmationMessage$() }}
       </KModal>
@@ -131,27 +135,11 @@
             </span>
             <KRouterLink
               v-else-if="
-                !settings.isChoosingManually &&
-                  workingResourcePool.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
+                numberOfSelectedElementsLabel && $route.name !== previewSelectedElementsPage
               "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
+              :to="{ name: previewSelectedElementsPage }"
             >
-              {{
-                numberOfSelectedResources$({
-                  count: workingResourcePool.length,
-                })
-              }}
-            </KRouterLink>
-            <KRouterLink
-              v-else-if="
-                settings.isChoosingManually &&
-                  workingQuestions.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
-              "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
-            >
-              {{ numberOfSelectedQuestionsLabel }}
+              {{ numberOfSelectedElementsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -175,31 +163,42 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import { useMemoize } from '@vueuse/core';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
     },
+    directives: {
+      autofocusFirstEl,
+    },
     mixins: [commonCoreStrings],
     setup() {
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
@@ -234,10 +233,6 @@
        */
       const workingQuestions = ref([]);
 
-      const getDefaultQuestionCount = maxQuestions => {
-        return Math.min(10, maxQuestions);
-      };
-
       const showManualSelectionNotice = ref(false);
 
       /**
@@ -258,7 +253,7 @@
           newSettings.maxQuestions = MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length;
           if (newSettings.questionCount === null) {
             // initialize questionCount if it hasn't been set yet
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
+            newSettings.questionCount = Math.min(10, newSettings.maxQuestions);
           }
           settings.value = newSettings;
         },
@@ -275,8 +270,6 @@
 
           if (newSettings.isChoosingManually) {
             newSettings.questionCount = newSettings.maxQuestions;
-          } else {
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
 
           resetSelection();
@@ -368,15 +361,37 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = content => {
-        const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-          aid => `${content.id}:${aid}`,
-        );
-        const questionsItemsUnused = questionItems
-          .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
-          .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
-        return questionsItemsUnused.length;
-      };
+      const unusedQuestionsCount = useMemoize(
+        content => {
+          if (content.kind === ContentNodeKinds.EXERCISE) {
+            const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+              aid => `${content.id}:${aid}`,
+            );
+            const questionsItemsUnused = questionItems
+              .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+              .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+            return questionsItemsUnused.length;
+          }
+          if (
+            content.kind === ContentNodeKinds.TOPIC ||
+            content.kind === ContentNodeKinds.CHANNEL
+          ) {
+            const total = content.num_assessments;
+            const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
+              const questionNode = allResourceMap.value[question.exercise_id];
+              for (const ancestor of questionNode.ancestors) {
+                if (ancestor.id === content.id) {
+                  return num + 1;
+                }
+              }
+              return num;
+            }, 0);
+            return total - numberOfQuestionsSelected;
+          }
+          return -1;
+        },
+        { getKey: content => content.id },
+      );
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -426,7 +441,7 @@
         },
         search: {
           filters: {
-            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            kind: ContentNodeKinds.EXERCISE,
             contains_quiz: selectPracticeQuiz ? true : null,
           },
         },
@@ -436,7 +451,7 @@
         showCloseConfirmation.value = false;
       }
 
-      function handleClosePanel() {
+      function handleCloseContinue() {
         setWorkingResourcePool();
         setQuestionItemsToReplace([]);
         $router.push({
@@ -448,6 +463,14 @@
           },
           query: { ...route.value.query },
         });
+      }
+
+      function handleClosePanel() {
+        if (workingPoolHasChanged.value) {
+          showCloseConfirmation.value = true;
+        } else {
+          handleCloseContinue();
+        }
       }
 
       const workingPoolHasChanged = computed(() => {
@@ -491,7 +514,9 @@
 
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
-          return !workingPoolHasChanged.value;
+          return (
+            !workingPoolHasChanged.value && route.value.name !== PageNames.QUIZ_PREVIEW_RESOURCE
+          );
         }
         const disabledConditions = [
           !workingPoolHasChanged.value,
@@ -563,7 +588,19 @@
         NOutOfMSelectedQuestions$,
       } = searchAndFilterStrings;
 
+      const numberOfSelectedResourcesLabel = computed(() => {
+        if (!workingResourcePool.value.length) {
+          return '';
+        }
+        return numberOfSelectedResources$({
+          count: workingResourcePool.value.length,
+        });
+      });
+
       const numberOfSelectedQuestionsLabel = computed(() => {
+        if (!workingQuestions.value.length) {
+          return '';
+        }
         if (settings.value.isInReplaceMode) {
           return NOutOfMSelectedQuestions$({
             count: workingQuestions.value.length,
@@ -573,6 +610,27 @@
         return numberOfSelectedQuestions$({
           count: workingQuestions.value.length,
         });
+      });
+
+      const numberOfSelectedElementsLabel = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return numberOfSelectedQuestionsLabel.value;
+        }
+        return numberOfSelectedResourcesLabel.value;
+      });
+
+      const { sendPoliteMessage } = useKLiveRegion();
+      watch(numberOfSelectedElementsLabel, () => {
+        if (numberOfSelectedElementsLabel.value) {
+          sendPoliteMessage(numberOfSelectedElementsLabel.value);
+        }
+      });
+
+      const previewSelectedElementsPage = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS;
+        }
+        return PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES;
       });
 
       const getDefaultTitle = () => {
@@ -587,20 +645,30 @@
       const defaultTitle = getDefaultTitle();
 
       const { createSnackbar } = useSnackbar();
-      function notifyChanges() {
-        const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } =
-          enhancedQuizManagementStrings;
-
+      const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } = enhancedQuizManagementStrings;
+      function notifyChanges(count) {
         const message$ = settings.value.isInReplaceMode
           ? numberOfQuestionsReplaced$
           : numberOfQuestionsAdded$;
 
-        createSnackbar(
-          message$({
-            count: workingQuestions.value.length || settings.value.questionCount,
-          }),
-        );
+        createSnackbar(message$({ count }));
       }
+
+      const bookmarksCardMessage = bookmarks => {
+        if (isPracticeQuiz) {
+          return;
+        }
+        const unusedQuestions = bookmarks.reduce((total, bookmark) => {
+          const unused = unusedQuestionsCount(bookmark);
+          if (unused === -1) {
+            return total;
+          }
+          return total + unused;
+        }, 0);
+        return questionsUnusedInSection$({ count: unusedQuestions });
+      };
+
+      const { goBackAction$ } = coreStrings;
 
       return {
         title,
@@ -613,11 +681,13 @@
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,
+        isLandingRoute,
         workingPoolHasChanged,
         tooManyQuestions,
         notifyChanges,
         handleClosePanel,
         handleCancelClose,
+        handleCloseContinue,
         topic,
         showCloseConfirmation,
         treeFetch,
@@ -631,6 +701,8 @@
         unselectableQuestionItems,
         maximumContentSelectedWarning,
         showManualSelectionNotice,
+        subpageLoading,
+        displayingSearchResults,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         addToWorkingQuestions,
@@ -642,7 +714,8 @@
         settings,
         disableSave,
         saveButtonLabel,
-        numberOfSelectedQuestionsLabel,
+        previewSelectedElementsPage,
+        numberOfSelectedElementsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -652,12 +725,11 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
+        goBackAction$,
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
-        numberOfSelectedResources$,
-        displayingSearchResults,
-        subpageLoading,
+        bookmarksCardMessage,
       };
     },
     computed: {
@@ -677,12 +749,25 @@
       }
     },
     methods: {
-      saveSelectedResource() {
+      async saveSelectedResource() {
+        let numQuestions;
         if (this.settings.selectPracticeQuiz) {
+          if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
+            try {
+              const contentNode = await ContentNodeResource.fetchModel({
+                id: this.$route.query.contentId,
+              });
+              this.setWorkingResourcePool([contentNode]);
+            } catch (e) {
+              this.$store.dispatch('handleApiError', e);
+            }
+          }
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
           const remainder = exerciseToQuestionArray(this.workingResourcePool[0]);
+
+          numQuestions = remainder.length;
 
           let sectionIndex = this.activeSectionIndex;
           while (remainder.length) {
@@ -698,6 +783,7 @@
             sectionIndex++;
           }
         } else if (this.settings.isChoosingManually) {
+          numQuestions = this.workingQuestions.length;
           this.addQuestionsToSection({
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
@@ -705,6 +791,7 @@
             questionItemsToReplace: this.settings.questionItemsToReplace,
           });
         } else {
+          numQuestions = this.settings.questionCount;
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
             resourcePool: this.workingResourcePool,
@@ -717,15 +804,12 @@
           // could be removed, so we need to clear it
           this.clearQuizSelectedQuestions();
         }
-        this.notifyChanges();
-        this.handleClosePanel();
+        this.notifyChanges(numQuestions);
+        this.handleCloseContinue();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
         if (this.settings.selectPracticeQuiz) {
-          return;
-        }
-        if (content.kind !== ContentNodeKinds.EXERCISE) {
           return;
         }
 
@@ -761,8 +845,11 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .side-panel-title {
-    margin-top: 20px;
+    margin-top: 15px;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .choosing-manually-label {
@@ -789,14 +876,17 @@
     }
   }
 
-  .alert-warning {
-    position: sticky;
+  .alert {
     top: 0;
-    z-index: 1;
     width: 100%;
     padding: 16px;
     margin-bottom: 16px;
     border-radius: 4px;
+  }
+
+  .alert.warning {
+    position: sticky;
+    z-index: 2;
     transition: $core-time ease;
 
     &.shadow {

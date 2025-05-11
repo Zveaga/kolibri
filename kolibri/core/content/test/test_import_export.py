@@ -460,6 +460,8 @@ def create_dummy_job(is_cancelled=True, check_for_cancel_return=True):
     dummy.check_for_cancel.return_value = check_for_cancel_return
     dummy.start_progress.return_value = None
     dummy.update_progress.return_value = None
+    dummy.extra_metadata = {}
+    dummy.save_meta.return_value = None
     return dummy
 
 
@@ -2138,9 +2140,9 @@ class ExportChannelTestCase(TestCase):
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
-@patch("kolibri.core.content.management.commands.exportcontent.get_import_export_nodes")
-@patch("kolibri.core.content.management.commands.exportcontent.get_content_nodes_data")
-@patch("kolibri.core.content.management.commands.exportcontent.ContentManifest")
+@patch("kolibri.core.content.utils.content_export.get_import_export_nodes")
+@patch("kolibri.core.content.utils.content_export.get_content_nodes_data")
+@patch("kolibri.core.content.utils.content_export.ContentManifest")
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.
@@ -2149,24 +2151,19 @@ class ExportContentTestCase(TestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    @patch("kolibri.core.content.management.commands.exportcontent.transfer.FileCopy")
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.check_for_cancel"
-    )
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
-        return_value=True,
-    )
+    @patch("kolibri.core.content.utils.content_export.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.content_export.get_job")
     def test_local_cancel_immediately(
         self,
-        is_cancelled_mock,
-        cancel_mock,
+        get_job_mock,
         FileCopyMock,
         ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
+        dummy_job = create_dummy_job()
+        get_job_mock.return_value = dummy_job
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
@@ -2174,35 +2171,26 @@ class ExportContentTestCase(TestCase):
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call()])
+        dummy_job.is_cancelled.assert_has_calls([call()])
         FileCopyMock.assert_not_called()
-        cancel_mock.assert_called_with()
+        dummy_job.check_for_cancel.assert_called_with()
 
     @patch(
-        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.start_progress"
+        "kolibri.core.content.utils.content_export.paths.get_content_storage_file_path"
     )
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.paths.get_content_storage_file_path"
-    )
-    @patch("kolibri.core.content.management.commands.exportcontent.transfer.FileCopy")
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.check_for_cancel"
-    )
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.AsyncCommand.is_cancelled",
-        side_effect=[False, True, True],
-    )
+    @patch("kolibri.core.content.utils.content_export.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.content_export.get_job")
     def test_local_cancel_during_transfer(
         self,
-        is_cancelled_mock,
-        cancel_mock,
+        get_job_mock,
         FileCopyMock,
         local_path_mock,
-        start_progress_mock,
         ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):
+        dummy_job = create_dummy_job()
+        get_job_mock.return_value = dummy_job
         # Make sure we cancel during transfer
         fd1, local_dest_path = tempfile.mkstemp()
         fd2, local_src_path = tempfile.mkstemp()
@@ -2216,15 +2204,10 @@ class ExportContentTestCase(TestCase):
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        is_cancelled_mock.assert_has_calls([call()])
-        FileCopyMock.assert_called_with(
-            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
-        )
-        cancel_mock.assert_called_with()
+        dummy_job.is_cancelled.assert_has_calls([call()])
+        dummy_job.check_for_cancel.assert_called_with()
 
-    @patch(
-        "kolibri.core.content.management.commands.exportcontent.Command.copy_content_files"
-    )
+    @patch("kolibri.core.content.utils.content_export.copy_content_files")
     def test_manifest_only(
         self,
         copy_content_files_mock,
@@ -2246,8 +2229,6 @@ class ExportContentTestCase(TestCase):
         copy_content_files_mock.assert_not_called()
 
         ContentManifestMock.return_value.write.assert_called_once()
-
-        # Shall be enough mock assertions for now ?
 
 
 class TestFilesToTransfer(TestCase):

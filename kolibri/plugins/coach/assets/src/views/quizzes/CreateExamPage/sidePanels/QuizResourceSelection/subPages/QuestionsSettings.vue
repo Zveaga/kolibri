@@ -72,6 +72,7 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
+  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -83,7 +84,6 @@
       UiAlert,
     },
     setup(props) {
-      const prevRoute = ref(null);
       const showAlert = ref(true);
       const instance = getCurrentInstance();
       const router = instance.proxy.$router;
@@ -105,7 +105,7 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
-      const { insufficientResources$, saveSettingsAction$ } = searchAndFilterStrings;
+      const { insufficientResources$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -121,11 +121,13 @@
         });
       }
 
-      const redirectBack = props.isLanding
-        ? null
-        : () => {
-          instance.proxy.$router.go(-1);
-        };
+      const goBack = useGoBack({
+        fallbackRoute: {
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        },
+      });
+
+      const redirectBack = props.isLanding ? null : goBack;
 
       props.setGoBack(redirectBack);
 
@@ -149,17 +151,11 @@
           isChoosingManually: workingIsChoosingManually.value,
         });
 
-        if (!props.isLanding && prevRoute.value) {
-          instance.proxy.$router.push(prevRoute.value);
-          return;
-        }
-        instance.proxy.$router.push({
-          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
+        goBack();
       };
 
-      const { continueAction$ } = coreStrings;
-      const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
+      const { continueAction$, saveAction$ } = coreStrings;
+      const continueText = props.isLanding ? continueAction$() : saveAction$();
 
       onMounted(() => {
         props.setContinueAction({
@@ -181,8 +177,6 @@
       const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
 
       return {
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         showAlert,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
@@ -226,11 +220,6 @@
         type: Object,
         required: true,
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
   };
 

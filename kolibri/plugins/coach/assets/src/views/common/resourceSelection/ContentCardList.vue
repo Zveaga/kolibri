@@ -25,12 +25,12 @@
         @toggleBookmark="toggleBookmark"
       >
         <template #belowTitle>
-          <div
+          <KTextTruncator
             v-if="contentCardMessage(content)"
-            style="margin: 0 0 0.5rem"
-          >
-            {{ contentCardMessage(content) }}
-          </div>
+            :text="contentCardMessage(content)"
+            :maxLines="1"
+            style="margin-bottom: 8px"
+          />
         </template>
         <template #select>
           <KCheckbox
@@ -44,6 +44,7 @@
           />
           <KRadioButton
             v-else-if="contentHasCheckbox(content) && showRadioButtons"
+            class="radio-selector"
             :label="content.title"
             :showLabel="false"
             :currentValue="contentIsChecked(content) ? content.id : 'none'"
@@ -312,6 +313,11 @@
     display: inline-block;
     margin: 4px 8px;
     font-size: 11px;
+  }
+
+  .radio-selector {
+    /* The default width 100% doesn't work here */
+    width: auto;
   }
 
 </style>
