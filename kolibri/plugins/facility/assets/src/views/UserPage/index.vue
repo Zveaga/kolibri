@@ -215,7 +215,7 @@
             dataType: 'string',
             minWidth: '300px',
             width: '40%',
-            columnId: 'userFullName',
+            columnId: 'full_name',
           },
           {
             label: this.coreString('usernameLabel'),
@@ -329,7 +329,7 @@
       },
       itemsPerPage: {
         get() {
-          return this.$route.query.page_size || 30;
+          return Number(this.$route.query.page_size) || 30;
         },
         set(value) {
           this.$router.push({
@@ -350,33 +350,29 @@
       changeSortHandler({ sortKey, sortOrder }) {
         this.sortKey = sortKey;
         this.sortOrder = sortOrder;
-        const column = 'birth_year'; // Set the column to 'birth_year'
-        const order = sortOrder; // Use the sortOrder from the handler
-        const page = this.$route.query.page || 1;
-        const page_size = this.$route.query.page_size || 30;
+
+        const column = this.tableHeaders[sortKey]?.columnId || null; // to determine the column name
+        const order = sortOrder; // to determine the sort order
+        const page = this.$route.query.page || 1; // Default to page 1 if not specified
+        const page_size = this.$route.query.page_size || 30; // Default to 30 items per page
+
         console.log(`Stored sortKey: ${this.sortKey}, sortOrder: ${this.sortOrder}, column: ${column}`);
-        if (sortOrder) {
-          // If sortOrder is "asc" or "desc", fetch sorted data and update the route
+
+        if (sortOrder && column) {
+          // Dispatch the action to fetch sorted facility users
           this.$store
-            .dispatch('userManagement/fetchSortedFacilityUsers', { column, order, page, page_size })
-            .then(() => {
-              console.log('Facility users fetched and updated');
-              this.$router.push({
-                path: this.$route.path,
-                query: {
-                  ...this.$route.query,
-                  ordering: column,
-                  order,
-                  page,
-                  page_size,
-                },
-              });
+            .dispatch('userManagement/fetchSortedFacilityUsers', {
+              column,
+              order,
+              page,
+              page_size,
+              router: this.$router, // Pass the router instance
             })
             .catch(err => {
               console.error('Failed to fetch sorted data:', err);
             });
-        } else {
-          // If sortOrder is undefined, remove ordering and order from the route
+        }else {
+          // If sortOrder is undefined or column is null, remove ordering and order from the route
           const { ordering, order, ...query } = this.$route.query;
           this.$router.push({
             path: this.$route.path,

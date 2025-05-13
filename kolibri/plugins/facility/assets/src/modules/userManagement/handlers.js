@@ -1,17 +1,19 @@
 import pickBy from 'lodash/pickBy';
-import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { _userState } from '../mappers';
 
-export function fetchSortedFacilityUsersHandler(store, { column, order, page, page_size  }) {
-  store.commit('userManagement/SET_STATE', { dataLoading: true });
+export function fetchSortedFacilityUsersHandler(store, { column, order, page, page_size, router }) {
+  store.commit('SET_STATE', { dataLoading: true });
 
   const orderingParam = order === 'desc' ? `-${column}` : column || null;
   const shouldResolve = samePageCheckGenerator(store);
 
+  console.log('Should resolve:', shouldResolve());
+
   return FacilityUserResource.fetchCollection({
     getParams: pickBy({
-      ordering: orderingParam, // Pass the ordering parameter
+      ordering: orderingParam,
       page,
       page_size,
     }),
@@ -19,21 +21,50 @@ export function fetchSortedFacilityUsersHandler(store, { column, order, page, pa
   })
     .then(users => {
       if (shouldResolve()) {
-        // Map the response data to your state as required
         const mappedUsers = users.results.map(_userState);
         console.log('Ordered Facility Users:', mappedUsers);
-        store.commit('userManagement/SET_STATE', {
+
+        // Update Vuex state with the fetched data
+        store.commit('SET_STATE', {
           facilityUsers: mappedUsers,
           totalPages: users.total_pages,
           usersCount: users.count,
         });
+
+        // Debugging router.push
+        try {
+          console.log('Before router.push');
+          const currentQuery = router.currentRoute.value.query;
+          const newQuery = pickBy({
+            ...currentQuery,
+            ordering: column,
+            order,
+            page,
+            page_size,
+          });
+
+          if (JSON.stringify(currentQuery) === JSON.stringify(newQuery)) {
+            console.log('Navigation aborted: Same route and query parameters');
+            return;
+          }
+
+          router.push({
+            path: router.currentRoute.value.path,
+            query: newQuery,
+          });
+          console.log('After router.push');
+        } catch (error) {
+          console.error('Error during router.push:', error);
+        }
       }
-      store.commit('userManagement/SET_STATE', { dataLoading: false });
+      store.commit('SET_STATE', { dataLoading: false });
       store.dispatch('userManagement/notLoading');
     })
     .catch(error => {
-      shouldResolve() ? store.dispatch('userManagement/handleApiError', { error, reloadOnReconnect: true }) : null;
-      store.commit('userManagement/SET_STATE', { dataLoading: false });
+      if (shouldResolve()) {
+        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      }
+      store.commit('SET_STATE', { dataLoading: false });
       store.dispatch('userManagement/notLoading');
     });
 }

@@ -4,7 +4,6 @@ import { UserKinds } from 'kolibri/constants';
 import { updateFacilityLevelRoles } from './utils';
 import { fetchSortedFacilityUsersHandler } from './handlers';
 
-
 /**
  * Fetch facility users with sorting applied based on the column clicked
  * @param {Object} store - Vuex store
