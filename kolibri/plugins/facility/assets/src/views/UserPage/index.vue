@@ -356,7 +356,9 @@
         const page = this.$route.query.page || 1; // Default to page 1 if not specified
         const page_size = this.$route.query.page_size || 30; // Default to 30 items per page
 
-        console.log(`Stored sortKey: ${this.sortKey}, sortOrder: ${this.sortOrder}, column: ${column}`);
+        console.log(
+          `Stored sortKey: ${this.sortKey}, sortOrder: ${this.sortOrder}, column: ${column}`,
+        );
 
         if (sortOrder && column) {
           // Dispatch the action to fetch sorted facility users
@@ -371,7 +373,7 @@
             .catch(err => {
               console.error('Failed to fetch sorted data:', err);
             });
-        }else {
+        } else {
           // If sortOrder is undefined or column is null, remove ordering and order from the route
           const { ordering, order, ...query } = this.$route.query;
           this.$router.push({
