@@ -39,7 +39,7 @@ class JobTest(TestCase):
     def test_job_update_progress_saves_progress_to_storage(self):
         self.job.update_progress(0.5, 1.5)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.5, 1.5
+            self.job.job_id, 0.5, 1.5, extra_metadata=self.job.extra_metadata
         )
 
     def test_job_update_progress_sets_progress(self):
@@ -187,7 +187,7 @@ class JobTest(TestCase):
         # Initial progress update
         self.job.update_progress(0.1, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0
+            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
         )
         self.job.storage.update_job_progress.reset_mock()
 
@@ -203,28 +203,28 @@ class JobTest(TestCase):
         # Initial progress update
         self.job.update_progress(0.1, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0
+            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Progress update with ≥1% change should be sent to storage
         self.job.update_progress(0.12, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.12, 1.0
+            self.job.job_id, 0.12, 1.0, extra_metadata=self.job.extra_metadata
         )
 
     def test_job_update_progress_sends_on_completion(self):
         # Initial progress update
         self.job.update_progress(0.999, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.999, 1.0
+            self.job.job_id, 0.999, 1.0, extra_metadata=self.job.extra_metadata
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Small progress update that reaches 100% should be sent to storage
         self.job.update_progress(1.0, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 1.0, 1.0
+            self.job.job_id, 1.0, 1.0, extra_metadata=self.job.extra_metadata
         )
 
     def test_job_update_progress_sends_on_first_total(self):
@@ -234,27 +234,29 @@ class JobTest(TestCase):
 
         # First update that sets a total should be sent
         job.update_progress(0.1, 100.0)
-        job.storage.update_job_progress.assert_called_once_with(job.job_id, 0.1, 100.0)
+        job.storage.update_job_progress.assert_called_once_with(
+            job.job_id, 0.1, 100.0, extra_metadata=job.extra_metadata
+        )
 
     def test_job_update_progress_sends_on_changed_total(self):
         # First update that sets a total should be sent
         self.job.update_progress(0.1, 100.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 100.0
+            self.job.job_id, 0.1, 100.0, extra_metadata=self.job.extra_metadata
         )
 
     def test_job_update_progress_sends_on_progress_decrease(self):
         # Initial progress update
         self.job.update_progress(0.5, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.5, 1.0
+            self.job.job_id, 0.5, 1.0, extra_metadata=self.job.extra_metadata
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Progress update that decreases progress should be sent to storage
         self.job.update_progress(0.499, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.499, 1.0
+            self.job.job_id, 0.499, 1.0, extra_metadata=self.job.extra_metadata
         )
 
     def test_job_update_progress_retains_last_saved_values(self):
@@ -290,6 +292,75 @@ class JobTest(TestCase):
         # None total case
         result = self.job._float_progress(5, None)
         self.assertEqual(result, 5)
+
+    def test_job_update_progress_with_metadata(self):
+        # Initial progress update with metadata
+        metadata = {"stage": "extraction", "files_processed": 10}
+        self.job.update_progress(0.5, 1.0, extra_metadata=metadata)
+
+        # Verify the method updates both progress and metadata
+        self.assertEqual(self.job.progress, 0.5)
+        self.assertEqual(self.job.total_progress, 1.0)
+        self.assertEqual(self.job.extra_metadata["stage"], "extraction")
+        self.assertEqual(self.job.extra_metadata["files_processed"], 10)
+
+        # Verify storage was called with the correct parameters
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.5, 1.0, extra_metadata=self.job.extra_metadata
+        )
+
+    def test_job_update_progress_throttles_with_metadata(self):
+        # Initial progress update with metadata
+        self.job.update_progress(0.1, 1.0, extra_metadata={"stage": "start"})
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+        )
+        self.job.storage.update_job_progress.reset_mock()
+
+        # Small progress update with new metadata should still be throttled
+        self.job.update_progress(0.105, 1.0, extra_metadata={"files": 5})
+        self.job.storage.update_job_progress.assert_not_called()
+
+        # Local metadata should be updated even if storage update is throttled
+        self.assertEqual(self.job.extra_metadata["files"], 5)
+
+        # Significant progress update should update both progress and all metadata
+        self.job.update_progress(0.2, 1.0, extra_metadata={"files": 10})
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.2, 1.0, extra_metadata=self.job.extra_metadata
+        )
+
+    def test_update_metadata_still_works_separately(self):
+        # Updating metadata directly should still call save_meta
+        self.job.update_metadata(key="value")
+        self.job.storage.save_job_meta.assert_called_once()
+        self.assertEqual(self.job.extra_metadata["key"], "value")
+
+    def test_multiple_metadata_updates_in_throttled_progress(self):
+        # Initial progress update
+        self.job.update_progress(0.1, 1.0)
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+        )
+        self.job.storage.update_job_progress.reset_mock()
+
+        # Multiple metadata updates during throttled period
+        self.job.update_progress(0.105, 1.0, extra_metadata={"step": 1})
+        self.job.update_progress(0.108, 1.0, extra_metadata={"step": 2})
+        self.job.update_progress(0.109, 1.0, extra_metadata={"step": 3})
+
+        # Storage should not have been called
+        self.job.storage.update_job_progress.assert_not_called()
+
+        # Latest metadata should be kept locally
+        self.assertEqual(self.job.extra_metadata["step"], 3)
+
+        # Significant update should send all accumulated metadata
+        self.job.update_progress(0.2, 1.0, extra_metadata={"step": 4})
+        self.job.storage.update_job_progress.assert_called_once_with(
+            self.job.job_id, 0.2, 1.0, extra_metadata=self.job.extra_metadata
+        )
+        self.assertEqual(self.job.extra_metadata["step"], 4)
 
     # End of generated tests
 

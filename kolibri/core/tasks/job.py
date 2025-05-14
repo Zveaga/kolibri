@@ -250,7 +250,11 @@ class Job(object):
     def save_meta(self):
         self.storage.save_job_meta(self)
 
-    def update_progress(self, progress, total_progress):
+    def _update_meta(self, **kwargs):
+        for key, value in kwargs.items():
+            self.extra_metadata[key] = value
+
+    def update_progress(self, progress, total_progress, extra_metadata=None):
         if not self.track_progress:
             return
         if not isinstance(progress, (int, float)) or not isinstance(
@@ -265,6 +269,8 @@ class Job(object):
         last_saved_progress_float = self._float_progress(
             self._last_saved_progress, self._last_saved_total_progress
         )
+        if isinstance(extra_metadata, dict):
+            self._update_meta(**extra_metadata)
         if (
             # Total progress has been changed.
             (self.total_progress != self._last_saved_total_progress)
@@ -275,13 +281,17 @@ class Job(object):
             # Progress from the last save has increased by at least 1%
             or (self.percentage_progress - last_saved_progress_float >= 0.01)
         ):
-            self.storage.update_job_progress(self.job_id, progress, total_progress)
+            self.storage.update_job_progress(
+                self.job_id,
+                progress,
+                total_progress,
+                extra_metadata=self.extra_metadata,
+            )
             self._last_saved_progress = self.progress
             self._last_saved_total_progress = self.total_progress
 
     def update_metadata(self, **kwargs):
-        for key, value in kwargs.items():
-            self.extra_metadata[key] = value
+        self._update_meta(**kwargs)
         self.save_meta()
 
     def update_worker_info(self, host=None, process=None, thread=None, extra=None):
