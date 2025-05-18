@@ -204,6 +204,7 @@
         modalShown: null,
       };
     },
+
     computed: {
       ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
@@ -343,48 +344,41 @@
         },
       },
     },
+    watch: {
+      '$route.query': {
+        handler() {
+          this.showPageFromRoute();
+        },
+        immediate: true,
+        deep: true,
+      },
+    },
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
     methods: {
       changeSortHandler({ sortKey, sortOrder }) {
-        this.sortKey = sortKey;
-        this.sortOrder = sortOrder;
+        const column = this.tableHeaders[sortKey]?.columnId || null;
+        const query = {
+          ...this.$route.query,
+          ordering: column,
+          order: sortOrder,
+          page: 1, // Reset to first page on new sort
+        };
 
-        const column = this.tableHeaders[sortKey]?.columnId || null; // to determine the column name
-        const order = sortOrder; // to determine the sort order
-        const page = this.$route.query.page || 1; // Default to page 1 if not specified
-        const page_size = this.$route.query.page_size || 30; // Default to 30 items per page
-
-        console.log(
-          `Stored sortKey: ${this.sortKey}, sortOrder: ${this.sortOrder}, column: ${column}`,
-        );
-
-        if (sortOrder && column) {
-          // Dispatch the action to fetch sorted facility users
-          this.$store
-            .dispatch('userManagement/fetchSortedFacilityUsers', {
-              column,
-              order,
-              page,
-              page_size,
-              router: this.$router, // Pass the router instance
-            })
-            .catch(err => {
-              console.error('Failed to fetch sorted data:', err);
-            });
-        } else {
-          // If sortOrder is undefined or column is null, remove ordering and order from the route
-          const { ordering, order, ...query } = this.$route.query;
-          this.$router.push({
-            path: this.$route.path,
-            query: {
-              ...query,
-              page,
-              page_size,
-            },
-          });
-        }
+        this.$router.push({
+          path: this.$route.path,
+          query: pickBy(query),
+        });
+      },
+      showPageFromRoute() {
+        const { page = 1, page_size = 30, ordering, order } = this.$route.query;
+        this.$store.dispatch('userManagement/showUserPage', {
+          page,
+          page_size,
+          ordering,
+          order,
+        });
       },
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
