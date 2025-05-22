@@ -4,7 +4,7 @@
     <FilterTextbox
       v-if="isSearchable"
       v-model="searchQuery"
-      placeholder="Search for a user"
+      :placeholder="searchForUser$()"
       :style="{ marginBottom: '16px', marginLeft: 'auto', display: 'block' }"
     />
     <ul
@@ -117,13 +117,14 @@
         return user.kind === UserKinds.SUPERUSER;
       };
 
-      const { noResultsLabel$, superAdminLabel$ } = coreStrings;
+      const { noResultsLabel$, superAdminLabel$, searchForUser$ } = coreStrings;
 
       return {
         searchQuery,
         filteredUsers,
         annotationStyle,
         isSuperuser,
+        searchForUser$,
         noResultsLabel$,
         superAdminLabel$,
       };
