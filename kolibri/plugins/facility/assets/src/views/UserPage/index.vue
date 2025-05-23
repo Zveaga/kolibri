@@ -362,7 +362,8 @@
 
         const query = { ...this.$route.query };
 
-        if (!sortOrder || !columnId) { //remove ordering and order from params when sortOrder is null
+        if (!sortOrder || !columnId) {
+          //remove ordering and order from params when sortOrder is null
           delete query.ordering;
           delete query.order;
         } else {
