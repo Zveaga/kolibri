@@ -358,13 +358,19 @@
     },
     methods: {
       changeSortHandler({ sortKey, sortOrder }) {
-        const column = this.tableHeaders[sortKey]?.columnId || null;
-        const query = {
-          ...this.$route.query,
-          ordering: column,
-          order: sortOrder,
-          page: 1, // Reset to first page on new sort
-        };
+        const columnId = this.tableHeaders[sortKey]?.columnId || null;
+
+        const query = { ...this.$route.query };
+
+        if (!sortOrder || !columnId) { //remove ordering and order from params when sortOrder is null
+          delete query.ordering;
+          delete query.order;
+        } else {
+          query.ordering = columnId;
+          query.order = sortOrder;
+        }
+
+        query.page = 1;
 
         this.$router.push({
           path: this.$route.path,
