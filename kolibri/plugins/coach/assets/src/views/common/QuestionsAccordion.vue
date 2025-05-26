@@ -56,7 +56,7 @@
           }"
         >
           <AccordionItem
-            :title="displayQuestionTitle(question, getQuestionContent(question)?.title)"
+            :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
             :disabledTitle="questionItemsToReplace?.includes(question.item)"
             :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
@@ -141,10 +141,7 @@
 <script>
 
   import { computed, ref } from 'vue';
-  import {
-    enhancedQuizManagementStrings,
-    displayQuestionTitle,
-  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
@@ -254,7 +251,6 @@
         moveUpOne,
         moveDownOne,
         questionIsChecked,
-        displayQuestionTitle,
         questionCheckboxDisabled,
 
         selectAllLabel$,
@@ -358,6 +354,9 @@
             this.selectableQuestions.map(question => question.item),
           );
         }
+      },
+      getDisplayQuestionTitle(question, title) {
+        return title || this.coreString('resourceNotFoundOnDevice');
       },
     },
   };
