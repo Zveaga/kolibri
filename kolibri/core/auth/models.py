@@ -632,6 +632,9 @@ class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=True)
+
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
