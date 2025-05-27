@@ -29,7 +29,6 @@ You can ask questions, make suggestions, and report issues in the [community for
 
 If you have found a bug and are comfortable using Github and Markdown, you can create a [Github issue](https://github.com/learningequality/kolibri/issues) following the instructions in the issue template.
 
-<!-- Also update CONTRIBUTING.md (duplicate) -->
 ## How can I contribute?
 
 We welcome contributors!
