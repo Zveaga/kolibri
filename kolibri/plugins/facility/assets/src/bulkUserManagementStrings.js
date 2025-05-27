@@ -113,11 +113,21 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Move to trash
-  undoTrashHeading: {},
-  undoTrashMessageA: {},
-  undoTrashMessageB: {},
-  usersTrashedNotice: {},
-  trashUndoneNotice: {},
+  undoTrashHeading: {
+    message: "{num, number} users have been moved to trash. Undo this?"
+  },
+  undoTrashMessageA: {
+    message: "You've successfully enrolled {numUsers, number} users to trash."
+  },
+  undoTrashMessageB: {
+    message: "These users will be deleted in 30 days. If this was a mistake, you can undo it.",
+  },
+  usersTrashedNotice: {
+    message: "Selected users have been moved to trash",
+  },
+  trashUndoneNotice: {
+    message: "Move to trash has been undone",
+  },
 
   // Export to CSV
   youSelectedNumUsers: {
