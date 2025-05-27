@@ -33,4 +33,4 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 
 We welcome contributors!
 
-To find out how to contribute, visit the [Contributing to our open code base](https://learningequality.org/contributing-to-our-open-code-base).
+To find out how to contribute, visit [Contributing to our open code base](https://learningequality.org/contributing-to-our-open-code-base).
