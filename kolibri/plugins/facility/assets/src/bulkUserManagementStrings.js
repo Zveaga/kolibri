@@ -66,17 +66,21 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
 
   // Assign coaches to class
   undoAssignCoachHeading: {
-    message: "{num, number} users have been removed. Undo this?"
+    message: "{num, number} users have been removed. Undo this?",
+    context: "Confirmation heading that allows user to undo their action of removing users"
   },
   undoAssignCoachMessage: {
-    message: "You've successfully assigned {numUsers, number} users from {numClasses, number} classes. If this was a mistake, you can undo it."
+    message: "You've successfully assigned {numUsers, number} users from {numClasses, number} classes. If this was a mistake, you can undo it.",
+    context: "Snackbar notification message indicating success"
   },
   coachesAssignedNotice: {
     message: "Selected coaches have been assigned",
-  }
-  assignCoachUndoneNotice: {
-    message: "Assign action has been undone"
+    context: "Success notification shown after coaches have been successfully assigned to users/classes."
   },
+  assignCoachUndoneNotice: {
+    message: "Assign action has been undone",
+    context: "Notification shown after the user has chosen to undo a recent coach assignment action."
+  }
 
   // Remove from class
   usersNotInClassNotAffected: {
@@ -124,26 +128,33 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
 
   // Move to trash
   undoTrashHeading: {
-    message: "{num, number} users have been moved to trash. Undo this?"
+    message: "{num, number} users have been moved to trash. Undo this?",
+    context: "Confirmation heading asking if user wants to undo moving multiple users to trash"
   },
   undoTrashMessageA: {
-    message: "You've successfully moved {numUsers, number} users to trash."
+    message: "You've successfully moved {numUsers, number} users to trash.",
+    context: "Success notification after users have been moved to trash"
   },
   undoTrashMessageB: {
     message: "These users will be deleted in 30 days. If this was a mistake, you can undo it.",
+    context: "Informational message about trash deletion timeline and undo option"
   },
   usersTrashedNotice: {
     message: "Selected users have been moved to trash",
+    context: "Brief notification confirming users were moved to trash"
   },
   trashUndoneNotice: {
     message: "Move to trash has been undone",
+    context: "Notification confirming that the trash action was reversed"
   },
 
   // Export to CSV
   youSelectedNumUsers: {
-    message: "You've selected {num, number} users"
+    message: "You've selected {num, number} users",
+    context: "Informational message showing how many users were selected for CSV export"
   },
   warnCategoryDataMissing: {
-    message: "Some users lack some category data so some rows may be blank."
-  },
+    message: "Some users lack some category data so some rows may be blank.",
+    context: "Warning to user that the CSV export may have empty cells due to missing data"
+  }
 });
