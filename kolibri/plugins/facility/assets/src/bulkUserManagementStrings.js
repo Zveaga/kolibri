@@ -122,7 +122,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "{num, number} users have been moved to trash. Undo this?"
   },
   undoTrashMessageA: {
-    message: "You've successfully enrolled {numUsers, number} users to trash."
+    message: "You've successfully moved {numUsers, number} users to trash."
   },
   undoTrashMessageB: {
     message: "These users will be deleted in 30 days. If this was a mistake, you can undo it.",
