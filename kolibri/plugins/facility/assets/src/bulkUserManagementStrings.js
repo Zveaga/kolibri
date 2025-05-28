@@ -14,11 +14,11 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   nSelected: {
     message: "{n, number} selected",
     context: "A label showing `n` items are selected",
-  }
+  },
   nFilters: {
     message: "{n, number} filters",
     context: "A label showing `n` filters are selected",
-  }
+  },
 
 
   // Dropdown options
