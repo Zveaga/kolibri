@@ -103,18 +103,23 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   // Enroll to class
   usersInClassNotAffected: {
     message: "Users already in selected classes will not be affected",
+    context: "Warning message about users already in selected classes"
   },
   undoUsersEnrolledHeading: {
-    message: "{num, number} users have been enrolled. Undo this?"
+    message: "{num, number} users have been enrolled. Undo this?",
+    context: "Heading for undo confirmation after enrolling users"
   },
   undoUsersEnrolledMessage: {
-    message: "You've successfully enrolled {numUsers, number} users from {numClasses, number} classes. If this was a mistake, you can undo it."
+    message: "You've successfully enrolled {numUsers, number} users from {numClasses, number} classes. If this was a mistake, you can undo it.",
+    context: "Detailed message for undo confirmation after enrolling users"
   },
   usersEnrolledNotice: {
     message: "Selected users have been enrolled",
-  }
+    context: "Confirmation message when users are enrolled in classes"
+  },
   enrollUndoneNotice: {
-    message: "Enroll action has been undone"
+    message: "Enroll action has been undone",
+    context: "Confirmation message when enroll action is undone"
   },
 
   // Move to trash
