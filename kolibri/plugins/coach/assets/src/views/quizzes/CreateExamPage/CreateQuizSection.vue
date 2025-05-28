@@ -1,7 +1,6 @@
 <template>
 
   <div>
-    <MissingResourceAlert v-if="Object.keys(activeResourceMap).length === 0" />
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
         :layout4="{ span: 4 }"
@@ -249,7 +248,6 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
@@ -263,7 +261,6 @@
     components: {
       TabsWithOverflow,
       QuestionsAccordion,
-      MissingResourceAlert,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
