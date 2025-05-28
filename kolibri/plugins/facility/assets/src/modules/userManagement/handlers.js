@@ -48,14 +48,14 @@ export function fetchSortedFacilityUsersHandler(
         });
       }
       store.commit('SET_STATE', { dataLoading: false });
-      store.dispatch('userManagement/notLoading');
+      store.dispatch('notLoading');
     })
     .catch(error => {
       if (shouldResolve()) {
         store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       }
       store.commit('SET_STATE', { dataLoading: false });
-      store.dispatch('userManagement/notLoading');
+      store.dispatch('notLoading');
     });
 }
 // An action for setting up the initial state of the app by fetching data from the server
