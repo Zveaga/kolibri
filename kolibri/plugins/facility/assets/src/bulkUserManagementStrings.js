@@ -68,7 +68,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   undoAssignCoachHeading: {
     message: "{num, number} users have been removed. Undo this?"
   },
-  undoAssignCoachHeading: {
+  undoAssignCoachMessage: {
     message: "You've successfully assigned {numUsers, number} users from {numClasses, number} classes. If this was a mistake, you can undo it."
   },
   coachesAssignedNotice: {
