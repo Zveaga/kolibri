@@ -1,5 +1,6 @@
 ---
 name: Blank issue
+about: For issues that don't fit any other category
 ---
 
 <!---HEADER START-->
