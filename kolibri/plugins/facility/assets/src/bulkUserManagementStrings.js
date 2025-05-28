@@ -56,7 +56,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
 
   // Selection warnings
   numUsersNotEnrolled: {
-    message: "{num, number} users are not enrolled in any class"
+    message: "{num, number} users are not enrolled in any class",
     context: "A notice indicating the number of users that are selected which are not enrolled in a class"
   },
   numUsersCoaches: {
