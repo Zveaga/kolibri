@@ -8,7 +8,7 @@
       {{ sectionSettings$() }}
     </h1>
     <div>
-      <MissingResourceAlert v-if="resource.missing_resource" />
+      <MissingResourceAlert v-if="exam.missing_resource" />
     </div>
 
     <KTextbox
@@ -340,9 +340,6 @@
     computed: {
       exam() {
         return this.examMap[this.$route.params.quizId] || {};
-      },
-      resource() {
-        return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
       },
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
