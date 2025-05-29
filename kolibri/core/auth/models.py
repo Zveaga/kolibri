@@ -773,6 +773,11 @@ def validate_role_kinds(kinds):
     return kinds
 
 
+class AllObjectsFacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return super(AllObjectsFacilityUserModelManager, self).get_queryset()
+
+
 class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataModel):
     """
     ``FacilityUser`` is the fundamental object of the auth app. These users represent the main users, and can be associated
@@ -797,6 +802,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
     )
     permissions = own | admin | role
 
+    all_objects = AllObjectsFacilityUserModelManager()
     objects = FacilityUserModelManager()
 
     soft_deleted_objects = SoftDeletedFacilityUserModelManager()
@@ -1317,7 +1323,7 @@ class Membership(AbstractFacilityDataModel):
                 collection_id=self.collection.parent_id, user=self.user
             ).exists():
                 raise InvalidMembershipError(
-                    "Cannot create membership for a user in a LearnerGroup or AdHoGroup when they are not a member of the parent Classrooom"
+                    "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
                 )
         return super(Membership, self).save(*args, **kwargs)
 

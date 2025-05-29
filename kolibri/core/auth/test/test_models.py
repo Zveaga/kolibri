@@ -1,6 +1,7 @@
 """
 Tests of the core auth models (Role, Membership, Collection, FacilityUser, etc).
 """
+from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -662,6 +663,32 @@ class FacilityTestCase(TestCase):
 
 
 class FacilityUserTestCase(TestCase):
+    databases = {"default", "notifications"}
+
+    def setUp(self):
+        self.facility = Facility.objects.create(name="My Facility")
+        self.user = FacilityUser.objects.create(
+            username="user",
+            password=make_password("password"),
+            facility=self.facility,
+        )
+
+    def test_all_objects_manager_returns_all_users(self):
+        deleted_user = FacilityUser.objects.create(
+            username="deleted_user",
+            password=make_password("password"),
+            facility=self.facility,
+        )
+        deleted_user.delete()
+
+        self.assertEqual(FacilityUser.objects.count(), 1)
+        self.assertEqual(FacilityUser.objects.first(), self.user)
+
+        self.assertEqual(FacilityUser.all_objects.count(), 2)
+        users = list(FacilityUser.all_objects.all())
+        self.assertIn(self.user, users)
+        self.assertIn(deleted_user, users)
+
     def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
