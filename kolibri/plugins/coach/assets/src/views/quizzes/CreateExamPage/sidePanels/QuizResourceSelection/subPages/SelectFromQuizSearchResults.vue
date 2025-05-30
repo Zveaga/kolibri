@@ -238,7 +238,7 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 
   .side-panel-subtitle {
     font-size: 16px;

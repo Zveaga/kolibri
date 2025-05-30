@@ -60,7 +60,7 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 
   .mr-16 {
     margin-right: 16px;
