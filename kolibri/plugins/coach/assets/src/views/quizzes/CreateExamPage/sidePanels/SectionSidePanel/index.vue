@@ -11,7 +11,18 @@
     @shouldFocusFirstEl="findFirstEl()"
   >
     <template #header>
-      <h1 class="sidepanel-title">{{ editSectionLabel$() }}</h1>
+      <h1
+        v-if="route.name === PageNames.QUIZ_SECTION_ORDER"
+        class="sidepanel-title"
+      >
+        {{ coreString('editAction') }} {{ sectionOrderLabel$() }}
+      </h1>
+      <h1
+        v-else
+        class="sidepanel-title"
+      >
+        {{ editSectionLabel$() }}
+      </h1>
       <KIconButton
         v-if="canGoBack"
         icon="back"
@@ -28,6 +39,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'vue';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
 
@@ -36,14 +48,16 @@
     components: {
       SidePanelModal,
     },
+    mixins: [commonCoreStrings],
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const router = getCurrentInstance().proxy.$router;
       const route = computed(() => store.state.route);
+      // const sidepanelTitle = ref('section');
 
       const canGoBack = ref(false);
       const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
-      const { editSectionLabel$ } = enhancedQuizManagementStrings;
+      const { editSectionLabel$, sectionOrderLabel$ } = enhancedQuizManagementStrings;
       function handleClosePanel() {
         router.push({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -71,10 +85,17 @@
       });
 
       return {
+        route,
         canGoBack,
         showSidePanel,
         handleClosePanel,
         editSectionLabel$,
+        sectionOrderLabel$,
+      };
+    },
+    data() {
+      return {
+        PageNames,
       };
     },
     methods: {
