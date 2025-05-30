@@ -75,7 +75,7 @@ urlpatterns = (
             name="remotefacilityauthenticateduserinfo",
         ),
         re_path(
-            r"^deleteimporteduser$",
+            r"^deleteimporteduser/(?P<user_id>[a-f0-9]{32})$",
             DeleteImportedUserView.as_view(),
             name="deleteimporteduser",
         ),

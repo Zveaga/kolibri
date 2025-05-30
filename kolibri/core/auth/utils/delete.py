@@ -15,6 +15,7 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 
 from kolibri.core.analytics.models import PingbackNotificationDismissed
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -335,3 +336,27 @@ def delete_facility(facility):
             )
         )
     logger.info("Deleted facility {}".format(facility.name))
+
+
+def delete_imported_user(user):
+    partition_filters = [
+        f"{user.dataset_id}:user-ro:{user.id}",
+        f"{user.dataset_id}:user-rw:{user.id}",
+    ]
+
+    delete_group = GroupDeletion(
+        "Imported user models",
+        querysets=[
+            Certificate.objects.filter(
+                scope_definition_id=ScopeDefinitions.SINGLE_USER,
+                scope_params__contains=user.id,
+            ),
+            Store.objects.filter(partition__in=partition_filters),
+            DatabaseMaxCounter.objects.filter(partition__in=partition_filters),
+            FacilityUser.objects.filter(id=user.id),
+        ],
+    )
+
+    with DisablePostDeleteSignal(), transaction.atomic():
+        delete_group.delete()
+        dataset_cache.clear()

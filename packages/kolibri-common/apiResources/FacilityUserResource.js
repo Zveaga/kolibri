@@ -6,11 +6,8 @@ export default new Resource({
   name: 'facilityuser',
   removeImportedUser(user_id) {
     return client({
-      url: urls['kolibri:core:deleteimporteduser'](),
-      method: 'POST',
-      data: {
-        user_id,
-      },
+      url: urls['kolibri:core:deleteimporteduser'](user_id),
+      method: 'DELETE',
     });
   },
   async listRemoteFacilityLearners(params) {
