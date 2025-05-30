@@ -714,6 +714,22 @@ class FacilityUserTestCase(TestCase):
 
         self.assertEqual(list(FacilityUser.objects.all()), [user2])
 
+    def test_only_soft_deleted_users_are_returned(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        FacilityUser.objects.create(
+            username="bob", password="password", facility=self.facility
+        )
+        soft_deleted_user = FacilityUser.objects.create(
+            username="john",
+            password="password",
+            facility=self.facility,
+            date_deleted=local_now(),
+        )
+        self.assertEqual(
+            list(FacilityUser.soft_deleted_objects.all()), [soft_deleted_user]
+        )
+
 
 class CollectionHierarchyTestCase(TestCase):
     def test_facility_with_parent(self):
