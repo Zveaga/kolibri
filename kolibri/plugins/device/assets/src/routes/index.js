@@ -21,6 +21,7 @@ import NewChannelVersionPage from '../views/ManageContentPage/NewChannelVersionP
 import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import UserPermissionsPage from '../views/UserPermissionsPage';
 import UsersRootPage from '../views/lodUsers/UsersRootPage.vue';
+import UsersPage from '../views/lodUsers/UsersPage.vue';
 import SelectFacilityPage from '../views/lodUsers/importUser/SelectFacilityPage.vue';
 import ImportUserAsAdminPage from '../views/lodUsers/importUser/ImportUserAsAdminPage.vue';
 import ImportUserWithCredentialsPage from '../views/lodUsers/importUser/ImportUserWithCredentialsPage.vue';
@@ -200,32 +201,43 @@ const routes = [
   {
     name: PageNames.USERS_ROOT,
     path: '/users',
+    redirect: { name: PageNames.USERS_PAGE },
     component: withAuthMessage(UsersRootPage, 'superuser'),
-    handler: lodGuard,
-  },
-  {
-    path: '/users/import/select_facility',
-    name: PageNames.USERS_SELECT_FACILITY_FOR_IMPORT,
-    component: withAuthMessage(SelectFacilityPage, 'superuser'),
-    handler: lodGuard,
-  },
-  {
-    path: '/users/import/credentials',
-    name: PageNames.USERS_IMPORT_USER_WITH_CREDENTIALS,
-    component: withAuthMessage(ImportUserWithCredentialsPage, 'superuser'),
-    handler: lodGuard,
-  },
-  {
-    path: '/users/import/as_admin',
-    name: PageNames.USERS_IMPORT_USER_AS_ADMIN,
-    component: withAuthMessage(ImportUserAsAdminPage, 'superuser'),
-    handler: lodGuard,
+    props: toRoute => ({
+      // There is a bug with the `handler` prop for routes with children and its being ignored,
+      // so we are using this `beforeRouteEnter` prop as part of the UserRootPage as
+      // a workaround to ensure the `lodGuard` is called, without duplicating this
+      // logic (e.g. the "preparePage") inside the UsersRootPage component.
+      beforeRouteEnter: () => lodGuard(toRoute),
+    }),
+    children: [
+      {
+        name: PageNames.USERS_PAGE,
+        path: 'index',
+        component: UsersPage,
+      },
+      {
+        path: 'import/select_facility',
+        name: PageNames.USERS_SELECT_FACILITY_FOR_IMPORT,
+        component: SelectFacilityPage,
+      },
+      {
+        path: 'import/credentials',
+        name: PageNames.USERS_IMPORT_USER_WITH_CREDENTIALS,
+        component: ImportUserWithCredentialsPage,
+      },
+      {
+        path: 'import/as_admin',
+        name: PageNames.USERS_IMPORT_USER_AS_ADMIN,
+        component: ImportUserAsAdminPage,
+      },
+    ],
   },
   ...wizardTransitionRoutes,
-  {
-    path: '/content/*',
-    redirect: '/content',
-  },
+  // {
+  //   path: '/content/*',
+  //   redirect: '/content',
+  // },
 ];
 
 export default routes;

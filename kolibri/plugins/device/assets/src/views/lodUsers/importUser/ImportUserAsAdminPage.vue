@@ -36,7 +36,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import commonDeviceStrings from '../../commonDeviceStrings';
   import UsersList from '../UsersList.vue';
-  import useLodDeviceUsers from '../composables/useLodDeviceUsers';
+  import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {
     name: 'ImportUserAsAdmin',
@@ -47,21 +47,24 @@
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const {
-        users,
-        loading,
-        fetchUsers,
+        remoteAdmin,
+        remoteUsers,
+        importDeviceId,
+        selectedFacility,
+        users: localUsers,
         usersBeingImported,
-        importLodMachineState,
+        loading: usersLoading,
         importLodMachineService,
-      } = useLodDeviceUsers();
-
-      fetchUsers();
+      } = injectLodDeviceUsers();
 
       return {
-        localUsers: users,
-        usersLoading: loading,
+        remoteAdmin,
+        localUsers,
+        remoteUsers,
+        usersLoading,
+        importDeviceId,
+        selectedFacility,
         usersBeingImported,
-        importLodMachineState,
         importLodMachineService,
       };
     },
@@ -71,15 +74,6 @@
       };
     },
     computed: {
-      remoteUsers() {
-        return this.importLodMachineState.context.remoteUsers || [];
-      },
-      facility() {
-        return this.importLodMachineState.context.selectedFacility;
-      },
-      deviceId() {
-        return this.importLodMachineState.context.importDeviceId;
-      },
       usersList() {
         return this.remoteUsers.map(user => ({
           ...user,
@@ -93,10 +87,10 @@
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
         const params = {
           type: task_name,
-          ...this.importLodMachineState.context.remoteAdmin,
-          facility: this.facility.id,
-          facility_name: this.facility.name,
-          device_id: this.deviceId,
+          ...this.remoteAdmin,
+          facility: this.selectedFacility.id,
+          facility_name: this.selectedFacility.name,
+          device_id: this.importDeviceId,
           user_id: learner.id,
           using_admin: true,
         };

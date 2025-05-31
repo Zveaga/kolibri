@@ -119,7 +119,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonProfileStrings from '../../../../../../user_profile/assets/src/views/commonProfileStrings';
   import commonDeviceStrings from '../../commonDeviceStrings';
-  import useLodDeviceUsers from '../composables/useLodDeviceUsers';
+  import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {
     name: 'ImportUserWithCredentials',
@@ -130,9 +130,10 @@
     },
     mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings, commonDeviceStrings],
     setup() {
-      const { importLodMachineService, importLodMachineState } = useLodDeviceUsers();
+      const { importDeviceId, selectedFacility, importLodMachineService } = injectLodDeviceUsers();
       return {
-        importLodMachineState,
+        importDeviceId,
+        selectedFacility,
         importLodMachineService,
       };
     },
@@ -156,9 +157,6 @@
       };
     },
     computed: {
-      deviceId() {
-        return this.importLodMachineState.context.importDeviceId;
-      },
       facility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },
@@ -197,14 +195,14 @@
       },
     },
     beforeMount() {
-      this.fetchNetworkLocation(this.deviceId).then(() => {
+      this.fetchNetworkLocation(this.importDeviceId).then(() => {
         if (!this.facility) {
           this.$store.dispatch('showError', 'Failed to retrieve facilities.');
         }
       });
     },
     mounted() {
-      this.selectedFacilityId = this.importLodMachineState.context.selectedFacility.id;
+      this.selectedFacilityId = this.selectedFacility.id;
     },
     methods: {
       fetchNetworkLocation(deviceId) {
@@ -254,7 +252,7 @@
           password,
           facility: this.facility.id,
           facility_name: this.facility.name,
-          device_id: this.deviceId,
+          device_id: this.importDeviceId,
           using_admin: false,
           force_non_learner_import: this.forceNonLearnerImport,
         };

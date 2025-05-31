@@ -65,7 +65,7 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
 
   import commonDeviceStrings from '../../commonDeviceStrings';
-  import useLodDeviceUsers from '../composables/useLodDeviceUsers';
+  import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {
     name: 'SelectFacility',
@@ -77,9 +77,9 @@
     },
     mixins: [commonCoreStrings, commonSyncElements, commonDeviceStrings],
     setup() {
-      const { importLodMachineService, importLodMachineState } = useLodDeviceUsers();
+      const { importDeviceId, importLodMachineService } = injectLodDeviceUsers();
       return {
-        importLodMachineState,
+        importDeviceId,
         importLodMachineService,
       };
     },
@@ -94,9 +94,6 @@
       };
     },
     computed: {
-      importDeviceId() {
-        return this.importLodMachineState.context.importDeviceId;
-      },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
       },

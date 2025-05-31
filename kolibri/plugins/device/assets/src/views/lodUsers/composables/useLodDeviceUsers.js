@@ -1,8 +1,7 @@
-import Lockr from 'lockr';
 import store from 'kolibri/store';
-import { State, interpret } from 'xstate';
-import { ref, watch, computed } from 'vue';
+import { interpret } from 'xstate';
 import { useRoute, useRouter } from 'vue-router/composables';
+import { ref, watch, computed, provide, inject, onBeforeMount, onUnmounted } from 'vue';
 
 import { UserKinds } from 'kolibri/constants';
 import UserType from 'kolibri-common/utils/userType';
@@ -13,79 +12,81 @@ import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { getImportLodUsersMachine } from 'kolibri-common/machines/importLodUsersMachine';
 
-import { deviceString } from '../../commonDeviceStrings';
 import { PageNames } from '../../../constants';
+import { deviceString } from '../../commonDeviceStrings';
 
-const SAVED_STATE_KEY = 'lodUsersImportSavedState';
+const SOUD_QUEUE = 'soud_sync';
 
-const importLodMachineState = ref(null);
-const users = ref([]);
-const loading = ref(true);
-const showCannotRemoveUser = ref(false);
-const { tasks } = useTaskPolling('soud_sync');
+/**
+ * This composable manages the state and logic for the LOD device users pages. Where
+ * a parent component should initialize the composable calling `useLodDeviceUsers()` to
+ * set up the context data and the XState machine for managing the import of users. And
+ * all children pages can inject the state using `injectLodDeviceUsers()`.
+ *
+ * It provides the following functionalities:
+ * - Fetching and managing users from the LOD device.
+ * - Handling the import of users with different methods (as admin, with credentials).
+ * - Managing the state and route redirection of the import process using an XState machine.
+ *
+ * @returns {void}
+ */
+export default function useLodDeviceUsers() {
+  const route = useRoute();
+  const router = useRouter();
+  const { tasks } = useTaskPolling(SOUD_QUEUE);
+  const { createSnackbar } = useSnackbar();
 
-let importLodMachineService = null;
+  const importLodMachineState = ref(null);
+  const users = ref([]);
+  const loading = ref(true);
+  const showCannotRemoveUser = ref(false);
 
-const setupImportLodMachineService = ({ router, route }) => {
-  const DeviceRouteNamesMap = {
-    LOD_SETUP_TYPE: PageNames.USERS_ROOT,
-    LOD_SELECT_FACILITY: PageNames.USERS_SELECT_FACILITY_FOR_IMPORT,
-    LOD_IMPORT_USER_AUTH: PageNames.USERS_IMPORT_USER_WITH_CREDENTIALS,
-    LOD_IMPORT_AS_ADMIN: PageNames.USERS_IMPORT_USER_AS_ADMIN,
-  };
+  const setupImportLodMachineService = () => {
+    const service = interpret(getImportLodUsersMachine());
 
-  const synchronizeRouteAndMachine = state => {
-    if (!state) return;
-    const { meta } = state;
-    // Dump out of here if there is nothing to resume from
-    if (!Object.keys(meta).length) {
-      router.replace('/');
-      return;
-    }
+    const DeviceRouteNamesMap = {
+      LOD_SETUP_TYPE: PageNames.USERS_PAGE,
+      LOD_SELECT_FACILITY: PageNames.USERS_SELECT_FACILITY_FOR_IMPORT,
+      LOD_IMPORT_USER_AUTH: PageNames.USERS_IMPORT_USER_WITH_CREDENTIALS,
+      LOD_IMPORT_AS_ADMIN: PageNames.USERS_IMPORT_USER_AS_ADMIN,
+    };
 
-    const machineRoute = meta[Object.keys(meta)[0]].route;
-    if (machineRoute && DeviceRouteNamesMap[machineRoute.name]) {
-      const newRoute = {
-        name: DeviceRouteNamesMap[machineRoute.name],
-      };
+    const synchronizeRouteAndMachine = state => {
+      if (!state) return;
+      const { meta } = state;
+      let newRoute = { name: PageNames.USERS_PAGE };
+
+      const machineRoute = meta?.[Object.keys(meta)[0]]?.route;
+      if (machineRoute && DeviceRouteNamesMap[machineRoute.name]) {
+        newRoute = {
+          name: DeviceRouteNamesMap[machineRoute.name],
+        };
+      }
 
       // Avoid redundant navigation
       if (route.name !== newRoute.name) {
         router.replace(newRoute);
       }
-    } else {
-      router.replace(PageNames.USERS_ROOT);
-    }
+    };
+
+    service.start();
+    service.onTransition(state => {
+      synchronizeRouteAndMachine(state);
+      importLodMachineState.value = state;
+    });
+
+    return service;
   };
 
-  const savedStateObject = Lockr.get(SAVED_STATE_KEY, null);
-  const savedState = savedStateObject ? State.create(savedStateObject) : null;
-  if (savedState) {
-    synchronizeRouteAndMachine(savedState);
-  }
+  const importLodMachineService = setupImportLodMachineService();
 
-  importLodMachineService = interpret(getImportLodUsersMachine());
-  importLodMachineService.start(savedState);
-  importLodMachineService.onTransition(state => {
-    importLodMachineState.value = state;
-    synchronizeRouteAndMachine(state);
-    Lockr.set(SAVED_STATE_KEY, state);
-  });
-};
+  const importMachineContext = computed(() => importLodMachineState.value?.context || {});
 
-export default function useLodDeviceUsers() {
-  const route = useRoute();
-  const router = useRouter();
-  const { createSnackbar } = useSnackbar();
-
-  if (!importLodMachineService) {
-    setupImportLodMachineService({ route, router });
-  }
-
-  const usersBeingImported = computed(() => {
-    const { context: { usersBeingImported = [] } = {} } = importLodMachineState.value || {};
-    return usersBeingImported;
-  });
+  const usersBeingImported = computed(() => importMachineContext.value.usersBeingImported || []);
+  const importDeviceId = computed(() => importMachineContext.value.importDeviceId || null);
+  const selectedFacility = computed(() => importMachineContext.value.selectedFacility || null);
+  const remoteAdmin = computed(() => importMachineContext.value.remoteAdmin || null);
+  const remoteUsers = computed(() => importMachineContext.value.remoteUsers || []);
 
   async function fetchUsers({ force } = {}) {
     loading.value = true;
@@ -114,7 +115,7 @@ export default function useLodDeviceUsers() {
       users.value.filter(user => user.kind === UserKinds.SUPERUSER).length === 1
     ) {
       showCannotRemoveUser.value = true;
-      throw new Error('Cannot remove the last super admin');
+      return false;
     }
 
     try {
@@ -160,15 +161,69 @@ export default function useLodDeviceUsers() {
     });
   });
 
+  onBeforeMount(() => {
+    if (route.name !== PageNames.USERS_PAGE) {
+      router.replace({
+        name: PageNames.USERS_PAGE,
+      });
+    }
+    fetchUsers({ force: true });
+  });
+
+  onUnmounted(() => {
+    importLodMachineService?.stop();
+  });
+
+  provide('users', users);
+  provide('loading', loading);
+  provide('remoteAdmin', remoteAdmin);
+  provide('remoteUsers', remoteUsers);
+  provide('importDeviceId', importDeviceId);
+  provide('selectedFacility', selectedFacility);
+  provide('usersBeingImported', usersBeingImported);
+  provide('showCannotRemoveUser', showCannotRemoveUser);
+  provide('importLodMachineService', importLodMachineService);
+  provide('fetchUsers', fetchUsers);
+  provide('removeUser', removeUser);
+  provide('resetShowCannotRemoveUser', resetShowCannotRemoveUser);
+}
+
+/**
+ * Injects the state and methods from the LOD device users composable.
+ *
+ * @typedef {Object} InjectLodDeviceUsersObject
+ * @property {Array} users The list of users fetched from the LOD device.
+ * @property {boolean} loading The loading state of the users.
+ * @property {Object} remoteAdmin The remote admin user information
+ *  that is set in the "import as admin" xstate machine flow.
+ * @property {Array} remoteUsers The list of remote users fetched from the remote device.
+ * @property {string|null} importDeviceId The ID of the device from which users are being imported.
+ * @property {Object} selectedFacility The facility selected to import users from.
+ * @property {Array} usersBeingImported The list of users currently being imported.
+ * @property {boolean} showCannotRemoveUser Flag to indicate if the "cannot remove user"
+ *  message should be shown.
+ * @property {import('xstate').Interpreter} importLodMachineService The XState service managing the
+ *  import process.
+ * @property {Function} fetchUsers Function to fetch the users from the LOD device.
+ * @property {Function} removeUser Function to remove a user from the LOD device.
+ * @property {Function} resetShowCannotRemoveUser Function to reset the
+ *  "cannot remove user" message.
+ *
+ * @returns {InjectLodDeviceUsersObject} An object containing the state and methods.
+ */
+export function injectLodDeviceUsers() {
   return {
-    users,
-    loading,
-    usersBeingImported,
-    showCannotRemoveUser,
-    importLodMachineState,
-    importLodMachineService,
-    fetchUsers,
-    removeUser,
-    resetShowCannotRemoveUser,
+    users: inject('users'),
+    loading: inject('loading'),
+    remoteAdmin: inject('remoteAdmin'),
+    remoteUsers: inject('remoteUsers'),
+    importDeviceId: inject('importDeviceId'),
+    selectedFacility: inject('selectedFacility'),
+    usersBeingImported: inject('usersBeingImported'),
+    showCannotRemoveUser: inject('showCannotRemoveUser'),
+    importLodMachineService: inject('importLodMachineService'),
+    fetchUsers: inject('fetchUsers'),
+    removeUser: inject('removeUser'),
+    resetShowCannotRemoveUser: inject('resetShowCannotRemoveUser'),
   };
 }
