@@ -163,6 +163,7 @@
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { showUserPage } from '../../modules/userManagement/handlers';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -345,9 +346,21 @@
       },
     },
     watch: {
-      '$route.query': {
-        handler() {
-          this.showPageFromRoute();
+      $route: {
+        /**
+         * When the route changes, this watcher will call showUserPage
+         * to fetch and update the user table. On initial page load,
+         * showUserPage is already called from the router handler,
+         * so we skip calling it again if oldVal is undefined.
+         */
+        handler(newVal, oldVal) {
+          // When previous route is undefined, page is loading for the first time,
+          // and in that case 'showUserPage' was called from routes.js handlers
+          if (oldVal === undefined) {
+            return;
+          } else {
+            showUserPage(this.$store, newVal, oldVal);
+          }
         },
         immediate: true,
         deep: true,
@@ -376,15 +389,6 @@
         this.$router.push({
           path: this.$route.path,
           query: pickBy(query),
-        });
-      },
-      showPageFromRoute() {
-        const { page = 1, page_size = 30, ordering, order } = this.$route.query;
-        this.$store.dispatch('userManagement/showUserPage', {
-          page,
-          page_size,
-          ordering,
-          order,
         });
       },
       emptyMessageForItems(items, filterText) {
