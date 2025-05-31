@@ -718,6 +718,15 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             return user
 
 
+class SoftDeletedFacilityUserModelManager(SyncableModelManager, UserManager):
+    """
+    Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=False)
+
+
 def validate_birth_year(value):
     error = ""
 
@@ -789,6 +798,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
     permissions = own | admin | role
 
     objects = FacilityUserModelManager()
+
+    soft_deleted_objects = SoftDeletedFacilityUserModelManager()
 
     USERNAME_FIELD = "username"
 
