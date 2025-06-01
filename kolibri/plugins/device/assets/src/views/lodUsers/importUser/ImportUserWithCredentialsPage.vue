@@ -110,6 +110,7 @@
   import { currentLanguage } from 'kolibri/utils/i18n';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
@@ -244,7 +245,7 @@
           return;
         }
         this.formSubmitted = true;
-        const task_name = 'kolibri.core.auth.tasks.peeruserimport';
+        const task_name = TaskTypes.IMPORTLODUSER;
         const password = this.password || DemographicConstants.NOT_SPECIFIED;
         const params = {
           type: task_name,

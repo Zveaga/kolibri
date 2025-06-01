@@ -1,5 +1,6 @@
 import store from 'kolibri/store';
 import { interpret } from 'xstate';
+import findLast from 'lodash/findLast';
 import { useRoute, useRouter } from 'vue-router/composables';
 import { ref, watch, computed, provide, inject, onBeforeMount, onUnmounted } from 'vue';
 
@@ -7,7 +8,7 @@ import { UserKinds } from 'kolibri/constants';
 import UserType from 'kolibri-common/utils/userType';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import TaskResource from 'kolibri/apiResources/TaskResource';
-import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { getImportLodUsersMachine } from 'kolibri-common/machines/importLodUsersMachine';
@@ -132,33 +133,69 @@ export default function useLodDeviceUsers() {
     showCannotRemoveUser.value = false;
   }
 
-  watch(tasks, () => {
-    if (!usersBeingImported.value?.length || !tasks.value?.length) {
+  /**
+   * Filter running importLODUser tasks whose users are not already in the usersBeingImported
+   * and add them to the usersBeingImported list.
+   */
+  function _addMissingUsersToImportList() {
+    tasks.value
+      .filter(
+        task =>
+          task.type === TaskTypes.IMPORTLODUSER &&
+          task.status === TaskStatuses.RUNNING &&
+          !usersBeingImported.value.some(user => user.id === task.extra_metadata?.user_id),
+      )
+      .forEach(task => {
+        importLodMachineService.send({
+          type: 'ADD_USER_BEING_IMPORTED',
+          value: {
+            id: task.extra_metadata.user_id,
+            username: task.extra_metadata.username || '',
+            full_name: task.extra_metadata.user_full_name || '',
+          },
+        });
+      });
+  }
+
+  watch(tasks, async () => {
+    if (!tasks.value?.length) {
       return;
     }
 
-    usersBeingImported.value.forEach(user => {
-      const task = tasks.value.find(task => task.extra_metadata.user_id === user.id);
-      if (!task) {
-        return;
-      }
+    _addMissingUsersToImportList();
 
-      if (task.status === TaskStatuses.FAILED) {
-        createSnackbar(deviceString('importUserError'));
-      }
-      if (task.status === TaskStatuses.COMPLETED) {
-        createSnackbar(deviceString('importUserSuccess'));
+    let needsRefetchUsers = false;
+
+    for (const user of usersBeingImported.value) {
+      // Find the last task in case there are stalled tasks for the same user
+      const task = findLast(
+        tasks.value,
+        task => task.type === TaskTypes.IMPORTLODUSER && task.extra_metadata?.user_id === user.id,
+      );
+
+      if (!task) {
+        continue;
       }
 
       if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
+        if (task.status === TaskStatuses.FAILED) {
+          createSnackbar(deviceString('importUserError'));
+        }
+        if (task.status === TaskStatuses.COMPLETED) {
+          createSnackbar(deviceString('importUserSuccess'));
+        }
         importLodMachineService.send({
           type: 'REMOVE_USER_BEING_IMPORTED',
           value: user.id,
         });
-        fetchUsers({ force: true });
+        needsRefetchUsers = true;
         TaskResource.clear(task.id);
       }
-    });
+    }
+
+    if (needsRefetchUsers) {
+      fetchUsers({ force: true });
+    }
   });
 
   onBeforeMount(() => {

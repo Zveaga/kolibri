@@ -83,7 +83,6 @@ export const getImportLodUsersDefinition = () => ({
           target: 'lodImportAsAdmin',
           actions: ['setRemoteUsers', 'setRemoteAdmin'],
         },
-        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -100,7 +99,6 @@ export const getImportLodUsersDefinition = () => ({
       on: {
         BACK: 'lodImportUserAuth',
         LOADING: 'lodLoading',
-        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -121,7 +119,6 @@ export const getImportLodUsersDefinition = () => ({
           target: 'lodProceedJoinOrNew',
           actions: ['setLodType', 'setSelectedImportDeviceFacility'],
         },
-        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -136,6 +133,7 @@ export const getImportLodUsersDefinition = () => ({
     ADD_IMPORTED_USER: { actions: 'addImportedUser' },
     SET_FIRST_LOD: { actions: 'setFirstLodUser' },
     REMOVE_USER_BEING_IMPORTED: { actions: 'removeUserBeingImported' },
+    ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
     FINISH: 'finish',
   },
   actions: {

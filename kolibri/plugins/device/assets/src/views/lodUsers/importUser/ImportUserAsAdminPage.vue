@@ -34,6 +34,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+
   import commonDeviceStrings from '../../commonDeviceStrings';
   import UsersList from '../UsersList.vue';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
@@ -84,7 +86,7 @@
     },
     methods: {
       async startImport(learner) {
-        const task_name = 'kolibri.core.auth.tasks.peeruserimport';
+        const task_name = TaskTypes.IMPORTLODUSER;
         const params = {
           type: task_name,
           ...this.remoteAdmin,
