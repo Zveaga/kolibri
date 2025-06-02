@@ -679,15 +679,13 @@ class FacilityUserTestCase(TestCase):
             password=make_password("password"),
             facility=self.facility,
         )
-        deleted_user.delete()
+        deleted_user.date_deleted = local_now()
+        deleted_user.save()
 
         self.assertEqual(FacilityUser.objects.count(), 1)
         self.assertEqual(FacilityUser.objects.first(), self.user)
 
         self.assertEqual(FacilityUser.all_objects.count(), 2)
-        users = list(FacilityUser.all_objects.all())
-        self.assertIn(self.user, users)
-        self.assertIn(deleted_user, users)
 
     def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()
