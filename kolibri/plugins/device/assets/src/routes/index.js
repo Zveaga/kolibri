@@ -234,10 +234,10 @@ const routes = [
     ],
   },
   ...wizardTransitionRoutes,
-  // {
-  //   path: '/content/*',
-  //   redirect: '/content',
-  // },
+  {
+    path: '/content/*',
+    redirect: '/content',
+  },
 ];
 
 export default routes;

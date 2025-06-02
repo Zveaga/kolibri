@@ -13,8 +13,14 @@ from django.utils import timezone
 from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
+from morango.models import Certificate
+from morango.models import DatabaseMaxCounter
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
+from morango.models import Store
 from morango.models import SyncSession
 from morango.models import TransferSession
+from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -29,6 +35,7 @@ from .helpers import provision_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
@@ -2562,3 +2569,98 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
 
         # Check that the response has a 400 Bad Request status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DeleteImportedUserTestCase(APITestCase):
+    databases = ["default", "notifications"]
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+
+        cls.admin = FacilityUserFactory.create(facility=cls.facility, username="admin")
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+
+        cls.user = FacilityUserFactory.create(facility=cls.facility, username="user")
+        cls.user.set_password(DUMMY_PASSWORD)
+        cls.user.save()
+
+        cls.user_patitions = [
+            f"{cls.user.dataset_id}:user-ro:{cls.user.id}",
+            f"{cls.user.dataset_id}:user-rw:{cls.user.id}",
+        ]
+        # Simulate morango records as if the user was imported from other instance
+        MorangoProfileController(PROFILE_FACILITY_DATA).serialize_into_store(
+            cls.user_patitions
+        )
+
+    def login_admin(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def login_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_non_admin_cannot_remove_user(self):
+        self.login_user()
+
+        response = self.client.delete(
+            reverse(
+                "kolibri:core:deleteimporteduser", kwargs={"user_id": self.user.id}
+            ),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_user_id(self):
+        self.login_admin()
+
+        response = self.client.delete(
+            reverse("kolibri:core:deleteimporteduser", kwargs={"user_id": "a" * 32}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_delete(self):
+        self.login_admin()
+
+        response = self.client.delete(
+            reverse(
+                "kolibri:core:deleteimporteduser", kwargs={"user_id": self.user.id}
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
+
+        # Check if morango records were deleted
+        self.assertFalse(
+            Certificate.objects.filter(
+                scope_params__contains=self.user_patitions
+            ).exists()
+        )
+        self.assertFalse(
+            Store.objects.filter(partition__in=self.user_patitions).exists()
+        )
+        self.assertFalse(
+            DatabaseMaxCounter.objects.filter(
+                partition__in=self.user_patitions
+            ).exists()
+        )
+
+        # Check that there isn't any record in morango DeletedModels nor HardDeletedModels
+        # as we should not propagate deletion of these models to remote devices
+        self.assertFalse(DeletedModels.objects.exists())
+        self.assertFalse(HardDeletedModels.objects.exists())

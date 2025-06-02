@@ -134,8 +134,6 @@
         return base + '/permissions';
       };
 
-      fetchUsers();
-
       const { usersLabel$, closeAction$, removeAction$, cancelAction$ } = coreStrings;
       const { importUserLabel$ } = deviceStrings;
 
