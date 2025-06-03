@@ -667,11 +667,6 @@ class FacilityUserTestCase(TestCase):
 
     def setUp(self):
         self.facility = Facility.objects.create(name="My Facility")
-        self.user = FacilityUser.objects.create(
-            username="user",
-            password=make_password("password"),
-            facility=self.facility,
-        )
 
     def test_all_objects_manager_returns_all_users(self):
         deleted_user = FacilityUser.objects.create(
@@ -679,11 +674,16 @@ class FacilityUserTestCase(TestCase):
             password=make_password("password"),
             facility=self.facility,
         )
+        user = FacilityUser.objects.create(
+            username="user",
+            password=make_password("password"),
+            facility=self.facility,
+        )
         deleted_user.date_deleted = local_now()
         deleted_user.save()
 
         self.assertEqual(FacilityUser.objects.count(), 1)
-        self.assertEqual(FacilityUser.objects.first(), self.user)
+        self.assertEqual(FacilityUser.objects.first(), user)
 
         self.assertEqual(FacilityUser.all_objects.count(), 2)
 
