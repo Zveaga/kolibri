@@ -617,6 +617,7 @@
   }
 
   /deep/ .k-toolbar-nav-icon {
+    min-width: 0; // avoids early resource title truncation on Safari and Mac
     margin-left: 0; // prevents icon cutoff
   }
 
