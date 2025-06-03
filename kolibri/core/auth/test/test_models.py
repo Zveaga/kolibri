@@ -663,8 +663,6 @@ class FacilityTestCase(TestCase):
 
 
 class FacilityUserTestCase(TestCase):
-    databases = {"default", "notifications"}
-
     def setUp(self):
         self.facility = Facility.objects.create(name="My Facility")
 
