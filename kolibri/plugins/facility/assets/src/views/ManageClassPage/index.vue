@@ -1,7 +1,7 @@
 <template>
 
   <FacilityAppBarPage>
-    <KPageContainer>
+    <KPageContainer v-if="false">
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -93,6 +93,14 @@
         @success="handleCreateSuccess()"
       />
     </KPageContainer>
+    <KPageContainer style="max-width: 500px">
+      <h2 id="class-title">Some good title</h2>
+      <SelectableList
+        v-model="selectedOptions"
+        :options="options"
+        aria-labelledby="class-title"
+      />
+    </KPageContainer>
   </FacilityAppBarPage>
 
 </template>
@@ -100,6 +108,7 @@
 
 <script>
 
+  import { ref } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -108,6 +117,7 @@
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
+  import SelectableList from './SelectableList.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -120,12 +130,23 @@
       FacilityAppBarPage,
       ClassCreateModal,
       ClassDeleteModal,
+      SelectableList,
     },
     mixins: [commonCoreStrings],
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+
+      const selectedOptions = ref([]);
+      const options = ref([
+        { label: 'Option 1', id: 'option1' },
+        { label: 'Option 2', id: 'option2' },
+        { label: 'Option 3', id: 'option3' },
+      ]);
+
       return {
+        options,
+        selectedOptions,
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
