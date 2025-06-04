@@ -444,9 +444,18 @@ export default function useQuizCreation() {
   const activeExercisesUnusedQuestionsMap = computed(() => {
     const map = {};
     for (const exercise of Object.values(get(activeResourceMap))) {
+      if (
+        !exercise ||
+        !exercise.assessmentmetadata ||
+        !Array.isArray(exercise.assessmentmetadata.assessment_item_ids)
+      ) {
+        continue;
+      }
+
       const unusedQuestions = exercise.assessmentmetadata.assessment_item_ids
         .map(aid => `${exercise.id}:${aid}`)
         .filter(qid => !get(allQuestionsInQuiz).find(q => q.item === qid));
+
       map[exercise.id] = unusedQuestions;
     }
     return map;

@@ -581,10 +581,7 @@
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
       isQuestionAutoReplaceable(question) {
-        if (this.selectedActiveQuestions.length > 0) {
-          return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
-        }
-        return false;
+        return this.activeExercisesUnusedQuestionsMap[question.exercise_id]?.length > 0;
       },
     },
   };
