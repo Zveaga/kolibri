@@ -25,14 +25,14 @@ registerNavItem({
       {
         label: coreStrings.$tr('facilitiesLabel'),
         route: baseRoutes.facilities.path,
-        icon: 'permissions',
+        icon: 'facility',
         name: baseRoutes.facilities.name,
         condition: get(isSuperuser) && !get(isLearnerOnlyImport),
       },
       {
         label: deviceString('permissionsLabel'),
         route: baseRoutes.permissions.path,
-        icon: 'facility',
+        icon: 'permissions',
         name: baseRoutes.permissions.name,
         condition: get(isSuperuser),
       },
