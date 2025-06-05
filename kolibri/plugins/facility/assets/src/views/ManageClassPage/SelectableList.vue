@@ -35,6 +35,7 @@
       />
     </div>
     <ul
+      v-show="filteredOptions.length"
       :id="listboxId"
       class="list-options"
       tabindex="0"
@@ -69,6 +70,13 @@
         />
       </li>
     </ul>
+    <p
+      v-if="!filteredOptions.length"
+      role="status"
+      class="list-no-options"
+    >
+      {{ noResultsLabel$() }}
+    </p>
   </div>
 
 </template>
@@ -78,12 +86,13 @@
 
   import Fuse from 'fuse.js';
   import uniq from 'lodash/uniq';
-  import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import { ref, computed, toRefs, getCurrentInstance, watch } from 'vue';
   import { validateObject } from 'kolibri/utils/objectSpecs';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { ref, computed, toRefs, getCurrentInstance, watch } from 'vue';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 
   export default {
     name: 'SelectableList',
@@ -255,16 +264,18 @@
 
       const rowStyles = computed(() => ({
         ':hover': {
-          backgroundColor: themePalette().grey.v_100,
+          backgroundColor: filteredOptions.value.length ? themePalette().grey.v_100 : 'transparent',
         },
         ':not(:last-child)': {
           borderBottom: `1px solid ${themeTokens().fineLine}`,
         },
         padding: '0 10px',
-        cursor: 'pointer',
+        cursor: filteredOptions.value.length ? 'pointer' : 'default',
         display: 'flex',
         alignItems: 'center',
       }));
+
+      const { noResultsLabel$ } = coreStrings;
 
       return {
         rowStyles,
@@ -282,6 +293,7 @@
         isOptionSelected,
         getElementOptionId,
         handleKeydown,
+        noResultsLabel$,
       };
     },
     props: {
@@ -336,6 +348,12 @@
     padding: 0;
     margin: 0;
     list-style: none;
+  }
+
+  .list-no-options {
+    padding: 12px;
+    margin: 0;
+    text-align: center;
   }
 
 </style>
