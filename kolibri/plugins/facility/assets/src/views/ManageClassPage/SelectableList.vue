@@ -23,7 +23,7 @@
     <div
       class="select-all-checkbox-container"
       :class="$computedClass(rowStyles)"
-      @click.stop="changeSelectAll(!selectAllChecked)"
+      @click.self="changeSelectAll(!selectAllChecked)"
     >
       <KCheckbox
         :label="selectAllLabel"
@@ -63,7 +63,7 @@
         @click="toggleOption(option)"
       >
         <KCheckbox
-          unfocusable
+          presentational
           :checked="isOptionSelected(option)"
           :label="option.label"
         />
@@ -147,6 +147,10 @@
           selectedOptions.value = value.value.filter(id => id !== option.id);
         } else {
           selectedOptions.value = [...value.value, option.id];
+        }
+
+        if (focusedOption.value?.id !== option.id) {
+          focusedIndex.value = filteredOptions.value.findIndex(opt => opt.id === option.id);
         }
       }
 
