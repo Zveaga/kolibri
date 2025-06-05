@@ -100,6 +100,7 @@
         :options="options"
         selectAllLabel="Select all options"
         aria-labelledby="class-title"
+        searchLabel="Search for an option"
       />
     </KPageContainer>
   </FacilityAppBarPage>
@@ -143,6 +144,18 @@
         { label: 'Option 1', id: 'option1' },
         { label: 'Option 2', id: 'option2' },
         { label: 'Option 3', id: 'option3' },
+        { label: 'Option 4', id: 'option4' },
+        { label: 'Option 5', id: 'option5' },
+        { label: 'Option 6', id: 'option6' },
+        { label: 'Option 7', id: 'option7' },
+        { label: 'Option 8', id: 'option8' },
+        { label: 'Option 9', id: 'option9' },
+        { label: 'Option 10', id: 'option10' },
+        { label: 'Option 11', id: 'option11' },
+        { label: 'Option 12', id: 'option12' },
+        { label: 'Option 13', id: 'option13' },
+        { label: 'Option 14', id: 'option14' },
+        { label: 'Option 15', id: 'option15' },
       ]);
 
       return {

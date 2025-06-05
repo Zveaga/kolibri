@@ -7,16 +7,31 @@
     }"
   >
     <div
+      class="searchbox-container"
+      :style="{
+        borderBottom: `1px solid ${$themeTokens.fineLine}`,
+      }"
+    >
+      <FilterTextbox
+        v-model.trim="filterText"
+        :throttleInput="300"
+        :showBorder="false"
+        :placeholder="searchLabel"
+        :ariaControls="listboxId"
+      />
+    </div>
+    <div
       class="select-all-checkbox-container"
       :class="$computedClass(rowStyles)"
+      @click.stop="changeSelectAll(!selectAllChecked)"
     >
       <KCheckbox
         :label="selectAllLabel"
         :checked="selectAllChecked"
         :indeterminate="selectAllIndeterminate"
-        :disabled="!options.length"
+        :disabled="!filteredOptions.length"
         :aria-controls="listboxId"
-        @change="toggleSelectAll"
+        @change="changeSelectAll"
       />
     </div>
     <ul
@@ -34,17 +49,17 @@
       @keydown="handleKeydown"
     >
       <li
-        v-for="option in options"
+        v-for="option in filteredOptions"
         :id="getElementOptionId(option)"
         :key="option.id"
         role="option"
         :class="
           $computedClass({
             ...rowStyles,
-            ...(isOptionFocused(option) ? $coreOutline : {}),
+            ...(isOptionFocused(option) ? { ...$coreOutline, outlineOffset: '-2px' } : {}),
           })
         "
-        :aria-selected="isOptionSelected(option)"
+        :aria-selected="isOptionSelected(option).toString()"
         @click="toggleOption(option)"
       >
         <KCheckbox
@@ -61,23 +76,24 @@
 
 <script>
 
+  import Fuse from 'fuse.js';
   import uniq from 'lodash/uniq';
-  import { ref, computed, toRefs, getCurrentInstance } from 'vue';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import { ref, computed, toRefs, getCurrentInstance, watch } from 'vue';
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 
   export default {
     name: 'SelectableList',
+    components: {
+      FilterTextbox,
+    },
     setup(props, { emit }) {
       const { value, options } = toRefs(props);
+      const filterText = ref('');
       const focusedIndex = ref(null);
-
-      const focusedOption = computed(() => {
-        if (focusedIndex.value === null || !options.value.length) {
-          return null;
-        }
-        return options.value[focusedIndex.value];
-      });
 
       const instance = getCurrentInstance();
       const uid = instance.proxy._uid;
@@ -91,6 +107,27 @@
         set(newValue) {
           emit('input', newValue);
         },
+      });
+
+      const fuse = computed(() => {
+        return new Fuse(options.value, {
+          threshold: 0.1,
+          keys: ['label'],
+        });
+      });
+
+      const filteredOptions = computed(() => {
+        if (!filterText.value) {
+          return options.value;
+        }
+        return fuse.value.search(filterText.value).map(result => result.item);
+      });
+
+      const focusedOption = computed(() => {
+        if (focusedIndex.value === null || !filteredOptions.value.length) {
+          return null;
+        }
+        return filteredOptions.value[focusedIndex.value];
       });
 
       function isOptionSelected(option) {
@@ -122,28 +159,33 @@
       }
 
       const selectAllChecked = computed(() => {
-        return options.value.length > 0 && options.value.every(option => isOptionSelected(option));
+        return (
+          filteredOptions.value.length > 0 &&
+          filteredOptions.value.every(option => isOptionSelected(option))
+        );
       });
 
       const selectAllIndeterminate = computed(() => {
-        return !selectAllChecked.value && options.value.some(option => isOptionSelected(option));
+        return (
+          !selectAllChecked.value && filteredOptions.value.some(option => isOptionSelected(option))
+        );
       });
 
-      function toggleSelectAll(checked) {
+      function changeSelectAll(checked) {
         if (checked) {
           selectedOptions.value = uniq([
             ...selectedOptions.value,
-            ...options.value.map(option => option.id),
+            ...filteredOptions.value.map(option => option.id),
           ]);
         } else {
           selectedOptions.value = selectedOptions.value.filter(
-            id => !options.value.some(option => option.id === id),
+            id => !filteredOptions.value.some(option => option.id === id),
           );
         }
       }
 
       function onListFocus() {
-        if (!options.value.length) {
+        if (!filteredOptions.value.length) {
           return;
         }
         focusedIndex.value = 0;
@@ -158,11 +200,11 @@
         // adding options.length and using modulo to wrap around
         // enables circular navigation
         focusedIndex.value =
-          (focusedIndex.value + diff + options.value.length) % options.value.length;
+          (focusedIndex.value + diff + filteredOptions.value.length) % filteredOptions.value.length;
       }
 
       function handleKeydown(event) {
-        if (!options.value.length) {
+        if (!filteredOptions.value.length) {
           return;
         }
 
@@ -177,7 +219,7 @@
             focusedIndex.value = 0;
             break;
           case 'End':
-            focusedIndex.value = options.value.length - 1;
+            focusedIndex.value = filteredOptions.value.length - 1;
             break;
           case ' ':
             toggleOption(focusedOption.value);
@@ -189,7 +231,7 @@
               return;
             }
             if (!selectAllChecked.value) {
-              toggleSelectAll(true);
+              changeSelectAll(true);
             }
             break;
           default:
@@ -199,6 +241,13 @@
 
         event.preventDefault();
       }
+
+      const { sendPoliteMessage } = useKLiveRegion();
+      const { resultsCount$ } = searchAndFilterStrings;
+
+      watch(filteredOptions, newOptions => {
+        sendPoliteMessage(resultsCount$({ count: newOptions.length }));
+      });
 
       const rowStyles = computed(() => ({
         ':hover': {
@@ -217,12 +266,14 @@
         rowStyles,
         listboxId,
         onListBlur,
+        filterText,
         onListFocus,
         toggleOption,
         focusedOption,
+        filteredOptions,
         selectAllChecked,
         selectAllIndeterminate,
-        toggleSelectAll,
+        changeSelectAll,
         isOptionFocused,
         isOptionSelected,
         getElementOptionId,
@@ -257,6 +308,10 @@
         required: true,
       },
       selectAllLabel: {
+        type: String,
+        required: true,
+      },
+      searchLabel: {
         type: String,
         required: true,
       },
