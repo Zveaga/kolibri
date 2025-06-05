@@ -18,6 +18,9 @@
         :showBorder="false"
         :placeholder="searchLabel"
         :ariaControls="listboxId"
+        :style="{
+          width: '100%',
+        }"
       />
     </div>
     <div

@@ -1,7 +1,7 @@
 <template>
 
   <FacilityAppBarPage>
-    <KPageContainer v-if="false">
+    <KPageContainer>
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -93,16 +93,23 @@
         @success="handleCreateSuccess()"
       />
     </KPageContainer>
-    <KPageContainer style="max-width: 500px">
-      <h2 id="class-title">Some good title</h2>
+    <SidePanelModal
+      alignment="right"
+      sidePanelWidth="700px"
+    >
+      <template #header>
+        <h1>Class</h1>
+      </template>
+      <h2 id="class-title">Select an option</h2>
+
       <SelectableList
         v-model="selectedOptions"
         :options="options"
         selectAllLabel="Select all options"
         aria-labelledby="class-title"
-        searchLabel="Search for an option"
+        searchLabel="Search for an option..."
       />
-    </KPageContainer>
+    </SidePanelModal>
   </FacilityAppBarPage>
 
 </template>
@@ -114,6 +121,7 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
@@ -133,6 +141,7 @@
       ClassCreateModal,
       ClassDeleteModal,
       SelectableList,
+      SidePanelModal,
     },
     mixins: [commonCoreStrings],
     setup() {
