@@ -6,7 +6,21 @@
       borderColor: $themeTokens.fineLine,
     }"
   >
+    <div
+      class="select-all-checkbox-container"
+      :class="$computedClass(rowStyles)"
+    >
+      <KCheckbox
+        :label="selectAllLabel"
+        :checked="selectAllChecked"
+        :indeterminate="selectAllIndeterminate"
+        :disabled="!options.length"
+        :aria-controls="listboxId"
+        @change="toggleSelectAll"
+      />
+    </div>
     <ul
+      :id="listboxId"
       class="list-options"
       tabindex="0"
       role="listbox"
@@ -24,15 +38,9 @@
         :id="getElementOptionId(option)"
         :key="option.id"
         role="option"
-        class="list-option"
         :class="
           $computedClass({
-            ':hover': {
-              backgroundColor: $themePalette.grey.v_100,
-            },
-            ':not(:last-child)': {
-              borderBottom: '1px solid ' + $themeTokens.fineLine,
-            },
+            ...rowStyles,
             ...(isOptionFocused(option) ? $coreOutline : {}),
           })
         "
@@ -53,8 +61,10 @@
 
 <script>
 
+  import uniq from 'lodash/uniq';
   import { ref, computed, toRefs, getCurrentInstance } from 'vue';
   import { validateObject } from 'kolibri/utils/objectSpecs';
+  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
   export default {
     name: 'SelectableList',
@@ -71,6 +81,8 @@
 
       const instance = getCurrentInstance();
       const uid = instance.proxy._uid;
+
+      const listboxId = computed(() => `selectable-listbox-${uid}`);
 
       const selectedOptions = computed({
         get() {
@@ -107,6 +119,27 @@
         }
 
         return `sl-option-${uid}-${option.id}`;
+      }
+
+      const selectAllChecked = computed(() => {
+        return options.value.length > 0 && options.value.every(option => isOptionSelected(option));
+      });
+
+      const selectAllIndeterminate = computed(() => {
+        return !selectAllChecked.value && options.value.some(option => isOptionSelected(option));
+      });
+
+      function toggleSelectAll(checked) {
+        if (checked) {
+          selectedOptions.value = uniq([
+            ...selectedOptions.value,
+            ...options.value.map(option => option.id),
+          ]);
+        } else {
+          selectedOptions.value = selectedOptions.value.filter(
+            id => !options.value.some(option => option.id === id),
+          );
+        }
       }
 
       function onListFocus() {
@@ -149,6 +182,16 @@
           case ' ':
             toggleOption(focusedOption.value);
             break;
+          // Cntrl + A for select all
+          case 'a':
+          case 'A':
+            if (!event.ctrlKey && !event.metaKey) {
+              return;
+            }
+            if (!selectAllChecked.value) {
+              toggleSelectAll(true);
+            }
+            break;
           default:
             // Early return for unsupported keys so that we don't prevent default behavior
             return;
@@ -157,11 +200,29 @@
         event.preventDefault();
       }
 
+      const rowStyles = computed(() => ({
+        ':hover': {
+          backgroundColor: themePalette().grey.v_100,
+        },
+        ':not(:last-child)': {
+          borderBottom: `1px solid ${themeTokens().fineLine}`,
+        },
+        padding: '0 10px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+      }));
+
       return {
+        rowStyles,
+        listboxId,
         onListBlur,
         onListFocus,
         toggleOption,
         focusedOption,
+        selectAllChecked,
+        selectAllIndeterminate,
+        toggleSelectAll,
         isOptionFocused,
         isOptionSelected,
         getElementOptionId,
@@ -195,6 +256,10 @@
         type: String,
         required: true,
       },
+      selectAllLabel: {
+        type: String,
+        required: true,
+      },
     },
   };
 
@@ -212,13 +277,6 @@
     padding: 0;
     margin: 0;
     list-style: none;
-  }
-
-  .list-option {
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    cursor: pointer;
   }
 
 </style>

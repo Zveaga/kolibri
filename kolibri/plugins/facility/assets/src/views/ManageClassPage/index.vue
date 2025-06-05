@@ -98,6 +98,7 @@
       <SelectableList
         v-model="selectedOptions"
         :options="options"
+        selectAllLabel="Select all options"
         aria-labelledby="class-title"
       />
     </KPageContainer>
