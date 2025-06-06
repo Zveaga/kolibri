@@ -44,10 +44,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "Assign coach",
     context: "Label for bulk-action button that will allow user to assign selected coaches to classes"
   },
-  downloadSelection: {
-    message: "Download selection",
-    context: "Label for bulk-action button that will allow user to download a CSV of their selected users",
-  },
   deleteSelection: {
     message: "Delete selection",
     context: "Label for bulk-action button that will allow user to delete selected users",
@@ -147,14 +143,4 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "Move to trash has been undone",
     context: "Notification confirming that the trash action was reversed"
   },
-
-  // Export to CSV
-  youSelectedNumUsers: {
-    message: "You've selected {num, number} users",
-    context: "Informational message showing how many users were selected for CSV export"
-  },
-  warnCategoryDataMissing: {
-    message: "Some users lack some category data so some rows may be blank.",
-    context: "Warning to user that the CSV export may have empty cells due to missing data"
-  }
 });
