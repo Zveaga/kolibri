@@ -11,13 +11,13 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "Search for a user",
     context: "Placeholder text for user search input",
   },
-  nSelected: {
-    message: "{n, number} selected",
-    context: "A label showing `n` items are selected",
+  numUsersSelected: {
+    message: "{n, number} users selected",
+    context: "A label showing the number of users selected",
   },
-  nFilters: {
+  numFilters: {
     message: "{n, number} filters",
-    context: "A label showing `n` filters are selected",
+    context: "A label showing the number of filters active",
   },
 
 
