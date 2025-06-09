@@ -143,4 +143,22 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "Move to trash has been undone",
     context: "Notification confirming that the trash action was reversed"
   },
+
+  // Copy a class
+  copyClass: {
+    message: 'Copy class',
+    context: 'Page heading and label for confirmation button',
+  },
+  coachesAssignedToClass: {
+    message: 'Coaches assigned to this class',
+    context: 'Heading for table listing coaches',
+  },
+  numCoachesSelected: {
+    message: '{n, number} {n, plural, one {coach} other {coaches}} selected',
+    context: "Label showing the user how many coaches they've selected",
+  },
+  classCopiedSuccessfully: {
+    message: 'Class copied successfully',
+    context: 'Message shown when class copying succeeds',
+  },
 });
