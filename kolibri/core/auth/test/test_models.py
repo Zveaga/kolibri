@@ -662,6 +662,25 @@ class FacilityTestCase(TestCase):
 
 
 class FacilityUserTestCase(TestCase):
+    def test_all_objects_manager_returns_all_users(self):
+        self.facility = Facility.objects.create(name="My Facility")
+        FacilityUser.objects.create(
+            username="deleted_user",
+            password="password",
+            facility=self.facility,
+            date_deleted=local_now(),
+        )
+        user = FacilityUser.objects.create(
+            username="user",
+            password="password",
+            facility=self.facility,
+        )
+
+        self.assertEqual(FacilityUser.objects.count(), 1)
+        self.assertEqual(FacilityUser.objects.first(), user)
+
+        self.assertEqual(FacilityUser.all_objects.count(), 2)
+
     def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
@@ -706,7 +725,7 @@ class FacilityUserTestCase(TestCase):
             username="bob",
             password="password",
             facility=self.facility,
-            date_deleted=local_now(),  # Soft deleted user
+            date_deleted=local_now(),
         )
         user2 = FacilityUser.objects.create(
             username="alice", password="password", facility=self.facility
