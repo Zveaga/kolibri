@@ -12,7 +12,7 @@
         }"
       >
         <KGridItem
-        id="toggle-lesson-visibility-label"
+          id="toggle-lesson-visibility-label"
           class="status-label"
           :style="{ marginBottom: 0 }"
           :layout4="{ span: 3 }"
