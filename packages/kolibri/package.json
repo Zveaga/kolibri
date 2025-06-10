@@ -78,7 +78,7 @@
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
     "kolibri-constants": "0.2.10",
-    "kolibri-design-system": "git+https://github.com/AlexVelezLl/kolibri-design-system.git#f96ff7ff565440242d99cc18806b1fbe9bfb2634",
+    "kolibri-design-system": "git+https://github.com/LearningEquality/kolibri-design-system.git#95904bcf8bc6bb420805df2709654c727a164a1d",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "path-to-regexp": "1.9.0",

@@ -37,6 +37,12 @@
         @change="changeSelectAll"
       />
     </div>
+    <p
+      :id="ariaDescribedById"
+      class="visuallyhidden"
+    >
+      {{ clickableOptionsDescription$() }}
+    </p>
     <ul
       v-show="filteredOptions.length"
       :id="listboxId"
@@ -47,6 +53,7 @@
       aria-multiselectable="true"
       :style="{ outline: 'none' }"
       :aria-labelledby="ariaLabelledby"
+      :aria-describedby="ariaDescribedById"
       :aria-activedescendant="getElementOptionId(focusedOption)"
       @focus="onListFocus"
       @blur="onListBlur"
@@ -111,6 +118,7 @@
       const uid = instance.proxy._uid;
 
       const listboxId = computed(() => `selectable-listbox-${uid}`);
+      const ariaDescribedById = computed(() => `selectable-listbox-description-${uid}`);
 
       const selectedOptions = computed({
         get() {
@@ -142,6 +150,20 @@
         return filteredOptions.value[focusedIndex.value];
       });
 
+      function setFocusedIndex(index) {
+        focusedIndex.value = index;
+
+        if (instance.proxy.$inputModality === 'keyboard') {
+          const optionElement = document.getElementById(getElementOptionId(focusedOption.value));
+          if (optionElement) {
+            optionElement.scrollIntoView({
+              block: 'nearest',
+              inline: 'nearest',
+            });
+          }
+        }
+      }
+
       function isOptionSelected(option) {
         return selectedOptions.value.includes(option.id);
       }
@@ -155,14 +177,17 @@
           return;
         }
 
+        const { deselectedLabel$ } = coreStrings;
+
         if (isOptionSelected(option)) {
           selectedOptions.value = value.value.filter(id => id !== option.id);
+          sendPoliteMessage(deselectedLabel$());
         } else {
           selectedOptions.value = [...value.value, option.id];
         }
 
         if (focusedOption.value?.id !== option.id) {
-          focusedIndex.value = filteredOptions.value.findIndex(opt => opt.id === option.id);
+          setFocusedIndex(filteredOptions.value.findIndex(opt => opt.id === option.id));
         }
       }
 
@@ -188,15 +213,18 @@
       });
 
       function changeSelectAll(checked) {
+        const { allNOptionsSelectedLabel$, noOptionsSelectedLabel$ } = coreStrings;
         if (checked) {
           selectedOptions.value = uniq([
             ...selectedOptions.value,
             ...filteredOptions.value.map(option => option.id),
           ]);
+          sendPoliteMessage(allNOptionsSelectedLabel$({ count: filteredOptions.value.length }));
         } else {
           selectedOptions.value = selectedOptions.value.filter(
             id => !filteredOptions.value.some(option => option.id === id),
           );
+          sendPoliteMessage(noOptionsSelectedLabel$());
         }
       }
 
@@ -204,7 +232,7 @@
         if (!filteredOptions.value.length) {
           return;
         }
-        focusedIndex.value = 0;
+        setFocusedIndex(0);
       }
 
       function onListBlur() {
@@ -215,8 +243,9 @@
         const diff = key === 'ArrowDown' ? 1 : -1;
         // adding options.length and using modulo to wrap around
         // enables circular navigation
-        focusedIndex.value =
+        const newFocusedIndex =
           (focusedIndex.value + diff + filteredOptions.value.length) % filteredOptions.value.length;
+        setFocusedIndex(newFocusedIndex);
       }
 
       function handleKeydown(event) {
@@ -232,10 +261,10 @@
             handleFocusNavigation(key);
             break;
           case 'Home':
-            focusedIndex.value = 0;
+            setFocusedIndex(0);
             break;
           case 'End':
-            focusedIndex.value = filteredOptions.value.length - 1;
+            setFocusedIndex(filteredOptions.value.length - 1);
             break;
           case ' ':
             toggleOption(focusedOption.value);
@@ -278,7 +307,7 @@
         alignItems: 'center',
       }));
 
-      const { noResultsLabel$ } = coreStrings;
+      const { noResultsLabel$, clickableOptionsDescription$ } = coreStrings;
 
       return {
         rowStyles,
@@ -290,6 +319,7 @@
         focusedOption,
         filteredOptions,
         selectAllChecked,
+        ariaDescribedById,
         selectAllIndeterminate,
         changeSelectAll,
         isOptionFocused,
@@ -297,6 +327,7 @@
         getElementOptionId,
         handleKeydown,
         noResultsLabel$,
+        clickableOptionsDescription$,
       };
     },
     props: {

@@ -1574,6 +1574,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Move down',
     context: 'Label for the button that moves a resource down in the list. Not visible in the UI.',
   },
+  clickableOptionsDescription: {
+    message: 'Options are clickable',
+    context:
+      'Visually hidden description for screen readers to indicate that the options in a list are clickable.',
+  },
+  deselectedLabel: {
+    message: 'Deselected',
+    context: 'Label for the deselected state of a checkbox. Not visible in the UI.',
+  },
+  allNOptionsSelectedLabel: {
+    message: 'All {count, number} {count, plural, one {option} other {options}} selected',
+    context: 'Label for the selected state of a checkbox. Not visible in the UI.',
+  },
+  noOptionsSelectedLabel: {
+    message: 'No options selected',
+    context:
+      'Label for the state of a checkbox when no options are selected. Not visible in the UI.',
+  },
 });
 
 /**
