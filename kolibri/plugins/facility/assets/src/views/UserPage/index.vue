@@ -724,9 +724,4 @@
     margin-left: 1em;
   }
 
-  .bulk-actions-toolbar {
-    display: flex;
-    justify-content: end;
-  }
-
 </style>
