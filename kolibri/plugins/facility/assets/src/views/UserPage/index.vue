@@ -25,6 +25,23 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 6 }"
         >
+          <KButton
+            :text="coreString('optionsLabel')"
+            :hasDropdown="true"
+            :primary="false"
+            appearance="raised-button"
+            class="move-down options-button"
+            :to="$store.getters.facilityPageLinks.UserCreatePage"
+          >
+            <template #menu>
+              <KDropdownMenu
+                :primary="false"
+                :disabled="false"
+                :hasIcons="true"
+                :options="dropDownMenu"
+              />
+            </template>
+          </KButton>
           <KRouterLink
             :text="$tr('newUserButtonLabel')"
             :primary="true"
@@ -43,7 +60,52 @@
         :roleFilter="roleFilter"
         :numFilteredItems="usersCount"
       >
-        <template #otherFilter>
+        <KGrid>
+          <KGridItem
+            :layout="{ alignment: 'right' }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <div class="search-filter-section">
+              <FilterTextbox
+                v-model="search"
+                :placeholder="$tr('searchText')"
+                :aria-label="$tr('searchText')"
+                class="move-down search-box"
+              />
+              <KButton
+                appearance="basic-link"
+                text="filter"
+                class="filter-button move-down"
+              />
+            </div>
+          </KGridItem>
+          <KGridItem
+            :layout="{ alignment: 'right' }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+            class="move-down"
+          >
+            <span v-if="selectedUsers.size > 0">
+              <span class="selected-count">
+                {{ numUsersSelected$({ n: selectedUsers.size }) }}
+              </span>
+
+              <KButton
+                appearance="basic-link"
+                text="clear "
+                @click="clearSelectedUsers"
+              />
+            </span>
+            <KIconButton icon="assignCoaches" />
+            <KIconButton icon="add" />
+            <KIconButton icon="remove" />
+            <KIconButton icon="download" />
+            <KIconButton icon="trash" />
+          </KGridItem>
+        </KGrid>
+
+        <!-- <template #otherFilter>
           <KSelect
             v-model="roleFilter"
             :label="coreString('userTypeLabel')"
@@ -51,14 +113,7 @@
             :inline="true"
             class="type-filter"
           />
-        </template>
-
-        <template #filter>
-          <FilterTextbox
-            v-model="search"
-            :placeholder="$tr('searchText')"
-          />
-        </template>
+        </template> -->
 
         <KTable
           class="move-down user-roster"
@@ -72,17 +127,38 @@
           @changeSort="changeSortHandler"
         >
           <template #header="{ header, colIndex }">
-            <span :class="{ visuallyhidden: colIndex === 5 }">{{ header.label }}</span>
-            <span v-if="colIndex === 2">
-              <CoreInfoIcon
-                class="tooltip"
-                :iconAriaLabel="coreString('identifierAriaLabel')"
-                :tooltipText="coreString('identifierTooltip')"
-              />
-            </span>
+            <template v-if="colIndex === 0">
+              <KCheckbox
+                :checked="selectAllState.checked"
+                :indeterminate="selectAllState.indeterminate"
+                :showLabel="false"
+                :ariaLabel="selectAllUsers$()"
+                @change="handleSelectAllToggle"
+              >
+                <span class="visuallyhidden">{{ selectAllUsers$() }}</span>
+              </KCheckbox>
+            </template>
+            <template v-else>
+              <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
+              <span v-if="colIndex === 3">
+                <CoreInfoIcon
+                  class="tooltip"
+                  :iconAriaLabel="coreString('identifierAriaLabel')"
+                  :tooltipText="coreString('identifierTooltip')"
+                />
+              </span>
+            </template>
           </template>
+
           <template #cell="{ content, colIndex, row }">
             <span v-if="colIndex === 0">
+              <KCheckbox
+                :checked="isUserSelected(row[6])"
+                :showLabel="false"
+                @change="() => handleUserSelectionToggle(row[6])"
+              />
+            </span>
+            <span v-else-if="colIndex === 1">
               <KLabeledIcon
                 icon="person"
                 :label="content"
@@ -90,37 +166,56 @@
               />
               <UserTypeDisplay
                 aria-hidden="true"
-                :userType="row[5].kind"
+                :userType="row[6].kind"
                 :omitLearner="true"
                 class="role-badge"
                 data-test="userRoleBadge"
                 :class="$computedClass(userRoleBadgeStyle)"
               />
             </span>
-            <span v-else-if="colIndex === 2">
+            <span v-else-if="colIndex === 3">
               <KOptionalText :text="content ? content : ''" />
             </span>
-            <span v-else-if="colIndex === 3">
+            <span v-else-if="colIndex === 4">
               <GenderDisplayText :gender="content" />
             </span>
-            <span v-else-if="colIndex === 4">
+            <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
+            <span v-else-if="colIndex === 6"> </span>
             <span
-              v-else-if="colIndex === 5"
+              v-else-if="colIndex === 7"
               class="core-table-button-col"
             >
-              <KButton
-                appearance="flat-button"
-                hasDropdown
-                :text="$tr('optionsButtonLabel')"
-                :disabled="!userCanBeEdited(content)"
-              >
-                <KDropdownMenu
-                  :options="manageUserOptions(content.id)"
-                  @select="handleManageUserSelection($event, content)"
-                />
-              </KButton>
+              <KIconButton icon="optionsVertical">
+                <template #menu>
+                  <KDropdownMenu
+                    :primary="false"
+                    :disabled="false"
+                    :hasIcons="true"
+                    :options="[
+                      { label: coreString('editDetailsAction'), value: Modals.EDIT_USER },
+                      //{ label: $tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
+                      {
+                        label: coreString('deleteAction'),
+                        value: Modals.DELETE_USER,
+                        disabled: row[6].id === $store.state.core.currentUserId,
+                      },
+                    ]"
+                    @select="
+                      option => {
+                        if (option.value === Modals.RESET_USER_PASSWORD) {
+                          selectedUser = row[6];
+                          modalShown = Modals.RESET_USER_PASSWORD;
+                        } else if (option.value === Modals.DELETE_USER) {
+                          selectedUser = row[6];
+                          modalShown = Modals.DELETE_USER;
+                        }
+                      }
+                    "
+                  />
+                </template>
+              </KIconButton>
             </span>
           </template>
         </KTable>
@@ -159,11 +254,10 @@
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
-  import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { showUserPage } from '../../modules/userManagement/handlers';
+  import { bulkUserManagementStrings } from '../../bulkUserManagementStrings';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -191,18 +285,23 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { currentUserId, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
+      const { viewNewUsers$, viewTrash$, numUsersSelected$, createdAt$, selectAllUsers$ } =
+        bulkUserManagementStrings;
       return {
-        currentUserId,
-        isSuperuser,
         userIsMultiFacilityAdmin,
+        viewNewUsers$,
+        viewTrash$,
+        numUsersSelected$,
+        createdAt$,
+        selectAllUsers$,
       };
     },
     data() {
       return {
         selectedUser: null,
         modalShown: null,
+        selectedUsers: new Set(),
       };
     },
 
@@ -210,20 +309,29 @@
       ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
+
       tableHeaders() {
         return [
+          {
+            label: '',
+            dataType: 'undefined',
+            minWidth: '48px',
+            width: '48px',
+            columnId: 'selection',
+          },
+
           {
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
             minWidth: '300px',
-            width: '40%',
+            width: '35%',
             columnId: 'full_name',
           },
           {
             label: this.coreString('usernameLabel'),
             dataType: 'string',
             minWidth: '150px',
-            width: '20%',
+            width: '15%',
             columnId: 'username',
           },
           {
@@ -233,6 +341,7 @@
             width: '10%',
             columnId: 'identifier',
           },
+
           {
             label: this.coreString('genderLabel'),
             dataType: 'string',
@@ -240,17 +349,25 @@
             width: '10%',
             columnId: 'gender',
           },
+
           {
             label: this.coreString('birthYearLabel'),
             dataType: 'date',
-            minWidth: '100px',
+            minWidth: '200px',
             width: '10%',
             columnId: 'birth_year',
           },
           {
-            label: this.coreString('userActionsColumnHeader'),
+            label: this.createdAt$(),
+            dataType: 'date',
+            minWidth: '200px',
+            width: '10%',
+            columnId: 'created_at',
+          },
+          {
+            label: '',
             dataType: 'undefined',
-            minWidth: '150px',
+            minWidth: '180px',
             width: '10%',
             columnId: 'userActions',
           },
@@ -259,15 +376,31 @@
       tableRows() {
         return this.facilityUsers.map(user => {
           return [
-            user.full_name,
-            user.username,
-            user.id_number,
-            user.gender,
-            user.birth_year,
+            '',
+            user.full_name || '',
+            user.username || '',
+            user.id_number || '',
+            user.gender || '',
+            user.birth_year || '',
             user,
+            '',
           ];
         });
       },
+
+      selectAllState() {
+        const visibleUserIds = this.facilityUsers.map(user => user.id);
+        const selectedVisibleUsers = visibleUserIds.filter(id => this.selectedUsers.has(id));
+
+        if (selectedVisibleUsers.length === 0) {
+          return { checked: false, indeterminate: false };
+        } else if (selectedVisibleUsers.length === visibleUserIds.length) {
+          return { checked: true, indeterminate: false };
+        } else {
+          return { checked: false, indeterminate: true };
+        }
+      },
+
       userKinds() {
         return [
           { label: this.coreString('allLabel'), value: ALL_FILTER },
@@ -344,7 +477,21 @@
           });
         },
       },
+
+      dropDownMenu() {
+        return [
+          {
+            label: this.viewNewUsers$(),
+            id: 'view_new_users',
+          },
+          {
+            label: this.viewTrash$(),
+            id: 'view_trash',
+          },
+        ];
+      },
     },
+
     watch: {
       $route: {
         /**
@@ -366,17 +513,48 @@
         deep: true,
       },
     },
+
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
+
     methods: {
+      handleSelectAllToggle() {
+        const visibleUserIds = this.facilityUsers.map(user => user.id);
+        const { checked } = this.selectAllState;
+
+        if (checked) {
+          visibleUserIds.forEach(id => this.selectedUsers.delete(id));
+        } else {
+          visibleUserIds.forEach(id => this.selectedUsers.add(id));
+        }
+
+        this.selectedUsers = new Set(this.selectedUsers);
+      },
+
+      handleUserSelectionToggle(user) {
+        if (this.selectedUsers.has(user.id)) {
+          this.selectedUsers.delete(user.id);
+        } else {
+          this.selectedUsers.add(user.id);
+        }
+
+        this.selectedUsers = new Set(this.selectedUsers);
+      },
+      clearSelectedUsers() {
+        this.selectedUsers = new Set();
+      },
+
+      isUserSelected(user) {
+        return this.selectedUsers.has(user.id);
+      },
+
       changeSortHandler({ sortKey, sortOrder }) {
         const columnId = this.tableHeaders[sortKey]?.columnId || null;
 
         const query = { ...this.$route.query };
 
-        if (!sortOrder || !columnId) {
-          //remove ordering and order from params when sortOrder is null
+        if (!sortOrder || !columnId || columnId === 'selection') {
           delete query.ordering;
           delete query.order;
         } else {
@@ -415,32 +593,17 @@
       closeModal() {
         this.modalShown = '';
       },
-      manageUserOptions(userId) {
-        return [
-          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
-          { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
-          {
-            label: this.coreString('deleteAction'),
-            value: Modals.DELETE_USER,
-            disabled: userId === this.currentUserId,
-          },
-        ];
-      },
-      handleManageUserSelection(selection, user) {
-        if (selection.value === Modals.EDIT_USER) {
-          const link = cloneDeep(this.$store.getters.facilityPageLinks.UserEditPage);
-          link.params.id = user.id;
-          this.$router.push(link);
-        } else {
-          this.selectedUser = user;
-          this.modalShown = selection.value;
-        }
-      },
-      userCanBeEdited(user) {
-        // If logged-in user is a superuser, then they can edit anybody (including other SUs).
-        // Otherwise, only non-SUs can be edited.
-        return this.isSuperuser || !user.is_superuser;
-      },
+      // manageUserOptions(userId) {
+      //   return [
+      //     { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
+      //     { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
+      //     {
+      //       label: this.coreString('deleteAction'),
+      //       value: Modals.DELETE_USER,
+      //       disabled: userId === this.currentUserId,
+      //     },
+      //   ];
+      // },
       emitSearchTerm(value) {
         if (value === '') {
           value = null;
@@ -484,14 +647,6 @@
         message: "No users match the filter: '{filterText}'",
         context: "Refers to the 'Search for a user' filter when no users are found.",
       },
-      optionsButtonLabel: {
-        message: 'Options',
-        context: 'User options button.',
-      },
-      resetUserPassword: {
-        message: 'Reset password',
-        context: "Option to reset a user's password.",
-      },
       noLearnersExist: {
         message: 'There are no learners in this facility',
         context:
@@ -526,18 +681,17 @@
   }
 
   .type-filter {
-    margin-bottom: 0;
+    margin-left: auto;
   }
 
   .role-badge {
     display: inline-block;
-    padding: 1px;
-    padding-right: 8px;
-    padding-left: 8px;
-    margin-left: 16px;
-    font-size: small;
+    padding: 2px 8px;
+    margin-left: 12px;
+    font-size: 12px;
+    font-weight: 500;
     white-space: nowrap;
-    border-radius: 4px;
+    border-radius: 12px;
   }
 
   .labeled-icon-wrapper {
@@ -546,6 +700,33 @@
 
   .user-roster {
     overflow-x: auto;
+  }
+
+  .core-table-button-col {
+    text-align: right;
+  }
+
+  .options-button {
+    margin-right: 8px;
+  }
+
+  .search-filter-section {
+    display: flex;
+    justify-content: start;
+  }
+
+  .search-box {
+    width: 294px;
+  }
+
+  .filter-button {
+    padding-top: 8px;
+    margin-left: 1em;
+  }
+
+  .bulk-actions-toolbar {
+    display: flex;
+    justify-content: end;
   }
 
 </style>
