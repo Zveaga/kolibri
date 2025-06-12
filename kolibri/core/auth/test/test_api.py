@@ -8,6 +8,7 @@ from importlib import import_module
 
 import factory
 from django.conf import settings
+from django.db.models.signals import pre_delete
 from django.urls import reverse
 from django.utils import timezone
 from mock import patch
@@ -24,6 +25,7 @@ from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 from .. import models
 from ..constants import role_kinds
@@ -36,6 +38,8 @@ from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
@@ -2571,31 +2575,39 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class DeleteImportedUserTestCase(APITestCase):
-    databases = ["default", "notifications"]
-
-    @classmethod
-    def setUpTestData(cls):
+class DeleteImportedUserTestCase(APITransactionTestCase):
+    def setUp(self):
+        super().setUp()
         provision_device()
-        cls.facility = FacilityFactory.create()
+        self.facility = FacilityFactory.create()
 
-        cls.admin = FacilityUserFactory.create(facility=cls.facility, username="admin")
-        cls.admin.set_password(DUMMY_PASSWORD)
-        cls.admin.save()
-        cls.facility.add_admin(cls.admin)
+        self.admin = FacilityUserFactory.create(
+            facility=self.facility, username="admin"
+        )
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
 
-        cls.user = FacilityUserFactory.create(facility=cls.facility, username="user")
-        cls.user.set_password(DUMMY_PASSWORD)
-        cls.user.save()
+        self.user = FacilityUserFactory.create(facility=self.facility, username="user")
+        self.user.set_password(DUMMY_PASSWORD)
+        self.user.save()
 
-        cls.user_patitions = [
-            f"{cls.user.dataset_id}:user-ro:{cls.user.id}",
-            f"{cls.user.dataset_id}:user-rw:{cls.user.id}",
+        self.user_patitions = [
+            f"{self.user.dataset_id}:user-ro:{self.user.id}",
+            f"{self.user.dataset_id}:user-rw:{self.user.id}",
         ]
+
         # Simulate morango records as if the user was imported from other instance
         MorangoProfileController(PROFILE_FACILITY_DATA).serialize_into_store(
-            cls.user_patitions
+            self.user_patitions
         )
+
+        # Avoid queries to the notifications database when deleting a user
+        pre_delete.disconnect(cascade_delete_user, sender=FacilityUser)
+
+    def tearDown(self):
+        super().tearDown()
+        pre_delete.connect(cascade_delete_user, sender=FacilityUser)
 
     def login_admin(self):
         self.client.login(
