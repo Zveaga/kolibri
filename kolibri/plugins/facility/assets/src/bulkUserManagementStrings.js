@@ -61,6 +61,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Delete selection',
     context: 'Label for bulk-action button that will allow user to delete selected users',
   },
+  resetPassword: {
+    message: 'Reset password',
+    context: 'Label that will allow user to reset passwords for selected user',
+  },
 
   // Selection warnings
   numUsersNotEnrolled: {

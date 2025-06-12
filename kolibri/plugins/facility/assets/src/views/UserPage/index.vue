@@ -183,37 +183,22 @@
             <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
-            <span v-else-if="colIndex === 6"> </span>
+            <span v-else-if="colIndex === 6"> {{ content.username }}</span>
             <span
               v-else-if="colIndex === 7"
               class="core-table-button-col"
             >
-              <KIconButton icon="optionsVertical">
+              <KIconButton
+                icon="optionsVertical"
+                :disabled="!userCanBeEdited(content)"
+              >
                 <template #menu>
                   <KDropdownMenu
                     :primary="false"
                     :disabled="false"
                     :hasIcons="true"
-                    :options="[
-                      { label: coreString('editDetailsAction'), value: Modals.EDIT_USER },
-                      //{ label: $tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
-                      {
-                        label: coreString('deleteAction'),
-                        value: Modals.DELETE_USER,
-                        disabled: row[6].id === $store.state.core.currentUserId,
-                      },
-                    ]"
-                    @select="
-                      option => {
-                        if (option.value === Modals.RESET_USER_PASSWORD) {
-                          selectedUser = row[6];
-                          modalShown = Modals.RESET_USER_PASSWORD;
-                        } else if (option.value === Modals.DELETE_USER) {
-                          selectedUser = row[6];
-                          modalShown = Modals.DELETE_USER;
-                        }
-                      }
-                    "
+                    :options="manageUserOptions(content.id)"
+                    @select="handleManageUserSelection($event, content)"
                   />
                 </template>
               </KIconButton>
@@ -259,6 +244,8 @@
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import cloneDeep from 'lodash/cloneDeep';
+  import useUser from 'kolibri/composables/useUser';
   import { showUserPage } from '../../modules/userManagement/handlers';
   import { bulkUserManagementStrings } from '../../bulkUserManagementStrings';
   import { Modals } from '../../constants';
@@ -288,6 +275,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { currentUserId, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
       const modalShown = ref(null);
@@ -295,8 +283,14 @@
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
 
-      const { viewNewUsers$, viewTrash$, numUsersSelected$, createdAt$, filterLabel$ } =
-        bulkUserManagementStrings;
+      const {
+        viewNewUsers$,
+        viewTrash$,
+        numUsersSelected$,
+        createdAt$,
+        filterLabel$,
+        resetPassword$,
+      } = bulkUserManagementStrings;
 
       return {
         userIsMultiFacilityAdmin,
@@ -308,7 +302,10 @@
         selectedUsers,
         selectedUser,
         modalShown,
+        isSuperuser,
+        currentUserId,
         selectAllLabel$,
+        resetPassword$,
       };
     },
     computed: {
@@ -398,13 +395,12 @@
         const visibleUserIds = this.facilityUsers.map(user => user.id);
         const selectedVisibleUsers = visibleUserIds.filter(id => this.selectedUsers.has(id));
 
-        if (selectedVisibleUsers.length === 0) {
-          return { checked: false, indeterminate: false };
-        } else if (selectedVisibleUsers.length === visibleUserIds.length) {
-          return { checked: true, indeterminate: false };
-        } else {
-          return { checked: false, indeterminate: true };
-        }
+        const isChecked =
+          selectedVisibleUsers.length === visibleUserIds.length && selectedVisibleUsers.length > 0;
+        const isIndeterminate =
+          selectedVisibleUsers.length > 0 && selectedVisibleUsers.length < visibleUserIds.length;
+
+        return { checked: isChecked, indeterminate: isIndeterminate };
       },
 
       userKinds() {
@@ -599,17 +595,32 @@
       closeModal() {
         this.modalShown = '';
       },
-      // manageUserOptions(userId) {
-      //   return [
-      //     { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
-      //     { label: this.$tr('resetUserPassword'), value: Modals.RESET_USER_PASSWORD },
-      //     {
-      //       label: this.coreString('deleteAction'),
-      //       value: Modals.DELETE_USER,
-      //       disabled: userId === this.currentUserId,
-      //     },
-      //   ];
-      // },
+      manageUserOptions(userId) {
+        return [
+          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
+          { label: this.resetPassword$(), value: Modals.RESET_USER_PASSWORD },
+          {
+            label: this.coreString('deleteAction'),
+            value: Modals.DELETE_USER,
+            disabled: userId === this.currentUserId,
+          },
+        ];
+      },
+      handleManageUserSelection(selection, user) {
+        if (selection.value === Modals.EDIT_USER) {
+          const link = cloneDeep(this.$store.getters.facilityPageLinks.UserEditPage);
+          link.params.id = user.id;
+          this.$router.push(link);
+        } else {
+          this.selectedUser = user;
+          this.modalShown = selection.value;
+        }
+      },
+      userCanBeEdited(user) {
+        // If logged-in user is a superuser, then they can edit anybody (including other SUs).
+        // Otherwise, only non-SUs can be edited.
+        return this.isSuperuser || !user.is_superuser;
+      },
       emitSearchTerm(value) {
         if (value === '') {
           value = null;
