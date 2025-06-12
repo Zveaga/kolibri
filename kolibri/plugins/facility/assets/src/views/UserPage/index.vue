@@ -316,7 +316,7 @@
       tableHeaders() {
         return [
           {
-            label: '',
+            label: this.selectAllLabel$(),
             dataType: 'undefined',
             minWidth: '48px',
             width: '48px',
