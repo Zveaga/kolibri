@@ -708,7 +708,7 @@
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
-    border-radius: 12px;
+    border-radius: 2px;
   }
 
   .labeled-icon-wrapper {
