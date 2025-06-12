@@ -183,7 +183,7 @@
             <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
-            <span v-else-if="colIndex === 6"> {{ content.username }}</span>
+            <span v-else-if="colIndex === 6"> </span>
             <span
               v-else-if="colIndex === 7"
               class="core-table-button-col"
@@ -386,7 +386,7 @@
             user.gender || '',
             user.birth_year || '',
             user,
-            '',
+            user,
           ];
         });
       },
