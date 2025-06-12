@@ -75,7 +75,7 @@
               />
               <KButton
                 appearance="basic-link"
-                text="filter"
+                :text="filterLabel$()"
                 class="filter-button move-down"
               />
             </div>
@@ -93,7 +93,7 @@
 
               <KButton
                 appearance="basic-link"
-                text="clear "
+                :text="coreString('clearAction')"
                 @click="clearSelectedUsers"
               />
             </span>
@@ -286,8 +286,14 @@
     mixins: [commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
-      const { viewNewUsers$, viewTrash$, numUsersSelected$, createdAt$, selectAllUsers$ } =
-        bulkUserManagementStrings;
+      const {
+        viewNewUsers$,
+        viewTrash$,
+        numUsersSelected$,
+        createdAt$,
+        selectAllUsers$,
+        filterLabel$,
+      } = bulkUserManagementStrings;
       return {
         userIsMultiFacilityAdmin,
         viewNewUsers$,
@@ -295,6 +301,7 @@
         numUsersSelected$,
         createdAt$,
         selectAllUsers$,
+        filterLabel$,
       };
     },
     data() {

@@ -30,6 +30,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: '{n, number} filters',
     context: 'A label showing the number of filters active',
   },
+  filterLabel: {
+    message: 'Filter',
+    context: 'Label for the filter dropdown',
+  },
 
   // Dropdown options
   viewNewUsers: {
