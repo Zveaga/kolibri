@@ -244,6 +244,7 @@
 
 <script>
 
+  import { ref } from 'vue';
   import { mapState, mapGetters } from 'vuex';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
@@ -286,6 +287,9 @@
     mixins: [commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
+      const selectedUsers = ref(new Set());
+      const modalShown = ref(null);
+      const selectedUser = ref(null);
       const {
         viewNewUsers$,
         viewTrash$,
@@ -302,16 +306,11 @@
         createdAt$,
         selectAllUsers$,
         filterLabel$,
+        selectedUsers,
+        selectedUser,
+        modalShown,
       };
     },
-    data() {
-      return {
-        selectedUser: null,
-        modalShown: null,
-        selectedUsers: new Set(),
-      };
-    },
-
     computed: {
       ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
