@@ -129,13 +129,14 @@
           <template #header="{ header, colIndex }">
             <template v-if="colIndex === 0">
               <KCheckbox
+                :label="selectAllLabel$()"
                 :checked="selectAllState.checked"
                 :indeterminate="selectAllState.indeterminate"
                 :showLabel="false"
-                :ariaLabel="selectAllUsers$()"
+                :ariaLabel="selectAllLabel$()"
                 @change="handleSelectAllToggle"
               >
-                <span class="visuallyhidden">{{ selectAllUsers$() }}</span>
+                <span class="visuallyhidden">{{ selectAllLabel$() }}</span>
               </KCheckbox>
             </template>
             <template v-else>
@@ -253,6 +254,7 @@
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
@@ -290,25 +292,23 @@
       const selectedUsers = ref(new Set());
       const modalShown = ref(null);
       const selectedUser = ref(null);
-      const {
-        viewNewUsers$,
-        viewTrash$,
-        numUsersSelected$,
-        createdAt$,
-        selectAllUsers$,
-        filterLabel$,
-      } = bulkUserManagementStrings;
+
+      const { selectAllLabel$ } = enhancedQuizManagementStrings;
+
+      const { viewNewUsers$, viewTrash$, numUsersSelected$, createdAt$, filterLabel$ } =
+        bulkUserManagementStrings;
+
       return {
         userIsMultiFacilityAdmin,
         viewNewUsers$,
         viewTrash$,
         numUsersSelected$,
         createdAt$,
-        selectAllUsers$,
         filterLabel$,
         selectedUsers,
         selectedUser,
         modalShown,
+        selectAllLabel$,
       };
     },
     computed: {

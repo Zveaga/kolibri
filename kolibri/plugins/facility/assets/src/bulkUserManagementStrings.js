@@ -18,10 +18,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Select {name}',
     context: 'Accessible label for selecting an individual user.',
   },
-  selectAllUsers: {
-    message: 'Select all users',
-    context: 'Accessible label for the select all users checkbox.',
-  },
   createdAt: {
     message: 'Created at',
     context: 'Label for the created at column in the user table.',
