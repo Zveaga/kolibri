@@ -12,10 +12,10 @@
   >
     <template #header>
       <h1
-        v-if="route.name === PageNames.QUIZ_SECTION_ORDER"
+        v-if="$route.name === PageNames.QUIZ_SECTION_ORDER"
         class="sidepanel-title"
       >
-        {{ coreString('editAction') }}
+        {{ editAction$() }}
         {{ sectionOrderLabel$().toLowerCase() }}
       </h1>
       <h1
@@ -40,7 +40,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
 
@@ -49,16 +49,16 @@
     components: {
       SidePanelModal,
     },
-    mixins: [commonCoreStrings],
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const router = getCurrentInstance().proxy.$router;
       const route = computed(() => store.state.route);
-      // const sidepanelTitle = ref('section');
 
       const canGoBack = ref(false);
       const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
       const { editSectionLabel$, sectionOrderLabel$ } = enhancedQuizManagementStrings;
+      const { editAction$ } = coreStrings;
+
       function handleClosePanel() {
         router.push({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -86,12 +86,12 @@
       });
 
       return {
-        route,
         canGoBack,
         showSidePanel,
         handleClosePanel,
         editSectionLabel$,
         sectionOrderLabel$,
+        editAction$,
       };
     },
     data() {
