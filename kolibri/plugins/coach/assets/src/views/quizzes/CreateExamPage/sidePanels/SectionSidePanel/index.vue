@@ -15,7 +15,7 @@
         v-if="$route.name === PageNames.QUIZ_SECTION_ORDER"
         class="sidepanel-title"
       >
-        {{ editAction$() }}
+        {{ editAction$() }} -
         {{ sectionOrderLabel$().toLowerCase() }}
       </h1>
       <h1
