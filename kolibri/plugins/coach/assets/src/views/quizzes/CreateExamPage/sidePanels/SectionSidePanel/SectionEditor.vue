@@ -465,7 +465,7 @@
     padding: 1em 2em;
     margin-top: 1em;
     background-color: #ffffff;
-    @extend %dropshadow-1dp;
+    @extend %dropshadow-2dp;
   }
 
   /deep/ .textbox {

@@ -92,10 +92,6 @@
         editSectionLabel$,
         sectionOrderLabel$,
         editAction$,
-      };
-    },
-    data() {
-      return {
         PageNames,
       };
     },
