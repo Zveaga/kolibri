@@ -350,7 +350,7 @@
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
             minWidth: '300px',
-            width: '35%',
+            width: '40%',
             columnId: 'full_name',
           },
           {
