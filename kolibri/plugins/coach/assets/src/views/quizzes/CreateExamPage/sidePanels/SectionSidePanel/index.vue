@@ -16,7 +16,7 @@
         class="sidepanel-title"
       >
         {{ editAction$() }} -
-        {{ sectionOrderLabel$().toLowerCase() }}
+        {{ sectionOrderLabel$() }}
       </h1>
       <h1
         v-else
