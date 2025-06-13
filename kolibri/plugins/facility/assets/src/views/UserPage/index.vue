@@ -562,10 +562,11 @@
         } else {
           this.selectedUsers.add(user.id);
         }
+        this.selectedUsers = new Set(this.selectedUsers);
       },
 
       clearSelectedUsers() {
-        this.selectedUsers.clear();
+        this.selectedUsers = new Set();
       },
 
       isUserSelected(user) {
