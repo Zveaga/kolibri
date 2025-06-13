@@ -420,8 +420,7 @@
 
         const isChecked =
           selectedVisibleUsers.length === visibleUserIds.length && selectedVisibleUsers.length > 0;
-        const isIndeterminate =
-          selectedVisibleUsers.length > 0 && selectedVisibleUsers.length < visibleUserIds.length;
+        const isIndeterminate = selectedVisibleUsers.length > 0 && !isChecked;
 
         return { checked: isChecked, indeterminate: isIndeterminate };
       },
@@ -563,11 +562,10 @@
         } else {
           this.selectedUsers.add(user.id);
         }
-
-        this.selectedUsers = new Set(this.selectedUsers);
       },
+
       clearSelectedUsers() {
-        this.selectedUsers = new Set();
+        this.selectedUsers.clear();
       },
 
       isUserSelected(user) {
