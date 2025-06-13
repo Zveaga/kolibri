@@ -8,13 +8,13 @@ import { UserKinds } from 'kolibri/constants';
 import UserType from 'kolibri-common/utils/userType';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import TaskResource from 'kolibri/apiResources/TaskResource';
-import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
+import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { getImportLodUsersMachine } from 'kolibri-common/machines/importLodUsersMachine';
+import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
 
 import { PageNames } from '../../../constants';
-import { deviceString } from '../../commonDeviceStrings';
 
 const SOUD_QUEUE = 'soud_sync';
 
@@ -119,12 +119,13 @@ export default function useLodDeviceUsers() {
       return false;
     }
 
+    const { removeUserError$, removeUserSuccess$ } = lodUsersManagementStrings;
     try {
       await FacilityUserResource.removeImportedUser(userId);
-      createSnackbar(deviceString('removeUserSuccess'));
+      createSnackbar(removeUserSuccess$());
       return true;
     } catch (error) {
-      createSnackbar(deviceString('removeUserError'));
+      createSnackbar(removeUserError$());
       return false;
     }
   }
@@ -178,11 +179,12 @@ export default function useLodDeviceUsers() {
       }
 
       if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
+        const { importUserError$, importUserSuccess$ } = lodUsersManagementStrings;
         if (task.status === TaskStatuses.FAILED) {
-          createSnackbar(deviceString('importUserError'));
+          createSnackbar(importUserError$());
         }
         if (task.status === TaskStatuses.COMPLETED) {
-          createSnackbar(deviceString('importUserSuccess'));
+          createSnackbar(importUserSuccess$());
         }
         importLodMachineService.send({
           type: 'REMOVE_USER_BEING_IMPORTED',

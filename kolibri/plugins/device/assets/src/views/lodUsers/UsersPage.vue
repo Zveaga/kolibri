@@ -28,30 +28,30 @@
     </KPageContainer>
     <KModal
       v-if="userIdToRemove"
-      :title="$tr('removeUserTitle')"
-      :submitText="$tr('removeUserAction')"
+      :title="removeUserLabel$()"
+      :submitText="removeUserLabel$()"
       :cancelText="cancelAction$()"
       @submit="onRemoveUser(userIdToRemove)"
       @cancel="userIdToRemove = null"
     >
       <p>
-        {{ $tr('removeUserDescription', { device: 'device' }) }}
+        {{ removeUserDescription$({ device: 'device' }) }}
       </p>
       <p>
-        {{ $tr('removeUserCallToAction') }}
+        {{ removeUserCallToAction$() }}
       </p>
     </KModal>
     <KModal
       v-if="showCannotRemoveUser"
-      :title="$tr('cannotRemoveUserTitle')"
+      :title="cannotRemoveUserTitle$()"
       :submitText="closeAction$()"
       @submit="resetShowCannotRemoveUser"
     >
       <p>
-        {{ $tr('cannotRemoveUserDescription') }}
+        {{ cannotRemoveUserDescription$() }}
       </p>
       <KExternalLink
-        :text="$tr('editPermissionsAction')"
+        :text="editPermissionsAction$()"
         :href="getExternalEditPermissionsPath()"
         class="fix-link-line-height"
       />
@@ -73,8 +73,8 @@
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import { LodTypePresets } from 'kolibri/constants';
-  import { deviceStrings } from '../commonDeviceStrings';
 
   import { injectLodDeviceUsers } from './composables/useLodDeviceUsers';
   import UsersList from './UsersList.vue';
@@ -135,7 +135,15 @@
       };
 
       const { usersLabel$, closeAction$, removeAction$, cancelAction$ } = coreStrings;
-      const { importUserLabel$ } = deviceStrings;
+      const {
+        importUserLabel$,
+        removeUserLabel$,
+        removeUserDescription$,
+        cannotRemoveUserTitle$,
+        editPermissionsAction$,
+        removeUserCallToAction$,
+        cannotRemoveUserDescription$,
+      } = lodUsersManagementStrings;
 
       return {
         usersList,
@@ -152,19 +160,13 @@
         removeAction$,
         cancelAction$,
         importUserLabel$,
+        removeUserLabel$,
+        cannotRemoveUserTitle$,
+        removeUserDescription$,
+        editPermissionsAction$,
+        removeUserCallToAction$,
+        cannotRemoveUserDescription$,
       };
-    },
-    $trs: {
-      removeUserTitle: 'Remove user',
-      removeUserDescription:
-        'If you remove this user from this device you will still be able to access their account and all their data from { device }.',
-      removeUserCallToAction:
-        'Please ensure that all data you would like to keep has been synced before removing this user. You will permanently lose any data that has not been synced.',
-      removeUserAction: 'Remove user',
-      editPermissionsAction: 'Edit admin permissions',
-      cannotRemoveUserTitle: 'Cannot remove user',
-      cannotRemoveUserDescription:
-        'This user is the only super admin on this device and cannot be removed. Give or transfer super admin permissions to another user on this device if you would like to remove this user.',
     },
   };
 

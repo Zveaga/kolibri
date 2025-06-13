@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 
-export const deviceStrings = createTranslator('CommonDeviceStrings', {
+const deviceStrings = createTranslator('CommonDeviceStrings', {
   deviceManagementTitle: {
     message: 'Device',
     context:
@@ -66,26 +66,6 @@ export const deviceStrings = createTranslator('CommonDeviceStrings', {
   statusCanceling: {
     message: 'Canceling',
     context: 'Refers to a task being canceled in the task manager section.',
-  },
-  importUserLabel: {
-    message: 'Import user',
-    context: 'Label for the import users button and titles.',
-  },
-  importUserError: {
-    message: 'Error importing user',
-    context: 'Error message when importing a user fails.',
-  },
-  importUserSuccess: {
-    message: 'Successfully imported user',
-    context: 'Success message when importing a user is successful.',
-  },
-  removeUserSuccess: {
-    message: 'Successfully removed user',
-    context: 'Success message when removing a user is successful.',
-  },
-  removeUserError: {
-    message: 'Error removing user',
-    context: 'Error message when removing a user fails.',
   },
 });
 

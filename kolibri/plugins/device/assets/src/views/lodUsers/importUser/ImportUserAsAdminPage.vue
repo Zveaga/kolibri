@@ -2,12 +2,12 @@
 
   <ImmersivePage
     :primary="false"
-    :appBarTitle="deviceString('importUserLabel')"
+    :appBarTitle="importUserLabel$()"
     :loading="usersLoading || taskLoading"
     @navIconClick="importLodMachineService.send('RESET_IMPORT')"
   >
     <KPageContainer class="device-container">
-      <h1>{{ $tr('selectAUser') }}</h1>
+      <h1>{{ selectAUser$() }}</h1>
       <KCircularLoader v-if="usersLoading" />
       <UsersList
         v-else
@@ -16,7 +16,7 @@
       >
         <template #action="{ user }">
           <KButton
-            :text="coreString('importAction')"
+            :text="importAction$()"
             appearance="flat-button"
             :disabled="taskLoading"
             @click="startImport(user)"
@@ -31,12 +31,12 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
 
-  import commonDeviceStrings from '../../commonDeviceStrings';
   import UsersList from '../UsersList.vue';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
@@ -46,7 +46,6 @@
       UsersList,
       ImmersivePage,
     },
-    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const {
         remoteAdmin,
@@ -59,6 +58,9 @@
         importLodMachineService,
       } = injectLodDeviceUsers();
 
+      const { importAction$ } = coreStrings;
+      const { selectAUser$, importUserLabel$, importUserError$ } = lodUsersManagementStrings;
+
       return {
         remoteAdmin,
         localUsers,
@@ -68,6 +70,10 @@
         selectedFacility,
         usersBeingImported,
         importLodMachineService,
+        selectAUser$,
+        importAction$,
+        importUserLabel$,
+        importUserError$,
       };
     },
     data: () => {
@@ -112,13 +118,10 @@
             type: 'RESET_IMPORT',
           });
         } catch (error) {
-          this.$store.dispatch('createSnackbar', this.deviceString('importUserError'));
+          this.$store.dispatch('createSnackbar', this.importUserError$());
         }
         this.taskLoading = false;
       },
-    },
-    $trs: {
-      selectAUser: 'Select a user',
     },
   };
 

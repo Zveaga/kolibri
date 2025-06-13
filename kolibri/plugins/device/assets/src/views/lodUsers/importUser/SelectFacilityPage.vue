@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="deviceString('importUserLabel')"
+    :appBarTitle="importUserLabel$()"
     :primary="false"
     :loading="loading"
     @navIconClick="importLodMachineService.send('RESET_IMPORT')"
@@ -25,7 +25,7 @@
           class="select-button-label"
           for="select-address-button"
         >
-          {{ $tr('selectDifferentDeviceLabel') }}
+          {{ selectDifferentDeviceLabel$() }}
         </label>
         <KButton
           id="select-address-button"
@@ -43,7 +43,7 @@
       <KCircularLoader v-else />
       <BottomAppBar>
         <KButton
-          :text="coreString('continueAction')"
+          :text="continueAction$()"
           :primary="true"
           :disabled="loading || !selectedFacility"
           @click="handleContinue"
@@ -57,14 +57,14 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import RadioButtonGroup from 'kolibri-common/components/syncComponentSet/RadioButtonGroup';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
 
-  import commonDeviceStrings from '../../commonDeviceStrings';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {
@@ -75,12 +75,19 @@
       RadioButtonGroup,
       SelectDeviceModalGroup,
     },
-    mixins: [commonCoreStrings, commonSyncElements, commonDeviceStrings],
+    mixins: [commonSyncElements],
     setup() {
       const { importDeviceId, importLodMachineService } = injectLodDeviceUsers();
+
+      const { continueAction$ } = coreStrings;
+      const { importUserLabel$, selectDifferentDeviceLabel$ } = lodUsersManagementStrings;
+
       return {
         importDeviceId,
         importLodMachineService,
+        continueAction$,
+        importUserLabel$,
+        selectDifferentDeviceLabel$,
       };
     },
     data() {
@@ -132,13 +139,6 @@
             facilitiesCount: this.facilities.length,
           },
         });
-      },
-    },
-    $trs: {
-      selectDifferentDeviceLabel: {
-        message: "Don't see your learning facility?",
-        context:
-          'A label shown above a link that will open a modal to select a different network location from which to select a facility',
       },
     },
   };

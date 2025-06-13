@@ -62,7 +62,7 @@
           class="imported"
           :style="{ color: $themeTokens.annotation }"
         >
-          {{ $tr('imported') }}
+          {{ importedLabel$() }}
         </p>
       </li>
     </ul>
@@ -89,6 +89,7 @@
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
 
   export default {
     name: 'UsersList',
@@ -117,6 +118,7 @@
         return user.kind === UserKinds.SUPERUSER;
       };
 
+      const { importedLabel$ } = lodUsersManagementStrings;
       const { noResultsLabel$, superAdminLabel$, searchForUser$ } = coreStrings;
 
       return {
@@ -124,6 +126,7 @@
         filteredUsers,
         annotationStyle,
         isSuperuser,
+        importedLabel$,
         searchForUser$,
         noResultsLabel$,
         superAdminLabel$,
@@ -137,12 +140,6 @@
       isSearchable: {
         type: Boolean,
         default: false,
-      },
-    },
-    $trs: {
-      imported: {
-        message: 'Imported',
-        context: 'Label indicating that a learner user account has already been imported.',
       },
     },
   };

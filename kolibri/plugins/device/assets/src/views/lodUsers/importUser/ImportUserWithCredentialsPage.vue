@@ -2,7 +2,7 @@
 
   <ImmersivePage
     :primary="false"
-    :appBarTitle="deviceString('importUserLabel')"
+    :appBarTitle="importUserLabel$()"
     :loading="loadingNewAddress"
     @navIconClick="importLodMachineService.send('RESET_IMPORT')"
   >
@@ -11,9 +11,9 @@
 
       <div v-else>
         <h1>
-          {{ deviceString('importUserLabel') }}
+          {{ importUserLabel$() }}
         </h1>
-        <p>{{ $tr('enterCredentials') }}</p>
+        <p>{{ enterCredentials$() }}</p>
         <p
           v-if="error && !useAdmin"
           :style="{ color: $themeTokens.error }"
@@ -39,7 +39,7 @@
           autocomplete="new-password"
         />
         <p>
-          {{ $tr('doNotHaveUserCredentials') }}
+          {{ doNotHaveUserCredentials$() }}
           <KButton
             :text="profileString('useAdminAccount')"
             appearance="basic-link"
@@ -49,7 +49,7 @@
 
         <KModal
           v-if="deviceLimitations"
-          :title="$tr('deviceLimitationsTitle')"
+          :title="deviceLimitationsTitle$()"
           :cancelText="coreString('cancelAction')"
           :submitText="coreString('importAction')"
           @cancel="closeModal"
@@ -108,9 +108,11 @@
 
   import get from 'lodash/get';
   import { currentLanguage } from 'kolibri/utils/i18n';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
@@ -118,8 +120,8 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+
   import commonProfileStrings from '../../../../../../user_profile/assets/src/views/commonProfileStrings';
-  import commonDeviceStrings from '../../commonDeviceStrings';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {
@@ -129,13 +131,35 @@
       ImmersivePage,
       PasswordTextbox,
     },
-    mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings, commonDeviceStrings],
+    mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings],
     setup() {
       const { importDeviceId, selectedFacility, importLodMachineService } = injectLodDeviceUsers();
+      const { createSnackbar } = useSnackbar();
+
+      const {
+        importUserError$,
+        importUserLabel$,
+        enterCredentials$,
+        enterAdminCredentials$,
+        deviceLimitationsTitle$,
+        doNotHaveUserCredentials$,
+        deviceLimitationsMessage$,
+        deviceLimitationsAdminsMessage$,
+      } = lodUsersManagementStrings;
+
       return {
         importDeviceId,
         selectedFacility,
         importLodMachineService,
+        createSnackbar,
+        importUserError$,
+        importUserLabel$,
+        enterCredentials$,
+        enterAdminCredentials$,
+        deviceLimitationsTitle$,
+        doNotHaveUserCredentials$,
+        deviceLimitationsMessage$,
+        deviceLimitationsAdminsMessage$,
       };
     },
     data() {
@@ -174,13 +198,13 @@
         };
 
         if (importedUserIsAdmin) {
-          return this.$tr('deviceLimitationsAdminsMessage', messageArgs);
+          return this.deviceLimitationsAdminsMessage$(messageArgs);
         } else {
-          return this.$tr('deviceLimitationsMessage', messageArgs);
+          return this.deviceLimitationsMessage$(messageArgs);
         }
       },
       adminModalMessage() {
-        return this.$tr('enterAdminCredentials', { facility: this.facility.name });
+        return this.enterAdminCredentials$({ facility: this.facility.name });
       },
       invalidText() {
         if (!this.shouldValidate) {
@@ -301,7 +325,7 @@
             this.roles = error_info['roles'];
             this.deviceLimitations = true;
           } else {
-            this.$store.dispatch('createSnackbar', this.deviceString('importUserError'));
+            this.createSnackbar(this.importUserError$());
           }
         }
       },
@@ -347,39 +371,6 @@
               this.error = true;
             } else this.$store.dispatch('handleApiError', { error });
           });
-      },
-    },
-    $trs: {
-      enterCredentials: {
-        message: 'Enter the user credentials of the account you want to import.',
-        context: 'Asking user and password of the user to be imported.',
-      },
-      enterAdminCredentials: {
-        message:
-          "Enter the username and password of a facility admin or a super admin of '{facility}'",
-        context: 'Asking user and password of the  admin user of the facility to be imported',
-      },
-      deviceLimitationsTitle: {
-        message: 'Device limitations',
-        context:
-          'Heading for the window which informs that only learner features will be available on the device. ',
-      },
-      deviceLimitationsMessage: {
-        message:
-          "'{full_name} ({username})' is a {non_admin_role} on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
-
-        context:
-          "Appears on 'Device limitations' window which informs that only learner features will be available on the device.",
-      },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      deviceLimitationsAdminsMessage: {
-        message:
-          "'{full_name} ({username})' is an admin on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
-      },
-      /* eslint-enable */
-      doNotHaveUserCredentials: {
-        message: "Don't have the user credentials?",
-        context: "'Credentials' refers to learner's username and password.",
       },
     },
   };
