@@ -222,4 +222,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Enroll in class',
     context: 'Action button label for beginning bulk actions',
   },
+  copyOfClass: {
+    // is this valid ICU syntax for text input
+    message: 'Copy of {class}',
+    context: 'Initial name of a class upon being copied',
+  },
 });
