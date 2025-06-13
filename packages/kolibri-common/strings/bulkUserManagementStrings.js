@@ -132,6 +132,11 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Move to trash
+  movingToTrash: {
+    message: 'Moving to trash',
+    context:
+      'Message to users when they click to move users to the trash to indicate that something is happening in the background',
+  },
   undoTrashHeading: {
     message:
       '{num, number} {num, plural, one {user has} other {users have}} been moved to trash. Undo this?',
