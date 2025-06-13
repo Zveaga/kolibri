@@ -100,22 +100,22 @@
             <KIconButton
               icon="assignCoaches"
               :ariaLabel="assignCoach$()"
-              tooltip=""
+              :tooltip="assignCoach$()"
             />
             <KIconButton
               icon="add"
               :ariaLabel="enrollToClass$()"
-              tooltip=""
+              :tooltip="enrollToClass$()"
             />
             <KIconButton
               icon="remove"
               :ariaLabel="removeFromClass$()"
-              tooltip=""
+              :tooltip="removeFromClass$()"
             />
             <KIconButton
               icon="trash"
               :ariaLabel="deleteSelection$()"
-              tooltip=""
+              :tooltip="deleteSelection$()"
             />
           </KGridItem>
         </KGrid>
