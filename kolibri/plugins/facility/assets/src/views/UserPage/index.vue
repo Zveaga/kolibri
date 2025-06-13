@@ -97,11 +97,26 @@
                 @click="clearSelectedUsers"
               />
             </span>
-            <KIconButton icon="assignCoaches" />
-            <KIconButton icon="add" />
-            <KIconButton icon="remove" />
-            <KIconButton icon="download" />
-            <KIconButton icon="trash" />
+            <KIconButton
+              icon="assignCoaches"
+              :ariaLabel="assignCoach$()"
+              tooltip=""
+            />
+            <KIconButton
+              icon="add"
+              :ariaLabel="enrollToClass$()"
+              tooltip=""
+            />
+            <KIconButton
+              icon="remove"
+              :ariaLabel="removeFromClass$()"
+              tooltip=""
+            />
+            <KIconButton
+              icon="trash"
+              :ariaLabel="deleteSelection$()"
+              tooltip=""
+            />
           </KGridItem>
         </KGrid>
 
@@ -290,6 +305,10 @@
         createdAt$,
         filterLabel$,
         resetPassword$,
+        enrollToClass$,
+        removeFromClass$,
+        assignCoach$,
+        deleteSelection$,
       } = bulkUserManagementStrings;
 
       return {
@@ -306,6 +325,10 @@
         currentUserId,
         selectAllLabel$,
         resetPassword$,
+        enrollToClass$,
+        removeFromClass$,
+        assignCoach$,
+        deleteSelection$,
       };
     },
     computed: {
