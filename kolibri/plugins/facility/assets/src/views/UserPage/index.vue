@@ -143,14 +143,16 @@
         >
           <template #header="{ header, colIndex }">
             <template v-if="colIndex === 0">
-              <KCheckbox
-                :label="selectAllLabel$()"
-                :checked="selectAllState.checked"
-                :indeterminate="selectAllState.indeterminate"
-                :showLabel="false"
-                :ariaLabel="selectAllLabel$()"
-                @change="handleSelectAllToggle"
-              />
+              <div :aria-label="selectLabel$()">
+                <KCheckbox
+                  :label="selectAllLabel$()"
+                  :checked="selectAllState.checked"
+                  :indeterminate="selectAllState.indeterminate"
+                  :showLabel="false"
+                  :ariaLabel="selectAllLabel$()"
+                  @change="handleSelectAllToggle"
+                />
+              </div>
             </template>
             <template v-else>
               <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
@@ -165,14 +167,17 @@
           </template>
 
           <template #cell="{ content, colIndex, row }">
-            <span v-if="colIndex === 0">
+            <div
+              v-if="colIndex === 0"
+              :aria-label="selectLabel$()"
+            >
               <KCheckbox
                 :checked="isUserSelected(row[6])"
                 :showLabel="false"
-                :arialabel="selectUser$({ name: row[1] + ',' + row[6].kind })"
+                :aria-label="row[1] + ',' + row[6].kind"
                 @change="() => handleUserSelectionToggle(row[6])"
               />
-            </span>
+            </div>
             <span v-else-if="colIndex === 1">
               <KLabeledIcon
                 icon="person"
@@ -308,7 +313,7 @@
         removeFromClass$,
         assignCoach$,
         deleteSelection$,
-        selectUser$,
+        selectLabel$,
       } = bulkUserManagementStrings;
 
       return {
@@ -329,7 +334,7 @@
         removeFromClass$,
         assignCoach$,
         deleteSelection$,
-        selectUser$,
+        selectLabel$,
       };
     },
     computed: {
