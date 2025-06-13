@@ -150,9 +150,7 @@
                 :showLabel="false"
                 :ariaLabel="selectAllLabel$()"
                 @change="handleSelectAllToggle"
-              >
-                <span class="visuallyhidden">{{ selectAllLabel$() }}</span>
-              </KCheckbox>
+              />
             </template>
             <template v-else>
               <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
@@ -171,6 +169,7 @@
               <KCheckbox
                 :checked="isUserSelected(row[6])"
                 :showLabel="false"
+                :arialabel="selectUser$({ name: row[1] + ',' + row[6].kind })"
                 @change="() => handleUserSelectionToggle(row[6])"
               />
             </span>
@@ -309,6 +308,7 @@
         removeFromClass$,
         assignCoach$,
         deleteSelection$,
+        selectUser$,
       } = bulkUserManagementStrings;
 
       return {
@@ -329,6 +329,7 @@
         removeFromClass$,
         assignCoach$,
         deleteSelection$,
+        selectUser$,
       };
     },
     computed: {
