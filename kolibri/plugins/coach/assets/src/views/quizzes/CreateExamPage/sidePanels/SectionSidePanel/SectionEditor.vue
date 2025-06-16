@@ -4,6 +4,13 @@
     v-if="activeSection"
     class="section-settings-content"
   >
+    <h1 :style="{ color: $themeTokens.text }">
+      {{ sectionSettings$() }}
+    </h1>
+    <div>
+      <MissingResourceAlert v-if="exam.missing_resource" />
+    </div>
+
     <KTextbox
       ref="sectionTitle"
       v-model="section_title"
