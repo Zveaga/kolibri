@@ -88,14 +88,15 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.7
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.8
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v1.6.7
+      ref: v1.6.8
     secrets:
-      KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
-      KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
   upload_exe:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: exe
