@@ -119,17 +119,6 @@
             />
           </KGridItem>
         </KGrid>
-
-        <!-- <template #otherFilter>
-          <KSelect
-            v-model="roleFilter"
-            :label="coreString('userTypeLabel')"
-            :options="userKinds"
-            :inline="true"
-            class="type-filter"
-          />
-        </template> -->
-
         <KTable
           class="move-down user-roster"
           :headers="tableHeaders"
@@ -203,10 +192,7 @@
               <BirthYearDisplayText :birthYear="content" />
             </span>
             <span v-else-if="colIndex === 6"> </span>
-            <span
-              v-else-if="colIndex === 7"
-              class="core-table-button-col"
-            >
+            <span v-else-if="colIndex === 7">
               <KIconButton
                 icon="optionsVertical"
                 :disabled="!userCanBeEdited(content)"
@@ -347,7 +333,6 @@
           {
             label: this.selectAllLabel$(),
             dataType: 'undefined',
-            minWidth: '48px',
             width: '48px',
             columnId: 'selection',
           },
@@ -725,10 +710,6 @@
     margin-top: 24px;
   }
 
-  .type-filter {
-    margin-left: auto;
-  }
-
   .role-badge {
     display: inline-block;
     padding: 2px 8px;
@@ -745,10 +726,6 @@
 
   .user-roster {
     overflow-x: auto;
-  }
-
-  .core-table-button-col {
-    text-align: right;
   }
 
   .options-button {
