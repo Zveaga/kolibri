@@ -53,12 +53,12 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   // Selection warnings
   numUsersNotEnrolled: {
     message:
-      '{num, number} {num, plural, one {user is} other {users are}} are not enrolled in any class',
+      '{num, number} {num, plural, one {user is} other {users are}} not enrolled in any class',
     context:
       'A notice indicating the number of users that are selected which are not enrolled in a class',
   },
   numUsersCoaches: {
-    message: '{num, number} {num, plural, one {user is} other {users are}} are coaches',
+    message: '{num, number} {num, plural, one {user is a coach} other {users are coaches}}',
     context: 'A notice indicating the number of users the user selected that are coaches',
   },
 
@@ -191,7 +191,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   // User Creation Modal
   newUsersCreatedSuccess: {
     message: '{n, number} new {n, plural, one {user} other {users}} successfully created!',
-    context: 'Title of modal shown on successfull creation of users',
+    context: 'Title of modal shown on successful creation of users',
   },
   newUsersModalMessage: {
     message: 'You have successfully created {n, number} new {n, plural, one {user} other {users}}.',
@@ -220,7 +220,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
   saveAndContinueExplainer: {
     message:
-      'You can close this modal interface and all your newly added users willb e saved to this facility in the Users page',
+      'You can close this modal interface and all your newly added users will be saved to this facility in the Users page',
     context: 'Explaining what the user can do if they save and continue',
   },
   enrollInClass: {
@@ -228,8 +228,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Action button label for beginning bulk actions',
   },
   copyOfClass: {
-    // is this valid ICU syntax for text input
-    message: 'Copy of {class}',
+    message: `Copy of '{class}'`,
     context: 'Initial name of a class upon being copied',
   },
 });
