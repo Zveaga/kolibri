@@ -184,7 +184,14 @@
           :canDownloadExternally="canDownloadExternally && !deviceId"
         />
       </SidePanelModal>
+      <TooltipTour
+      v-if="tourActive"
+      :steps="steps"
+      :elements="elements"
+      @tourEnded="tourActive=false"
+    />
     </LearnAppBarPage>
+     
   </div>
 
 </template>
@@ -229,7 +236,8 @@
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
   import NoResourcePage from './NoResourcePage';
-
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import  useTour  from '../../composables/useTour';
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
@@ -252,13 +260,14 @@
       OtherLibraries,
       PostSetupModalGroup,
       NoResourcePage,
+      TooltipTour
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-
+      const {steps,elements,tourActive} =useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -298,7 +307,7 @@
           search(keywords);
         }
       });
-
+   
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
 
@@ -428,7 +437,11 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        steps,
+        elements,
+        tourActive
       };
+  
     },
     props: {
       deviceId: {
@@ -556,7 +569,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey, true);
+        window.localStorage.setItem(welcomeDismissalKey,false);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
       findFirstEl() {

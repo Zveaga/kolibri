@@ -1528,7 +1528,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   nothingInLibraryLearner: {
     message:
-      'There is nothing in your library yet. Explore libraries around you and start adding materials to your own.',
+      'The first thing you should do is add learning resources to your library.',
   },
   noNearbyFacilities: {
     message: 'There are no learning facilities around you right now',

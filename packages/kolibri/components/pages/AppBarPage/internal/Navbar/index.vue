@@ -1,177 +1,191 @@
 <template>
 
   <nav class="navbar-positioning">
-    <ul
-      ref="items"
-      class="items"
-      tabindex="-1"
-      :style="styleOverrides"
-    >
-      <NavbarLink
-        v-for="(link, index) in allLinks"
-        :key="index"
-        ref="navLinks"
-        :title="link.title"
-        :link="link.link"
-      >
-        <KIcon
-          :icon="link.icon"
-          :color="themeConfig.appBar.textColor"
-        />
+    <ul ref="items" class="items" tabindex="-1" :style="styleOverrides">
+
+      <NavbarLink v-for="(link, index) in allLinks" :key="index" ref="navLinks" :title="link.title" :link="link.link">
+        <KIcon :icon="link.icon" :color="themeConfig.appBar.textColor" />
+
+
       </NavbarLink>
+
     </ul>
-    <KIconButton
-      v-if="overflowMenuLinks && overflowMenuLinks.length > 0"
-      :tooltip="coreString('moreOptions')"
-      tooltipPosition="top"
-      :ariaLabel="coreString('moreOptions')"
-      icon="optionsHorizontal"
-      appearance="flat-button"
-      :color="themeConfig.appBar.textColor"
-      :primary="false"
-      class="kiconbutton-style"
-    >
+
+    <KIconButton v-if="overflowMenuLinks && overflowMenuLinks.length > 0" :tooltip="coreString('moreOptions')"
+      tooltipPosition="top" :ariaLabel="coreString('moreOptions')" icon="optionsHorizontal" appearance="flat-button"
+      :color="themeConfig.appBar.textColor" :primary="false" class="kiconbutton-style">
       <template #menu>
-        <KDropdownMenu
-          :primary="false"
-          :disabled="false"
-          :hasIcons="true"
-          :options="overflowMenuLinks"
-          @select="handleSelect"
-        />
+        <KDropdownMenu :primary="false" :disabled="false" :hasIcons="true" :options="overflowMenuLinks"
+          @select="handleSelect" />
       </template>
     </KIconButton>
   </nav>
 
 </template>
 
-
 <script>
 
-  import isUndefined from 'lodash/isUndefined';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import themeConfig from 'kolibri/styles/themeConfig';
-  import NavbarLink from './NavbarLink';
-  /**
-   * Used for navigation between sub-pages of a top-level Kolibri section
-   */
-  export default {
-    name: 'Navbar',
-    components: {
-      NavbarLink,
-    },
-    mixins: [commonCoreStrings],
-    setup() {
-      const { windowIsLarge, windowIsMedium, windowWidth } = useKResponsiveWindow();
-      return {
-        windowIsLarge,
-        windowIsMedium,
-        windowWidth,
-        themeConfig,
-      };
-    },
-    props: {
-      /**
-       * An array of options objects, with one object per dropdown item
-       */
-      navigationLinks: {
-        type: Array,
-        default: () => [],
-        required: true,
-        validator(values) {
-          return values.every(value => value.link.name);
-        },
-      },
-      title: {
-        type: String,
-        required: true,
-      },
-    },
-    data() {
-      return { mounted: false };
-    },
-    computed: {
-      allLinks() {
-        return this.navigationLinks.filter(l => !l.isHidden);
-      },
-      overflowMenuLinks() {
-        if (!this.mounted || isUndefined(this.windowWidth) || !this.title) {
-          return [];
+import isUndefined from 'lodash/isUndefined';
+import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import themeConfig from 'kolibri/styles/themeConfig';
+import NavbarLink from './NavbarLink';
+import { ref, onMounted, nextTick } from "vue";
+import  useTour  from "../../../../../../../kolibri/plugins/learn/assets/src/composables/useTour";
+
+
+/**
+ * Used for navigation between sub-pages of a top-level Kolibri section
+ */
+export default {
+  name: 'Navbar',
+  components: {
+    NavbarLink,
+   
+  },
+  mixins: [commonCoreStrings],
+  setup() {
+    const { windowIsLarge, windowIsMedium, windowWidth } = useKResponsiveWindow();
+
+    const navLinks = ref([]);
+    const { registerStep } =useTour();
+    onMounted(async() => {
+      await nextTick();
+      console.log("navbar value is ",navLinks.value);
+        const navLinkComponents = Array.isArray(navLinks.value)
+          ? navLinks.value
+          : [navLinks.value];
+
+        if (navLinkComponents[0] && navLinkComponents[0].$el) {
+          registerStep({
+            key: 'libraryTab',
+            el: navLinkComponents[0].$el,
+            content: 'This is where you’ll find channels that you have added to your library. You can also see available libraries around you.',
+            stepIndex: 0,
+          });
+        } else {
+          console.warn("Could not find navLinks[0] or $el");
         }
-        const containerTop = this.$refs.items.offsetTop;
-        const containerHeight = this.$refs.items.clientHeight;
-        return this.allLinks
-          .filter((link, index) => {
-            const navLink = this.$refs.navLinks[index].$el;
-            // Calculate navLinkTop relative to the items by subtracting the container's top
-            const navLinkTop = navLink.offsetTop - containerTop;
-            const navLinkHeight = navLink.clientHeight;
-            const navLinkBottom = navLinkTop + navLinkHeight;
-            // Check if the navLink is _not_ completely bounded the container, top and bottom.
-            return !(navLinkTop >= 0 && navLinkBottom <= containerHeight);
-          })
-          .map(l => ({ label: l.title, value: l.link, icon: l.icon }));
+    });
+    return {
+      windowIsLarge,
+      windowIsMedium,
+      windowWidth,
+      themeConfig,
+      navLinks,
+       registerStep,
+      
+    };
+  },
+  props: {
+    /**
+     * An array of options objects, with one object per dropdown item
+     */
+    navigationLinks: {
+      type: Array,
+      default: () => [],
+      required: true,
+      validator(values) {
+        return values.every(value => value.link.name);
       },
-      styleOverrides() {
-        const styles = { maxHeight: '52px' };
-        if (this.windowIsLarge) {
-          return styles;
-        }
-        if (this.windowIsMedium) {
-          return styles;
-        }
-        styles.maxHeight = '42px';
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      mounted: false,
+
+    };
+
+
+  },
+  computed: {
+
+    allLinks() {
+      return this.navigationLinks.filter(l => !l.isHidden);
+    },
+    overflowMenuLinks() {
+      if (!this.mounted || isUndefined(this.windowWidth) || !this.title) {
+        return [];
+      }
+      const containerTop = this.$refs.items.offsetTop;
+      const containerHeight = this.$refs.items.clientHeight;
+      return this.allLinks
+        .filter((link, index) => {
+          const navLink = this.$refs.navLinks[index].$el;
+          // Calculate navLinkTop relative to the items by subtracting the container's top
+          const navLinkTop = navLink.offsetTop - containerTop;
+          const navLinkHeight = navLink.clientHeight;
+          const navLinkBottom = navLinkTop + navLinkHeight;
+          // Check if the navLink is _not_ completely bounded the container, top and bottom.
+          return !(navLinkTop >= 0 && navLinkBottom <= containerHeight);
+        })
+        .map(l => ({ label: l.title, value: l.link, icon: l.icon }));
+    },
+    styleOverrides() {
+      const styles = { maxHeight: '52px' };
+      if (this.windowIsLarge) {
         return styles;
-      },
+      }
+      if (this.windowIsMedium) {
+        return styles;
+      }
+      styles.maxHeight = '42px';
+      return styles;
     },
-    watch: {
-      // Whenever overflowMenuLinks changes, emit its new length
-      overflowMenuLinks(newValue) {
-        this.$emit('update-overflow-count', newValue.length);
-      },
+  },
+  watch: {
+    // Whenever overflowMenuLinks changes, emit its new length
+    overflowMenuLinks(newValue) {
+      this.$emit('update-overflow-count', newValue.length);
     },
-    mounted() {
-      this.mounted = true;
+
+  },
+  mounted() {
+    this.mounted = true;
+
+  },
+  methods: {
+
+    handleSelect(option) {
+      // Prevent redundant navigation
+      if (this.$route.name === option.value.name) {
+        return;
+      }
+      this.$router.push(this.$router.getRoute(option.value.name));
     },
-    methods: {
-      handleSelect(option) {
-        // Prevent redundant navigation
-        if (this.$route.name === option.value.name) {
-          return;
-        }
-        this.$router.push(this.$router.getRoute(option.value.name));
-      },
-    },
-  };
+
+  },
+};
 
 </script>
 
 
 <style lang="scss" scoped>
+@import '~kolibri-design-system/lib/styles/definitions';
 
-  @import '~kolibri-design-system/lib/styles/definitions';
+.items {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0;
+  margin-bottom: 4px;
+  margin-left: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+}
 
-  .items {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 0;
-    margin-bottom: 4px;
-    margin-left: 16px;
-    overflow: hidden;
-    white-space: nowrap;
-  }
+.kiconbutton-style {
+  flex-shrink: 0;
+  float: right;
+}
 
-  .kiconbutton-style {
-    flex-shrink: 0;
-    float: right;
-  }
-
-  .navbar-positioning {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
+.navbar-positioning {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 </style>
