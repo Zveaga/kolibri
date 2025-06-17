@@ -2,6 +2,57 @@
 
 List of the most important changes for each release.
 
+## 0.18.1
+
+### High level overview
+This release includes bug fixes and improvements, including resolving a longstanding bug where quizzes were not syncing when assigned to individual learners or learner groups when those learners were using learner-only devices. It also updates quizzes so that sections now have fixed question order by default, based on feedback we heard from our community.
+
+Finally, it contains some non-breaking technical pre-work for upcoming projects.
+
+### Added
+* Add scopedLabelsLoading to useBaseSearch to handle loading states for non-search displaying label fetching  by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13329
+* Use SQLAlchemy URL.create to better handle special characters in passwords by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13374
+* Add questions url prop to Bloom player by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13384
+* Add a date_deleted field to FacilityUser and add Django migration file by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13420
+* Add SoftDeletedFacilityUserModelManager by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13439
+* Initial setup for HTML Article Renderer plugin by @rtibbles in https://github.com/learningequality/kolibri/pull/13274
+
+
+### Changed
+* Cleans up no longer used component. by @rtibbles in https://github.com/learningequality/kolibri/pull/13349
+* Merge all commits from unmerged release branches but prefer all current changes by @rtibbles in https://github.com/learningequality/kolibri/pull/13362
+* cleans up learning activity imports from the learn plugin by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13233
+* Limit job update DB writes to significant events by @rtibbles in https://github.com/learningequality/kolibri/pull/13403
+* Reference new contributing guidelines by @MisRob in https://github.com/learningequality/kolibri/pull/13389
+* Quiz Creation: Sections have fixed question order by default by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13427
+* Remove deep KTextTruncator styles from AccessibleResourceCard by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13392
+* Upgrade version to 0.18.1 by @marcellamaki in https://github.com/learningequality/kolibri/pull/13444
+* Upgrade Kolibri windows installer for new signing workflow. by @rtibbles in https://github.com/learningequality/kolibri/pull/13487
+* Reduce size of built whl file by stripping unused Django locale files by @rtibbles in https://github.com/learningequality/kolibri/pull/13465
+
+
+### Fixed
+* Drag widget and lesson cleanup by @rtibbles in https://github.com/learningequality/kolibri/pull/13297
+* Resolve long standing issue which prevents proper refresh of stats file data. by @rtibbles in https://github.com/learningequality/kolibri/pull/13348
+* Fix LearnerSummaryPage lesson count discrepency by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13338
+* RTL fixes in Quiz Creation by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13340
+* Fix broken links in developer documentation by @vagrdev in https://github.com/learningequality/kolibri/pull/13343
+* Fix design issue in Facility > Class tables on Mac app and Safari by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13369
+* Fix coach filtering by @akolson in https://github.com/learningequality/kolibri/pull/13413
+* Fix blank issue template by @MisRob in https://github.com/learningequality/kolibri/pull/13432
+* Override get_queryset to exclude soft deleted users by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13423
+* Upgrade KDS version by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13441
+* Fix truncated learn filters select options by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13404
+* Remove empty div in favor of cards sync metrics by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13320
+* Set min-width: 0 to fix always truncated titles in Safari and Mac app by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13438
+* Restore the demo banner by @rtibbles in https://github.com/learningequality/kolibri/pull/13442
+* Don't override the adHoc learner assignments with the whole class by @marcellamaki in https://github.com/learningequality/kolibri/pull/13448
+* fix inadvertently swapped icons by @marcellamaki in https://github.com/learningequality/kolibri/pull/13454
+* Ensure "Submit quiz" button is visible in portrait mode on mobile when viewing practice quizzes by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13459
+* Fix learnergroup adhocgroup exam syncing by @marcellamaki in https://github.com/learningequality/kolibri/pull/13485
+* Handle all bad foreign keys by @rtibbles in https://github.com/learningequality/kolibri/pull/13486
+
+
 ## 0.18.0
 
 ### High level overview
