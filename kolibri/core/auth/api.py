@@ -28,6 +28,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -100,6 +101,10 @@ from kolibri.plugins.app.utils import interface
 from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
+
+
+class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
@@ -310,6 +315,7 @@ class FacilityUserFilter(FilterSet):
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
+    by_ids = UUIDInFilter(field_name="id")
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
@@ -349,7 +355,13 @@ class FacilityUserFilter(FilterSet):
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
+        fields = [
+            "member_of",
+            "user_type",
+            "exclude_member_of",
+            "exclude_user_type",
+            "by_ids",
+        ]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
@@ -406,7 +418,7 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         return output
 
 
-class FacilityUserViewSet(ValuesViewset):
+class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
     permission_classes = (KolibriAuthPermissions,)
     pagination_class = OptionalPageNumberPagination
     filter_backends = (
@@ -420,6 +432,9 @@ class FacilityUserViewSet(ValuesViewset):
     queryset = FacilityUser.objects.all().order_by(order_by_field)
     serializer_class = FacilityUserSerializer
     filterset_class = FacilityUserFilter
+    filterset_fields = [
+        "by_ids",
+    ]
     search_fields = ("username", "full_name")
 
     values = (
@@ -450,6 +465,22 @@ class FacilityUserViewSet(ValuesViewset):
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
+
+    def destroy(self, request, *args, **kwargs):
+        if kwargs.get("pk"):
+            # Single object deletion
+            user = self.get_object()
+            user.date_deleted = now()
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # Bulk deletion
+            return self.bulk_destroy(request, *args, **kwargs)
+
+    def perform_bulk_destroy(self, objects):
+        if objects.filter(id=self.request.user.id).exists():
+            raise PermissionDenied("Super user cannot delete self")
+        objects.update(date_deleted=now())
 
     def consolidate(self, items, queryset):
         output = []

@@ -1045,6 +1045,12 @@ class UserDeleteTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 204)
+        self.assertTrue(
+            models.FacilityUser.all_objects.filter(
+                id=self.user.id, date_deleted__isnull=False
+            ).exists()
+        )
+        self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
 
     def test_superuser_delete_self(self):
         response = self.client.delete(
@@ -1054,6 +1060,36 @@ class UserDeleteTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+    def test_bulk_delete_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
+        )
+
+        self.assertEqual(response.status_code, 204)
+        for user in users:
+            self.assertTrue(
+                models.FacilityUser.all_objects.filter(
+                    id=user.id, date_deleted__isnull=False
+                ).exists()
+            )
+            self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
+
+    def test_bulk_delete_excludes_superuser(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(2)]
+        user_ids = [str(user.id) for user in users] + [str(self.superuser.id)]
+
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
+        )
+        self.assertEqual(response.status_code, 403)
+
+        self.assertTrue(
+            models.FacilityUser.objects.filter(id=self.superuser.id).exists()
+        )
 
 
 class UserRetrieveTestCase(APITestCase):
