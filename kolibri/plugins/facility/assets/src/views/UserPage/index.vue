@@ -132,16 +132,14 @@
         >
           <template #header="{ header, colIndex }">
             <template v-if="colIndex === 0">
-              <div :aria-label="selectLabel$()">
-                <KCheckbox
-                  :label="selectAllLabel$()"
-                  :checked="selectAllState.checked"
-                  :indeterminate="selectAllState.indeterminate"
-                  :showLabel="false"
-                  :ariaLabel="selectAllLabel$()"
-                  @change="handleSelectAllToggle"
-                />
-              </div>
+              <KCheckbox
+                :label="selectAllLabel$()"
+                :checked="selectAllState.checked"
+                :indeterminate="selectAllState.indeterminate"
+                :showLabel="false"
+                :aria-label="selectAllLabel$()"
+                @change="handleSelectAllToggle"
+              />
             </template>
             <template v-else>
               <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
@@ -156,11 +154,9 @@
           </template>
 
           <template #cell="{ content, colIndex, row }">
-            <div
-              v-if="colIndex === 0"
-              :aria-label="selectLabel$()"
-            >
+            <div v-if="colIndex === 0">
               <KCheckbox
+                :label="selectLabel$()"
                 :checked="isUserSelected(row[6])"
                 :showLabel="false"
                 :aria-label="row[1] + ',' + row[6].kind"
@@ -362,7 +358,7 @@
           {
             label: this.coreString('genderLabel'),
             dataType: 'string',
-            minWidth: '150px',
+            minWidth: '120px',
             width: '10%',
             columnId: 'gender',
           },
@@ -370,14 +366,14 @@
           {
             label: this.coreString('birthYearLabel'),
             dataType: 'date',
-            minWidth: '200px',
+            minWidth: '120px',
             width: '10%',
             columnId: 'birth_year',
           },
           {
             label: this.createdAt$(),
             dataType: 'date',
-            minWidth: '200px',
+            minWidth: '150px',
             width: '10%',
             columnId: 'created_at',
           },
