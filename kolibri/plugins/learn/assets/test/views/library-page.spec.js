@@ -147,7 +147,7 @@ describe('LibraryPage', () => {
     });
   });
 
-  describe('displaying channels and recent/popular content ', () => {
+  describe('displaying channels and recent/popular content', () => {
     beforeAll(() => {
       useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
