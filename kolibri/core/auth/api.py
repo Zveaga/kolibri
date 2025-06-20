@@ -533,9 +533,8 @@ class DeletedFacilityUserViewSet(FacilityUserViewSet):
             user = self.get_object()
             user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            # Bulk deletion
-            return self.bulk_destroy(request, *args, **kwargs)
+        # Bulk deletion
+        return self.bulk_destroy(request, *args, **kwargs)
 
     def perform_bulk_destroy(self, objects):
         if objects.filter(id=self.request.user.id).exists():
@@ -548,9 +547,7 @@ class DeletedFacilityUserViewSet(FacilityUserViewSet):
         By default this checks that the restore is only applied to
         filtered querysets.
         """
-        return any(
-            key in self.filterset_fields for key in self.request.query_params.keys()
-        )
+        return any(key in self.filterset_fields for key in self.request.query_params)
 
     @decorators.action(detail=False, methods=["patch"])
     def restore(self, request):

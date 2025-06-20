@@ -10,6 +10,7 @@ import factory
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
+from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import SyncSession
@@ -1089,6 +1090,169 @@ class UserDeleteTestCase(APITestCase):
 
         self.assertTrue(
             models.FacilityUser.objects.filter(id=self.superuser.id).exists()
+        )
+
+    def test_get_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Get soft-deleted users
+        response = self.client.get(reverse("kolibri:core:deletedfacilityuser-list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(users))
+        for user in users:
+            self.assertTrue(
+                any(
+                    deleted_user["id"] == str(user.id) for deleted_user in response.data
+                )
+            )
+        self.assertTrue(
+            all(
+                deleted_user["date_deleted"] is not None
+                for deleted_user in response.data
+            )
+        )
+
+    def test_date_deleted_ordering(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        for idx, user in enumerate(users):
+            with patch(
+                "django.utils.timezone.now",
+                return_value=timezone.now() - timedelta(days=idx + 1),
+            ):
+                self.client.delete(
+                    reverse("kolibri:core:facilityuser-detail", kwargs={"pk": user.pk})
+                )
+            models.FacilityUser.objects.filter(id=user.id).update(
+                date_deleted=timezone.now() - timedelta(days=idx + 1)
+            )
+
+        # Get soft-deleted users ordered by date_deleted
+        response = self.client.get(
+            reverse("kolibri:core:deletedfacilityuser-list") + "?ordering=date_deleted"
+        )
+
+        expected_users = (
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids)
+            .order_by("date_deleted")
+            .values_list("id", flat=True)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(expected_users))
+
+        for idx, deleted_user in enumerate(response.data):
+            self.assertEqual(deleted_user["id"], str(expected_users[idx]))
+
+    def test_bulk_hard_delete_without_byids_filters(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Hard delete users with member_of filter
+        response = self.client.delete(
+            reverse("kolibri:core:deletedfacilityuser-list")
+            + f"?member_of={self.facility.id}"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
+        )
+
+    def test_bulk_hard_delete_non_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        # Hard delete users without being soft deleted
+        response = self.client.delete(
+            reverse("kolibri:core:deletedfacilityuser-list")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
+        )
+
+    def test_bulk_hard_delete_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Hard delete users
+        response = self.client.delete(
+            reverse("kolibri:core:deletedfacilityuser-list")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).exists()
+        )
+
+    def test_restore_soft_deleted_users_without_byids_filters(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Restore soft deleted users without by_ids filter
+        response = self.client.patch(
+            reverse("kolibri:core:deletedfacilityuser-restore")
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids).count(),
+            len(users),
+        )
+
+    def test_restore_non_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        # Restore non-soft deleted users
+        response = self.client.patch(
+            reverse("kolibri:core:deletedfacilityuser-restore")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_restore_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Restore soft deleted users
+        response = self.client.patch(
+            reverse("kolibri:core:deletedfacilityuser-restore")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids).exists()
+        )
+        self.assertEqual(
+            models.FacilityUser.objects.filter(id__in=user_ids).count(), len(users)
         )
 
 
