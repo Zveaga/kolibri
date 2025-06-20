@@ -457,6 +457,7 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
         "id",
         "username",
         "full_name",
+        "id_number",
         "gender",
         "birth_year",
         "date_joined",
@@ -504,8 +505,9 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
             if ordering_param.startswith("-"):
                 ordering_param = ordering_param[1:]
                 reverse = True
-
-        output = sorted(output, key=lambda x: x[ordering_param], reverse=reverse)
+        output = sorted(
+            output, key=lambda x: x.get(ordering_param, ""), reverse=reverse
+        )
         return output
 
     def perform_update(self, serializer):
