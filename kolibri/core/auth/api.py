@@ -517,6 +517,60 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
             update_session_auth_hash(self.request, instance)
 
 
+class DeletedFacilityUserViewSet(FacilityUserViewSet):
+    """Viewset for managing soft-deleted FacilityUsers."""
+
+    order_by_field = "username"
+    queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
+
+    values = FacilityUserViewSet.values + ("date_deleted",)
+    ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
+
+    def destroy(self, request, *args, **kwargs):
+        # Hard delete a user
+        if kwargs.get("pk"):
+            # Single object deletion
+            user = self.get_object()
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # Bulk deletion
+            return self.bulk_destroy(request, *args, **kwargs)
+
+    def perform_bulk_destroy(self, objects):
+        if objects.filter(id=self.request.user.id).exists():
+            raise PermissionDenied("Super user cannot delete self")
+        objects.delete()
+
+    def allow_bulk_restore(self):
+        """
+        Hook to ensure that the bulk restore should be allowed.
+        By default this checks that the restore is only applied to
+        filtered querysets.
+        """
+        return any(
+            key in self.filterset_fields for key in self.request.query_params.keys()
+        )
+
+    @decorators.action(detail=False, methods=["patch"])
+    def restore(self, request):
+        """
+        Restore soft-deleted FacilityUsers.
+        """
+        if not self.allow_bulk_restore():
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        users = self.filter_queryset(self.get_queryset())
+        if not users.exists():
+            raise Http404("No deleted users found to restore.")
+
+        users.update(date_deleted=None)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class SanitizeInputsSerializer(serializers.Serializer):
     username = serializers.CharField()
     facility = HexOnlyUUIDField()
