@@ -1,22 +1,22 @@
 <template>
 
-  <ImmersivePage
-    :route="$store.getters.facilityPageLinks.UserPage"
-    :appBarTitle="coreString('usersLabel')"
-    :loading="loading"
+  <SidePanelModal
+    alignment="right"
+    sidePanelWidth="700px"
+    closeButtonIconType="close"
+    @closePanel="$emit('close')"
   >
-    <KPageContainer
-      v-if="!loading"
-      class="narrow-container"
-    >
+    <template #header>
+      <h1 class="side-panel-title">
+        {{ $tr('createNewUserHeader') }}
+      </h1>
+    </template>
+    <template #default>
       <form
+        v-if="!loading"
         class="form"
         @submit.prevent="submitForm"
       >
-        <h1>
-          {{ $tr('createNewUserHeader') }}
-        </h1>
-
         <section>
           <FullNameTextbox
             ref="fullNameTextbox"
@@ -98,25 +98,26 @@
             :disabled="busy"
           />
         </section>
-
-        <div class="buttons">
-          <KButtonGroup style="margin-top: 8px">
-            <KButton
-              type="submit"
-              :text="coreString('saveAction')"
-              :disabled="busy"
-              :primary="true"
-            />
-            <KButton
-              :text="coreString('cancelAction')"
-              :disabled="busy"
-              @click="goToUserManagementPage()"
-            />
-          </KButtonGroup>
-        </div>
       </form>
-    </KPageContainer>
-  </ImmersivePage>
+    </template>
+    <template #bottomNavigation>
+      <div class="bottom-nav-container">
+        <KButtonGroup>
+          <KButton
+            type="submit"
+            :text="saveAndClose$()"
+            :disabled="busy"
+            :primary="true"
+          />
+          <KButton
+            :text="saveAndAddAnother$()"
+            :disabled="busy"
+            @click="goToUserManagementPage()"
+          />
+        </KButtonGroup>
+      </div>
+    </template>
+  </SidePanelModal>
 
 </template>
 
@@ -125,23 +126,26 @@
 
   import every from 'lodash/every';
   import { mapState, mapGetters } from 'vuex';
-  import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
+
   import CatchErrors from 'kolibri/utils/CatchErrors';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
   import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
   import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
-  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
   export default {
-    name: 'UserCreatePage',
+    name: 'UserCreateSidePanel',
     metaInfo() {
       return {
         title: this.$tr('createNewUserHeader'),
@@ -154,15 +158,19 @@
       FullNameTextbox,
       PasswordTextbox,
       IdentifierTextbox,
-      ImmersivePage,
+      SidePanelModal,
       ExtraDemographics,
     },
     mixins: [commonCoreStrings],
     setup() {
       const { getFacilityConfig, facilityConfig } = useFacilities();
+      const { saveAndClose$ } = coreStrings;
+      const { saveAndAddAnother$ } = bulkUserManagementStrings;
       return {
         getFacilityConfig,
         facilityConfig,
+        saveAndClose$,
+        saveAndAddAnother$,
       };
     },
     data() {
@@ -325,22 +333,23 @@
     margin: 18px 0 36px;
   }
 
-  .buttons {
-    button:first-of-type {
-      margin-left: 0;
-    }
-  }
-
-  .narrow-container {
-    max-width: 500px;
-    margin: auto;
-    overflow: visible;
-  }
-
   .form {
-    max-width: 400px;
-    margin-right: auto;
-    margin-left: auto;
+    width: 100%;
+  }
+
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /deep/ .textbox {
+    max-width: 100% !important;
+  }
+
+  .bottom-nav-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
   }
 
 </style>

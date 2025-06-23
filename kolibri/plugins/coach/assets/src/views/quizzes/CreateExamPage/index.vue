@@ -118,7 +118,7 @@
   import { ref, getCurrentInstance } from 'vue';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
@@ -159,7 +159,6 @@
       initClassInfo().then(() => store.dispatch('notLoading'));
 
       const {
-        saveAndClose$,
         allSectionsEmptyWarning$,
         changesSavedSuccessfully$,
         sectionOrderLabel$,
@@ -170,6 +169,7 @@
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
+      const { saveAndClose$ } = coreStrings;
 
       return {
         closeConfirmationTitle$,

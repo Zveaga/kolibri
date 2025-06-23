@@ -80,6 +80,11 @@
         </KTable>
       </PaginatedListContainerWithBackend>
     </KPageContainer>
+    <UserCreateSidePanel
+      v-if="isCreateUserSidePanelOpen"
+      @close="isCreateUserSidePanelOpen = false"
+      @save="onUserCreate"
+    />
   </ImmersivePage>
 
 </template>
@@ -87,8 +92,9 @@
 
 <script>
 
-  import { onMounted } from 'vue';
   import { mapState } from 'vuex';
+  import store from 'kolibri/store';
+  import { onMounted, ref } from 'vue';
   import { pickBy, debounce } from 'lodash';
   import { useRouter, useRoute } from 'vue-router/composables';
 
@@ -103,6 +109,7 @@
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
 
   import { showUserPage } from '../../modules/userManagement/handlers';
+  import UserCreateSidePanel from './sidePanels/UserCreate/index.vue';
 
   const ALL_FILTER = 'all';
 
@@ -114,12 +121,15 @@
       CoreInfoIcon,
       GenderDisplayText,
       BirthYearDisplayText,
+      UserCreateSidePanel,
       PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
     setup() {
       const router = useRouter();
       const route = useRoute();
+      const isCreateUserSidePanelOpen = ref(true);
+
       onMounted(() => {
         const last30Days = new Date();
         last30Days.setDate(last30Days.getDate() - 30);
@@ -132,11 +142,17 @@
         });
       });
 
+      function onUserCreate() {
+        showUserPage(store, route, null);
+      }
+
       const { newUsers$, backToUsers$ } = bulkUserManagementStrings;
 
       return {
+        isCreateUserSidePanelOpen,
         newUsers$,
         backToUsers$,
+        onUserCreate,
       };
     },
     computed: {

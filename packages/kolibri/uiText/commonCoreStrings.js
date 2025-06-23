@@ -135,6 +135,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'When a user edits an entity in Kolibri and no more changes are needed so we close the given view after that.',
   },
+  saveAndClose: {
+    message: 'Save and close',
+    context:
+      'When a user edits an entity in a dialog/side panel and no more changes are needed so we close the dialog after that.',
+  },
   selectAllOnPageAction: {
     message: 'Select all on page',
     context:
