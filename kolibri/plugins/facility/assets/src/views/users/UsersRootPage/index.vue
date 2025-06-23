@@ -265,9 +265,9 @@
   import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import cloneDeep from 'lodash/cloneDeep';
   import useUser from 'kolibri/composables/useUser';
-  import useUserManagement from '../../composables/useUserManagement';
-  import FacilityAppBarPage from '../FacilityAppBarPage';
-  import { Modals, PageNames } from '../../constants';
+  import useUserManagement from '../../../composables/useUserManagement';
+  import FacilityAppBarPage from '../../FacilityAppBarPage';
+  import { Modals, PageNames } from '../../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 

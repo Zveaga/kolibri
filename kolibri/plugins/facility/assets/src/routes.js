@@ -12,7 +12,7 @@ import DataPage from './views/DataPage';
 import ImportCsvPage from './views/ImportCsvPage';
 import FacilityConfigPage from './views/FacilityConfigPage';
 import ManageClassPage from './views/ManageClassPage';
-import UserPage from './views/UserPage';
+import UsersRootPage from './views/users/UsersRootPage';
 import UserCreatePage from './views/UserCreatePage';
 import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
@@ -77,10 +77,10 @@ export default [
   },
   {
     name: PageNames.USER_MGMT_PAGE,
-    component: UserPage,
+    component: UsersRootPage,
     path: '/:facility_id?/users/',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
+      if (facilityParamRequiredGuard(toRoute, UsersRootPage.name)) {
         return;
       }
     },
