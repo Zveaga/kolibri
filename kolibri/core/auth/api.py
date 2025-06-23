@@ -31,6 +31,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
+from django_filters.rest_framework import DateTimeFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -317,6 +318,14 @@ class FacilityUserFilter(FilterSet):
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
+    date_joined__gt = DateTimeFilter(
+        field_name="date_joined",
+        lookup_expr="gt",
+    )
+    date_joined__lt = DateTimeFilter(
+        field_name="date_joined",
+        lookup_expr="lt",
+    )
     by_ids = UUIDInFilter(field_name="id")
 
     def filter_member_of(self, queryset, name, value):
@@ -363,6 +372,8 @@ class FacilityUserFilter(FilterSet):
             "exclude_member_of",
             "exclude_user_type",
             "by_ids",
+            "date_joined__gt",
+            "date_joined__lt",
         ]
 
 

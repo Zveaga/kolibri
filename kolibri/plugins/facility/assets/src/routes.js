@@ -13,7 +13,7 @@ import ImportCsvPage from './views/ImportCsvPage';
 import FacilityConfigPage from './views/FacilityConfigPage';
 import ManageClassPage from './views/ManageClassPage';
 import UsersRootPage from './views/users/UsersRootPage';
-import UserCreatePage from './views/UserCreatePage';
+import NewUsersPage from './views/users/NewUsersPage.vue';
 import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
 import { showClassesPage } from './modules/classManagement/handlers';
@@ -94,7 +94,7 @@ export default [
   },
   {
     name: PageNames.USER_CREATE_PAGE,
-    component: UserCreatePage,
+    component: NewUsersPage,
     path: '/:facility_id?/users/new',
     handler: () => {
       store.dispatch('preparePage', { isAsync: false });
