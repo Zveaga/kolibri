@@ -5,95 +5,84 @@
   line-height: $line-height;
 }
 
-body {
-  padding-bottom: 40px;
-  background-color: white;
+// Due to the recursive rendering every sub-element has the safe-html class applied
+// so we use these compound selectors to specify styling.
+h1.safe-html {
+  @include text-style(bold, 32px, 130%);
+
+  margin: 32px auto 24px;
 }
 
-.content-renderer > div {
-  margin: 40px 16px;
+h2.safe-html {
+  @include text-style(bold, 28px, 130%);
+
+  margin: 24px auto 16px;
 }
 
-.safe-html {
-  // Due to the recursive rendering every sub-element has the safe-html class applied
-  // so we use these combinatorial selectors to specify styling.
-  h1 {
-    @include text-style(bold, 32px, 130%);
+h3.safe-html {
+  @include text-style(bold, 24px, 130%);
 
-    margin: 32px auto 24px;
-  }
+  margin: 12px auto;
+}
 
-  h2 {
-    @include text-style(bold, 28px, 130%);
+h4.safe-html {
+  @include text-style(600, 20px, 130%);
 
-    margin: 24px auto 16px;
-  }
+  margin: 8px auto;
+}
 
-  h3 {
-    @include text-style(bold, 24px, 130%);
+h5.safe-html {
+  @include text-style(600, 18px, 130%);
 
-    margin: 12px auto;
-  }
+  margin: 8px auto;
+}
 
-  h4 {
-    @include text-style(600, 20px, 130%);
+h6.safe-html {
+  @include text-style(600, 16px, 130%);
 
-    margin: 8px auto;
-  }
+  margin: 8px auto;
+}
 
-  h5 {
-    @include text-style(600, 18px, 130%);
+p.safe-html {
+  @include text-style();
 
-    margin: 8px auto;
-  }
+  margin: 8px auto;
+}
 
-  h6 {
-    @include text-style(600, 16px, 130%);
+ul.safe-html,
+ol.safe-html {
+  @include text-style();
 
-    margin: 8px auto;
-  }
+  padding-left: 24px;
+  margin: 8px auto;
+}
 
-  p {
-    @include text-style();
+li.safe-html {
+  margin-left: 18px;
+}
 
-    margin: 8px auto;
-  }
+li.safe-html ~ li.safe-html {
+  margin-top: 4px;
+}
 
-  ul,
-  ol {
-    @include text-style();
+dl.safe-html {
+  max-width: 640px;
+  margin: 8px auto;
+}
 
-    padding-left: 24px;
-    margin: 8px auto;
-  }
+dt.safe-html {
+  @include text-style(600);
+}
 
-  li {
-    margin-left: 18px;
-  }
+dd.safe-html {
+  @include text-style();
 
-  li ~ li {
-    margin-top: 4px;
-  }
+  padding-left: 24px;
+  margin-top: 4px;
+  margin-left: 0;
+}
 
-  dl {
-    max-width: 640px;
-    margin: 8px auto;
-  }
-
-  dt {
-    @include text-style(600);
-  }
-
-  dd {
-    @include text-style();
-
-    padding-left: 24px;
-    margin-top: 4px;
-    margin-left: 0;
-  }
-
-  strong,
-  b {
-    @include text-style(bold);
-  }
+strong.safe-html,
+b.safe-html {
+  @include text-style(bold);
 }
