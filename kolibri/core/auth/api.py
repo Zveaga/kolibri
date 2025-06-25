@@ -49,6 +49,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -418,7 +419,40 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         return output
 
 
-class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
+class FacilityUserConsolidateMixin(object):
+    """
+    Mixin for FacilityUser ViewSets to handle consolidate logic
+    """
+
+    def consolidate(self, items, queryset):
+        output = []
+        items = sorted(items, key=lambda x: x["id"])
+        ordering_param = self.request.query_params.get("ordering", self.order_by_field)
+        reverse = False
+        for key, group in groupby(items, lambda x: x["id"]):
+            roles = []
+            for item in group:
+                role = {
+                    "collection": item.pop("roles__collection"),
+                    "kind": item.pop("roles__kind"),
+                    "id": item.pop("roles__id"),
+                }
+                if role["collection"]:
+                    # Our values call will return null for users with no assigned roles
+                    # So filter them here.
+                    roles.append(role)
+            item["roles"] = roles
+            output.append(item)
+            if ordering_param.startswith("-"):
+                ordering_param = ordering_param[1:]
+                reverse = True
+        output = sorted(
+            output, key=lambda x: x.get(ordering_param, ""), reverse=reverse
+        )
+        return output
+
+
+class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDeleteMixin):
     permission_classes = (KolibriAuthPermissions,)
     pagination_class = OptionalPageNumberPagination
     filter_backends = (
@@ -481,33 +515,6 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
             raise PermissionDenied("Super user cannot delete self")
         objects.update(date_deleted=now())
 
-    def consolidate(self, items, queryset):
-        output = []
-        items = sorted(items, key=lambda x: x["id"])
-        ordering_param = self.request.query_params.get("ordering", self.order_by_field)
-        reverse = False
-        for key, group in groupby(items, lambda x: x["id"]):
-            roles = []
-            for item in group:
-                role = {
-                    "collection": item.pop("roles__collection"),
-                    "kind": item.pop("roles__kind"),
-                    "id": item.pop("roles__id"),
-                }
-                if role["collection"]:
-                    # Our values call will return null for users with no assigned roles
-                    # So filter them here.
-                    roles.append(role)
-            item["roles"] = roles
-            output.append(item)
-            if ordering_param.startswith("-"):
-                ordering_param = ordering_param[1:]
-                reverse = True
-        output = sorted(
-            output, key=lambda x: x.get(ordering_param, ""), reverse=reverse
-        )
-        return output
-
     def perform_update(self, serializer):
         instance = serializer.save()
         # if the user is updating their own password, ensure they don't get logged out
@@ -515,29 +522,32 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
             update_session_auth_hash(self.request, instance)
 
 
-class DeletedFacilityUserViewSet(FacilityUserViewSet):
+class DeletedFacilityUserViewSet(
+    FacilityUserConsolidateMixin,
+    ReadOnlyValuesViewset,
+    DestroyModelMixin,
+    BulkDeleteMixin,
+):
     """Viewset for managing soft-deleted FacilityUsers."""
+
+    permission_classes = (KolibriAuthPermissions,)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        ValuesViewsetOrderingFilter,
+    )
 
     order_by_field = "-date_deleted"
     queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
+    serializer_class = FacilityUserSerializer
+    filterset_class = FacilityUserFilter
 
+    search_fields = FacilityUserViewSet.search_fields
     values = FacilityUserViewSet.values + ("date_deleted",)
     ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
-
-    def destroy(self, request, *args, **kwargs):
-        # Hard delete a user
-        if kwargs.get("pk"):
-            # Single object deletion
-            user = self.get_object()
-            user.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        # Bulk deletion
-        return self.bulk_destroy(request, *args, **kwargs)
-
-    def perform_bulk_destroy(self, objects):
-        if objects.filter(id=self.request.user.id).exists():
-            raise PermissionDenied("Super user cannot delete self")
-        objects.delete()
+    field_map = FacilityUserViewSet.field_map
 
     def allow_bulk_restore(self):
         """
@@ -563,18 +573,6 @@ class DeletedFacilityUserViewSet(FacilityUserViewSet):
         users.update(date_deleted=None)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def create(self, request, *args, **kwargs):
-        # Prevent creation of soft-deleted users
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def update(self, request, *args, **kwargs):
-        # Prevent updating of soft-deleted users
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        # Prevent partial updating of soft-deleted users
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class SanitizeInputsSerializer(serializers.Serializer):

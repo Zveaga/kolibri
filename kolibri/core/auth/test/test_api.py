@@ -1344,6 +1344,7 @@ class UserRetrieveTestCase(APITestCase):
 
     def test_user_list(self):
         response = self._make_request(self.superuser)
+        self.maxDiff = None
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
