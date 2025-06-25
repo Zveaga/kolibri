@@ -1149,7 +1149,7 @@ class UserDeleteTestCase(APITestCase):
         for idx, deleted_user in enumerate(response.data):
             self.assertEqual(deleted_user["id"], str(expected_users[idx]))
 
-    def test_bulk_hard_delete_without_byids_filters(self):
+    def test_bulk_hard_delete_without_filters(self):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1157,11 +1157,8 @@ class UserDeleteTestCase(APITestCase):
             reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
         )
 
-        # Hard delete users with member_of filter
-        response = self.client.delete(
-            reverse("kolibri:core:deletedfacilityuser-list")
-            + f"?member_of={self.facility.id}"
-        )
+        # Hard delete users without any filters
+        response = self.client.delete(reverse("kolibri:core:deletedfacilityuser-list"))
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
@@ -1202,7 +1199,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.all_objects.filter(id__in=user_ids).exists()
         )
 
-    def test_restore_soft_deleted_users_without_byids_filters(self):
+    def test_restore_soft_deleted_users_without_filters(self):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1210,10 +1207,8 @@ class UserDeleteTestCase(APITestCase):
             reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
         )
 
-        # Restore soft deleted users without by_ids filter
-        response = self.client.patch(
-            reverse("kolibri:core:deletedfacilityuser-restore")
-        )
+        # Restore soft deleted users without filters
+        response = self.client.post(reverse("kolibri:core:deletedfacilityuser-restore"))
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
@@ -1226,7 +1221,7 @@ class UserDeleteTestCase(APITestCase):
         user_ids = [str(user.id) for user in users]
 
         # Restore non-soft deleted users
-        response = self.client.patch(
+        response = self.client.post(
             reverse("kolibri:core:deletedfacilityuser-restore")
             + f"?by_ids={','.join(user_ids)}"
         )
@@ -1242,7 +1237,7 @@ class UserDeleteTestCase(APITestCase):
         )
 
         # Restore soft deleted users
-        response = self.client.patch(
+        response = self.client.post(
             reverse("kolibri:core:deletedfacilityuser-restore")
             + f"?by_ids={','.join(user_ids)}"
         )
@@ -1254,6 +1249,38 @@ class UserDeleteTestCase(APITestCase):
         self.assertEqual(
             models.FacilityUser.objects.filter(id__in=user_ids).count(), len(users)
         )
+
+    def test_not_able_to_create_soft_deleted_user(self):
+        # Try to create a new user with the same username as a soft-deleted user
+        new_user_data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-list"),
+            new_user_data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 405)
+
+    def test_not_able_to_update_soft_deleted_user(self):
+        # Create a user and then soft delete it
+        user = FacilityUserFactory.create(facility=self.facility, username="testuser")
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": user.pk})
+        )
+
+        # Try to update the soft-deleted user
+        update_data = {"username": "updateduser"}
+        response = self.client.patch(
+            reverse("kolibri:core:deletedfacilityuser-detail", kwargs={"pk": user.pk}),
+            update_data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 405)
 
 
 class UserRetrieveTestCase(APITestCase):

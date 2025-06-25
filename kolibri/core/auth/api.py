@@ -432,9 +432,7 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
     queryset = FacilityUser.objects.all().order_by(order_by_field)
     serializer_class = FacilityUserSerializer
     filterset_class = FacilityUserFilter
-    filterset_fields = [
-        "by_ids",
-    ]
+
     search_fields = ("username", "full_name")
 
     values = (
@@ -520,7 +518,7 @@ class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
 class DeletedFacilityUserViewSet(FacilityUserViewSet):
     """Viewset for managing soft-deleted FacilityUsers."""
 
-    order_by_field = "username"
+    order_by_field = "-date_deleted"
     queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
 
     values = FacilityUserViewSet.values + ("date_deleted",)
@@ -544,12 +542,11 @@ class DeletedFacilityUserViewSet(FacilityUserViewSet):
     def allow_bulk_restore(self):
         """
         Hook to ensure that the bulk restore should be allowed.
-        By default this checks that the restore is only applied to
-        filtered querysets.
+        By default, these restrictions are the same as for bulk deletion,
         """
-        return any(key in self.filterset_fields for key in self.request.query_params)
+        return self.allow_bulk_destroy(self.get_queryset())
 
-    @decorators.action(detail=False, methods=["patch"])
+    @decorators.action(detail=False, methods=["post"])
     def restore(self, request):
         """
         Restore soft-deleted FacilityUsers.
@@ -566,6 +563,18 @@ class DeletedFacilityUserViewSet(FacilityUserViewSet):
         users.update(date_deleted=None)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def create(self, request, *args, **kwargs):
+        # Prevent creation of soft-deleted users
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        # Prevent updating of soft-deleted users
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Prevent partial updating of soft-deleted users
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class SanitizeInputsSerializer(serializers.Serializer):
