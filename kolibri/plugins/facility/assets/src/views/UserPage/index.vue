@@ -132,12 +132,12 @@
         >
           <template #header="{ header, colIndex }">
             <template v-if="colIndex === 0">
+              <span class="secreen-reader-only">{{ selectLabel$() }}</span>
               <KCheckbox
                 :label="selectAllLabel$()"
                 :checked="selectAllState.checked"
                 :indeterminate="selectAllState.indeterminate"
                 :showLabel="false"
-                :aria-label="selectAllLabel$()"
                 @change="handleSelectAllToggle"
               />
             </template>
@@ -740,6 +740,18 @@
   .filter-button {
     padding-top: 8px;
     margin-left: 1em;
+  }
+
+  .secreen-reader-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
 </style>
