@@ -1,263 +1,253 @@
 <template>
+
   <div>
-    <div v-if="showOverlay" class="spotlight-overlay" :style="overlayStyle"></div>
+    <div
+      v-if="showOverlay"
+      class="spotlight-overlay"
+      :style="overlayStyle"
+    ></div>
     <slot></slot>
   </div>
+
 </template>
+
+
 <script>
-import tippy from "tippy.js";
-export default {
-  name: 'TooltipTour',
-  props: {
-    steps: { type: Array, required: true },
-    elements: { type: Array, required: true },
-  },
-  data() {
-    return {
-      currentStepIndex: 0,
-      tippyInstance: null,
-      showOverlay: false,
-      overlayStyle: {},
-    };
-  },
-  methods: {
-    showTooltip() {
-      if (this.tippyInstance) this.tippyInstance.destroy();
-      this.$nextTick(() => {
+
+  import tippy from 'tippy.js';
+  import Vue from 'vue';
+  import TooltipContent from './TooltipContent.vue';
+
+  export default {
+    name: 'TooltipTour',
+    props: {
+      steps: { type: Array, required: true },
+    },
+    data() {
+      return {
+        currentStepIndex: 0,
+        tippyInstance: null,
+        showOverlay: false,
+        overlayStyle: {},
+      };
+    },
+
+    mounted() {
+      this.showTooltip();
+    },
+    methods: {
+      showTooltip() {
+        if (this.tippyInstance) {
+          this.tippyInstance.destroy();
+          this.tippyInstance = null;
+        }
+
+        this.$nextTick(() => {
+          const currentStep = this.steps[this.currentStepIndex];
+          if (!currentStep) return;
+
+          const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
+
+          if (!target) {
+            return;
+          }
+
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          this.showOverlay = true;
+          const TooltipConstructor = Vue.extend(TooltipContent);
+          const instance = new TooltipConstructor({
+            propsData: {
+              steps: this.steps,
+              currentStepIndex: this.currentStepIndex,
+            },
+          });
+
+          instance.$on('next', this.nextStep);
+          instance.$on('back', this.prevStep);
+          instance.$on('close', this.endTour);
+          instance.$mount();
+          this.updateOverlay();
+          window.addEventListener('scroll', this.updateOverlay, true);
+          window.addEventListener('resize', this.updateOverlay);
+          try {
+            this.tippyInstance = tippy(target, {
+              content: instance.$el,
+              allowHTML: true,
+              placement: 'right-start',
+              interactive: true,
+              trigger: 'manual',
+              appendTo: document.body,
+              arrow: false,
+              theme: 'onboarding',
+              animateFill: true,
+              popperOptions: {
+                modifiers: {
+                  offset: {
+                    offset: '50, 0',
+                  },
+                },
+              },
+            });
+
+            if (this.tippyInstance?.show) {
+              this.tippyInstance.show();
+            }
+          } catch (e) {
+            console.log('Error showing tooltip:', e);
+          }
+        });
+      },
+      updateOverlay() {
         const currentStep = this.steps[this.currentStepIndex];
-        if (!currentStep) {
-          console.warn(
-            `No step found at index ${this.currentStepIndex} in steps:`,
-            this.steps
-          );
-          return;
-        }
-        const target = this.elements.find(
-          (el) => el.key === currentStep.key
-        )?.el;
-
-
-        if (!target) {
-          console.warn(`Element for step "${currentStep.key}" not found`);
-          return;
-        }
-        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
+        if (!target) return;
 
         const rect = target.getBoundingClientRect();
-        const offsetTop = 0;
-        const heightFromTop = rect.top + rect.height;
 
         this.overlayStyle = {
-          position: "fixed",
+          position: 'fixed',
           left: `${rect.left}px`,
-          top: `${offsetTop}px`,
+          top: `${rect.top}px`,
           width: `${rect.width}px`,
-          height: `${heightFromTop}px`,
-          borderRadius: "4px",
-          boxShadow:
-            "0 0 0 10000px rgba(0, 0, 0, 0.5), 0px 0px 0px 0px rgba(0,0,0,0.3) inset",
+          height: `${rect.height}px`,
+          borderRadius: '4px',
+          boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
           zIndex: 998,
-          pointerEvents: "none",
+          pointerEvents: 'none',
         };
-        this.showOverlay = true;
-        this.tippyInstance = tippy(target, {
-          content: this.getTooltipContent(),
-          allowHTML: true,
-          placement: "right-start",
-          interactive: true,
-          trigger: "manual",
-          appendTo: document.body,
-          arrow: false,
-          theme: "onboarding",
-          animateFill: true,
-          popperOptions: {
-            modifiers: {
-              offset: {
-                offset: "50, 0",
-              },
-            },
-          },
-          onShow: () => {
-            setTimeout(() => {
-              document
-                .querySelector(".continue-btn")
-                ?.addEventListener("click", this.nextStep);
-              document
-                .querySelector(".close-btn")
-                ?.addEventListener("click", this.endTour);
-            }, 10);
-          },
-        });
-
-
-        this.tippyInstance.show();
-      });
-    },
-    getTooltipContent() {
-      return `
-        <div class="onboarding-tooltip">
-          <div class="onboarding-tooltip-header">
-            <div class="onboarding-tooltip-progress">
-              ${this.steps
-          .map(
-            (_, i) =>
-              `<span class="dot ${i === this.currentStepIndex ? "active" : ""
-              }"></span>`
-          )
-          .join("")}
-            </div>
-            <button class="close-btn" aria-label="Close">✖</button>
-          </div>
-          <div class="onboarding-tooltip-body">
-            <p>${this.steps[this.currentStepIndex].content}</p>
-          </div>
-          <div class="onboarding-tooltip-footer">
-            ${this.currentStepIndex > 0
-          ? `<button class="back-btn">Back</button>`
-          : ""
+      },
+      nextStep() {
+        if (this.currentStepIndex < this.steps.length - 1) {
+          this.currentStepIndex++;
+          this.showTooltip();
+        } else {
+          this.endTour();
         }
+      },
+      prevStep() {
+        if (this.currentStepIndex > 0) {
+          this.currentStepIndex--;
+          this.showTooltip();
+        }
+      },
+      endTour() {
+        this.$emit('tourEnded');
+        if (this.tippyInstance) {
+          this.tippyInstance.destroy();
+          this.tippyInstance = null;
+        }
+        this.currentStepIndex = 0;
+        this.showOverlay = false;
 
-            <button class="continue-btn">${this.currentStepIndex === this.steps.length - 1
-          ? "Finish"
-          : "Continue"
-        }</button>
-          </div>
-        </div>
-      `;
+        window.removeEventListener('scroll', this.updateOverlay, true);
+        window.removeEventListener('resize', this.updateOverlay);
+      },
     },
-    nextStep() {
-      if (this.currentStepIndex < this.steps.length - 1) {
-        this.currentStepIndex++;
-        this.showTooltip();
-      } else {
-        this.endTour();
-      }
-    },
-    endTour() {
-      this.$emit("tourEnded");
-      if (this.tippyInstance) this.tippyInstance.destroy();
-      this.currentStepIndex = 0;
-      this.showOverlay = false;
-    },
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.showTooltip();
-    });
+  };
 
-
-  },
-};
 </script>
+
+
 <style>
-.spotlight-overlay {
-  transition: all 0.3s ease;
-}
 
+  .spotlight-overlay {
+    transition: all 0.3s ease;
+  }
 
+  .tippy-tooltip.onboarding-theme {
+    z-index: 999;
+    gap: 16px;
+    width: 328px;
+    padding: 16px;
+    font-family: 'Roboto', sans-serif;
+    color: #333333;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 
-.tippy-tooltip.onboarding-theme {
-  width: 328px;
-  gap: 16px;
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-  color: #333;
-  font-family: "Roboto", sans-serif;
-  z-index: 999;
-}
+  .onboarding-tooltip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
+  .onboarding-tooltip-progress {
+    display: flex;
+    gap: 6px;
+  }
 
-.onboarding-tooltip-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: #cccccc;
+    border-radius: 50%;
+  }
 
+  .dot.active {
+    background: #4368f5;
+  }
 
-.onboarding-tooltip-progress {
-  display: flex;
-  gap: 6px;
-}
+  .close-btn {
+    font-size: 16px;
+    color: #000000;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
 
+  .onboarding-tooltip-body {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #ccc;
-  border-radius: 50%;
-}
+  .tippy-tooltip.onboarding-theme[data-animatefill] {
+    background-color: transparent;
+  }
 
+  .tippy-tooltip.onboarding-theme .tippy-backdrop {
+    background-color: white;
+  }
 
-.dot.active {
-  background: #4368f5;
-}
+  .onboarding-tooltip-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
 
+  .continue-btn {
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #212121;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: #eeeeee;
+    border: none;
+    border-radius: 2px;
+    box-shadow:
+      0 1px 3px 1px rgba(0, 0, 0, 0.15),
+      0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  }
 
-.close-btn {
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: #000000;
-}
+  .continue-btn:hover {
+    background: #e0e0e0;
+  }
 
+  .back-btn {
+    padding: 15px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #212121;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-radius: 2px;
+  }
 
-.onboarding-tooltip-body {
-  margin-top: 12px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-
-.tippy-tooltip.onboarding-theme[data-animatefill] {
-  background-color: transparent;
-}
-
-.tippy-tooltip.onboarding-theme .tippy-backdrop {
-  background-color: white;
-}
-
-.onboarding-tooltip-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  gap: 10px;
-  align-items: center;
-}
-
-
-.continue-btn {
-  background: #eeeeee;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 2px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  gap: 10px;
-  color: #212121;
-  text-transform: uppercase;
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15),
-    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
-
-.continue-btn:hover {
-  background: #e0e0e0;
-}
-
-
-.back-btn {
-  background: none;
-  border: none;
-  padding: 15px 16px;
-  border-radius: 2px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  color: #212121;
-  text-transform: uppercase;
-}
 </style>

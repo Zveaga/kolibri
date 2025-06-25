@@ -48,7 +48,7 @@
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
-  import useTour  from '../../../../learn/assets/src/composables/useTour';
+
   const facilityImported = 'FACILITY_IS_IMPORTED';
 
   const Steps = Object.freeze({
@@ -71,12 +71,11 @@
       const { isUserLoggedIn } = useUser();
       const { createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
-      const {startTour}=useTour();
+
       return {
         isUserLoggedIn,
         createSnackbar,
         facilities,
-        startTour
       };
     },
     props: {
@@ -124,7 +123,6 @@
           if (this.importedFacility) {
             this.step = Steps.SELECT_SOURCE_FACILITY_PEER;
           } else {
-             this.startTour();
             this.$emit('cancel');
           }
         } else if (this.step === Steps.SELECT_SOURCE_FACILITY_PEER) {

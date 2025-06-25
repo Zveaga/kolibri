@@ -68,7 +68,10 @@
         v-if="isRemote"
         class="wifi-icon"
       >
-        <KIcon icon="wifi" />
+        <KIcon
+          :data-onboarding-id="isFirst ? 'wifiIconFirstChannelCard' : null"
+          icon="wifi"
+        />
       </div>
     </div>
   </router-link>
@@ -82,6 +85,8 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useUser from 'kolibri/composables/useUser';
+  import useTour from 'kolibri-common/composables/useTour';
+  import { getCurrentInstance, onMounted, nextTick } from 'vue';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -90,18 +95,39 @@
       ChannelThumbnail,
       CoachContentLabel,
     },
-    setup() {
+    setup(props) {
       const { windowGutter } = useKResponsiveWindow();
       const { isUserLoggedIn, isLearner } = useUser();
+      const { registerStep } = useTour();
+
+      onMounted(async () => {
+        await nextTick();
+
+        if (props.isFirst) {
+          registerStep({
+            key: 'wifiIconFirstChannelCard',
+            content:
+              'You can explore and add channel resources from someone else’s library when you see this symbol.',
+            stepIndex: 2,
+          });
+          console.log('✅ Registered tooltip for wifi icon in first ChannelCard');
+        }
+      });
+
       return {
         windowGutter,
         isUserLoggedIn,
         isLearner,
+        registerStep,
       };
     },
     props: {
       title: {
         type: String,
+        required: true,
+      },
+      isFirst: {
+        type: Boolean,
         required: true,
       },
       tagline: {

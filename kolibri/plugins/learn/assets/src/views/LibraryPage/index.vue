@@ -185,13 +185,11 @@
         />
       </SidePanelModal>
       <TooltipTour
-      v-if="tourActive"
-      :steps="steps"
-      :elements="elements"
-      @tourEnded="tourActive=false"
-    />
+        v-if="tourActive"
+        :steps="steps"
+        @tourEnded="tourActive = false"
+      />
     </LearnAppBarPage>
-     
   </div>
 
 </template>
@@ -201,7 +199,7 @@
 
   import { get, set } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch } from 'vue';
+  import { onMounted, getCurrentInstance, ref, watch, nextTick } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
@@ -215,6 +213,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri-common/composables/useTour';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -236,8 +236,7 @@
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
   import NoResourcePage from './NoResourcePage';
-  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
-  import  useTour  from '../../composables/useTour';
+
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
@@ -260,14 +259,14 @@
       OtherLibraries,
       PostSetupModalGroup,
       NoResourcePage,
-      TooltipTour
+      TooltipTour,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const {steps,elements,tourActive} =useTour();
+      const { steps, tourActive, startTour, registerStep } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -301,13 +300,34 @@
       const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
-      onMounted(() => {
+      onMounted(async () => {
         const keywords = currentRoute().query.keywords;
         if (keywords && keywords.length) {
           search(keywords);
         }
+
+        const stepsToRegister = [
+          {
+            key: 'Library',
+            content:
+              'This is where you’ll find channels that you have added to your library. You can also see available libraries around you.',
+            stepIndex: 0,
+          },
+          {
+            key: 'menubar',
+            content: 'Find other ways to use Kolibri and add resources to your library here.',
+            stepIndex: 3,
+          },
+        ];
+        await nextTick();
+        stepsToRegister.forEach(step => {
+          const el = document.querySelector(`[data-onboarding-id="${step.key}"]`);
+          if (el) {
+            registerStep(step);
+          }
+        });
       });
-   
+
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
 
@@ -438,10 +458,10 @@
         canManageContent,
         isLearnerOnlyImport,
         steps,
-        elements,
-        tourActive
+        registerStep,
+        tourActive,
+        startTour,
       };
-  
     },
     props: {
       deviceId: {
@@ -569,8 +589,9 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey,false);
+        window.localStorage.setItem(welcomeDismissalKey, false);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+        this.startTour();
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();

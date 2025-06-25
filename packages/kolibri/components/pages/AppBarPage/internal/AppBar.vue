@@ -33,6 +33,7 @@
         >
           <KIconButton
             icon="menu"
+            data-onboarding-id="menubar"
             :color="themeConfig.appBar.textColor"
             :ariaLabel="$tr('openNav')"
             @click="$emit('toggleSideNav')"
@@ -183,6 +184,7 @@
           condition: route.condition,
         }));
       });
+
       return {
         themeConfig,
         windowIsSmall,

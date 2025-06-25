@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('welcomeModalHeader')"
-     @submit="$emit('submit')"
+    @submit="$emit('submit')"
   >
     <p
       v-for="(paragraph, idx) in paragraphs"
@@ -12,10 +12,10 @@
       {{ paragraph }}
     </p>
     <template #actions>
-      <KButton  @click="$emit('submit')">
- {{ coreString('continueAction') }}
+      <KButton @click="$emit('submit')">
+        {{ coreString('continueAction') }}
       </KButton>
-      </template>
+    </template>
   </KModal>
 
 </template>
