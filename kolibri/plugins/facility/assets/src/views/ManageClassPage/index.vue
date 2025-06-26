@@ -385,8 +385,12 @@
     font-weight: bold;
   }
 
-  /deep/ .ui-textbox-label {
-    width: 100% !important;
+  /deep/ .textbox {
+    max-width: 100% !important;
+  }
+
+  .description-ktextbox-style /deep/ .ui-textbox-label {
+    width: 100%;
   }
 
 </style>
