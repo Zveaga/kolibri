@@ -21,12 +21,16 @@ import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
 import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
-import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
 } from './modules/classAssignMembers/handlers';
+import MoveToTrashSidePanel from './views/UserPage/SidePanels/MoveToTrashSidePanel';
+import FilterUsersSidePanel from './views/UserPage/SidePanels/FilterUsersSidePanel';
+import AssignCoachesSidePanel from './views/UserPage/SidePanels/AssignCoachesSidePanel';
+import RemoveFromClassSidePanel from './views/UserPage/SidePanels/RemoveFromClassSidePanel';
+import EnrollLearnersSidePanel from './views/UserPage/SidePanels/EnrollLearnersSidePanel';
 import { PageNames } from './constants';
 
 const logging = logger.getLogger(__filename);
@@ -101,13 +105,39 @@ export default [
   {
     name: PageNames.USER_MGMT_PAGE,
     component: UserPage,
-    path: '/:facility_id?/users',
-    handler: (toRoute, fromRoute) => {
+    path: '/:facility_id?/users/',
+    handler: toRoute => {
       if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
         return;
       }
-      showUserPage(store, toRoute, fromRoute);
     },
+    children: [
+      {
+        name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
+        path: ':trash-panel',
+        component: MoveToTrashSidePanel,
+      },
+      {
+        name: PageNames.FILTER_USERS_SIDE_PANEL,
+        path: ':filter-panel',
+        component: FilterUsersSidePanel,
+      },
+      {
+        name: PageNames.ASSIGN_COACHES_SIDE_PANEL,
+        path: ':assign-coaches-panel',
+        component: AssignCoachesSidePanel,
+      },
+      {
+        name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
+        path: ':remove-from-classes-panel',
+        component: RemoveFromClassSidePanel,
+      },
+      {
+        name: PageNames.ENROLL_LEARNERS_SIDE_PANEL,
+        path: ':enroll-learners-panel',
+        component: EnrollLearnersSidePanel,
+      },
+    ],
   },
   {
     name: PageNames.USER_CREATE_PAGE,
