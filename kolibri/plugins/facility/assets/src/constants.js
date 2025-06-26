@@ -28,6 +28,7 @@ export const Modals = {
   EDIT_USER: 'EDIT_USER',
   RESET_USER_PASSWORD: 'RESET_USER_PASSWORD',
   DELETE_USER: 'DELETE_USER',
+  COPY_CLASS: 'COPY_CLASS',
 };
 
 export const pageNameToModuleMap = {

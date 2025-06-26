@@ -71,11 +71,17 @@
             v-else-if="colIndex === 3"
             class="core-table-button-col"
           >
-            <KButton
-              appearance="flat-button"
-              :text="$tr('deleteClass')"
-              @click="selectClassToDelete(row[3])"
-            />
+            <KIconButton icon="optionsVertical">
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="dropDownOptions"
+                  @select="handleOptionSelection($event, row[3])"
+                />
+              </template>
+            </KIconButton>
           </span>
         </template>
       </KTable>
@@ -92,6 +98,47 @@
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
+
+      <ClassRenameModal
+        v-if="modalShown === Modals.EDIT_CLASS_NAME"
+        :classname="classDetails.name"
+        :classid="classDetails.id"
+        :classes="classes"
+        @cancel="closeModal"
+      />
+      <SidePanelModal
+        v-if="openCopyClassPanel"
+        ref="resourcePanel"
+        alignment="right"
+        sidePanelWidth="700px"
+        closeButtonIconType="close"
+        @closePanel="openCopyClassPanel = false"
+      >
+        <template #header>
+          <h1 class="side-panel-title">{{ copyClasslabel$() }}</h1>
+        </template>
+        <template #default>
+          <div>
+            <KTextbox
+              v-model="classDetails.name"
+              type="text"
+              :label="classTitleLabel$()"
+              :autofocus="true"
+              :maxlength="120"
+            />
+
+            <p class="side-panel-subtitle">{{ coachesAssignedToClassLabel$() }}</p>
+
+            <SelectableList
+              :value="[]"
+              :options="[]"
+              ariaLabelledby="ssss"
+              selectAllLabel="ddd"
+              searchLabel="hfhhf"
+            />
+          </div>
+        </template>
+      </SidePanelModal>
     </KPageContainer>
   </FacilityAppBarPage>
 
@@ -100,14 +147,19 @@
 
 <script>
 
+  import { ref } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
+  import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
+  import SelectableList from './SelectableList.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -120,17 +172,31 @@
       FacilityAppBarPage,
       ClassCreateModal,
       ClassDeleteModal,
+      ClassRenameModal,
+      SidePanelModal,
+      SelectableList,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const classDetails = ref({});
+      const openCopyClassPanel = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const { copyClasslabel$, renameClassLabel$, coachesAssignedToClassLabel$, classTitleLabel$ } =
+        bulkUserManagementStrings;
+
       return {
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
         getFacilities,
+        copyClasslabel$,
+        renameClassLabel$,
+        classDetails,
+        openCopyClassPanel,
+        coachesAssignedToClassLabel$,
+        classTitleLabel$,
       };
     },
     computed: {
@@ -177,6 +243,25 @@
           this.$formatNumber(classroom.learner_count),
           classroom,
         ]);
+      },
+      dropDownOptions() {
+        return [
+          {
+            label: this.copyClasslabel$(),
+            value: 'COPY_CLASS',
+            id: 'copy',
+          },
+          {
+            label: this.renameClassLabel$(),
+            value: 'EDIT_CLASS_NAME',
+            id: 'rename',
+          },
+          {
+            label: this.$tr('deleteClass'),
+            value: 'DELETE_CLASS',
+            id: 'delete',
+          },
+        ];
       },
     },
     methods: {
@@ -228,6 +313,23 @@
         }
         return null;
       },
+      handleOptionSelection(selection, row) {
+        this.classDetails = row;
+        if (selection.value === Modals.DELETE_CLASS) {
+          this.selectClassToDelete(row);
+          return;
+        }
+
+        if (selection.value === Modals.EDIT_CLASS_NAME) {
+          this.displayModal(Modals.EDIT_CLASS_NAME);
+          return;
+        }
+
+        if (selection.value === Modals.COPY_CLASS) {
+          this.openCopyClassPanel = true;
+          return;
+        }
+      },
     },
     $trs: {
       adminClassPageSubheader: {
@@ -270,6 +372,21 @@
   .move-down {
     position: relative;
     margin-top: 24px;
+  }
+
+  .side-panel-title {
+    margin-left: 15px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .side-panel-subtitle {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  /deep/ .ui-textbox-label {
+    width: 100% !important;
   }
 
 </style>

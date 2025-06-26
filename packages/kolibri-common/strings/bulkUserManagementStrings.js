@@ -48,6 +48,14 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'View trash',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
+  copyClasslabel: {
+    message: 'Copy class',
+    context: 'Label for dropdown item that duplicates a class',
+  },
+  renameClassLabel: {
+    message: 'Rename class',
+    context: 'Label for dropdown item that allows user to modify the name of a class',
+  },
 
   // Bulk actions
   enrollToClass: {
@@ -126,6 +134,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Assign action has been undone',
     context:
       'Notification shown after the user has chosen to undo a recent coach assignment action.',
+  },
+  coachesAssignedToClassLabel: {
+    message: 'Coaches assigned to this class',
+    context: 'label to indicate coaches assigned to a class in sidepanel',
   },
 
   // Remove from class
@@ -288,9 +300,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: `Copy of '{class}'`,
     context: 'Initial name of a class upon being copied',
   },
-  // Error Handling
-  defaultErrorMessage: {
-    message: 'Sorry! Something went wrong, please try again.',
-    context: 'Default error message for API errors.',
+  classTitleLabel: {
+    message: 'Class title',
+    context: 'Label for the class title input field in the copy class modal',
   },
 });
