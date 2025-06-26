@@ -128,10 +128,9 @@
             />
 
             <p class="side-panel-subtitle">{{ coachesAssignedToClassLabel$() }}</p>
-
             <SelectableList
-              :value="[]"
-              :options="classDetails.coaches"
+              :value="classCoachesIds"
+              :options="classCoaches"
               :ariaLabelledby="coachesAssignedToClassLabel$()"
               :selectAllLabel="selectAllLabel$()"
               :searchLabel="coreString('searchLabel')"
@@ -288,6 +287,17 @@
             id: 'delete',
           },
         ];
+      },
+      classCoaches() {
+        return this.classDetails.coaches.map(coach => ({
+          id: coach.id,
+          username: coach.username,
+          full_name: coach.full_name,
+          label: coach.full_name,
+        }));
+      },
+      classCoachesIds() {
+        return this.classCoaches.map(coach => coach.id).filter(id => id !== undefined);
       },
     },
     methods: {
