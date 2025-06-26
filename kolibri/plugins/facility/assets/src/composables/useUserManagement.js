@@ -39,8 +39,6 @@ export default function useUserManagement(route, activeFacilityId) {
           member_of: activeFacilityId,
           page: page.value,
           page_size: pageSize.value,
-          ordering: ordering.value || null,
-          order: order.value || '',
           search: search.value.trim() || '',
           user_type: userType.value,
         }),

@@ -6,7 +6,7 @@
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{
-            name: facilityPageLinks.AllFacilitiesPage.name,
+            name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
             params: { subtopicName: 'UserPage' },
           }"
           icon="back"
@@ -68,7 +68,7 @@
           >
             <div class="search-filter-section">
               <FilterTextbox
-                v-model="search"
+                v-model="searchTerm"
                 :placeholder="$tr('searchText')"
                 :aria-label="$tr('searchText')"
                 class="move-down search-box"
@@ -208,6 +208,9 @@
         </KTable>
       </PaginatedListContainerWithBackend>
 
+      <!-- For sidepanels -->
+      <router-view :selectedUsers="[]" />
+
       <!-- Modals -->
 
       <ResetUserPasswordModal
@@ -231,8 +234,7 @@
 
 <script>
 
-  import { ref } from 'vue';
-  import { mapState, mapGetters } from 'vuex';
+  import { ref, computed, getCurrentInstance } from 'vue';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri/constants';
@@ -249,7 +251,7 @@
   import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import cloneDeep from 'lodash/cloneDeep';
   import useUser from 'kolibri/composables/useUser';
-  import { showUserPage } from '../../modules/userManagement/handlers';
+  import useUserManagement from '../../composables/useUserManagement';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import { Modals } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -299,8 +301,22 @@
         selectLabel$,
       } = bulkUserManagementStrings;
 
+      const { $store, $router } = getCurrentInstance().proxy;
+      const route = computed(() => $store.state.route);
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
+
+      const { facilityUsers, totalPages, usersCount, dataLoading, search, setSort } =
+        useUserManagement(route, activeFacilityId);
+
       return {
         userIsMultiFacilityAdmin,
+        facilityUsers,
+        totalPages,
+        usersCount,
+        dataLoading,
+        search,
+        setSort,
         viewNewUsers$,
         viewTrash$,
         numUsersSelected$,
@@ -321,8 +337,6 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityPageLinks']),
-      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
 
       tableHeaders() {
@@ -452,7 +466,7 @@
           });
         },
       },
-      search: {
+      searchTerm: {
         get() {
           return this.$route.query.search || '';
         },
@@ -503,29 +517,6 @@
         ];
       },
     },
-
-    watch: {
-      $route: {
-        /**
-         * When the route changes, this watcher will call showUserPage
-         * to fetch and update the user table. On initial page load,
-         * showUserPage is already called from the router handler,
-         * so we skip calling it again if oldVal is undefined.
-         */
-        handler(newVal, oldVal) {
-          // When previous route is undefined, page is loading for the first time,
-          // and in that case 'showUserPage' was called from routes.js handlers
-          if (oldVal === undefined) {
-            return;
-          } else {
-            showUserPage(this.$store, newVal, oldVal);
-          }
-        },
-        immediate: true,
-        deep: true,
-      },
-    },
-
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
