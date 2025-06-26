@@ -132,7 +132,7 @@
         >
           <template #header="{ header, colIndex }">
             <template v-if="colIndex === 0">
-              <span class="secreen-reader-only">{{ selectLabel$() }}</span>
+              <span class="screen-reader-only">{{ selectLabel$() }}</span>
               <KCheckbox
                 :label="selectAllLabel$()"
                 :checked="selectAllState.checked"
@@ -156,10 +156,10 @@
           <template #cell="{ content, colIndex, row }">
             <div v-if="colIndex === 0">
               <KCheckbox
-                :label="selectLabel$()"
+                :label="getTranslatedSelectedArialabel(row)"
                 :checked="isUserSelected(row[6])"
                 :showLabel="false"
-                :aria-label="row[1] + ',' + row[6].kind"
+                :aria-label="selectLabel$()"
                 @change="() => handleUserSelectionToggle(row[6])"
               />
             </div>
@@ -245,6 +245,7 @@
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import cloneDeep from 'lodash/cloneDeep';
   import useUser from 'kolibri/composables/useUser';
   import { showUserPage } from '../../modules/userManagement/handlers';
@@ -274,7 +275,7 @@
       DeleteUserModal,
       PaginatedListContainerWithBackend,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, translatedUserKinds],
     setup() {
       const { currentUserId, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
@@ -643,6 +644,9 @@
           }),
         });
       },
+      getTranslatedSelectedArialabel(row) {
+        return this.selectLabel$() + ' ' + row[1] + ', ' + this.typeDisplayMap[row[6].kind];
+      },
     },
     $trs: {
       tableCaption: {
@@ -742,7 +746,7 @@
     margin-left: 1em;
   }
 
-  .secreen-reader-only {
+  .screen-reader-only {
     position: absolute;
     width: 1px;
     height: 1px;
