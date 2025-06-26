@@ -77,6 +77,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Delete selection',
     context: 'Label for bulk-action button that will allow user to delete selected users',
   },
+  selectAllLabel: {
+    message: 'Select all',
+    context: 'Label for bulk-action button that will select all users in the current view',
+  },
   resetPassword: {
     message: 'Reset password',
     context: 'Label that will allow user to reset passwords for selected user',

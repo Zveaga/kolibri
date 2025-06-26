@@ -131,11 +131,28 @@
 
             <SelectableList
               :value="[]"
-              :options="[]"
-              ariaLabelledby="ssss"
-              selectAllLabel="ddd"
-              searchLabel="hfhhf"
+              :options="classDetails.coaches"
+              :ariaLabelledby="coachesAssignedToClassLabel$()"
+              :selectAllLabel="selectAllLabel$()"
+              :searchLabel="coreString('searchLabel')"
             />
+          </div>
+        </template>
+
+        <template #bottomNavigation>
+          <div class="bottom-nav">
+            <div>{{ numCoachesSelected$({ n: 3 }) }}</div>
+            <div>
+              <KButton
+                :text="coreString('cancelAction')"
+                appearance="raised-button"
+                class="cancel-copy-class-button"
+              />
+              <KButton
+                :text="copyClasslabel$()"
+                :primary="true"
+              />
+            </div>
           </div>
         </template>
       </SidePanelModal>
@@ -182,8 +199,14 @@
       const openCopyClassPanel = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
-      const { copyClasslabel$, renameClassLabel$, coachesAssignedToClassLabel$, classTitleLabel$ } =
-        bulkUserManagementStrings;
+      const {
+        copyClasslabel$,
+        renameClassLabel$,
+        coachesAssignedToClassLabel$,
+        classTitleLabel$,
+        selectAllLabel$,
+        numCoachesSelected$,
+      } = bulkUserManagementStrings;
 
       return {
         classToDelete,
@@ -197,6 +220,8 @@
         openCopyClassPanel,
         coachesAssignedToClassLabel$,
         classTitleLabel$,
+        selectAllLabel$,
+        numCoachesSelected$,
       };
     },
     computed: {
@@ -391,6 +416,16 @@
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
     width: 100%;
+  }
+
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .cancel-copy-class-button {
+    margin-right: 1em;
   }
 
 </style>
