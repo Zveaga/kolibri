@@ -147,6 +147,7 @@
                 :text="coreString('cancelAction')"
                 appearance="raised-button"
                 class="cancel-copy-class-button"
+                @click="openCopyClassPanel = false"
               />
               <KButton
                 :text="copyClasslabel$()"
