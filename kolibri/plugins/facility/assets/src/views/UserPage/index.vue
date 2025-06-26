@@ -245,13 +245,13 @@
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import cloneDeep from 'lodash/cloneDeep';
   import useUser from 'kolibri/composables/useUser';
   import { showUserPage } from '../../modules/userManagement/handlers';
-  import { bulkUserManagementStrings } from '../../bulkUserManagementStrings';
-  import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
+  import { Modals } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
