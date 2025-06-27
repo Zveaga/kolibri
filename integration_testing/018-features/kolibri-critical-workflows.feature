@@ -82,8 +82,8 @@ Feature: Kolibri critical workflows
 
   Scenario: Learn-only device - assigned lesson and quiz resources are automatically transferred to the LOD
   	Given I am signed in as learner on a learn-only device
-  				And there is a Kolibri server in the network
-  				And a coach has enrolled the learner to a class and assigned lesson and quiz resources to the learner
+  		And there is a Kolibri server in the network
+  		And a coach has enrolled the learner to a class and assigned lesson and quiz resources to the learner
   	When I go to the *Home* page
   		And I click on the class name
   	Then I see all the lesson and quiz resources already downloaded on my device
@@ -93,7 +93,7 @@ Feature: Kolibri critical workflows
   	Then after a reasonable period of time the resources get automatically transferred to the learn-only device
   		And I am able to interact with and complete the resources
   	When I expand the sidebar
-  	Then I can see sync status of my device under *Device status*
+  	Then I can see the sync status of my device under *Device status*
   	When I go to *Learn > Library*
   	Then I see the *Your library* section
   		And I can see all the channels containing the resources which were assigned to me and were automatically transferred to the device
@@ -301,6 +301,91 @@ Feature: Kolibri critical workflows
   		And I see the *Clear* button for the finished task
   		And I see the *Clear completed* button
 
+  Scenario: Super admin imports content from local network or attached drive
+  	Given I am signed in to Kolibri as a super admin
+  	  And I am at *Device > Channels*
+  	  And there are other Kolibri server devices in my local network
+  	  And there is an attached drive or memory card to the device
+	  	And I am at the *Select a source* modal
+  	When I select the *Local network or internet* option
+  		And I click *Continue*
+  	Then I see the *Select device* modal
+  		And I see that the first available device is pre-selected
+  	When I click *Continue*
+  	Then I am at *Select resources to import*
+  		And I see a list of available channels
+  	When I click the *Select resources* button next to a channel
+  	Then I see the channel page with logo, name, and version of the channel
+  	  And I see the total number and size of the channel resources
+  	  And I see the list of folders for the channel
+  	  And I see that the *Import* button is disabled
+  	When I check the *Select all* checkbox
+  	Then I see the *Import* button is enabled
+  	When I click the *Import* button
+  	Then I am at the *Task manager* page
+  		And I see the *Import resources from <channel>* progress bar
+  		And I see the number and size of the resources being imported
+  		And I see the *Cancel* button
+  	When the import process concludes
+  	Then I see the task is labeled as *Finished*
+  		And I do not see the progress bar anymore
+  		And I see the *Clear* button for the finished task
+  		And I see the *Clear completed* button
+  	When I close the *Task manager* modal
+  	Then I am back at *Device > Channels*
+  	When I click the *Import* button
+  	Then I see the *Select a source* modal
+  	When I select the *Attached drive or memory card* option
+  		And I click *Continue*
+  	Then I see the *Select drive* modal
+  		And I see that the first available drive is pre-selected
+  	When I click *Continue*
+  	Then I am at *Select resources to import*
+  		And I see a list of available channels
+  	When I click the *Select resources* button next to a channel
+  	Then I see the channel page with logo, name, and version of the channel
+  	  And I see the total number and size of the channel resources
+  	  And I see the list of folders for the channel
+  	  And I see that the *Import* button is disabled
+  	When I check the *Select all* checkbox
+  	Then I see the *Import* button is enabled
+  	When I click the *Import* button
+  	Then I am at the *Task manager* page
+  		And I see the *Import resources from <channel>* progress bar
+  		And I see the number and size of the resources being imported
+  		And I see the *Cancel* button
+  	When the import process concludes
+  	Then I see the task is labeled as *Finished*
+  		And I do not see the progress bar anymore
+  		And I see the *Clear* button for the finished task
+  		And I see the *Clear completed* button
+  	When I close the *Task manager* modal
+  	Then I am back at *Device > Channels*
+  		And I see all of the imported channels
+
+  Scenario: Super admin exports content to an attached drive
+  	Given I am signed in to Kolibri as a super admin
+  	  And I am at *Device > Channels*
+  	  And there is an attached drive or memory card to the device
+  	When I click the *Options* drop-down
+  		And I select the *Export channels* option
+  	Then I see the *Export channels* modal
+  		And I see all the channels on the device
+  	When I select a channel
+  		And I click the *Export* button
+  	Then I see the *Select a drive* modal
+  		And I see that the first available drive is pre-selected
+  	When I click *Continue*
+  	Then I am at the *Task manager* page
+  		And I see the *Export <channel>* progress bar
+  		And I see the number and size of the resources being exported
+  		And I see a *Cancel* button
+  	When the export has finished
+  	Then I see the task is labeled as *Finished*
+  		And I do not see the progress bar anymore
+  		And I see the *Clear* button for the finished task
+  		And I see the *Clear completed* button
+
   Scenario: Super admin creates a learner user account
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
@@ -370,6 +455,7 @@ Feature: Kolibri critical workflows
   Scenario: Coach creates a new lesson for the entire class and makes it visible to learners
   	Given I am signed in to Kolibri as a super admin or a coach
   	  	And I am at *Coach > <class> > Lessons*
+  	  	And there are imported and bookmarked resources to the device
     When I click the *New lesson* button
     Then I see the *Create new lesson* modal
     When I fill in the title for the lesson
@@ -377,6 +463,7 @@ Feature: Kolibri critical workflows
       And I click the *Save changes* button
     Then the modal closes
       And I see the lesson details page
+      And I see a *Lesson created* snackbar message
       And I see that the *Visible to learners* toggle is switched off
       And I see that there are no resources in the lesson
 		When I click on *Manage resources* button
@@ -404,7 +491,8 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach creates a new quiz for the entire class and starts it
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > <class> > Quizzes*
+  		And there are imported exercises on the device
+  	  And I am at *Coach > <class> > Quizzes*
     When I click the *New quiz* button
     	And I select *Create new quiz*
     Then I see the *Create new quiz* modal
