@@ -7,24 +7,13 @@
       :layout="{ span: layoutSpan }"
     >
       <ChannelCard
-        v-if="index === 0"
+        :data-onboarding-id="index === 0 ? 'firstChannelCard' : null"
         data-onboarding-id="firstChannelCard"
-        :isFirst="true"
+        :isFirst="index === 0 ? true :false"
         :isMobile="windowIsSmall"
         :title="content.title || content.name"
         :thumbnail="content.thumbnail"
         :tagline="content.tagline || content.description"
-        :numCoachContents="content.num_coach_contents"
-        :link="genContentLinkBackLinkCurrentPage(content.id, false, deviceId)"
-        :isRemote="isRemote"
-      />
-      <ChannelCard
-        v-else
-        :isMobile="windowIsSmall"
-        :title="content.title || content.name"
-        :thumbnail="content.thumbnail"
-        :tagline="content.tagline || content.description"
-        :isFirst="false"
         :numCoachContents="content.num_coach_contents"
         :link="genContentLinkBackLinkCurrentPage(content.id, false, deviceId)"
         :isRemote="isRemote"
