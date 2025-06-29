@@ -34,7 +34,7 @@
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
-
+  import { kolibriOnboardingGuideStrings } from '../strings/kolibriOnboardingGuideStrings';
   export default {
     name: 'ChannelCardGroupGrid',
     components: {
@@ -50,7 +50,7 @@
         await nextTick();
         registerStep({
           key: 'firstChannelCard',
-          content: 'Channels are collections of videos, exercises, and other learning resources.',
+          content: kolibriOnboardingGuideStrings.$tr('channelCardDescription'),
           stepIndex: 1,
         });
       });

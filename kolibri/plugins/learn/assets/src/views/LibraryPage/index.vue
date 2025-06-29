@@ -220,6 +220,7 @@
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
   import useDeviceSettings from '../../composables/useDeviceSettings';
+  import {kolibriOnboardingGuideStrings} from '../../strings/kolibriOnboardingGuideStrings'
   import {
     currentDeviceData,
     setCurrentDevice,
@@ -309,13 +310,12 @@
         const stepsToRegister = [
           {
             key: 'Library',
-            content:
-              'This is where you’ll find channels that you have added to your library. You can also see available libraries around you.',
+            content: kolibriOnboardingGuideStrings.$tr('onMyOwnLibraryMenuDescription'),
             stepIndex: 0,
           },
           {
             key: 'menubar',
-            content: 'Find other ways to use Kolibri and add resources to your library here.',
+            content: kolibriOnboardingGuideStrings.$tr('sideNavigationIconDecription'),
             stepIndex: 3,
           },
         ];

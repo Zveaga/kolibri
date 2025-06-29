@@ -24,12 +24,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import {kolibriOnboardingGuideStrings} from '../../../../../plugins/learn/assets/src/strings/kolibriOnboardingGuideStrings'
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
     name: 'WelcomeModal',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings,kolibriOnboardingGuideStrings],
     setup() {
       const { isLearnerOnlyImport } = useUser();
       const { facilities } = useFacilities();
@@ -58,7 +59,7 @@
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.isOnMyOwnUser) {
-          return [this.coreString('nothingInLibraryLearner')];
+          return [kolibriOnboardingGuideStrings.$tr('nothingInLibraryLearner')];
         }
         if (this.importedFacility) {
           return [

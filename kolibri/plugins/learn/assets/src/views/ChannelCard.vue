@@ -86,9 +86,9 @@
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useUser from 'kolibri/composables/useUser';
   import useTour from 'kolibri-common/composables/useTour';
-  import { getCurrentInstance, onMounted, nextTick } from 'vue';
+  import { onMounted, nextTick } from 'vue';
   import ChannelThumbnail from './ChannelThumbnail';
-
+  import { kolibriOnboardingGuideStrings } from '../strings/kolibriOnboardingGuideStrings';
   export default {
     name: 'ChannelCard',
     components: {
@@ -106,11 +106,10 @@
         if (props.isFirst) {
           registerStep({
             key: 'wifiIconFirstChannelCard',
-            content:
-              'You can explore and add channel resources from someone else’s library when you see this symbol.',
+            content: kolibriOnboardingGuideStrings.$tr('exploreLibraryDescription'),
             stepIndex: 2,
           });
-          console.log('✅ Registered tooltip for wifi icon in first ChannelCard');
+          
         }
       });
 
