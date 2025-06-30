@@ -73,10 +73,11 @@
                 :aria-label="$tr('searchText')"
                 class="move-down search-box"
               />
-              <KButton
+              <KRouterLink
                 appearance="basic-link"
                 :text="filterLabel$()"
                 class="filter-button move-down"
+                :to="{ name: PageNames.FILTER_USERS_SIDE_PANEL }"
               />
             </div>
           </KGridItem>
@@ -97,26 +98,34 @@
                 @click="clearSelectedUsers"
               />
             </span>
-            <KIconButton
-              icon="assignCoaches"
-              :ariaLabel="assignCoach$()"
-              :tooltip="assignCoach$()"
-            />
-            <KIconButton
-              icon="add"
-              :ariaLabel="enrollToClass$()"
-              :tooltip="enrollToClass$()"
-            />
-            <KIconButton
-              icon="remove"
-              :ariaLabel="removeFromClass$()"
-              :tooltip="removeFromClass$()"
-            />
-            <KIconButton
-              icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-            />
+            <router-link :to="{ name: PageNames.ASSIGN_COACHES_SIDE_PANEL }">
+              <KIconButton
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :tooltip="assignCoach$()"
+              />
+            </router-link>
+            <router-link :to="{ name: PageNames.ENROLL_LEARNERS_SIDE_PANEL }">
+              <KIconButton
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :tooltip="enrollToClass$()"
+              />
+            </router-link>
+            <router-link :to="{ name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL }">
+              <KIconButton
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :tooltip="removeFromClass$()"
+              />
+            </router-link>
+            <router-link :to="{ name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL }">
+              <KIconButton
+                icon="trash"
+                :ariaLabel="deleteSelection$()"
+                :tooltip="deleteSelection$()"
+              />
+            </router-link>
           </KGridItem>
         </KGrid>
         <KTable
@@ -258,7 +267,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useUserManagement from '../../composables/useUserManagement';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import { Modals } from '../../constants';
+  import { Modals, PageNames } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -341,6 +350,11 @@
         assignCoach$,
         deleteSelection$,
         selectLabel$,
+      };
+    },
+    data() {
+      return {
+        PageNames,
       };
     },
     computed: {
