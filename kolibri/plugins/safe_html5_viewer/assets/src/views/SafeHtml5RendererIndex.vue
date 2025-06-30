@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="cssVars">
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
@@ -52,6 +52,14 @@
       },
       scrollBasedProgress() {
         return 0.5;
+      },
+      cssVars() {
+        return {
+          '--color-primary-500': this.$themeBrand.primary.v_500,
+          '--color-primary-100': this.$themeBrand.primary.v_100,
+          '--color-grey-300': this.$themePalette.grey.v_300,
+          '--color-grey-100': this.$themePalette.grey.v_100,
+        };
       },
     },
     async created() {
