@@ -187,7 +187,9 @@
             <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
-            <span v-else-if="colIndex === 6"> </span>
+            <span v-else-if="colIndex === 6">
+              <KOptionalText :text="''" />
+            </span>
             <span v-else-if="colIndex === 7">
               <KIconButton
                 icon="optionsVertical"
@@ -209,7 +211,7 @@
       </PaginatedListContainerWithBackend>
 
       <!-- For sidepanels -->
-      <router-view :selectedUsers="[]" />
+      <router-view :selectedUsers="selectedUsers" />
 
       <!-- Modals -->
 
@@ -234,7 +236,7 @@
 
 <script>
 
-  import { ref, computed, getCurrentInstance } from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri/constants';
@@ -302,14 +304,10 @@
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
-      const route = computed(() => $store.state.route);
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-
-      const { facilityUsers, totalPages, usersCount, dataLoading, search } = useUserManagement(
-        route,
-        activeFacilityId,
-      );
+      const { facilityUsers, totalPages, usersCount, dataLoading, search } =
+        useUserManagement(activeFacilityId);
 
       return {
         userIsMultiFacilityAdmin,
@@ -339,7 +337,6 @@
     },
     computed: {
       Modals: () => Modals,
-
       tableHeaders() {
         return [
           {
@@ -348,7 +345,6 @@
             width: '48px',
             columnId: 'selection',
           },
-
           {
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
@@ -370,7 +366,6 @@
             width: '10%',
             columnId: 'id_number',
           },
-
           {
             label: this.coreString('genderLabel'),
             dataType: 'string',
@@ -378,7 +373,6 @@
             width: '10%',
             columnId: 'gender',
           },
-
           {
             label: this.coreString('birthYearLabel'),
             dataType: 'date',
@@ -391,12 +385,11 @@
             dataType: 'date',
             minWidth: '150px',
             width: '10%',
-            columnId: 'created_at',
+            columnId: 'date_joined',
           },
           {
             label: '',
             dataType: 'undefined',
-            minWidth: '180px',
             width: '10%',
             columnId: 'userActions',
           },
@@ -416,7 +409,6 @@
           ];
         });
       },
-
       selectAllState() {
         const visibleUserIds = this.facilityUsers.map(user => user.id);
         const selectedVisibleUsers = visibleUserIds.filter(id => this.selectedUsers.has(id));
@@ -427,7 +419,6 @@
 
         return { checked: isChecked, indeterminate: isIndeterminate };
       },
-
       userKinds() {
         return [
           { label: this.coreString('allLabel'), value: ALL_FILTER },
@@ -504,7 +495,6 @@
           });
         },
       },
-
       dropDownMenu() {
         return [
           {
@@ -540,7 +530,6 @@
 
         this.selectedUsers = new Set(this.selectedUsers);
       },
-
       handleUserSelectionToggle(user) {
         if (this.selectedUsers.has(user.id)) {
           this.selectedUsers.delete(user.id);
@@ -549,30 +538,25 @@
         }
         this.selectedUsers = new Set(this.selectedUsers);
       },
-
       clearSelectedUsers() {
         this.selectedUsers = new Set();
       },
-
       isUserSelected(user) {
         return this.selectedUsers.has(user.id);
       },
-
       changeSortHandler({ sortKey, sortOrder }) {
         const columnId = this.tableHeaders[sortKey]?.columnId || null;
-
         const query = { ...this.$route.query };
-
-        if (!sortOrder || !columnId || columnId === 'selection') {
+        if (query.ordering === columnId && query.order === sortOrder) {
+          return;
+        } else if (!sortOrder || !columnId || columnId === 'selection') {
           delete query.ordering;
           delete query.order;
         } else {
           query.ordering = columnId;
           query.order = sortOrder;
         }
-
         query.page = 1;
-
         this.$router.push({
           path: this.$route.path,
           query: pickBy(query),

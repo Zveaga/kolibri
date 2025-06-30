@@ -31,20 +31,20 @@
  * useUserManagement.mockImplementation(() => useUserManagementMock())
  * ```
  */
+import { computed } from 'vue';
 
 const MOCK_DEFAULTS = {
-  facilityUsers: [],
-  totalPages: 0,
-  usersCount: 0,
-  dataLoading: false,
-  page: 1,
-  pageSize: null,
-  ordering: null,
-  order: '',
-  search: '',
-  userType: null,
+  facilityUsers: computed(() => []),
+  totalPages: computed(() => 0),
+  usersCount: computed(() => 0),
+  dataLoading: computed(() => false),
+  page: computed(() => 1),
+  pageSize: computed(() => 30),
+  ordering: computed(() => null),
+  order: computed(() => ''),
+  search: computed(() => null),
+  userType: computed(() => null),
   fetchUsers: jest.fn(),
-  setSort: jest.fn(),
 };
 
 export function useUserManagementMock(overrides = {}) {

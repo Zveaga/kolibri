@@ -64,7 +64,7 @@ describe('UserPage component', () => {
       ['admin', 'There are no admins in this facility'],
     ];
 
-    test.each(testCases)('when filter is %s', async (kind, expected) => {
+    it.each(testCases)('when filter is %s', async (kind, expected) => {
       const wrapper = makeWrapper({
         data() {
           return {
