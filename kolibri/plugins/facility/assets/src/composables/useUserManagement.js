@@ -5,18 +5,6 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { _userState } from '../modules/mappers';
 
-// Sort users by a given column and order with no regards to case sensitivity
-function sortUsers(users, columnId, sortOrder) {
-  if (!columnId || !sortOrder) {
-    return users;
-  }
-  return users.sort(
-    (a, b) =>
-      a[columnId].localeCompare(b[columnId], undefined, { sensitivity: 'base' }) *
-      (sortOrder === 'desc' ? -1 : 1),
-  );
-}
-
 export default function useUserManagement(route, activeFacilityId) {
   const facilityUsers = ref([]);
   const totalPages = ref(0);
@@ -30,7 +18,7 @@ export default function useUserManagement(route, activeFacilityId) {
   const search = ref(route.value.query?.search || '');
   const userType = ref(route.value.query?.user_type || null);
 
-  const fetchUsers = async ({ sorted = false } = {}) => {
+  const fetchUsers = async () => {
     dataLoading.value = true;
     const shouldResolve = samePageCheckGenerator(store);
     try {
@@ -40,15 +28,14 @@ export default function useUserManagement(route, activeFacilityId) {
           page: page.value,
           page_size: pageSize.value,
           search: search.value.trim() || '',
+          ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
+          order: order.value || '',
           user_type: userType.value,
         }),
         force: true,
       });
       if (shouldResolve()) {
         facilityUsers.value = resp.results.map(_userState);
-        if (sorted && ordering.value && order.value) {
-          facilityUsers.value = sortUsers(facilityUsers.value, ordering.value, order.value);
-        }
         totalPages.value = resp.total_pages;
         usersCount.value = resp.count;
       }
@@ -69,24 +56,20 @@ export default function useUserManagement(route, activeFacilityId) {
       route.value.query.page_size,
       route.value.query.search,
       route.value.query.user_type,
+      route.value.query.ordering,
+      route.value.query.order,
     ],
-    ([newPage, newPageSize, newSearch, newUserType]) => {
+    ([newPage, newPageSize, newSearch, newUserType, newOrdering, newOrder]) => {
       page.value = Number(newPage) || 1;
       pageSize.value = Number(newPageSize) || 30;
       search.value = newSearch || '';
       userType.value = newUserType || null;
-      fetchUsers({ sorted: Boolean(ordering.value && order) });
+      ordering.value = newOrdering || null;
+      order.value = newOrder || '';
+      fetchUsers();
     },
     { immediate: true },
   );
-
-  const setSort = (columnId, sortOrder) => {
-    ordering.value = columnId || null;
-    order.value = sortOrder || '';
-    if (ordering.value && order.value) {
-      facilityUsers.value = sortUsers(facilityUsers.value, ordering.value, order.value);
-    }
-  };
 
   return {
     facilityUsers,
@@ -101,6 +84,5 @@ export default function useUserManagement(route, activeFacilityId) {
     userType,
     // methods
     fetchUsers,
-    setSort,
   };
 }

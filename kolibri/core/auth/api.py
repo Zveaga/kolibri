@@ -446,9 +446,7 @@ class FacilityUserConsolidateMixin(object):
             if ordering_param.startswith("-"):
                 ordering_param = ordering_param[1:]
                 reverse = True
-        output = sorted(
-            output, key=lambda x: x.get(ordering_param, ""), reverse=reverse
-        )
+        output = sorted(output, key=lambda x: x[ordering_param].lower() if isinstance(x[ordering_param], str) else x[ordering_param], reverse=reverse)
         return output
 
 
@@ -514,6 +512,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         if objects.filter(id=self.request.user.id).exists():
             raise PermissionDenied("Super user cannot delete self")
         objects.update(date_deleted=now())
+
 
     def perform_update(self, serializer):
         instance = serializer.save()

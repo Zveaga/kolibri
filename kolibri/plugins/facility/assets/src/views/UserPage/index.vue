@@ -306,8 +306,10 @@
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
 
-      const { facilityUsers, totalPages, usersCount, dataLoading, search, setSort } =
-        useUserManagement(route, activeFacilityId);
+      const { facilityUsers, totalPages, usersCount, dataLoading, search } = useUserManagement(
+        route,
+        activeFacilityId,
+      );
 
       return {
         userIsMultiFacilityAdmin,
@@ -316,7 +318,6 @@
         usersCount,
         dataLoading,
         search,
-        setSort,
         viewNewUsers$,
         viewTrash$,
         numUsersSelected$,
@@ -520,7 +521,12 @@
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
-
+    beforeDestroy() {
+      const { query } = this.$route;
+      if (query.ordering || query.order || query.page) {
+        this.$router.replace({ query: null });
+      }
+    },
     methods: {
       handleSelectAllToggle() {
         const visibleUserIds = this.facilityUsers.map(user => user.id);
