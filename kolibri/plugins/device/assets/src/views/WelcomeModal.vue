@@ -30,7 +30,7 @@
 
   export default {
     name: 'WelcomeModal',
-    mixins: [commonCoreStrings,kolibriOnboardingGuideStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { isLearnerOnlyImport } = useUser();
       const { facilities } = useFacilities();

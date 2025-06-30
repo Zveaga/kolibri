@@ -80,6 +80,7 @@
               arrow: false,
               theme: 'onboarding',
               animateFill: true,
+              hideOnClick: false,
               popperOptions: {
                 modifiers: {
                   offset: {
