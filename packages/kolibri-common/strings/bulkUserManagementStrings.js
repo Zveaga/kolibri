@@ -18,6 +18,18 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: '{n, number} {n, plural, one {filter} other {filters}}',
     context: 'A label showing the number of filters active',
   },
+  createdAt: {
+    message: 'Created at',
+    context: 'Label for the created at column in the user table.',
+  },
+  filterLabel: {
+    message: 'Filter',
+    context: 'Label for the filter dropdown',
+  },
+  selectLabel: {
+    message: 'Select',
+    context: 'Label for the selecting a user',
+  },
 
   // Dropdown options
   viewNewUsers: {
@@ -48,6 +60,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   deleteSelection: {
     message: 'Delete selection',
     context: 'Label for bulk-action button that will allow user to delete selected users',
+  },
+  resetPassword: {
+    message: 'Reset password',
+    context: 'Label that will allow user to reset passwords for selected user',
   },
 
   // Selection warnings
