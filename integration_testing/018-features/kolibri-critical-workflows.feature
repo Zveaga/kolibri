@@ -906,17 +906,17 @@ Feature: Kolibri critical workflows
 			And I am at *Device > Permissions*
 			And there is a facility user who does not have device permissions
 		When I click *Edit permissions* button for the user
-      Then I see the *Permissions* page
-      	And I can see the username, user type and facility of the user
-      When I select the *Make super admin* checkbox
-      Then I see that the checkbox under *Device permissions* is checked and disabled
-        And the *Save changes* button becomes active
-      When I click *Save changes*
-      Then I see the confirmation snackbar *Changes saved*
-      When I click on *Edit permissions* next to the user
-      Then I see that the *User type* is now *Super admin*
-        And I see the *Make Super admin* checkbox is checked but not disabled
-        And I see the *Save changes* button is disabled
+     Then I see the *Permissions* page
+      And I can see the username, user type and facility of the user
+    When I select the *Make super admin* checkbox
+    Then I see that the checkbox under *Device permissions* is checked and disabled
+      And the *Save changes* button becomes active
+    When I click *Save changes*
+    Then I see the confirmation snackbar *Changes saved*
+    When I click on *Edit permissions* next to the user
+    Then I see that the *User type* is now *Super admin*
+      And I see the *Make Super admin* checkbox is checked but not disabled
+      And I see the *Save changes* button is disabled
 
   Scenario: Super admin can see the device info and change the device name
   	Given I am signed in as a super admin
