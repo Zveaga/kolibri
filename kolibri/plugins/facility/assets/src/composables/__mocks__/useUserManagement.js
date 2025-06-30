@@ -13,7 +13,7 @@
  *
  * ```
  * // eslint-disable-next-line import/named
- * import useUserManegement, { useUserManagementMock } from '<useUserManegement file path>';
+ * import useUserManagement, { useUserManagementMock } from '<useUserManegement file path>';
  *
  * jest.mock('<useUserManegement file path>')
  *
@@ -44,7 +44,9 @@ const MOCK_DEFAULTS = {
   order: computed(() => ''),
   search: computed(() => null),
   userType: computed(() => null),
+  classes: computed(() => []),
   fetchUsers: jest.fn(),
+  fetchClasses: jest.fn(),
 };
 
 export function useUserManagementMock(overrides = {}) {

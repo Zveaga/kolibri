@@ -211,7 +211,10 @@
       </PaginatedListContainerWithBackend>
 
       <!-- For sidepanels -->
-      <router-view :selectedUsers="selectedUsers" />
+      <router-view
+        :selectedUsers="selectedUsers"
+        :classes="classes"
+      />
 
       <!-- Modals -->
 
@@ -236,7 +239,7 @@
 
 <script>
 
-  import { ref, getCurrentInstance } from 'vue';
+  import { ref, getCurrentInstance, onMounted } from 'vue';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri/constants';
@@ -306,8 +309,12 @@
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-      const { facilityUsers, totalPages, usersCount, dataLoading, search } =
+      const { facilityUsers, totalPages, usersCount, dataLoading, search, classes, fetchClasses } =
         useUserManagement(activeFacilityId);
+
+      onMounted(() => {
+        fetchClasses();
+      });
 
       return {
         userIsMultiFacilityAdmin,
@@ -316,6 +323,7 @@
         usersCount,
         dataLoading,
         search,
+        classes,
         viewNewUsers$,
         viewTrash$,
         numUsersSelected$,

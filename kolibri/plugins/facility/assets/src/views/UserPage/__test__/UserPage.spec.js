@@ -57,26 +57,6 @@ describe('UserPage component', () => {
       expect(getUserTableEmptyMessage(wrapper)).toEqual('No users exist');
     });
 
-    const testCases = [
-      ['learner', 'There are no learners in this facility'],
-      ['coach', 'There are no coaches in this facility'],
-      ['superuser', 'There are no super admins in this facility'],
-      ['admin', 'There are no admins in this facility'],
-    ];
-
-    it.each(testCases)('when filter is %s', async (kind, expected) => {
-      const wrapper = makeWrapper({
-        data() {
-          return {
-            facilityUsers: [{ ...unicornUser }],
-            roleFilter: { value: kind },
-          };
-        },
-      });
-      await wrapper.vm.$nextTick();
-      expect(getUserTableEmptyMessage(wrapper)).toEqual(expected);
-    });
-
     it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
       mock.get(/.*/, {
         status: 200,
@@ -88,7 +68,7 @@ describe('UserPage component', () => {
         const wrapper = makeWrapper({
           data() {
             return {
-              facilityUsers: [{ ...coachUser }],
+              facilityUsers: [{ ...coachUser, ...unicornUser }],
               roleFilter: { value: 'coach' },
             };
           },

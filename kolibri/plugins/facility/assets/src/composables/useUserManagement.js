@@ -1,6 +1,7 @@
 import { ref, computed, getCurrentInstance, watch } from 'vue';
 import pickBy from 'lodash/pickBy';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { _userState } from '../modules/mappers';
 
 export default function useUserManagement(activeFacilityId) {
@@ -8,6 +9,7 @@ export default function useUserManagement(activeFacilityId) {
   const totalPages = ref(0);
   const usersCount = ref(0);
   const dataLoading = ref(false);
+  const classes = ref([]);
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   // query params
@@ -43,6 +45,18 @@ export default function useUserManagement(activeFacilityId) {
     }
   };
 
+  const fetchClasses = async () => {
+    try {
+      const classList = await ClassroomResource.fetchCollection({
+        getParams: { parent: activeFacilityId },
+        force: true,
+      });
+      classes.value = classList;
+    } catch (error) {
+      store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+    }
+  };
+
   // re-running fetchUsers whenever the relevant query params change
   watch(
     () => [page.value, pageSize.value, search.value, userType.value, ordering.value, order.value],
@@ -63,7 +77,9 @@ export default function useUserManagement(activeFacilityId) {
     order,
     search,
     userType,
+    classes,
     // methods
     fetchUsers,
+    fetchClasses,
   };
 }
