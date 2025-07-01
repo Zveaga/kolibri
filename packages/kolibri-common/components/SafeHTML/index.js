@@ -38,8 +38,18 @@ export default {
         }
         attributes.class = 'safe-html';
         if (tag === 'table') {
+          const firstRow = node.querySelector('tr');
+          const colCount = firstRow ? firstRow.children.length : 0;
+          let tableWidth = '640px';
+          if (colCount > 3) {
+            tableWidth = `${colCount * 200}px`;
+          }
           return h('div', { class: 'table-responsive' }, [
-            h(tag, { attrs: attributes }, mapChildren(node.childNodes)),
+            h(
+              tag,
+              { attrs: attributes, style: { width: tableWidth } },
+              mapChildren(node.childNodes),
+            ),
           ]);
         }
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
