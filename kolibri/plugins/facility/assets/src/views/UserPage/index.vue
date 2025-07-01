@@ -77,7 +77,7 @@
                 appearance="basic-link"
                 :text="filterLabel$()"
                 class="filter-button move-down"
-                :to="{ name: PageNames.FILTER_USERS_SIDE_PANEL }"
+                :to="sidePanelUrl(PageNames.FILTER_USERS_SIDE_PANEL)"
               />
             </div>
           </KGridItem>
@@ -98,28 +98,28 @@
                 @click="clearSelectedUsers"
               />
             </span>
-            <router-link :to="{ name: PageNames.ASSIGN_COACHES_SIDE_PANEL }">
+            <router-link :to="sidePanelUrl(PageNames.ASSIGN_COACHES_SIDE_PANEL)">
               <KIconButton
                 icon="assignCoaches"
                 :ariaLabel="assignCoach$()"
                 :tooltip="assignCoach$()"
               />
             </router-link>
-            <router-link :to="{ name: PageNames.ENROLL_LEARNERS_SIDE_PANEL }">
+            <router-link :to="sidePanelUrl(PageNames.ENROLL_LEARNERS_SIDE_PANEL)">
               <KIconButton
                 icon="add"
                 :ariaLabel="enrollToClass$()"
                 :tooltip="enrollToClass$()"
               />
             </router-link>
-            <router-link :to="{ name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL }">
+            <router-link :to="sidePanelUrl(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)">
               <KIconButton
                 icon="remove"
                 :ariaLabel="removeFromClass$()"
                 :tooltip="removeFromClass$()"
               />
             </router-link>
-            <router-link :to="{ name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL }">
+            <router-link :to="sidePanelUrl(PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL)">
               <KIconButton
                 icon="trash"
                 :ariaLabel="deleteSelection$()"
@@ -649,6 +649,13 @@
       },
       getTranslatedSelectedArialabel(row) {
         return this.selectLabel$() + ' ' + row[1] + ', ' + this.typeDisplayMap[row[6].kind];
+      },
+      sidePanelUrl(name) {
+        return {
+          name,
+          params: { facility_id: this.$route.params.facility_id },
+          query: { ...this.$route.query },
+        };
       },
     },
     $trs: {
