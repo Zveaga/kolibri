@@ -87,12 +87,12 @@ b.safe-html {
   @include text-style(bold);
 }
 
-.table-responsive {
+.table-container {
   width: 100%;
   overflow-x: auto;
 }
 
-.table-responsive:focus {
+.table-container:focus {
   outline: 3px solid rgb(51, 172, 245) !important;
   outline-offset: 4px !important;
 }
@@ -135,6 +135,6 @@ td.safe-html {
 
 img.safe-html {
   display: block;
-  width: 360px;
+  width: 300px;
   margin: 16px auto;
 }

@@ -29,6 +29,8 @@ export default {
     // Create temporary container to parse HTML
     const doc = parser.parseFromString(sanitizedHTML, 'text/html');
 
+    let tableCounter = 0;
+
     function mapNode(node) {
       if (node.nodeType === Node.ELEMENT_NODE) {
         const tag = node.tagName.toLowerCase();
@@ -37,20 +39,47 @@ export default {
           attributes[attr.name] = attr.value;
         }
         attributes.class = 'safe-html';
+
         if (tag === 'table') {
+          tableCounter += 1;
+          const captionId = `table-caption-${tableCounter}`;
+          const children = [];
+          for (const childNode of node.childNodes) {
+            if (
+              childNode.nodeType === Node.ELEMENT_NODE &&
+              childNode.tagName.toLowerCase() === 'caption'
+            ) {
+              const captionAttrs = {};
+              for (const attr of childNode.attributes) {
+                captionAttrs[attr.name] = attr.value;
+              }
+              // Inject the captionId into captions
+              captionAttrs.id = captionId;
+              captionAttrs.class = 'safe-html';
+              children.push(
+                h('caption', { attrs: captionAttrs }, mapChildren(childNode.childNodes)),
+              );
+            } else {
+              children.push(mapNode(childNode));
+            }
+          }
+
           const firstRow = node.querySelector('tr');
           const colCount = firstRow ? firstRow.children.length : 0;
           let tableWidth = '640px';
           if (colCount > 3) {
             tableWidth = `${colCount * 200}px`;
           }
-          return h('div', { class: 'table-responsive' }, [
-            h(
-              tag,
-              { attrs: attributes, style: { width: tableWidth } },
-              mapChildren(node.childNodes),
-            ),
-          ]);
+
+          return h(
+            // Wrap tables in an accessible container
+            'div',
+            {
+              class: 'table-container',
+              attrs: { role: 'region', 'aria-labelledby': captionId, tabindex: 0 },
+            },
+            [h(tag, { attrs: attributes, style: { width: tableWidth } }, children)],
+          );
         }
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
