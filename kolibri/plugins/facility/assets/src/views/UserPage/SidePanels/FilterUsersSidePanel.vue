@@ -24,6 +24,17 @@
       SidePanelModal,
     },
     mixins: [commonCoreStrings],
+    props: {
+      /* eslint-disable vue/no-unused-properties */
+      selectedUsers: {
+        type: Set,
+        default: () => new Set(),
+      },
+      classes: {
+        type: Array,
+        default: () => [],
+      },
+    },
   };
 
 </script>

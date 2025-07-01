@@ -114,27 +114,27 @@ export default [
     children: [
       {
         name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
-        path: 'trash-panel',
+        path: 'trash',
         component: MoveToTrashSidePanel,
       },
       {
         name: PageNames.FILTER_USERS_SIDE_PANEL,
-        path: 'filter-panel',
+        path: 'filter',
         component: FilterUsersSidePanel,
       },
       {
         name: PageNames.ASSIGN_COACHES_SIDE_PANEL,
-        path: 'assign-coaches-panel',
+        path: 'assign-coaches',
         component: AssignCoachesSidePanel,
       },
       {
         name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
-        path: 'remove-from-classes-panel',
+        path: 'remove-from-classes',
         component: RemoveFromClassSidePanel,
       },
       {
         name: PageNames.ENROLL_LEARNERS_SIDE_PANEL,
-        path: 'enroll-learners-panel',
+        path: 'enroll-learners',
         component: EnrollLearnersSidePanel,
       },
     ],
