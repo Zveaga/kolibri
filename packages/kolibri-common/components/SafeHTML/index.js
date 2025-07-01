@@ -31,12 +31,18 @@ export default {
 
     function mapNode(node) {
       if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = node.tagName.toLowerCase();
         const attributes = {};
         for (const attr of node.attributes) {
           attributes[attr.name] = attr.value;
         }
         attributes.class = 'safe-html';
-        return h(node.tagName.toLowerCase(), { attrs: attributes }, mapChildren(node.childNodes));
+        if (tag === 'table') {
+          return h('div', { class: 'table-responsive' }, [
+            h(tag, { attrs: attributes }, mapChildren(node.childNodes)),
+          ]);
+        }
+        return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;
       }
