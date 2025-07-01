@@ -92,6 +92,11 @@ b.safe-html {
   overflow-x: auto;
 }
 
+.table-responsive:focus {
+  outline: 3px solid rgb(51, 172, 245) !important;
+  outline-offset: 4px !important;
+}
+
 table.safe-html {
   min-width: 640px;
   margin: 16px auto;
