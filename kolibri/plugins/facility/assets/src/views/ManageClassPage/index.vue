@@ -213,6 +213,7 @@
         selectAllLabel$,
         numCoachesSelected$,
         classCopiedSuccessfully$,
+        copyOfClass$,
       } = bulkUserManagementStrings;
 
       const handleSelection = newSelection => {
@@ -234,7 +235,7 @@
         }));
 
         if (selection.value === Modals.DELETE_CLASS) {
-          this.selectClassToDelete(row);
+          selectClassToDelete(row);
           return;
         }
 
@@ -251,7 +252,6 @@
 
       return {
         classToDelete,
-        selectClassToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
         getFacilities,
@@ -269,6 +269,7 @@
         classCoaches,
         handleOptionSelection,
         createSnackbar,
+        copyOfClass$,
       };
     },
     computed: {
@@ -338,6 +339,7 @@
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
+      ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       closeModal() {
         this.displayModal(false);
       },
@@ -386,7 +388,17 @@
         return null;
       },
       handleSubmitingClassCopy() {
-        this.createSnackbar(this.classCopiedSuccessfully$());
+        const className = this.copyOfClass$({ class: this.classDetails.name });
+        this.$store.dispatch('classManagement/createClass', className).then(() => {
+          const classId = this.classes.find(cls => cls.name === className).id;
+          if (classId) {
+            const coaches = this.classCoachesIds;
+            this.assignCoachesToClass({ classId: classId, coaches }).then(() => {
+              this.createSnackbar(this.classCopiedSuccessfully$());
+              this.openCopyClassPanel = false;
+            });
+          }
+        });
       },
     },
     $trs: {
