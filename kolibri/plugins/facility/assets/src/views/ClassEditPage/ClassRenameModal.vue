@@ -94,6 +94,7 @@
         if (this.formIsValid) {
           this.submitting = true;
           this.updateClass({ id: this.classid, updateData: { name: this.name } });
+          this.$emit('success');
         } else {
           this.$refs.name.focus();
         }

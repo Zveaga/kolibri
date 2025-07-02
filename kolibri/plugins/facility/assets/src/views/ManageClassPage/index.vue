@@ -100,11 +100,12 @@
       />
 
       <ClassRenameModal
-        v-if="modalShown === Modals.EDIT_CLASS_NAME"
+        v-if="openRenameModal"
         :classname="classDetails.name"
         :classid="classDetails.id"
         :classes="classes"
         @cancel="closeModal"
+        @success="handleRenameSuccess()"
       />
       <SidePanelModal
         v-if="openCopyClassPanel"
@@ -202,6 +203,7 @@
       const classCoachesIds = ref([]);
       const classCoaches = ref([]);
       const openCopyClassPanel = ref(false);
+      const openRenameModal = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const { createSnackbar } = useSnackbar();
@@ -240,7 +242,8 @@
         }
 
         if (selection.value === Modals.EDIT_CLASS_NAME) {
-          this.displayModal(Modals.EDIT_CLASS_NAME);
+          // this.displayModal(Modals.EDIT_CLASS_NAME);
+          openRenameModal.value = true;
           return;
         }
 
@@ -270,6 +273,7 @@
         handleOptionSelection,
         createSnackbar,
         copyOfClass$,
+        openRenameModal,
       };
     },
     computed: {
@@ -356,6 +360,10 @@
           // Update the core facilities object to update classroom number
           this.getFacilities();
         }
+      },
+      handleRenameSuccess() {
+        this.openRenameModal = false;
+        this.refreshCoreFacilities();
       },
       // Duplicated in class-list-page
       coachNames(classes) {
