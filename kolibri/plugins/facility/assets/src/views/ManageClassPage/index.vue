@@ -134,13 +134,14 @@
               :ariaLabelledby="coachesAssignedToClassLabel$()"
               :selectAllLabel="selectAllLabel$()"
               :searchLabel="coreString('searchLabel')"
+              @input="handleSelection"
             />
           </div>
         </template>
 
         <template #bottomNavigation>
           <div class="bottom-nav">
-            <div>{{ numCoachesSelected$({ n: 3 }) }}</div>
+            <div>{{ numCoachesSelected$({ n: classCoachesIds.length }) }}</div>
             <div>
               <KButton
                 :text="coreString('cancelAction')"
@@ -196,6 +197,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const classDetails = ref({});
+      const classCoachesIds = ref([]);
+      const classCoaches = ref([]);
       const openCopyClassPanel = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
@@ -208,6 +211,40 @@
         numCoachesSelected$,
       } = bulkUserManagementStrings;
 
+      const handleSelection = newSelection => {
+        classCoachesIds.value = newSelection;
+      };
+
+      const handleOptionSelection = (selection, row) => {
+        classDetails.value = row;
+
+        classCoachesIds.value = classDetails.value.coaches
+          .map(coach => coach.id)
+          .filter(id => id !== undefined);
+
+        classCoaches.value = classDetails.value.coaches.map(coach => ({
+          id: coach.id,
+          username: coach.username,
+          full_name: coach.full_name,
+          label: coach.full_name,
+        }));
+
+        if (selection.value === Modals.DELETE_CLASS) {
+          this.selectClassToDelete(row);
+          return;
+        }
+
+        if (selection.value === Modals.EDIT_CLASS_NAME) {
+          this.displayModal(Modals.EDIT_CLASS_NAME);
+          return;
+        }
+
+        if (selection.value === Modals.COPY_CLASS) {
+          openCopyClassPanel.value = true;
+          return;
+        }
+      };
+
       return {
         classToDelete,
         selectClassToDelete,
@@ -217,11 +254,15 @@
         copyClasslabel$,
         renameClassLabel$,
         classDetails,
+        classCoachesIds,
         openCopyClassPanel,
         coachesAssignedToClassLabel$,
         classTitleLabel$,
         selectAllLabel$,
         numCoachesSelected$,
+        handleSelection,
+        classCoaches,
+        handleOptionSelection,
       };
     },
     computed: {
@@ -288,17 +329,10 @@
           },
         ];
       },
-      classCoaches() {
-        return this.classDetails.coaches.map(coach => ({
-          id: coach.id,
-          username: coach.username,
-          full_name: coach.full_name,
-          label: coach.full_name,
-        }));
-      },
-      classCoachesIds() {
-        return this.classCoaches.map(coach => coach.id).filter(id => id !== undefined);
-      },
+
+      // classCoachesIds() {
+      //   return this.classDetails.map(coach => coach.id).filter(id => id !== undefined);
+      // },
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
@@ -348,23 +382,6 @@
           return coach_names.join('\n');
         }
         return null;
-      },
-      handleOptionSelection(selection, row) {
-        this.classDetails = row;
-        if (selection.value === Modals.DELETE_CLASS) {
-          this.selectClassToDelete(row);
-          return;
-        }
-
-        if (selection.value === Modals.EDIT_CLASS_NAME) {
-          this.displayModal(Modals.EDIT_CLASS_NAME);
-          return;
-        }
-
-        if (selection.value === Modals.COPY_CLASS) {
-          this.openCopyClassPanel = true;
-          return;
-        }
       },
     },
     $trs: {
