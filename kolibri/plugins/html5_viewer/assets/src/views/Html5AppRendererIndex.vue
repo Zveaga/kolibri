@@ -2,7 +2,7 @@
 
   <CoreFullscreen
     ref="html5Renderer"
-    class="html5-renderer"
+    class="html5-viewer"
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -249,7 +249,7 @@
     height: 24px;
   }
 
-  .html5-renderer {
+  .html5-viewer {
     position: relative;
     text-align: center;
   }

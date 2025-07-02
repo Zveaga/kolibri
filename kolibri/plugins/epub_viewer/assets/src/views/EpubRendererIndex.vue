@@ -2,7 +2,7 @@
 
   <CoreFullscreen
     ref="epubRenderer"
-    class="epub-renderer"
+    class="epub-viewer"
     :class="{ small: windowIsSmall, scrolled: scrolled }"
     :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
@@ -15,7 +15,7 @@
     <LoadingScreen v-else-if="!loaded" />
 
     <div
-      class="epub-renderer-content"
+      class="epub-viewer-content"
       :style="{ 'border-color': $themeTokens.fineLine }"
       :dir="contentDirection"
       @mousedown.stop="handleMouseDown"
@@ -796,7 +796,7 @@
   $navigation-button-small: 36px;
   $navigation-button-normal: 52px;
 
-  .epub-renderer {
+  .epub-viewer {
     position: relative;
     // Counter-balance the padding to avoid unnecessary scroll
     height: calc(100vh - 64px);
@@ -806,12 +806,12 @@
     border-radius: $radius;
   }
 
-  .epub-renderer:fullscreen,
-  .epub-renderer.small:fullscreen {
+  .epub-viewer:fullscreen,
+  .epub-viewer.small:fullscreen {
     padding: 0;
   }
 
-  .epub-renderer-content {
+  .epub-viewer-content {
     position: relative;
     height: 100%;
     overflow: hidden;
@@ -914,15 +914,15 @@
     left: 0;
   }
 
-  .epub-renderer.small .epubjs-navigation {
+  .epub-viewer.small .epubjs-navigation {
     width: $navigation-button-small;
   }
 
-  .epub-renderer.small .epubjs-parent {
+  .epub-viewer.small .epubjs-parent {
     width: calc(100% - (#{$navigation-button-small} * 2));
   }
 
-  .epub-renderer.scrolled {
+  .epub-viewer.scrolled {
     .epubjs-navigation {
       display: none;
     }

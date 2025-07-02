@@ -22,7 +22,7 @@
 <script>
 
   import useUser from 'kolibri/composables/useUser';
-  import { getRenderableFiles } from './internal/ContentRenderer/utils';
+  import { getRenderableFiles } from './internal/ContentViewer/utils';
   import { getFilePresetString } from './internal/filePresetStrings';
 
   export default {

@@ -2,7 +2,7 @@
 
   <CoreFullscreen
     ref="bloompubRenderer"
-    class="bloompub-renderer"
+    class="bloompub-viewer"
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -202,7 +202,7 @@
     height: 24px;
   }
 
-  .bloompub-renderer {
+  .bloompub-viewer {
     position: relative;
     text-align: center;
   }

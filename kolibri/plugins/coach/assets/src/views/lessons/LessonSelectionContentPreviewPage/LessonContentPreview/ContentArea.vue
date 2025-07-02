@@ -7,9 +7,9 @@
     >
       {{ header }}
     </h2>
-    <ContentRenderer
+    <ContentViewer
       v-if="content.available"
-      class="content-renderer"
+      class="content-viewer"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -65,7 +65,7 @@
 
 <style lang="scss" scoped>
 
-  .content-renderer {
+  .content-viewer {
     height: 100vh;
   }
 

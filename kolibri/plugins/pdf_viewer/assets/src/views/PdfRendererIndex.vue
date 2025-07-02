@@ -2,7 +2,7 @@
 
   <CoreFullscreen
     ref="pdfRenderer"
-    class="pdf-renderer"
+    class="pdf-viewer"
     :class="{
       'pdf-controls-open': showControls,
       'pdf-full-screen': isInFullscreen,
@@ -669,7 +669,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
 
-  .pdf-renderer {
+  .pdf-viewer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
 

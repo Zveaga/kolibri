@@ -56,7 +56,7 @@
               :selectedInteractionIndex="interactionIndex"
               @select="navigateToNewInteraction($event)"
             />
-            <ContentRenderer
+            <ContentViewer
               v-if="currentInteraction"
               :itemId="currentLearner.item"
               :assessment="true"

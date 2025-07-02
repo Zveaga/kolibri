@@ -96,7 +96,7 @@
     left: calc(50% - 16px);
   }
 
-  .content-renderer > div {
+  .content-viewer > div {
     padding: 40px 16px;
     background-color: white;
   }

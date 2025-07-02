@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import { RENDERER_SUFFIX } from 'kolibri/constants';
+import { VIEWER_SUFFIX } from 'kolibri/constants';
 
-export const canRenderContent = preset => Boolean(Vue.options.components[preset + RENDERER_SUFFIX]);
+export const canRenderContent = preset => Boolean(Vue.options.components[preset + VIEWER_SUFFIX]);
 
 export const getRenderableFiles = files =>
   files.filter(

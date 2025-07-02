@@ -50,8 +50,8 @@
         class="content-wrapper"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
       >
-        <ContentRenderer
-          ref="contentRenderer"
+        <ContentViewer
+          ref="contentViewer"
           :kind="kind"
           :lang="lang"
           :files="files"
@@ -334,14 +334,14 @@
         }
         return null;
       },
-      renderer() {
-        return this.mounted && this.$refs.contentRenderer;
+      viewer() {
+        return this.mounted && this.$refs.contentViewer;
       },
       availableHints() {
-        return (this.renderer && this.renderer.availableHints) || 0;
+        return (this.viewer && this.viewer.availableHints) || 0;
       },
       totalHints() {
-        return (this.renderer && this.renderer.totalHints) || 0;
+        return (this.viewer && this.viewer.totalHints) || 0;
       },
     },
     watch: {
@@ -356,7 +356,7 @@
     },
     methods: {
       takeHint() {
-        this.renderer && this.renderer.takeHint();
+        this.viewer && this.viewer.takeHint();
       },
       exerciseProgress(submittingAttempt) {
         if (this.mastered) {
@@ -389,7 +389,7 @@
         this.checkWasAttempted = true;
         if (!this.checkingAnswer) {
           this.checkingAnswer = true;
-          const answer = this.$refs.contentRenderer.checkAnswer();
+          const answer = this.$refs.contentViewer.checkAnswer();
           if (answer) {
             this.answerGiven(answer);
           }

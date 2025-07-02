@@ -2,7 +2,7 @@
 
   <CoreFullscreen
     ref="slideshowRenderer"
-    class="slideshow-renderer"
+    class="slideshow-viewer"
     :style="{ height: contentHeight }"
     @changeFullscreen="isInFullscreen = $event"
   >
@@ -256,7 +256,7 @@
             .getElementsByClassName('hooper-list')[0]
             .setAttribute('style', `width: calc(100% * ${this.slides.length});`);
         } catch (err) {
-          // If we don't explicitly set an error, the renderer will display broken giving worse
+          // If we don't explicitly set an error, the viewer will display broken giving worse
           // UX than getting an error message.
           this.$store.commit('CORE_SET_ERROR', err);
         }
@@ -337,7 +337,7 @@
     z-index: 12;
   }
 
-  .slideshow-renderer {
+  .slideshow-viewer {
     position: relative;
     overflow: hidden;
     text-align: center;
