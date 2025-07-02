@@ -135,6 +135,7 @@
               :ariaLabelledby="coachesAssignedToClassLabel$()"
               :selectAllLabel="selectAllLabel$()"
               :searchLabel="coreString('searchLabel')"
+              :displayUserRole="true"
               @input="handleSelection"
             />
           </div>
