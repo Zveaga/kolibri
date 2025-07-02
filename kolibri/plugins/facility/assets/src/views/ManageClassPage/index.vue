@@ -152,6 +152,7 @@
               <KButton
                 :text="copyClasslabel$()"
                 :primary="true"
+                @click="handleSubmitingClassCopy"
               />
             </div>
           </div>
@@ -171,6 +172,7 @@
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
@@ -202,6 +204,7 @@
       const openCopyClassPanel = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const { createSnackbar } = useSnackbar();
       const {
         copyClasslabel$,
         renameClassLabel$,
@@ -209,6 +212,7 @@
         classTitleLabel$,
         selectAllLabel$,
         numCoachesSelected$,
+        classCopiedSuccessfully$,
       } = bulkUserManagementStrings;
 
       const handleSelection = newSelection => {
@@ -260,9 +264,11 @@
         classTitleLabel$,
         selectAllLabel$,
         numCoachesSelected$,
+        classCopiedSuccessfully$,
         handleSelection,
         classCoaches,
         handleOptionSelection,
+        createSnackbar,
       };
     },
     computed: {
@@ -329,10 +335,6 @@
           },
         ];
       },
-
-      // classCoachesIds() {
-      //   return this.classDetails.map(coach => coach.id).filter(id => id !== undefined);
-      // },
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
@@ -382,6 +384,9 @@
           return coach_names.join('\n');
         }
         return null;
+      },
+      handleSubmitingClassCopy() {
+        this.createSnackbar(this.classCopiedSuccessfully$());
       },
     },
     $trs: {
