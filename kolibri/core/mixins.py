@@ -30,12 +30,13 @@ class BulkDeleteMixin(object):
 
     # Taken from https://github.com/miki725/django-rest-framework-bulk
 
-    def allow_bulk_destroy(self, qs):
+    def allow_bulk_destroy(self):
         """
         Hook to ensure that the bulk destroy should be allowed.
         By default this checks that the destroy is only applied to
         filtered querysets.
         """
+        qs = self.get_queryset()
         filter_fields = set()
 
         for backend in list(self.filter_backends):
@@ -56,7 +57,7 @@ class BulkDeleteMixin(object):
         qs = self.get_queryset()
 
         filtered = self.filter_queryset(qs)
-        if not self.allow_bulk_destroy(qs):
+        if not self.allow_bulk_destroy():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_bulk_destroy(filtered)

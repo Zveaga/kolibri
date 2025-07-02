@@ -549,19 +549,13 @@ class DeletedFacilityUserViewSet(
     ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
     field_map = FacilityUserViewSet.field_map
 
-    def allow_bulk_restore(self):
-        """
-        Hook to ensure that the bulk restore should be allowed.
-        By default, these restrictions are the same as for bulk deletion,
-        """
-        return self.allow_bulk_destroy(self.get_queryset())
-
     @decorators.action(detail=False, methods=["post"])
     def restore(self, request):
         """
         Restore soft-deleted FacilityUsers.
         """
-        if not self.allow_bulk_restore():
+        # Permissions for allowing bulk restore are the same as for bulk destroy
+        if not self.allow_bulk_destroy():
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
             )
