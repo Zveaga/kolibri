@@ -1,57 +1,64 @@
 Feature: Quiz notifications for multiple groups
   Class coaches and facility coaches need to be able to see all notifications (*started* and *completed*) when groups of learners start and complete quizzes
 
-  # Prepare four browsers, or three windows/tabs of the same browser, one of them being incognito/private mode, in order to sign into five as learner users, and as a coach in the other
-
   Background:
-    Given I have all sessions visible in four browser windows/tabs (signed into three as learners, and in the other as <coach>)
-      And I am signed in to Kolibri as a facility or class <coach>
-      And there are three learners enrolled in class <class> I am assigned to
-      And <learner1> and <learner2> are assigned to <group1>
-      And <learner3> is assigned to <group2>
-      And I have assigned <quiz1> to <group1>
-      And I have assigned <quiz2> to <group2>
+    Given I am signed in to Kolibri as a class coach
+      And as a coach I have assigned a quiz to a group of learners and started it
+      And in a different browser I am signed in to Kolibri as a learner from the group #or using a browser tab in incognito mode; repeat the following scenarios with different learners to test multiple notifications
 
-    Scenario: <group1> starts <quiz1>
-   	  When as <learner1> and <learner2> in one window I go to *Learn > '<class>' > '<quiz1>'* page
-  	    And I start the <quiz1>
-        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
-  	  When as <coach> I look at *Class activity* block
-  	  Then I see the *Everyone started '<quiz1>'* group notification
-  	  When I click the notification
-  	  Then I see the report for <quiz1>
-  	    And I see the quiz details
-  	    And I see the table with <learner1> and <learner2> who started the quiz
+  Scenario: Class activity - Coach sees a notification that a group learner has started the quiz
+  	Given the coach is at *Coach > '<class>' > Class Home* page
+  		And a learner from the group has started filling in the quiz at *Learn > Class > <class>*
+  	When as a coach I look into the *Class activity* section
+  	Then I see a *'<group>'' • '<quiz>'' '<learner>' started '<quiz>'* notification
+  	When I click the notification link
+  	Then I see the quiz report for the learner
+  	  And I see the correctly updated quiz data such as status, score, questions answered, time spent and attempted
+  	  And I see the correct answer history and question details
 
-    Scenario: <group2> starts <quiz2>
-   	  When as <learner3> in one window I go to *Learn > Class* page for <class>
-  	    And I start the <quiz2>
-  	    And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
-      When as <coach> I look at *Class activity* block
-  	  Then I see one *'<learner3>' started '<quiz2>'* group notification
-  	  When I click the notification
-      Then I see the report for <quiz2>
-        And I see the quiz details
-        And I see the table with <learner3> who started the quiz
+  Scenario: Class activity - Coach sees a notification that a group learner has completed the quiz
+  	Given the coach is at *Coach > '<class>' > Class Home* page
+  		And a learner from the group has submitted the quiz at *Learn > Class > <class>*
+  	When as a coach I look into the *Class activity* section
+  	Then I see a *'<group>'' • '<quiz>'' '<learner>' completed '<quiz>'* notification
+  	When I click the notification link
+  	Then I see the correctly updated quiz report for the learner
+  	  And I see the quiz data such as status, score, questions answered, time spent and attempted
+  	  And I see the correct answer history and question details
 
-    Scenario: <group1> completes <quiz1>
-      When as <learner1> and <learner2> in one window I go to *Learn > '<class>' > '<quiz1>'* page
-        And I complete the <quiz1>
-        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
-      When as <coach> I look at *Class activity* block
-      Then I see the *Everyone completed '<quiz1>'* group notification
-      When I click the notification
-      Then I see the report for <quiz1>
-        And I see the quiz details
-        And I see the table with <learner1> and <learner2> who completed the quiz
+  Scenario: Class activity - Coach sees a notification that everyone from the group has started/completed the quiz
+  	Given the coach is at *Coach > '<class>' > Class Home* page
+  		And all the learners in the group have started filling in the quiz at *Learn > Class > <class>*
+  	When as a coach I look into the *Class activity* section
+  	Then I see an *'<group>'' • '<quiz>''Everyone in '<group>' started '<quiz>'* notification
+  	When I click the notification link
+  	Then I see the quiz report for the learners
+  	  And I see the correctly updated quiz data such as status, score, questions answered, time spent and attempted
+  	  And I see the correct answer history and question details
+  	When all the learners in the group have submitted the quiz at *Learn > Class > <class>*
+  		And as a coach I look into the *Class activity* section
+  	Then I see an *'<group>'' • '<quiz>''Everyone in '<group>' completed '<quiz>'* notification
+  	When I click the notification link
+  	Then I see the quiz report for the learners
+  	  And I see the correctly updated quiz data such as status, score, questions answered, time spent and attempted
+  	  And I see the correct answer history and question details
 
-    Scenario: <group2> completes <quiz2>
-      When as <learner3> in one window I go to *Learn > Class* page for <class>
-        And I complete the <quiz2>
-        And as <coach> in another window I am at *Coach - '<class>' > Class Home* page
-      When as <coach> I look at *Class activity* block
-      Then I see one *'<learner3>' completed '<quiz2>'* group notification
-      When I click the notification
-      Then I see the report for <quiz2>
-        And I see the quiz details
-        And I see the table with <learner3> who completed the quiz
+  Scenario: Quizzes section - Coach sees a notification that a learner from the group has started the quiz
+  	Given the coach is at *Coach > '<class>' > Class Home* page
+  		And the learner has started filling in the quiz at *Learn > Class > <class>*
+  	When as a coach I look into the *Quizzes* section
+  	Then I see a *N of N has started* notification
+  		And I see a blue progress bar
+  	When I click the quiz card
+  	Then I see the quiz details page
+  	  And I see all the correctly updated quiz data and learner progress
+
+  Scenario: Quizzes section - Coach sees a notification that a learner from the group has completed the quiz
+  	Given the coach is at *Coach > '<class>' > Class Home* page
+  		And the learner has submitted the quiz at *Learn > Class > <class>*
+  	When as a coach I look into the *Quizzes* section
+  	Then I see a *Completed by N of N* notification
+  		And I see a yellow progress bar
+  	When I click the quiz card
+  	Then I see the quiz details page
+  	  And I see all the correctly updated quiz data and learner progress
