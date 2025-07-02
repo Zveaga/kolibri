@@ -1,7 +1,4 @@
 import store from 'kolibri/store';
-import router from 'kolibri/router';
-import logger from 'kolibri-logging';
-import { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -26,32 +23,8 @@ import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
 } from './modules/classAssignMembers/handlers';
-import MoveToTrashSidePanel from './views/UserPage/SidePanels/MoveToTrashSidePanel';
-import FilterUsersSidePanel from './views/UserPage/SidePanels/FilterUsersSidePanel';
-import AssignCoachesSidePanel from './views/UserPage/SidePanels/AssignCoachesSidePanel';
-import RemoveFromClassSidePanel from './views/UserPage/SidePanels/RemoveFromClassSidePanel';
-import EnrollLearnersSidePanel from './views/UserPage/SidePanels/EnrollLearnersSidePanel';
+import { facilityParamRequiredGuard, getSidePanelRoutes } from './utils';
 import { PageNames } from './constants';
-
-const logging = logger.getLogger(__filename);
-
-function facilityParamRequiredGuard(toRoute, subtopicName) {
-  const { userIsMultiFacilityAdmin } = useFacilities();
-  if (userIsMultiFacilityAdmin.value && !toRoute.params.facility_id) {
-    router
-      .replace({
-        name: 'ALL_FACILITIES_PAGE',
-        params: { subtopicName },
-      })
-      .catch(e => {
-        if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
-          logging.debug(e);
-          throw Error(e);
-        }
-      });
-    return true;
-  }
-}
 
 export default [
   // Routes for multi-facility case
@@ -111,33 +84,13 @@ export default [
         return;
       }
     },
-    children: [
-      {
-        name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
-        path: 'trash',
-        component: MoveToTrashSidePanel,
-      },
-      {
-        name: PageNames.FILTER_USERS_SIDE_PANEL,
-        path: 'filter',
-        component: FilterUsersSidePanel,
-      },
-      {
-        name: PageNames.ASSIGN_COACHES_SIDE_PANEL,
-        path: 'assign-coaches',
-        component: AssignCoachesSidePanel,
-      },
-      {
-        name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
-        path: 'remove-from-classes',
-        component: RemoveFromClassSidePanel,
-      },
-      {
-        name: PageNames.ENROLL_LEARNERS_SIDE_PANEL,
-        path: 'enroll-learners',
-        component: EnrollLearnersSidePanel,
-      },
-    ],
+    children: getSidePanelRoutes(
+      PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
+      PageNames.FILTER_USERS_SIDE_PANEL,
+      PageNames.ASSIGN_COACHES_SIDE_PANEL,
+      PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
+      PageNames.ENROLL_LEARNERS_SIDE_PANEL,
+    ),
   },
   {
     name: PageNames.USER_CREATE_PAGE,
