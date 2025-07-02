@@ -1,7 +1,7 @@
 <template>
 
   <CoreFullscreen
-    ref="html5Renderer"
+    ref="html5Viewer"
     class="html5-viewer"
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
@@ -13,7 +13,7 @@
       <KButton
         :primary="false"
         appearance="flat-button"
-        @click="$refs.html5Renderer.toggleFullscreen()"
+        @click="$refs.html5Viewer.toggleFullscreen()"
       >
         <KIcon
           v-if="isInFullscreen"
@@ -59,28 +59,27 @@
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import Hashi from 'hashi';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   export default {
     name: 'Html5AppRendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
     },
-    props: {
-      userId: {
-        type: String,
-        default: '',
-      },
-      userFullName: {
-        type: String,
-        default: '',
-      },
-      progress: {
-        type: Number,
-        default: 0,
-      },
+    setup(props, context) {
+      const { defaultFile, forceDurationBasedProgress, durationBasedProgress, reportError } =
+        useContentViewer(props, context, { defaultDuration: 300 });
+      return {
+        defaultFile,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+        reportError,
+      };
     },
+    props: contentViewerProps,
     data() {
       return {
         iframeHeight: (this.options && this.options.height) || defaultContentHeight,
@@ -117,13 +116,6 @@
           };
         }
         return {};
-      },
-      /**
-       * @public
-       * Note: the default duration historically for HTML5 Apps has been 5 min
-       */
-      defaultDuration() {
-        return 300;
       },
       entry() {
         return (this.options && this.options.entry) || 'index.html';
@@ -162,7 +154,7 @@
       });
       this.hashi.on(this.hashi.events.ERROR, err => {
         this.loading = false;
-        this.$emit('error', err);
+        this.reportError(err);
       });
       let storageUrl = this.defaultFile.storage_url;
       if (!this.isH5P) {

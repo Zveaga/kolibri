@@ -101,10 +101,8 @@
               >
                 <ContentViewer
                   :ref="`contentViewer-${question.item}`"
-                  :kind="getQuestionContent(question).kind"
                   :lang="getQuestionContent(question).lang"
                   :files="getQuestionContent(question).files"
-                  :available="getQuestionContent(question).available"
                   :itemId="question.question_id"
                   :assessment="true"
                   :allowHints="false"

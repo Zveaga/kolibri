@@ -13,9 +13,7 @@
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
-      :kind="content.kind"
       :files="content.files"
-      :available="content.available"
       :extraFields="content.extra_fields"
       :interactive="false"
     />

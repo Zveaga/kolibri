@@ -184,9 +184,7 @@
               <ContentViewer
                 v-if="content && itemId"
                 ref="contentViewer"
-                :kind="content.kind"
                 :files="content.files"
-                :available="content.available"
                 :extraFields="content.extra_fields"
                 :itemId="itemId"
                 :assessment="true"

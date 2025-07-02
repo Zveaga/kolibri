@@ -122,9 +122,7 @@
       <ContentViewer
         v-if="content && content.available && currentQuestion.question_id"
         ref="contentViewer"
-        :kind="content.kind"
         :files="content.files"
-        :available="content.available"
         :extraFields="content.extra_fields"
         :itemId="currentQuestion.question_id"
         :assessment="true"

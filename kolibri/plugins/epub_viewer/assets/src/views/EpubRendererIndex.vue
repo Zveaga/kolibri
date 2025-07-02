@@ -1,10 +1,10 @@
 <template>
 
   <CoreFullscreen
-    ref="epubRenderer"
+    ref="epubViewer"
     class="epub-viewer"
     :class="{ small: windowIsSmall, scrolled: scrolled }"
-    :style="epubRendererStyle"
+    :style="epubViewerStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
     <LoadingError
@@ -29,7 +29,7 @@
         @tableOfContentsButtonClicked="handleTocToggle"
         @settingsButtonClicked="handleSettingToggle"
         @searchButtonClicked="handleSearchToggle"
-        @fullscreenButtonClicked="$refs.epubRenderer.toggleFullscreen()"
+        @fullscreenButtonClicked="$refs.epubViewer.toggleFullscreen()"
       />
 
       <FocusLock
@@ -172,6 +172,8 @@
   import FocusLock from 'vue-focus-lock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import { ref, computed } from 'vue';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -204,6 +206,7 @@
 
   export default {
     name: 'EpubRendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
       TopBar,
@@ -220,18 +223,45 @@
       SearchButton,
       LoadingError,
     },
-    setup() {
+    setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
+      const locations = ref([]);
+      const defaultDuration = computed(() => {
+        const WORDS_PER_MINUTE = 300;
+        const CHARS_PER_WORD = 10;
+        const LOCATIONS_INTERVAL = 1000;
+        if (!locations.value.length) {
+          return null;
+        }
+        const numberOfWords = (locations.value.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
+        const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
+        return seconds;
+      });
+      const {
+        defaultFile,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+        contentDirection,
+        contentIsRtl,
+        reportLoadingError,
+      } = useContentViewer(props, context, { defaultDuration });
       return {
         windowIsSmall,
+        locations,
+        defaultFile,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+        contentDirection,
+        contentIsRtl,
+        reportLoadingError,
       };
     },
+    props: contentViewerProps,
     data() {
       return {
         book: null,
         rendition: null,
         toc: [],
-        locations: [],
         loaded: false,
         errorLoading: false,
         sideBarOpen: null,
@@ -330,7 +360,7 @@
       searchSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
-      epubRendererStyle() {
+      epubViewerStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
         };
@@ -357,16 +387,6 @@
       },
       increaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZE_MAX}px`;
-      },
-      /**
-       * @public
-       */
-      defaultDuration() {
-        const WORDS_PER_MINUTE = 300;
-        const CHARS_PER_WORD = 10;
-        const numberOfWords = (this.locations.length * LOCATIONS_INTERVAL) / CHARS_PER_WORD;
-        const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
-        return seconds;
       },
       locationsAreReady() {
         return this.locations && this.locations.length > 0;
@@ -580,7 +600,7 @@
       },
       handleMouseDown(event) {
         // This check is necessary because event listeners don't seem to be removed on beforeDestroy
-        if (this.$refs.epubRenderer) {
+        if (this.$refs.epubViewer) {
           let closeSideBar = false;
           if (this.tocSideBarIsOpen) {
             closeSideBar = !this.$refs.tocSideBar.$el.contains(event.target);

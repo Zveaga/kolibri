@@ -1,7 +1,7 @@
 <template>
 
   <CoreFullscreen
-    ref="slideshowRenderer"
+    ref="slideshowViewer"
     class="slideshow-viewer"
     :style="{ height: contentHeight }"
     @changeFullscreen="isInFullscreen = $event"
@@ -11,7 +11,7 @@
       :ariaLabel="isInFullscreen ? $tr('exitFullscreen') : $tr('enterFullscreen')"
       color="primary"
       size="small"
-      @click="$refs.slideshowRenderer.toggleFullscreen()"
+      @click="$refs.slideshowViewer.toggleFullscreen()"
     >
       <KIcon
         v-if="isInFullscreen"
@@ -95,9 +95,11 @@
     Navigation as HooperNavigation,
     Pagination as HooperPagination,
   } from 'hooper';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   export default {
     name: 'SlideshowRendererComponent',
+    __usesContentViewerComposable: true,
     components: {
       UiIconButton,
       CoreFullscreen,
@@ -106,6 +108,13 @@
       HooperPagination,
       HooperNavigation,
     },
+    setup(props, context) {
+      const { files } = useContentViewer(props, context, { defaultDuration: 300 });
+      return {
+        files,
+      };
+    },
+    props: contentViewerProps,
     data: () => ({
       isInFullscreen: false,
       slides: [],
@@ -142,13 +151,6 @@
       },
       contentHeight: function () {
         return window.innerHeight * 0.7 + 'px';
-      },
-      /**
-       * @public
-       * Note: the default duration historically for slidshows has been 5 min
-       */
-      defaultDuration() {
-        return 300;
       },
     },
     watch: {

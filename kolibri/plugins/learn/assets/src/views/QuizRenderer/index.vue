@@ -44,10 +44,8 @@
             <ContentViewer
               v-if="itemId"
               ref="contentViewer"
-              :kind="content.kind"
               :lang="content.lang"
               :files="content.files"
-              :available="content.available"
               :extraFields="extraFields"
               :itemId="itemId"
               :assessment="true"

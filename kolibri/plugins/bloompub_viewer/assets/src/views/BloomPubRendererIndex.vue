@@ -1,7 +1,7 @@
 <template>
 
   <CoreFullscreen
-    ref="bloompubRenderer"
+    ref="bloompubViewer"
     class="bloompub-viewer"
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
@@ -13,7 +13,7 @@
       <KButton
         :primary="false"
         appearance="flat-button"
-        @click="$refs.bloompubRenderer.toggleFullscreen()"
+        @click="$refs.bloompubViewer.toggleFullscreen()"
       >
         <KIcon
           v-if="isInFullscreen"
@@ -59,28 +59,29 @@
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import Hashi from 'hashi';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
   export default {
     name: 'BloomPubRendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
     },
-    props: {
-      userId: {
-        type: String,
-        default: '',
-      },
-      userFullName: {
-        type: String,
-        default: '',
-      },
-      progress: {
-        type: Number,
-        default: 0,
-      },
+    setup(props, context) {
+      const { defaultFile, forceDurationBasedProgress, reportError } = useContentViewer(
+        props,
+        context,
+        { defaultDuration: 300 },
+      );
+      return {
+        defaultFile,
+        forceDurationBasedProgress,
+        reportError,
+      };
     },
+    props: contentViewerProps,
     data() {
       return {
         iframeHeight: (this.options && this.options.height) || defaultContentHeight,
@@ -118,13 +119,6 @@
         }
         return {};
       },
-      /**
-       * @public
-       * Note: the default duration historically for HTML5 Apps has been 5 min
-       */
-      defaultDuration() {
-        return 300;
-      },
     },
     watch: {
       userData(newValue) {
@@ -152,7 +146,7 @@
       });
       this.hashi.on(this.hashi.events.ERROR, err => {
         this.loading = false;
-        this.$emit('error', err);
+        this.reportError(err);
       });
 
       this.hashi.initialize(

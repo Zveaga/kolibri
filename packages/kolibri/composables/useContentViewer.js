@@ -77,11 +77,6 @@ export const contentViewerProps = {
     default: () => [],
     validator: multipleFileValidator,
   },
-  file: {
-    type: Object,
-    default: null,
-    validator: fileValidator,
-  },
   // As an alternative to passing a file object to set the state of the
   // content viewer, can also pass raw itemData (which will be parsed by
   // the viewer if there are no files or file object).
@@ -138,6 +133,18 @@ export const contentViewerProps = {
   duration: {
     type: Number,
     default: null,
+  },
+  userId: {
+    type: String,
+    default: '',
+  },
+  userFullName: {
+    type: String,
+    default: '',
+  },
+  progress: {
+    type: Number,
+    default: 0,
   },
 };
 

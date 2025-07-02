@@ -19,12 +19,27 @@
 
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   export default {
     name: 'SafeHtml5RendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       SafeHTML,
     },
+    setup(props, context) {
+      const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
+        props,
+        context,
+        { defaultDuration: 300 },
+      );
+      return {
+        defaultFile,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+      };
+    },
+    props: contentViewerProps,
     data() {
       return {
         loading: true,
@@ -32,13 +47,6 @@
       };
     },
     computed: {
-      /**
-       * @public
-       * Note: the default duration historically for HTML5 Apps has been 5 min
-       */
-      defaultDuration() {
-        return 300;
-      },
       entry() {
         return (this.options && this.options.entry) || 'index.html';
       },

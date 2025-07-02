@@ -165,9 +165,7 @@
           <ContentViewer
             :itemId="renderableItemId"
             :allowHints="false"
-            :kind="exercise.kind"
             :files="exercise.files"
-            :available="exercise.available"
             :extraFields="exercise.extra_fields"
             :interactive="false"
             :assessment="true"

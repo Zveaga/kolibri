@@ -1,7 +1,7 @@
 <template>
 
   <CoreFullscreen
-    ref="pdfRenderer"
+    ref="pdfViewer"
     class="pdf-viewer"
     :class="{
       'pdf-controls-open': showControls,
@@ -14,8 +14,8 @@
       v-if="documentLoading || firstPageHeight === null"
       class="progress-bar"
       :delay="false"
-      :type="progress > 0 ? 'determinate' : 'indeterminate'"
-      :progress="progress * 100"
+      :type="loadingProgress > 0 ? 'determinate' : 'indeterminate'"
+      :progress="loadingProgress * 100"
     />
 
     <template v-else>
@@ -55,7 +55,7 @@
               :primary="false"
               appearance="flat-button"
               :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-              @click="$refs.pdfRenderer.toggleFullscreen()"
+              @click="$refs.pdfViewer.toggleFullscreen()"
             >
               {{ fullscreenText }}
             </KButton>
@@ -131,6 +131,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import { ref, computed } from 'vue';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
   import RecyclableScroller from './RecyclableScroller';
@@ -145,6 +147,7 @@
   const MARGIN = 16;
   export default {
     name: 'PdfRendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       SideBar,
       PdfPage,
@@ -152,18 +155,28 @@
       RecyclableScroller,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, context) {
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      const totalPages = ref(null);
+      const defaultDuration = computed(() => {
+        return totalPages.value ? totalPages.value * 30 : null;
+      });
+      const { defaultFile, reportLoadingError } = useContentViewer(props, context, {
+        defaultDuration,
+      });
       return {
         windowIsLarge,
         windowIsSmall,
+        totalPages,
+        defaultFile,
+        reportLoadingError,
       };
     },
+    props: contentViewerProps,
     data: () => ({
-      progress: null,
+      loadingProgress: null,
       scale: null,
       timeout: null,
-      totalPages: null,
       firstPageHeight: null,
       firstPageWidth: null,
       pdfPages: [],
@@ -192,7 +205,7 @@
         return iDevices.includes(navigator.platform);
       },
       documentLoading() {
-        return this.progress < 1;
+        return this.loadingProgress < 1;
       },
       itemHeight() {
         return this.firstPageHeight * this.scale + MARGIN;
@@ -216,12 +229,6 @@
       },
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
-      },
-      /**
-       * @public
-       */
-      defaultDuration() {
-        return this.totalPages * 30;
       },
       debouncedShowVisiblePages() {
         // So as not to share debounced functions between instances of the same component
@@ -293,7 +300,7 @@
       });
       // pass callback to update loading bar
       loadingPdf.onProgress = loadingProgress => {
-        this.progress = loadingProgress.loaded / loadingProgress.total;
+        this.loadingProgress = loadingProgress.loaded / loadingProgress.total;
       };
       this.eventBus = new EventBus();
       this.prepComponentData = loadingPdf.promise
@@ -340,8 +347,8 @@
       this.prepComponentData
         .then(() => {
           // Progress is NaN if loadingProgress.total is undefined
-          if (isNaN(this.progress)) {
-            this.progress = 1;
+          if (isNaN(this.loadingProgress)) {
+            this.loadingProgress = 1;
           }
           this.$emit('startTracking');
           this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
