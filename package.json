@@ -58,14 +58,14 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">= 18.20.0",
+    "node": ">= 20.19.0",
     "yarn": ">= 1.12.3"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
   ],
   "volta": {
-    "node": "18.20.7",
+    "node": "20.19.3",
     "yarn": "1.22.22"
   }
 }
