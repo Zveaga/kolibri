@@ -34,10 +34,24 @@
           />
         </KGridItem>
       </KGrid>
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 4 }"
+          :layout6="{ span: 2 }"
+          :layout4="{ span: 2 }"
+        >
+          <FilterTextbox
+            v-model="search"
+            placeholder="search"
+            class="search-bar"
+          />
+        </KGridItem>
+      </KGrid>
 
+      {{ filteredList }}
       <KTable
         :headers="tableHeaders"
-        :rows="tableRows"
+        :rows="filteredList"
         :caption="$tr('tableCaption')"
         :emptyMessage="$tr('noClassesExist')"
         :dataLoading="dataLoading"
@@ -49,6 +63,7 @@
         <template #cell="{ content, colIndex, row }">
           <span v-if="colIndex === 0">
             <KRouterLink
+              class="class-name"
               :text="content"
               :to="$store.getters.facilityPageLinks.ClassEditPage(row[3].id)"
               icon="classes"
@@ -173,6 +188,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { Modals } from '../../constants';
@@ -197,6 +213,7 @@
       ClassRenameModal,
       SidePanelModal,
       SelectableList,
+      FilterTextbox,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -205,6 +222,7 @@
       const classCoaches = ref([]);
       const openCopyClassPanel = ref(false);
       const openRenameModal = ref(false);
+      const search = ref(null);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const { createSnackbar } = useSnackbar();
@@ -255,6 +273,7 @@
       };
 
       return {
+        search,
         classToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
@@ -287,28 +306,28 @@
           {
             label: this.coreString('classNameLabel'),
             dataType: 'string',
-            minWidth: '150px',
-            width: '20%',
+            minWidth: '300px',
+            width: '30%',
             columnId: 'classname',
           },
           {
             label: this.coreString('coachesLabel'),
-            dataType: 'undefined',
-            minWidth: '150px',
+            dataType: 'string',
+            minWidth: '250px',
             width: '30%',
             columnId: 'coaches',
           },
           {
             label: this.coreString('learnersLabel'),
             dataType: 'number',
-            minWidth: '150px',
-            width: '20%',
+            minWidth: '250px',
+            width: '30%',
             columnId: 'learners',
           },
           {
             label: this.coreString('userActionsColumnHeader'),
             dataType: 'undefined',
-            minWidth: '150px',
+            minWidth: '100px',
             width: '30%',
             columnId: 'userActions',
           },
@@ -321,6 +340,15 @@
           this.$formatNumber(classroom.learner_count),
           classroom,
         ]);
+      },
+      filteredList() {
+        if (this.search === null || this.search === '') {
+          return this.tableRows;
+        } else {
+          return this.tableRows.map(classroom => {
+            classroom[0].toLowerCase().startsWith(this.search.toLowerCase());
+          });
+        }
       },
       dropDownOptions() {
         return [
@@ -480,6 +508,14 @@
 
   .cancel-copy-class-button {
     margin-right: 1em;
+  }
+
+  .class-name {
+    font-size: 14px;
+  }
+
+  .search-bar {
+    margin-bottom: 0.5em;
   }
 
 </style>
