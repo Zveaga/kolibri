@@ -2,6 +2,7 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ClassroomViewSet
+from .api import DeletedFacilityUserViewSet
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -36,6 +37,9 @@ bulk_delete_router = BulkDeleteRouter()
 
 bulk_delete_router.register(
     r"facilityuser", FacilityUserViewSet, basename="facilityuser"
+)
+bulk_delete_router.register(
+    r"deletedfacilityuser", DeletedFacilityUserViewSet, basename="deletedfacilityuser"
 )
 bulk_delete_router.register(r"membership", MembershipViewSet, basename="membership")
 bulk_delete_router.register(r"role", RoleViewSet, basename="role")

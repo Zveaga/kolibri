@@ -353,7 +353,7 @@
             dataType: 'string',
             minWidth: '150px',
             width: '10%',
-            columnId: 'identifier',
+            columnId: 'id_number',
           },
 
           {
