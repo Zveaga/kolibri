@@ -34,31 +34,27 @@
           />
         </KGridItem>
       </KGrid>
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 4 }"
-          :layout6="{ span: 2 }"
-          :layout4="{ span: 2 }"
-        >
-          <FilterTextbox
-            v-model="search"
-            placeholder="search"
-            class="search-bar"
-          />
-        </KGridItem>
-      </KGrid>
 
-      {{ filteredList }}
       <KTable
         :headers="tableHeaders"
-        :rows="filteredList"
+        :rows="tableRows"
         :caption="$tr('tableCaption')"
         :emptyMessage="$tr('noClassesExist')"
         :dataLoading="dataLoading"
         sortable
       >
         <template #header="{ header, colIndex }">
-          <span :class="{ visuallyhidden: colIndex === 3 }">{{ header.label }}</span>
+          <span
+            v-if="colIndex === 2"
+            style="display: flex; justify-content: start"
+            :class="{ visuallyhidden: colIndex === 3 }"
+          >
+            {{ header.label }}</span>
+          <span
+            v-else
+            :class="{ visuallyhidden: colIndex === 3 }"
+          >
+            {{ header.label }}</span>
         </template>
         <template #cell="{ content, colIndex, row }">
           <span v-if="colIndex === 0">
@@ -79,7 +75,10 @@
               {{ formattedCoachNamesTooltip(row[3]) }}
             </KTooltip>
           </span>
-          <span v-else-if="colIndex === 2">
+          <span
+            v-else-if="colIndex === 2"
+            style="display: flex; justify-content: start"
+          >
             {{ content }}
           </span>
           <span
@@ -188,7 +187,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import FilterTextbox from 'kolibri/components/FilterTextbox';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { Modals } from '../../constants';
@@ -213,7 +211,6 @@
       ClassRenameModal,
       SidePanelModal,
       SelectableList,
-      FilterTextbox,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -222,7 +219,6 @@
       const classCoaches = ref([]);
       const openCopyClassPanel = ref(false);
       const openRenameModal = ref(false);
-      const search = ref(null);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const { createSnackbar } = useSnackbar();
@@ -273,7 +269,6 @@
       };
 
       return {
-        search,
         classToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
@@ -319,7 +314,7 @@
           },
           {
             label: this.coreString('learnersLabel'),
-            dataType: 'number',
+            dataType: 'string',
             minWidth: '250px',
             width: '30%',
             columnId: 'learners',
@@ -340,15 +335,6 @@
           this.$formatNumber(classroom.learner_count),
           classroom,
         ]);
-      },
-      filteredList() {
-        if (this.search === null || this.search === '') {
-          return this.tableRows;
-        } else {
-          return this.tableRows.map(classroom => {
-            classroom[0].toLowerCase().startsWith(this.search.toLowerCase());
-          });
-        }
       },
       dropDownOptions() {
         return [
@@ -424,18 +410,38 @@
         }
         return null;
       },
-      handleSubmitingClassCopy() {
+      async handleSubmitingClassCopy() {
         const className = this.copyOfClass$({ class: this.classDetails.name });
-        this.$store.dispatch('classManagement/createClass', className).then(() => {
-          const classId = this.classes.find(cls => cls.name === className).id;
-          if (classId) {
-            const coaches = this.classCoachesIds;
-            this.assignCoachesToClass({ classId: classId, coaches }).then(() => {
-              this.createSnackbar(this.classCopiedSuccessfully$());
-              this.openCopyClassPanel = false;
-            });
-          }
-        });
+
+        await this.$store.dispatch('classManagement/createClass', className);
+        await this.$nextTick();
+
+        const createdClass = this.classes.find(cls => cls.name === className);
+
+        if (createdClass?.id) {
+          const coaches = this.classCoachesIds;
+
+          await this.assignCoachesToClass({
+            classId: createdClass.id,
+            coaches,
+          });
+
+          const updatedClasses = this.classes.map(c => {
+            if (c.name === className) {
+              const updatedCoaches = coaches
+                .map(coachId => this.classCoaches.find(coach => coach.id === coachId))
+                .filter(Boolean);
+
+              return { ...c, coaches: updatedCoaches };
+            }
+            return c;
+          });
+
+          this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
+
+          this.createSnackbar(this.classCopiedSuccessfully$());
+          this.openCopyClassPanel = false;
+        }
       },
     },
     $trs: {
@@ -512,10 +518,6 @@
 
   .class-name {
     font-size: 14px;
-  }
-
-  .search-bar {
-    margin-bottom: 0.5em;
   }
 
 </style>
