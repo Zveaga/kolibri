@@ -80,7 +80,7 @@ export default {
             'div',
             {
               class: 'table-container',
-              attrs: { role: 'region', 'aria-labelledby': captionId, tabindex: 0 },
+              attrs: { role: 'region', 'aria-labelledby': captionId },
             },
             [h(tag, { attrs: attributes, style: { width: tableWidth } }, children)],
           );

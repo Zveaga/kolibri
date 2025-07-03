@@ -79,13 +79,31 @@
       this.$emit('startTracking');
       this.pollProgress();
     },
+    mounted() {
+      this.$nextTick(() => {
+        this.applyTabIndexes();
+        window.addEventListener('resize', this.applyTabIndexes);
+      });
+    },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+      window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
     methods: {
+      applyTabIndexes() {
+        const tableContainers = this.$el.querySelectorAll('.table-container');
+        tableContainers.forEach(container => {
+          const scrollable = container.scrollWidth > container.clientWidth;
+          if (scrollable) {
+            container.setAttribute('tabindex', '0');
+          } else {
+            container.removeAttribute('tabindex');
+          }
+        });
+      },
       recordProgress() {
         let progress;
         if (this.forceDurationBasedProgress) {
