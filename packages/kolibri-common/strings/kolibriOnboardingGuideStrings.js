@@ -64,7 +64,7 @@ export const kolibriOnboardingGuideStrings = createTranslator('kolibriOnboarding
       'If there are any classes and materials currently available to you, they will appear on the home page.',
     context: 'This is a description of the learn home page.',
   },
-   nothingInLibraryLearner: {
+   onMyOwnWelcomeMessage: {
     message: 'The first thing you should do is add learning resources to your library.',
   },
 });

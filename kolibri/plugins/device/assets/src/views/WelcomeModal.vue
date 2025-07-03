@@ -24,7 +24,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import {kolibriOnboardingGuideStrings} from '../../../../../plugins/learn/assets/src/strings/kolibriOnboardingGuideStrings'
+  import {kolibriOnboardingGuideStrings} from 'kolibri-common/strings/kolibriOnboardingGuideStrings'
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 
@@ -59,7 +59,7 @@
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.isOnMyOwnUser) {
-          return [kolibriOnboardingGuideStrings.$tr('nothingInLibraryLearner')];
+          return [kolibriOnboardingGuideStrings.$tr('onMyOwnWelcomeMessage')];
         }
         if (this.importedFacility) {
           return [

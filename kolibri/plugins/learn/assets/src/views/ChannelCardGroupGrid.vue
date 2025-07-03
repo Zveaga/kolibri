@@ -34,7 +34,7 @@
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
-  import { kolibriOnboardingGuideStrings } from '../strings/kolibriOnboardingGuideStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
   export default {
     name: 'ChannelCardGroupGrid',
     components: {
@@ -44,22 +44,12 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       const { layoutSpan } = useCardLayoutSpan();
-      const { registerStep } = useTour();
-
-      onMounted(async () => {
-        await nextTick();
-        registerStep({
-          key: 'firstChannelCard',
-          content: kolibriOnboardingGuideStrings.$tr('channelCardDescription'),
-          stepIndex: 1,
-        });
-      });
-
+     
       return {
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,
         layoutSpan,
-        registerStep,
+        
       };
     },
     props: {

@@ -186,7 +186,7 @@
       </SidePanelModal>
       <TooltipTour
         v-if="tourActive"
-        :steps="steps"
+        page="LibraryPage"
         @tourEnded="tourActive = false"
       />
     </LearnAppBarPage>
@@ -220,7 +220,6 @@
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
   import useDeviceSettings from '../../composables/useDeviceSettings';
-  import {kolibriOnboardingGuideStrings} from '../../strings/kolibriOnboardingGuideStrings'
   import {
     currentDeviceData,
     setCurrentDevice,
@@ -267,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { steps, tourActive, startTour, registerStep } = useTour();
+      const { tourActive, startTour} = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -307,25 +306,7 @@
           search(keywords);
         }
 
-        const stepsToRegister = [
-          {
-            key: 'Library',
-            content: kolibriOnboardingGuideStrings.$tr('onMyOwnLibraryMenuDescription'),
-            stepIndex: 0,
-          },
-          {
-            key: 'menubar',
-            content: kolibriOnboardingGuideStrings.$tr('sideNavigationIconDecription'),
-            stepIndex: 3,
-          },
-        ];
-        await nextTick();
-        stepsToRegister.forEach(step => {
-          const el = document.querySelector(`[data-onboarding-id="${step.key}"]`);
-          if (el) {
-            registerStep(step);
-          }
-        });
+     
       });
 
       const rootNodes = ref([]);
@@ -457,8 +438,6 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
-        steps,
-        registerStep,
         tourActive,
         startTour,
       };
@@ -591,7 +570,10 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, false);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-        this.startTour();
+        setTimeout(()=>{
+          this.startTour();
+        },3000);
+        
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();

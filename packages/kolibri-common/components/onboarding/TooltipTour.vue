@@ -19,11 +19,15 @@
   import tippy from 'tippy.js';
   import Vue from 'vue';
   import TooltipContent from './TooltipContent.vue';
+  import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js'
 
   export default {
     name: 'TooltipTour',
     props: {
-      steps: { type: Array, required: true },
+      page: {
+      type: String,
+      required: true,
+    },
     },
     data() {
       return {
@@ -34,6 +38,9 @@
       };
     },
 computed: {
+  steps() {
+      return onboardingSteps[this.page] || [];
+    },
     highlightStyle() {
       return {
         position: "fixed",
@@ -42,9 +49,9 @@ computed: {
         width: `${this.rect.width}px`,
         height: `${this.rect.height}px`,
         borderRadius: "4px",
-         boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
+        boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
         pointerEvents: "none",
-         zIndex: 998,
+        zIndex: 998,
       };
     },
   },

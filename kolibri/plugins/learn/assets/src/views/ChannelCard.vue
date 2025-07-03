@@ -85,10 +85,10 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useUser from 'kolibri/composables/useUser';
-  import useTour from 'kolibri-common/composables/useTour';
+  
   import { onMounted, nextTick } from 'vue';
   import ChannelThumbnail from './ChannelThumbnail';
-  import { kolibriOnboardingGuideStrings } from '../strings/kolibriOnboardingGuideStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
   export default {
     name: 'ChannelCard',
     components: {
@@ -98,26 +98,14 @@
     setup(props) {
       const { windowGutter } = useKResponsiveWindow();
       const { isUserLoggedIn, isLearner } = useUser();
-      const { registerStep } = useTour();
-
-      onMounted(async () => {
-        await nextTick();
-
-        if (props.isFirst) {
-          registerStep({
-            key: 'wifiIconFirstChannelCard',
-            content: kolibriOnboardingGuideStrings.$tr('exploreLibraryDescription'),
-            stepIndex: 2,
-          });
-          
-        }
-      });
+      
+     
 
       return {
         windowGutter,
         isUserLoggedIn,
         isLearner,
-        registerStep,
+       
       };
     },
     props: {
