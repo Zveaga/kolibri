@@ -199,7 +199,7 @@
 
   import { get, set } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch, nextTick } from 'vue';
+  import { onMounted, getCurrentInstance, ref, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
@@ -300,7 +300,7 @@
       const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
-      onMounted(async () => {
+      onMounted(() => {
         const keywords = currentRoute().query.keywords;
         if (keywords && keywords.length) {
           search(keywords);
@@ -568,11 +568,11 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey, false);
+        window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         setTimeout(()=>{
           this.startTour();
-        },3000);
+        },800);
         
       },
       findFirstEl() {
