@@ -88,13 +88,15 @@ b.safe-html {
 }
 
 .table-container {
-  width: 100%;
+  width: calc(100% + 32px);
+  padding: 0 16px;
+  margin-left: -16px;
   overflow-x: auto;
 }
 
-.table-container:focus {
+.table-container:focus-visible {
   outline: 3px solid rgb(51, 172, 245) !important;
-  outline-offset: 4px !important;
+  outline-offset: -3px !important;
 }
 
 table.safe-html {
@@ -110,6 +112,10 @@ caption.safe-html {
   margin: 0 auto 12px;
   font-weight: 600;
   color: var(--color-primary-500);
+}
+
+caption.safe-html.small-window {
+  text-align: start;
 }
 
 thead.safe-html {

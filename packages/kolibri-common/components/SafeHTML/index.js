@@ -22,6 +22,10 @@ export default {
       required: true,
       type: String,
     },
+    windowSizeClass: {
+      required: true,
+      type: String,
+    },
   },
   render(h, context) {
     const sanitizedHTML = DOMPurify.sanitize(context.props.html);
@@ -55,7 +59,7 @@ export default {
               }
               // Inject the captionId into captions
               captionAttrs.id = captionId;
-              captionAttrs.class = 'safe-html';
+              captionAttrs.class = 'safe-html' + context.props.windowSizeClass;
               children.push(
                 h('caption', { attrs: captionAttrs }, mapChildren(childNode.childNodes)),
               );
