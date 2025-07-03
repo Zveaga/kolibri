@@ -447,7 +447,11 @@ class FacilityUserConsolidateMixin(object):
                 ordering_param = ordering_param[1:]
                 reverse = True
         output = sorted(
-            output, key=lambda x: x.get(ordering_param, ""), reverse=reverse
+            output,
+            key=lambda x: x[ordering_param].lower()
+            if isinstance(x[ordering_param], str)
+            else x[ordering_param],
+            reverse=reverse,
         )
         return output
 

@@ -2,12 +2,13 @@ import mock from 'xhr-mock';
 import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
+import makeStore from '../../../../test/makeStore';
 
 jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('../../../composables/useUserManagement');
 
 const router = new VueRouter({
   routes: [
@@ -19,16 +20,15 @@ const router = new VueRouter({
 });
 
 UserPage.computed.newUserLink = () => ({});
-
-function makeWrapper() {
+function makeWrapper(options = {}) {
   const store = makeStore();
-  store.dispatch('notLoading');
-  const wrapper = mount(UserPage, {
+  store.state.route = { params: {} };
+  return mount(UserPage, {
     store,
     router,
     stubs: ['RouterLinkStub'],
+    ...options,
   });
-  return { wrapper, store };
 }
 
 // Intentionally made to not match any 'kind' filter
@@ -53,23 +53,8 @@ describe('UserPage component', () => {
     }
 
     it('when there are no users', () => {
-      const { wrapper } = makeWrapper();
+      const wrapper = makeWrapper();
       expect(getUserTableEmptyMessage(wrapper)).toEqual('No users exist');
-    });
-
-    const testCases = [
-      ['learner', 'There are no learners in this facility'],
-      ['coach', 'There are no coaches in this facility'],
-      ['superuser', 'There are no super admins in this facility'],
-      ['admin', 'There are no admins in this facility'],
-    ];
-
-    test.each(testCases)('when filter is %s', async (kind, expected) => {
-      const { wrapper, store } = makeWrapper();
-      store.state.userManagement.facilityUsers = [{ ...unicornUser }];
-      wrapper.setData({ roleFilter: { value: kind } });
-      await wrapper.vm.$nextTick();
-      expect(getUserTableEmptyMessage(wrapper)).toEqual(expected);
     });
 
     it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
@@ -80,9 +65,14 @@ describe('UserPage component', () => {
       });
 
       setTimeout(async () => {
-        const { wrapper, store } = makeWrapper();
-        store.state.userManagement.facilityUsers = [{ ...coachUser }];
-        wrapper.setData({ roleFilter: { value: 'coach' } });
+        const wrapper = makeWrapper({
+          data() {
+            return {
+              facilityUsers: [{ ...coachUser, ...unicornUser }],
+              roleFilter: { value: 'coach' },
+            };
+          },
+        });
         wrapper
           .findComponent({ name: 'PaginatedListContainer' })
           .setData({ filterInput: 'coachy' });

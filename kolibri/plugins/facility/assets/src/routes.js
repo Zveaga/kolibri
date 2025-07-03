@@ -1,7 +1,4 @@
 import store from 'kolibri/store';
-import router from 'kolibri/router';
-import logger from 'kolibri-logging';
-import { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -21,33 +18,13 @@ import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
 import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
-import { showUserPage } from './modules/userManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
 } from './modules/classAssignMembers/handlers';
+import { facilityParamRequiredGuard, getSidePanelRoutes } from './utils';
 import { PageNames } from './constants';
-
-const logging = logger.getLogger(__filename);
-
-function facilityParamRequiredGuard(toRoute, subtopicName) {
-  const { userIsMultiFacilityAdmin } = useFacilities();
-  if (userIsMultiFacilityAdmin.value && !toRoute.params.facility_id) {
-    router
-      .replace({
-        name: 'ALL_FACILITIES_PAGE',
-        params: { subtopicName },
-      })
-      .catch(e => {
-        if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
-          logging.debug(e);
-          throw Error(e);
-        }
-      });
-    return true;
-  }
-}
 
 export default [
   // Routes for multi-facility case
@@ -101,13 +78,19 @@ export default [
   {
     name: PageNames.USER_MGMT_PAGE,
     component: UserPage,
-    path: '/:facility_id?/users',
-    handler: (toRoute, fromRoute) => {
+    path: '/:facility_id?/users/',
+    handler: toRoute => {
       if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
         return;
       }
-      showUserPage(store, toRoute, fromRoute);
     },
+    children: getSidePanelRoutes(
+      PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
+      PageNames.FILTER_USERS_SIDE_PANEL,
+      PageNames.ASSIGN_COACHES_SIDE_PANEL,
+      PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
+      PageNames.ENROLL_LEARNERS_SIDE_PANEL,
+    ),
   },
   {
     name: PageNames.USER_CREATE_PAGE,

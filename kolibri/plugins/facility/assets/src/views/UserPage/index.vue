@@ -6,7 +6,7 @@
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{
-            name: facilityPageLinks.AllFacilitiesPage.name,
+            name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
             params: { subtopicName: 'UserPage' },
           }"
           icon="back"
@@ -68,15 +68,16 @@
           >
             <div class="search-filter-section">
               <FilterTextbox
-                v-model="search"
+                v-model="searchTerm"
                 :placeholder="$tr('searchText')"
                 :aria-label="$tr('searchText')"
                 class="move-down search-box"
               />
-              <KButton
+              <KRouterLink
                 appearance="basic-link"
                 :text="filterLabel$()"
                 class="filter-button move-down"
+                :to="sidePanelUrl(PageNames.FILTER_USERS_SIDE_PANEL)"
               />
             </div>
           </KGridItem>
@@ -97,26 +98,34 @@
                 @click="clearSelectedUsers"
               />
             </span>
-            <KIconButton
-              icon="assignCoaches"
-              :ariaLabel="assignCoach$()"
-              :tooltip="assignCoach$()"
-            />
-            <KIconButton
-              icon="add"
-              :ariaLabel="enrollToClass$()"
-              :tooltip="enrollToClass$()"
-            />
-            <KIconButton
-              icon="remove"
-              :ariaLabel="removeFromClass$()"
-              :tooltip="removeFromClass$()"
-            />
-            <KIconButton
-              icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-            />
+            <router-link :to="sidePanelUrl(PageNames.ASSIGN_COACHES_SIDE_PANEL)">
+              <KIconButton
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :tooltip="assignCoach$()"
+              />
+            </router-link>
+            <router-link :to="sidePanelUrl(PageNames.ENROLL_LEARNERS_SIDE_PANEL)">
+              <KIconButton
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :tooltip="enrollToClass$()"
+              />
+            </router-link>
+            <router-link :to="sidePanelUrl(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)">
+              <KIconButton
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :tooltip="removeFromClass$()"
+              />
+            </router-link>
+            <router-link :to="sidePanelUrl(PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL)">
+              <KIconButton
+                icon="trash"
+                :ariaLabel="deleteSelection$()"
+                :tooltip="deleteSelection$()"
+              />
+            </router-link>
           </KGridItem>
         </KGrid>
         <KTable
@@ -187,7 +196,9 @@
             <span v-else-if="colIndex === 5">
               <BirthYearDisplayText :birthYear="content" />
             </span>
-            <span v-else-if="colIndex === 6"> </span>
+            <span v-else-if="colIndex === 6">
+              <KOptionalText :text="''" />
+            </span>
             <span v-else-if="colIndex === 7">
               <KIconButton
                 icon="optionsVertical"
@@ -207,6 +218,12 @@
           </template>
         </KTable>
       </PaginatedListContainerWithBackend>
+
+      <!-- For sidepanels -->
+      <router-view
+        :selectedUsers="selectedUsers"
+        :classes="classes"
+      />
 
       <!-- Modals -->
 
@@ -231,8 +248,7 @@
 
 <script>
 
-  import { ref } from 'vue';
-  import { mapState, mapGetters } from 'vuex';
+  import { ref, getCurrentInstance, onMounted } from 'vue';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
   import { UserKinds } from 'kolibri/constants';
@@ -249,9 +265,9 @@
   import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import cloneDeep from 'lodash/cloneDeep';
   import useUser from 'kolibri/composables/useUser';
-  import { showUserPage } from '../../modules/userManagement/handlers';
+  import useUserManagement from '../../composables/useUserManagement';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import { Modals } from '../../constants';
+  import { Modals, PageNames } from '../../constants';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
   import DeleteUserModal from './DeleteUserModal';
 
@@ -299,8 +315,24 @@
         selectLabel$,
       } = bulkUserManagementStrings;
 
+      const { $store, $router } = getCurrentInstance().proxy;
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
+      const { facilityUsers, totalPages, usersCount, dataLoading, search, classes, fetchClasses } =
+        useUserManagement(activeFacilityId);
+
+      onMounted(() => {
+        fetchClasses();
+      });
+
       return {
         userIsMultiFacilityAdmin,
+        facilityUsers,
+        totalPages,
+        usersCount,
+        dataLoading,
+        search,
+        classes,
         viewNewUsers$,
         viewTrash$,
         numUsersSelected$,
@@ -320,11 +352,13 @@
         selectLabel$,
       };
     },
+    data() {
+      return {
+        PageNames,
+      };
+    },
     computed: {
-      ...mapGetters(['facilityPageLinks']),
-      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
-
       tableHeaders() {
         return [
           {
@@ -333,7 +367,6 @@
             width: '48px',
             columnId: 'selection',
           },
-
           {
             label: this.coreString('fullNameLabel'),
             dataType: 'string',
@@ -355,7 +388,6 @@
             width: '10%',
             columnId: 'id_number',
           },
-
           {
             label: this.coreString('genderLabel'),
             dataType: 'string',
@@ -363,7 +395,6 @@
             width: '10%',
             columnId: 'gender',
           },
-
           {
             label: this.coreString('birthYearLabel'),
             dataType: 'date',
@@ -376,12 +407,11 @@
             dataType: 'date',
             minWidth: '150px',
             width: '10%',
-            columnId: 'created_at',
+            columnId: 'date_joined',
           },
           {
             label: '',
             dataType: 'undefined',
-            minWidth: '180px',
             width: '10%',
             columnId: 'userActions',
           },
@@ -401,7 +431,6 @@
           ];
         });
       },
-
       selectAllState() {
         const visibleUserIds = this.facilityUsers.map(user => user.id);
         const selectedVisibleUsers = visibleUserIds.filter(id => this.selectedUsers.has(id));
@@ -412,7 +441,6 @@
 
         return { checked: isChecked, indeterminate: isIndeterminate };
       },
-
       userKinds() {
         return [
           { label: this.coreString('allLabel'), value: ALL_FILTER },
@@ -452,7 +480,7 @@
           });
         },
       },
-      search: {
+      searchTerm: {
         get() {
           return this.$route.query.search || '';
         },
@@ -489,7 +517,6 @@
           });
         },
       },
-
       dropDownMenu() {
         return [
           {
@@ -503,33 +530,15 @@
         ];
       },
     },
-
-    watch: {
-      $route: {
-        /**
-         * When the route changes, this watcher will call showUserPage
-         * to fetch and update the user table. On initial page load,
-         * showUserPage is already called from the router handler,
-         * so we skip calling it again if oldVal is undefined.
-         */
-        handler(newVal, oldVal) {
-          // When previous route is undefined, page is loading for the first time,
-          // and in that case 'showUserPage' was called from routes.js handlers
-          if (oldVal === undefined) {
-            return;
-          } else {
-            showUserPage(this.$store, newVal, oldVal);
-          }
-        },
-        immediate: true,
-        deep: true,
-      },
-    },
-
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
-
+    beforeDestroy() {
+      const { query } = this.$route;
+      if (query.ordering || query.order || query.page) {
+        this.$router.replace({ query: null });
+      }
+    },
     methods: {
       handleSelectAllToggle() {
         const visibleUserIds = this.facilityUsers.map(user => user.id);
@@ -543,7 +552,6 @@
 
         this.selectedUsers = new Set(this.selectedUsers);
       },
-
       handleUserSelectionToggle(user) {
         if (this.selectedUsers.has(user.id)) {
           this.selectedUsers.delete(user.id);
@@ -552,30 +560,25 @@
         }
         this.selectedUsers = new Set(this.selectedUsers);
       },
-
       clearSelectedUsers() {
         this.selectedUsers = new Set();
       },
-
       isUserSelected(user) {
         return this.selectedUsers.has(user.id);
       },
-
       changeSortHandler({ sortKey, sortOrder }) {
         const columnId = this.tableHeaders[sortKey]?.columnId || null;
-
         const query = { ...this.$route.query };
-
-        if (!sortOrder || !columnId || columnId === 'selection') {
+        if (query.ordering === columnId && query.order === sortOrder) {
+          return;
+        } else if (!sortOrder || !columnId || columnId === 'selection') {
           delete query.ordering;
           delete query.order;
         } else {
           query.ordering = columnId;
           query.order = sortOrder;
         }
-
         query.page = 1;
-
         this.$router.push({
           path: this.$route.path,
           query: pickBy(query),
@@ -646,6 +649,13 @@
       },
       getTranslatedSelectedArialabel(row) {
         return this.selectLabel$() + ' ' + row[1] + ', ' + this.typeDisplayMap[row[6].kind];
+      },
+      sidePanelUrl(name) {
+        return {
+          name,
+          params: { facility_id: this.$route.params.facility_id },
+          query: { ...this.$route.query },
+        };
       },
     },
     $trs: {

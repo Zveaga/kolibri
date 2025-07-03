@@ -30,6 +30,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Select',
     context: 'Label for the selecting a user',
   },
+  numUsersYouHaveSelected: {
+    message: "You've selected {num, number} {num, plural, one {user} other {users}}",
+    context: 'Label showing the number of users selected',
+  },
 
   // Dropdown options
   viewNewUsers: {
