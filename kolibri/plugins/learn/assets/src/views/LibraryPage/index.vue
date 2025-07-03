@@ -266,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, startTour} = useTour();
+      const { tourActive, startTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -305,8 +305,6 @@
         if (keywords && keywords.length) {
           search(keywords);
         }
-
-     
       });
 
       const rootNodes = ref([]);
@@ -570,10 +568,9 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-        setTimeout(()=>{
+        setTimeout(() => {
           this.startTour();
-        },800);
-        
+        }, 800);
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();

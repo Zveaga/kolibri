@@ -85,10 +85,11 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useUser from 'kolibri/composables/useUser';
-  
+
   import { onMounted, nextTick } from 'vue';
-  import ChannelThumbnail from './ChannelThumbnail';
   import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
+  import ChannelThumbnail from './ChannelThumbnail';
+
   export default {
     name: 'ChannelCard',
     components: {
@@ -98,14 +99,11 @@
     setup(props) {
       const { windowGutter } = useKResponsiveWindow();
       const { isUserLoggedIn, isLearner } = useUser();
-      
-     
 
       return {
         windowGutter,
         isUserLoggedIn,
         isLearner,
-       
       };
     },
     props: {

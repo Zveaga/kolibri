@@ -9,7 +9,7 @@
       <ChannelCard
         :data-onboarding-id="index === 0 ? 'firstChannelCard' : null"
         data-onboarding-id="firstChannelCard"
-        :isFirst="index === 0 ? true :false"
+        :isFirst="index === 0 ? true : false"
         :isMobile="windowIsSmall"
         :title="content.title || content.name"
         :thumbnail="content.thumbnail"
@@ -31,10 +31,11 @@
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import useTour from 'kolibri-common/composables/useTour';
   import { onMounted, nextTick } from 'vue';
+  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
-  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
+
   export default {
     name: 'ChannelCardGroupGrid',
     components: {
@@ -44,12 +45,11 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       const { layoutSpan } = useCardLayoutSpan();
-     
+
       return {
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,
         layoutSpan,
-        
       };
     },
     props: {

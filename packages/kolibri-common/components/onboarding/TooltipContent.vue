@@ -9,14 +9,14 @@
           :class="['dot', { active: index === currentStepIndex }]"
         ></span>
       </div>
-     <KIconButton
-            ref="closeButton"
-            class="close-button"
-            icon="close"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="$emit('close')"
-          />
+      <KIconButton
+        ref="closeButton"
+        class="close-button"
+        icon="close"
+        :ariaLabel="coreString('closeAction')"
+        :tooltip="coreString('closeAction')"
+        @click="$emit('close')"
+      />
     </div>
     <div class="onboarding-tooltip-body">
       <p>{{ steps[currentStepIndex].content }}</p>
@@ -33,10 +33,13 @@
       </KButton>
       <KButton
         secondary
+        :text="
+          currentStepIndex === steps.length - 1
+            ? coreString('finishAction')
+            : coreString('continueAction')
+        "
         @click="$emit('next')"
-         :text="currentStepIndex===steps.length-1 ?  coreString('finishAction'):coreString('continueAction')"
       />
-       
     </div>
   </div>
 
@@ -44,7 +47,9 @@
 
 
 <script>
+
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
   export default {
     name: 'TooltipContent',
     mixins: [commonCoreStrings],

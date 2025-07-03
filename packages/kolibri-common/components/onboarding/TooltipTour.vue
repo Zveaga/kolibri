@@ -5,9 +5,11 @@
       v-if="showOverlay"
       class="overlay"
       @click.stop
-      
     ></div>
-    <div class="spotlight-highlight" :style="highlightStyle"></div>
+    <div
+      class="spotlight-highlight"
+      :style="highlightStyle"
+    ></div>
     <slot></slot>
   </div>
 
@@ -18,16 +20,16 @@
 
   import tippy from 'tippy.js';
   import Vue from 'vue';
+  import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js';
   import TooltipContent from './TooltipContent.vue';
-  import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js'
 
   export default {
     name: 'TooltipTour',
     props: {
       page: {
-      type: String,
-      required: true,
-    },
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
@@ -37,24 +39,24 @@
         rect: {},
       };
     },
-computed: {
-  steps() {
-      return onboardingSteps[this.page] || [];
+    computed: {
+      steps() {
+        return onboardingSteps[this.page] || [];
+      },
+      highlightStyle() {
+        return {
+          position: 'fixed',
+          top: `${this.rect.top}px`,
+          left: `${this.rect.left}px`,
+          width: `${this.rect.width}px`,
+          height: `${this.rect.height}px`,
+          borderRadius: '4px',
+          boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
+          pointerEvents: 'none',
+          zIndex: 998,
+        };
+      },
     },
-    highlightStyle() {
-      return {
-        position: "fixed",
-        top: `${this.rect.top}px`,
-        left: `${this.rect.left}px`,
-        width: `${this.rect.width}px`,
-        height: `${this.rect.height}px`,
-        borderRadius: "4px",
-        boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
-        pointerEvents: "none",
-        zIndex: 998,
-      };
-    },
-  },
     mounted() {
       this.showTooltip();
     },
@@ -127,8 +129,7 @@ computed: {
         if (!target) return;
 
         const rect = target.getBoundingClientRect();
-        this.rect=rect;
-        
+        this.rect = rect;
       },
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
@@ -163,25 +164,24 @@ computed: {
 
 
 <style>
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  pointer-events: auto;
-  z-index: 1000;
-}
 
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    background: transparent;
+  }
 
-.spotlight-highlight {
-  position: fixed;
-  background: transparent;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
+  .spotlight-highlight {
+    position: fixed;
+    pointer-events: none;
+    background: transparent;
+    border-radius: 4px;
+  }
 
   .tippy-tooltip.onboarding-theme {
     z-index: 999;

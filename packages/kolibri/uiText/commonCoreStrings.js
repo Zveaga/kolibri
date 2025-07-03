@@ -1527,7 +1527,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       'Channels are collections of learning materials. Explore your network to start finding channels.',
   },
   nothingInLibraryLearner: {
-    message: 'There is nothing in your library yet. Explore libraries around you and start adding materials to your own.',
+    message:
+      'There is nothing in your library yet. Explore libraries around you and start adding materials to your own.',
   },
   noNearbyFacilities: {
     message: 'There are no learning facilities around you right now',
