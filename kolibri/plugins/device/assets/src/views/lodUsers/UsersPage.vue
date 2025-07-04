@@ -21,6 +21,7 @@
           <KButton
             :text="removeAction$()"
             appearance="flat-button"
+            :disabled="user.id === currentUserId"
             @click="userIdToRemove = user.id"
           />
         </template>
@@ -70,11 +71,12 @@
 <script>
 
   import { computed, ref } from 'vue';
+  import useUser from 'kolibri/composables/useUser';
+  import { LodTypePresets } from 'kolibri/constants';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
-  import { LodTypePresets } from 'kolibri/constants';
 
   import { injectLodDeviceUsers } from './composables/useLodDeviceUsers';
   import UsersList from './UsersList.vue';
@@ -90,6 +92,7 @@
       const userIdToRemove = ref(null);
       const showSelectDevice = ref(false);
 
+      const { user_id: currentUserId } = useUser();
       const {
         users,
         loading,
@@ -148,6 +151,7 @@
       return {
         usersList,
         loading,
+        currentUserId,
         userIdToRemove,
         showSelectDevice,
         showCannotRemoveUser,

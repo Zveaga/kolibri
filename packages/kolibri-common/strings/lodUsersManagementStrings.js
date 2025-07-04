@@ -13,6 +13,10 @@ export const lodUsersManagementStrings = createTranslator('LodUsersManagementStr
     message: 'Error importing user',
     context: 'Error message when importing a user fails.',
   },
+  userAlreadyImportedError: {
+    message: 'This user already exists on this device',
+    context: 'Error message when trying to import a user that has already been imported.',
+  },
   importUserSuccess: {
     message: 'Successfully imported user',
     context: 'Success message when importing a user is successful.',

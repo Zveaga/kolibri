@@ -23,6 +23,7 @@
         <KTextbox
           ref="usernameTextbox"
           v-model.trim="username"
+          showInvalidText
           :disabled="formSubmitted"
           :label="coreString('usernameLabel')"
           :autofocus="$attrs.autofocus"
@@ -133,8 +134,17 @@
     },
     mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings],
     setup() {
-      const { importDeviceId, selectedFacility, importLodMachineService } = injectLodDeviceUsers();
+      const {
+        importDeviceId,
+        selectedFacility,
+        importLodMachineService,
+        users: localUsers,
+      } = injectLodDeviceUsers();
       const { createSnackbar } = useSnackbar();
+
+      const isUserAlreadyImported = username => {
+        return localUsers.value.some(user => user.username === username);
+      };
 
       const {
         importUserError$,
@@ -144,6 +154,7 @@
         deviceLimitationsTitle$,
         doNotHaveUserCredentials$,
         deviceLimitationsMessage$,
+        userAlreadyImportedError$,
         deviceLimitationsAdminsMessage$,
       } = lodUsersManagementStrings;
 
@@ -152,11 +163,13 @@
         selectedFacility,
         importLodMachineService,
         createSnackbar,
+        isUserAlreadyImported,
         importUserError$,
         importUserLabel$,
         enterCredentials$,
         enterAdminCredentials$,
         deviceLimitationsTitle$,
+        userAlreadyImportedError$,
         doNotHaveUserCredentials$,
         deviceLimitationsMessage$,
         deviceLimitationsAdminsMessage$,
@@ -215,6 +228,9 @@
           (this.useAdmin && (this.adminUsername === null || this.adminUsername.trim() === ''))
         ) {
           return this.coreString('requiredFieldError');
+        }
+        if (this.isUserAlreadyImported(this.username)) {
+          return this.userAlreadyImportedError$();
         }
         return '';
       },
