@@ -14,8 +14,8 @@
     <template #default>
       <form
         v-if="!loading"
+        :id="formId"
         class="form"
-        @submit.prevent="submitForm"
       >
         <section>
           <FullNameTextbox
@@ -104,15 +104,17 @@
       <div class="bottom-nav-container">
         <KButtonGroup>
           <KButton
-            type="submit"
+            primary
+            :form="formId"
             :text="saveAndClose$()"
             :disabled="busy"
-            :primary="true"
+            @click="saveAndClose()"
           />
           <KButton
+            :form="formId"
             :text="saveAndAddAnother$()"
             :disabled="busy"
-            @click="goToUserManagementPage()"
+            @click="saveAndAddAnother()"
           />
         </KButtonGroup>
       </div>
@@ -124,15 +126,19 @@
 
 <script>
 
-  import every from 'lodash/every';
-  import { mapState, mapGetters } from 'vuex';
-
+  import store from 'kolibri/store';
+  import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import notificationStrings from 'kolibri/uiText/notificationStrings';
+  import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
   import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
   import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
@@ -162,152 +168,229 @@
       ExtraDemographics,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, { emit }) {
+      const formId = 'create-user-form';
+      const route = useRoute();
+      const $refs = getCurrentInstance().proxy.$refs;
       const { getFacilityConfig, facilityConfig } = useFacilities();
+      const { createSnackbar } = useSnackbar();
+      const userTypeOptions = [
+        {
+          label: coreStrings.learnerLabel$(),
+          value: UserKinds.LEARNER,
+        },
+        {
+          label: coreStrings.coachLabel$(),
+          value: UserKinds.COACH,
+        },
+        {
+          label: coreStrings.adminLabel$(),
+          value: UserKinds.ADMIN,
+        },
+      ];
+
+      // Form data properties
+      const fullName = ref('');
+      const fullNameValid = ref(false);
+      const username = ref('');
+      const usernameValid = ref(false);
+      const password = ref('');
+      const passwordValid = ref(false);
+      const gender = ref(NOT_SPECIFIED);
+      const birthYear = ref(NOT_SPECIFIED);
+      const extraDemographics = ref({});
+      const idNumber = ref('');
+      const loading = ref(true);
+      const kind = ref(null);
+      const classCoachIsSelected = ref(true);
+      const busy = ref(false);
+      const formSubmitted = ref(false);
+      const caughtErrors = ref([]);
+
+      const resetForm = () => {
+        fullName.value = '';
+        username.value = '';
+        password.value = '';
+        gender.value = NOT_SPECIFIED;
+        birthYear.value = NOT_SPECIFIED;
+        extraDemographics.value = {};
+        idNumber.value = '';
+        kind.value = userTypeOptions[0]; // Reset to Learner
+        classCoachIsSelected.value = true;
+        formSubmitted.value = false;
+        caughtErrors.value = [];
+        busy.value = false;
+        $refs.fullNameTextbox?.reset();
+        $refs.usernameTextbox?.reset();
+        $refs.passwordTextbox?.reset();
+      };
+
+      resetForm();
+
+      const activeFacilityId = computed(() => route.params.facility_id);
+      const facilityUsers = computed(() => store.state.userManagement.facilityUsers);
+
+      const showPasswordInput = computed(() => {
+        if (facilityConfig.value.learner_can_login_with_no_password) {
+          return kind.value.value !== UserKinds.LEARNER;
+        }
+        return true;
+      });
+
+      const coachIsSelected = computed(() => {
+        return kind.value.value === UserKinds.COACH;
+      });
+
+      const newUserRole = computed(() => {
+        if (coachIsSelected.value) {
+          return classCoachIsSelected.value ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
+        }
+        // Admin or Learner
+        return kind.value.value;
+      });
+
+      const formIsValid = computed(() => {
+        return [fullNameValid.value, usernameValid.value, passwordValid.value].every(Boolean);
+      });
+
+      const usernameIsUnique = value => {
+        return !facilityUsers.value.find(
+          ({ username }) => username.toLowerCase() === value.toLowerCase(),
+        );
+      };
+
+      const focusOnInvalidField = async () => {
+        await nextTick();
+        if (!fullNameValid.value) {
+          $refs.fullNameTextbox.focus();
+        } else if (!usernameValid.value) {
+          $refs.usernameTextbox.focus();
+        } else if (!passwordValid.value) {
+          $refs.passwordTextbox.focus();
+        }
+      };
+
+      const handleSubmitSuccess = () => {
+        createSnackbar(notificationStrings.userCreated$());
+        emit('save');
+      };
+
+      const handleSubmitFailure = error => {
+        caughtErrors.value = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
+        busy.value = false;
+        if (caughtErrors.value.length > 0) {
+          focusOnInvalidField();
+        } else {
+          store.dispatch('handleApiError', { error });
+        }
+      };
+
+      const saveUserRole = (facilityUser, newRoleKind) => {
+        const { id, facility } = facilityUser;
+        return RoleResource.saveModel({
+          data: {
+            user: id,
+            collection: facility,
+            kind: newRoleKind,
+          },
+        });
+      };
+
+      const createFacilityUser = async () => {
+        let passwordValue = password.value;
+        if (!showPasswordInput.value) {
+          passwordValue = NOT_SPECIFIED;
+        }
+        const facilityUser = await FacilityUserResource.saveModel({
+          data: {
+            facility: activeFacilityId.value,
+            username: username.value,
+            full_name: fullName.value,
+            password: passwordValue,
+            id_number: idNumber.value,
+            gender: gender.value,
+            birth_year: birthYear.value,
+            extra_demographics: extraDemographics.value,
+          },
+        });
+        if (newUserRole.value !== UserKinds.LEARNER) {
+          await saveUserRole(facilityUser, newUserRole.value);
+        }
+      };
+
+      const submitForm = async () => {
+        formSubmitted.value = true;
+        if (!showPasswordInput.value && !passwordValid.value) {
+          passwordValid.value = true;
+        }
+        if (!formIsValid.value) {
+          return focusOnInvalidField();
+        }
+        busy.value = true;
+
+        try {
+          await createFacilityUser();
+        } catch (error) {
+          handleSubmitFailure(error);
+          return false;
+        }
+
+        handleSubmitSuccess();
+        return true;
+      };
+
+      const saveAndClose = async () => {
+        const success = await submitForm();
+        if (success) {
+          emit('close');
+        }
+      };
+
+      const saveAndAddAnother = async () => {
+        const success = await submitForm();
+        if (success) {
+          resetForm();
+          await nextTick();
+          $refs.fullNameTextbox.focus();
+        }
+      };
+
+      onBeforeMount(async () => {
+        await getFacilityConfig(activeFacilityId.value);
+        loading.value = false;
+      });
+
       const { saveAndClose$ } = coreStrings;
       const { saveAndAddAnother$ } = bulkUserManagementStrings;
       return {
-        getFacilityConfig,
+        fullName,
+        fullNameValid,
+        username,
+        usernameValid,
+        password,
+        passwordValid,
+        gender,
+        birthYear,
+        extraDemographics,
+        idNumber,
+        loading,
+        kind,
+        classCoachIsSelected,
+        busy,
+        formSubmitted,
+        caughtErrors,
+        showPasswordInput,
+        coachIsSelected,
+        userTypeOptions,
+        usernameIsUnique,
+
+        saveAndAddAnother,
+        saveAndClose,
+        formId,
         facilityConfig,
         saveAndClose$,
         saveAndAddAnother$,
       };
-    },
-    data() {
-      return {
-        fullName: '',
-        fullNameValid: false,
-        username: '',
-        usernameValid: false,
-        password: '',
-        passwordValid: false,
-        gender: NOT_SPECIFIED,
-        birthYear: NOT_SPECIFIED,
-        extraDemographics: {},
-        idNumber: '',
-        loading: true,
-        kind: {
-          label: this.coreString('learnerLabel'),
-          value: UserKinds.LEARNER,
-        },
-        classCoachIsSelected: true,
-        busy: false,
-        formSubmitted: false,
-        caughtErrors: [],
-      };
-    },
-    computed: {
-      ...mapGetters(['activeFacilityId']),
-      ...mapState('userManagement', ['facilityUsers']),
-      showPasswordInput() {
-        if (this.facilityConfig.learner_can_login_with_no_password) {
-          return this.kind.value !== UserKinds.LEARNER;
-        }
-        return true;
-      },
-      newUserRole() {
-        if (this.coachIsSelected) {
-          return this.classCoachIsSelected ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
-        }
-        // Admin or Learner
-        return this.kind.value;
-      },
-      coachIsSelected() {
-        return this.kind.value === UserKinds.COACH;
-      },
-      formIsValid() {
-        return every([this.fullNameValid, this.usernameValid, this.passwordValid]);
-      },
-      userTypeOptions() {
-        return [
-          {
-            label: this.coreString('learnerLabel'),
-            value: UserKinds.LEARNER,
-          },
-          {
-            label: this.coreString('coachLabel'),
-            value: UserKinds.COACH,
-          },
-          {
-            label: this.coreString('adminLabel'),
-            value: UserKinds.ADMIN,
-          },
-        ];
-      },
-    },
-    beforeMount() {
-      this.getFacilityConfig(this.activeFacilityId).then(() => {
-        this.$store.dispatch('notLoading');
-        this.loading = false;
-      });
-    },
-    methods: {
-      goToUserManagementPage(onComplete) {
-        this.$router.push(this.$store.getters.facilityPageLinks.UserPage, onComplete);
-      },
-      usernameIsUnique(value) {
-        return !this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === value.toLowerCase(),
-        );
-      },
-      submitForm() {
-        this.formSubmitted = true;
-        let password = this.password;
-
-        if (!this.showPasswordInput) {
-          password = NOT_SPECIFIED;
-          this.passwordValid = true;
-        }
-
-        if (!this.formIsValid) {
-          return this.focusOnInvalidField();
-        }
-        this.busy = true;
-        this.$store
-          .dispatch('userManagement/createFacilityUser', {
-            username: this.username,
-            full_name: this.fullName,
-            id_number: this.idNumber,
-            gender: this.gender,
-            birth_year: this.birthYear,
-            extra_demographics: this.extraDemographics,
-            role: {
-              kind: this.newUserRole,
-            },
-            password,
-          })
-          .then(() => {
-            this.handleSubmitSuccess();
-          })
-          .catch(error => {
-            this.handleSubmitFailure(error);
-          });
-      },
-      handleSubmitSuccess() {
-        this.goToUserManagementPage(() => {
-          this.showSnackbarNotification('userCreated');
-        });
-      },
-      handleSubmitFailure(error) {
-        this.caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS]);
-        this.busy = false;
-        if (this.caughtErrors.length > 0) {
-          this.focusOnInvalidField();
-        } else {
-          this.$store.dispatch('handleApiError', { error });
-        }
-      },
-      focusOnInvalidField() {
-        this.$nextTick().then(() => {
-          if (!this.fullNameValid) {
-            this.$refs.fullNameTextbox.focus();
-          } else if (!this.usernameValid) {
-            this.$refs.usernameTextbox.focus();
-          } else if (!this.passwordValid) {
-            this.$refs.passwordTextbox.focus();
-          }
-        });
-      },
     },
     $trs: {
       createNewUserHeader: {

@@ -110,6 +110,8 @@
   import UserCreateSidePanel from './sidePanels/UserCreate/index.vue';
 
   const ALL_FILTER = 'all';
+  // Constant for the maximum number of days to consider a user as a "new user"
+  const MAX_NEW_USER_DAYS = 30;
 
   export default {
     name: 'NewUsersPage',
@@ -129,13 +131,14 @@
       const isCreateUserSidePanelOpen = ref(true);
 
       onMounted(() => {
-        const last30Days = new Date();
-        last30Days.setDate(last30Days.getDate() - 30);
+        const newUsersCreationTreshold = new Date();
+        newUsersCreationTreshold.setDate(newUsersCreationTreshold.getDate() - MAX_NEW_USER_DAYS);
+
         router.replace({
           ...route,
           query: pickBy({
             ...route.query,
-            date_joined__gt: last30Days.toISOString(),
+            date_joined__gt: newUsersCreationTreshold.toISOString(),
           }),
         });
       });
