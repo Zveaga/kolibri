@@ -289,6 +289,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "In a list of classes, users can see which coaches manage which specific classes in the 'Coaches' column.",
   },
+  adminsLabel: {
+    message: 'Admins',
+    context: 'Admins are users with a specific role in Kolibri with special permissions.',
+  },
+  superAdminsLabel: {
+    message: 'Super admins',
+    context: 'Super admins are users with a specific role in Kolibri with special permissions.',
+  },
   completedLabel: {
     message: 'Completed',
     context:

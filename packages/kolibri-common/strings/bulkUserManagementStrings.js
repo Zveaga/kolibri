@@ -293,4 +293,30 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Sorry! Something went wrong, please try again.',
     context: 'Default error message for API errors.',
   },
+
+  // Users table
+  allUsersFilteredOut: {
+    message: "No users match the filter: '{filterText}'",
+    context: "Refers to the 'Search for a user' filter when no users are found.",
+  },
+  noLearnersExist: {
+    message: 'There are no learners in this facility',
+    context:
+      "Displayed when there are no learners in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noCoachesExist: {
+    message: 'There are no coaches in this facility',
+    context:
+      "Displayed when there are no coaches in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noSuperAdminsExist: {
+    message: 'There are no super admins in this facility',
+    context:
+      "Displayed when there are no super admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noAdminsExist: {
+    message: 'There are no admins in this facility',
+    context:
+      "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
 });
