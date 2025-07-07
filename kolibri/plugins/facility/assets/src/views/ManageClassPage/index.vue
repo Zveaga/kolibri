@@ -125,7 +125,7 @@
         <template #default>
           <div>
             <KTextbox
-              v-model="classDetails.name"
+              :value="copyOfClass$({ class: classDetails.name })"
               type="text"
               :label="classTitleLabel$()"
               :autofocus="true"
