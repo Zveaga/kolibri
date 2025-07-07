@@ -44,17 +44,7 @@
         sortable
       >
         <template #header="{ header, colIndex }">
-          <span
-            v-if="colIndex === 2"
-            style="display: flex; justify-content: start"
-            :class="{ visuallyhidden: colIndex === 3 }"
-          >
-            {{ header.label }}</span>
-          <span
-            v-else
-            :class="{ visuallyhidden: colIndex === 3 }"
-          >
-            {{ header.label }}</span>
+          <span :class="{ visuallyhidden: colIndex === 3 }"> {{ header.label }}</span>
         </template>
         <template #cell="{ content, colIndex, row }">
           <span v-if="colIndex === 0">
