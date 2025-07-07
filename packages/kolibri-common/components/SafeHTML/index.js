@@ -60,6 +60,15 @@ export default {
             },
           });
         }
+        if (tag === 'img') {
+          attributes.tabindex = '0';
+          return h(
+            // Wrap each image in a container to constrain its size
+            'div',
+            { class: 'image-container' },
+            [h(tag, { attrs: attributes }, mapChildren(node.childNodes))],
+          );
+        }
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;
