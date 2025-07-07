@@ -301,7 +301,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Action button label for beginning bulk actions',
   },
   copyOfClass: {
-    message: `Copy of '{class}'`,
+    message: 'Copy of {class}',
     context: 'Initial name of a class upon being copied',
   },
   classTitleLabel: {
