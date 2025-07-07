@@ -13,44 +13,28 @@
           :text="coreString('changeLearningFacility')"
         />
       </p>
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
-          <h1>{{ coreString('usersLabel') }}</h1>
-        </KGridItem>
-        <KGridItem
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-        >
+      <div class="users-page-header">
+        <h1>{{ coreString('usersLabel') }}</h1>
+        <div class="users-page-header-actions">
           <KButton
             :text="coreString('optionsLabel')"
             :hasDropdown="true"
             :primary="false"
             appearance="raised-button"
-            class="move-down options-button"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           >
             <template #menu>
-              <KDropdownMenu
-                :primary="false"
-                :disabled="false"
-                :hasIcons="true"
-                :options="dropDownMenu"
-              />
+              <KDropdownMenu :options="dropDownMenu" />
             </template>
           </KButton>
           <KRouterLink
             :text="$tr('newUserButtonLabel')"
             :primary="true"
             appearance="raised-button"
-            class="move-down"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
-        </KGridItem>
-      </KGrid>
+        </div>
+      </div>
 
       <UsersTable
         :facilityUsers="facilityUsers"
@@ -260,8 +244,23 @@
 
 <style lang="scss" scoped>
 
-  .options-button {
-    margin-right: 8px;
+  .users-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h1 {
+      margin: 16px 0;
+    }
+
+    .users-page-header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: flex-end;
+    }
   }
 
 </style>

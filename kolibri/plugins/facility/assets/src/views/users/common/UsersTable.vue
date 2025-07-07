@@ -2,10 +2,8 @@
 
   <PaginatedListContainerWithBackend
     v-model="currentPage"
-    :items="facilityUsers"
     :itemsPerPage="itemsPerPage"
     :totalPageNumber="totalPages"
-    :roleFilter="roleFilter"
     :numFilteredItems="usersCount"
   >
     <KGrid>
@@ -491,7 +489,6 @@
         tableRows,
         selectAllState,
         userRoleBadgeStyle,
-        roleFilter,
         searchTerm,
         currentPage,
         itemsPerPage,
