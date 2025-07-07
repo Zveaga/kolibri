@@ -93,7 +93,6 @@
 <script>
 
   import { mapState } from 'vuex';
-  import store from 'kolibri/store';
   import { onMounted, ref } from 'vue';
   import { pickBy, debounce } from 'lodash';
   import { useRouter, useRoute } from 'vue-router/composables';
@@ -108,7 +107,6 @@
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
 
-  import { showUserPage } from '../../modules/userManagement/handlers';
   import UserCreateSidePanel from './sidePanels/UserCreate/index.vue';
 
   const ALL_FILTER = 'all';
@@ -143,7 +141,7 @@
       });
 
       function onUserCreate() {
-        showUserPage(store, route, null);
+        router.back();
       }
 
       const { newUsers$, backToUsers$ } = bulkUserManagementStrings;
@@ -267,27 +265,6 @@
             }),
           });
         },
-      },
-    },
-    watch: {
-      $route: {
-        /**
-         * When the route changes, this watcher will call showUserPage
-         * to fetch and update the user table. On initial page load,
-         * showUserPage is already called from the router handler,
-         * so we skip calling it again if oldVal is undefined.
-         */
-        handler(newVal, oldVal) {
-          // When previous route is undefined, page is loading for the first time,
-          // and in that case 'showUserPage' was called from routes.js handlers
-          if (oldVal === undefined) {
-            return;
-          } else {
-            showUserPage(this.$store, newVal, oldVal);
-          }
-        },
-        immediate: true,
-        deep: true,
       },
     },
     created() {
