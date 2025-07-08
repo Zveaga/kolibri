@@ -34,7 +34,6 @@
           />
         </KGridItem>
       </KGrid>
-
       <KTable
         :headers="tableHeaders"
         :rows="tableRows"
@@ -104,7 +103,7 @@
       />
 
       <ClassRenameModal
-        v-if="openRenameModal"
+        v-show="openRenameModal"
         :classname="classDetails.name"
         :classid="classDetails.id"
         :classes="classes"
@@ -112,7 +111,7 @@
         @success="handleRenameSuccess()"
       />
       <SidePanelModal
-        v-if="openCopyClassPanel"
+        v-show="openCopyClassPanel"
         ref="resourcePanel"
         alignment="right"
         sidePanelWidth="700px"
@@ -210,7 +209,10 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const classDetails = ref({});
+      const classDetails = ref({
+        id: '',
+        name: '',
+      });
       const classCoachesIds = ref([]);
       const classCoaches = ref([]);
       const copiedClassName = ref(null);
