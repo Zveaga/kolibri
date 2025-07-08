@@ -125,7 +125,7 @@
         <template #default>
           <div>
             <KTextbox
-              :value="copyOfClass$({ class: classDetails.name })"
+              v-model="copiedClassName"
               type="text"
               :label="classTitleLabel$()"
               :autofocus="true"
@@ -172,7 +172,7 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -181,6 +181,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
+  import useUserManagement from '../../composables/useUserManagement';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -207,11 +208,16 @@
       const classDetails = ref({});
       const classCoachesIds = ref([]);
       const classCoaches = ref([]);
+      const copiedClassName = ref(null);
       const openCopyClassPanel = ref(false);
       const openRenameModal = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const { createSnackbar } = useSnackbar();
+      const { $store, $router } = getCurrentInstance().proxy;
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
+      const { facilityUsers } = useUserManagement(activeFacilityId);
       const {
         copyClasslabel$,
         renameClassLabel$,
@@ -229,17 +235,17 @@
 
       const handleOptionSelection = (selection, row) => {
         classDetails.value = row;
+        copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
 
-        classCoachesIds.value = classDetails.value.coaches
-          .map(coach => coach.id)
-          .filter(id => id !== undefined);
-
-        classCoaches.value = classDetails.value.coaches.map(coach => ({
-          id: coach.id,
-          username: coach.username,
-          full_name: coach.full_name,
-          label: coach.full_name,
-        }));
+        classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
+        classCoaches.value = facilityUsers.value
+          .filter(user => user.kind === 'coach')
+          .map(coach => ({
+            id: coach.id,
+            username: coach.username,
+            full_name: coach.full_name,
+            label: coach.full_name,
+          }));
 
         if (selection.value === Modals.DELETE_CLASS) {
           selectClassToDelete(row);
@@ -247,7 +253,6 @@
         }
 
         if (selection.value === Modals.EDIT_CLASS_NAME) {
-          // this.displayModal(Modals.EDIT_CLASS_NAME);
           openRenameModal.value = true;
           return;
         }
@@ -277,8 +282,8 @@
         classCoaches,
         handleOptionSelection,
         createSnackbar,
-        copyOfClass$,
         openRenameModal,
+        copiedClassName,
       };
     },
     computed: {
@@ -350,6 +355,7 @@
       ...mapActions('classManagement', ['displayModal']),
       ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       closeModal() {
+        this.openRenameModal = false;
         this.displayModal(false);
       },
       handleCreateSuccess() {
@@ -401,12 +407,10 @@
         return null;
       },
       async handleSubmitingClassCopy() {
-        const className = this.copyOfClass$({ class: this.classDetails.name });
-
-        await this.$store.dispatch('classManagement/createClass', className);
+        await this.$store.dispatch('classManagement/createClass', this.copiedClassName);
         await this.$nextTick();
 
-        const createdClass = this.classes.find(cls => cls.name === className);
+        const createdClass = this.classes.find(cls => cls.name === this.copiedClassName);
 
         if (createdClass?.id) {
           const coaches = this.classCoachesIds;
@@ -417,7 +421,7 @@
           });
 
           const updatedClasses = this.classes.map(c => {
-            if (c.name === className) {
+            if (c.name === this.copiedClassName) {
               const updatedCoaches = coaches
                 .map(coachId => this.classCoaches.find(coach => coach.id === coachId))
                 .filter(Boolean);
