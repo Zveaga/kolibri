@@ -187,6 +187,14 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Enroll',
     context: 'Label for the button that will enroll users in classes',
   },
+  enrollAClassLabel: {
+    message: 'Enroll in a class',
+    context: 'Label for the button that opens the class enrollment modal',
+  },
+  assignToAllClasses: {
+    message: 'Assign to all classes',
+    context: 'Label for checkbox that allows user to assign selected users to all classes',
+  },
 
   // Move to trash
   movingToTrash: {

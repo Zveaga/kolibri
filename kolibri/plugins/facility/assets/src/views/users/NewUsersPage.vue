@@ -78,6 +78,8 @@
     </KPageContainer>
     <router-view
       :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
+      :classes="classes"
+      :selectedUsers="selectedUsers"
       @change="onUsersChange"
     />
   </ImmersivePage>
@@ -88,7 +90,7 @@
 <script>
 
   import store from 'kolibri/store';
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -118,7 +120,15 @@
       const newUsersCreationTreshold = new Date();
       newUsersCreationTreshold.setDate(newUsersCreationTreshold.getDate() - MAX_NEW_USER_DAYS);
 
-      const { facilityUsers, totalPages, usersCount, dataLoading, fetchUsers } = useUserManagement({
+      const {
+        facilityUsers,
+        classes,
+        totalPages,
+        usersCount,
+        dataLoading,
+        fetchUsers,
+        fetchClasses,
+      } = useUserManagement({
         activeFacilityId,
         dateJoinedGt: newUsersCreationTreshold,
       });
@@ -139,8 +149,13 @@
         deleteSelection$,
       } = bulkUserManagementStrings;
 
+      onMounted(() => {
+        fetchClasses();
+      });
+
       return {
         PageNames,
+        classes,
         facilityUsers,
         totalPages,
         usersCount,

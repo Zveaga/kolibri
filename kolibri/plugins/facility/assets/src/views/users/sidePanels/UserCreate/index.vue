@@ -92,6 +92,12 @@
             class="select"
           />
 
+          <ClassesSelect
+            v-model="selectedClasses"
+            :classes="classes"
+            :disabled="busy || !classes.length"
+          />
+
           <ExtraDemographics
             v-model="extraDemographics"
             :facilityDatasetExtraFields="facilityConfig.extra_fields"
@@ -137,6 +143,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
+  import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
@@ -147,6 +154,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import IdentifierTextbox from './IdentifierTextbox';
+  import ClassesSelect from './ClassesSelect';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
@@ -159,6 +167,7 @@
     },
     components: {
       GenderSelect,
+      ClassesSelect,
       BirthYearSelect,
       UsernameTextbox,
       FullNameTextbox,
@@ -203,6 +212,7 @@
       const idNumber = ref('');
       const loading = ref(true);
       const kind = ref(null);
+      const selectedClasses = ref([]);
       const classCoachIsSelected = ref(true);
       const busy = ref(false);
       const formSubmitted = ref(false);
@@ -221,6 +231,7 @@
         formSubmitted.value = false;
         caughtErrors.value = [];
         busy.value = false;
+        selectedClasses.value = [];
         $refs.fullNameTextbox?.reset();
         $refs.usernameTextbox?.reset();
         $refs.passwordTextbox?.reset();
@@ -297,6 +308,15 @@
         });
       };
 
+      const enrollLearnerInClasses = (userId, classIds) => {
+        return MembershipResource.saveCollection({
+          data: classIds.map(classId => ({
+            collection: classId,
+            user: userId,
+          })),
+        });
+      };
+
       const createFacilityUser = async () => {
         let passwordValue = password.value;
         if (!showPasswordInput.value) {
@@ -316,6 +336,9 @@
         });
         if (newUserRole.value !== UserKinds.LEARNER) {
           await saveUserRole(facilityUser, newUserRole.value);
+        }
+        if (selectedClasses.value.length > 0) {
+          await enrollLearnerInClasses(facilityUser.id, selectedClasses.value);
         }
       };
 
@@ -385,6 +408,7 @@
         loading,
         kind,
         classCoachIsSelected,
+        selectedClasses,
         busy,
         formSubmitted,
         caughtErrors,
@@ -405,6 +429,10 @@
       backRoute: {
         type: Object,
         default: null,
+      },
+      classes: {
+        type: Array,
+        default: () => [],
       },
     },
     $trs: {
