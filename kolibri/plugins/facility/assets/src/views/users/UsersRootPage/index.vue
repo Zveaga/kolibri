@@ -97,7 +97,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -115,7 +114,7 @@
       UsersTable,
       FacilityAppBarPage,
     },
-    mixins: [commonCoreStrings, translatedUserKinds],
+    mixins: [commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());

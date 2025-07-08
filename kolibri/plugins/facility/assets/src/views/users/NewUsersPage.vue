@@ -24,6 +24,7 @@
         </div>
       </div>
       <UsersTable
+        v-if="facilityUsers.length"
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
         :totalPages="totalPages"
@@ -75,6 +76,27 @@
           </router-link>
         </template>
       </UsersTable>
+      <div
+        v-else
+        class="empty-new-users"
+      >
+        <div class="empty-new-users-content">
+          <strong> {{ noNewUsersLabel$() }}</strong>
+          <p
+            :style="{
+              color: $themePalette.grey.v_700,
+            }"
+          >
+            {{ noNewUsersDescription$() }}
+          </p>
+        </div>
+        <KRouterLink
+          primary
+          appearance="raised-button"
+          :text="addNewUserLabel$()"
+          :to="$store.getters.facilityPageLinks.UserCreatePage"
+        />
+      </div>
     </KPageContainer>
     <router-view
       :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
@@ -93,7 +115,6 @@
   import { onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
@@ -111,7 +132,6 @@
       UsersTable,
       ImmersivePage,
     },
-    mixins: [commonCoreStrings],
     setup() {
       const route = useRoute();
 
@@ -147,6 +167,9 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        noNewUsersLabel$,
+        addNewUserLabel$,
+        noNewUsersDescription$,
       } = bulkUserManagementStrings;
 
       onMounted(() => {
@@ -170,6 +193,9 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        noNewUsersLabel$,
+        addNewUserLabel$,
+        noNewUsersDescription$,
       };
     },
   };
@@ -185,6 +211,30 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
+  }
+
+  .empty-new-users {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+
+    .empty-new-users-content {
+      margin-bottom: 16px;
+
+      strong {
+        font-size: 16px;
+      }
+
+      p {
+        margin: 8px 0;
+        font-size: 14px;
+      }
+    }
   }
 
 </style>

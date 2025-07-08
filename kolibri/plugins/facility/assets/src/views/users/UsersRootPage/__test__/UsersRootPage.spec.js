@@ -8,7 +8,7 @@ import UserPage from '../index';
 jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('../../../composables/useUserManagement');
+jest.mock('../../../../composables/useUserManagement');
 
 const router = new VueRouter({
   routes: [

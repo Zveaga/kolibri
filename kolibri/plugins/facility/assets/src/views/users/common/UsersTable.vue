@@ -527,7 +527,6 @@
         }
       };
 
-      // --- Lifecycle Hooks ---
       onBeforeUnmount(() => {
         const { query } = route;
         if (query.ordering || query.order || query.page) {

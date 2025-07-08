@@ -327,4 +327,16 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context:
       "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
   },
+  noNewUsersLabel: {
+    message: 'No new users',
+    context: 'Displayed when there are no recently created users in the facility.',
+  },
+  noNewUsersDescription: {
+    message: 'New users added in the last 30 days will be stored here',
+    context: 'Description shown when there are no recently created users in the facility.',
+  },
+  addNewUserLabel: {
+    message: 'Add new user',
+    context: 'Label for button that opens the user creation modal',
+  },
 });
