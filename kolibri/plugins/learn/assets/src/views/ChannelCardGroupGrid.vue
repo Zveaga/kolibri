@@ -8,7 +8,7 @@
     >
       <ChannelCard
         :data-onboarding-id="index === 0 ? 'firstChannelCard' : null"
-        :isFirst="index === 0 ? true :false"
+        :isFirst="index === 0 ? true : false"
         :isMobile="windowIsSmall"
         :title="content.title || content.name"
         :thumbnail="content.thumbnail"
@@ -31,6 +31,7 @@
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
+
   export default {
     name: 'ChannelCardGroupGrid',
     components: {

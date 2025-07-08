@@ -53,7 +53,7 @@
     name: 'TooltipContent',
     mixins: [commonCoreStrings],
     props: {
-       steps: {
+      steps: {
         type: Array,
         default: () => [],
       },

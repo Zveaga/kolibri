@@ -86,6 +86,7 @@
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useUser from 'kolibri/composables/useUser';
   import ChannelThumbnail from './ChannelThumbnail';
+
   export default {
     name: 'ChannelCard',
     components: {

@@ -34,8 +34,8 @@
     setup() {
       const { isLearnerOnlyImport } = useUser();
       const { facilities } = useFacilities();
-      const { onMyOwnWelcomeMessage } = kolibriOnboardingGuideStrings; 
-      return { isLearnerOnlyImport, facilities , onMyOwnWelcomeMessage };    
+      const { onMyOwnWelcomeMessage } = kolibriOnboardingGuideStrings;
+      return { isLearnerOnlyImport, facilities, onMyOwnWelcomeMessage };
     },
     props: {
       importedFacility: {
