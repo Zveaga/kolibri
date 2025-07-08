@@ -229,7 +229,7 @@
         ) {
           return this.coreString('requiredFieldError');
         }
-        if (this.isUserAlreadyImported(this.username)) {
+        if (!this.useAdmin && this.isUserAlreadyImported(this.username)) {
           return this.userAlreadyImportedError$();
         }
         return '';

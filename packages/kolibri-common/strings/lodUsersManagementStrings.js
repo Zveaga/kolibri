@@ -73,7 +73,7 @@ export const lodUsersManagementStrings = createTranslator('LodUsersManagementStr
   },
   removeUserDescription: {
     message:
-      'If you remove this user from this device you will still be able to access their account and all their data from { device }.',
+      'If you remove this user from this device you will still be able to access their account and all their data on the server.',
     context:
       'Explanation shown when a user is about to be removed from the device, reassuring that their data remains accessible elsewhere',
   },

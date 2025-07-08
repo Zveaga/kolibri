@@ -36,7 +36,7 @@
       @cancel="userIdToRemove = null"
     >
       <p>
-        {{ removeUserDescription$({ device: 'device' }) }}
+        {{ removeUserDescription$() }}
       </p>
       <p>
         {{ removeUserCallToAction$() }}
