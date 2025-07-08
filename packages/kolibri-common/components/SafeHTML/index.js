@@ -14,6 +14,12 @@ DOMPurify.setConfig({
   KEEP_CONTENT: false,
 });
 
+DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+  if ((node.nodeName === 'TD' || node.nodeName === 'TH') && data.attrName === 'colspan') {
+    data.forceKeepAttr = true;
+  }
+});
+
 export default {
   name: 'SafeHTML',
   functional: true,
