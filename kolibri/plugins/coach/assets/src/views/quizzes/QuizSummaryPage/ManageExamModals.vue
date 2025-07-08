@@ -89,7 +89,6 @@
         context:
           'Description on confirmation window that displays when a user attempts to delete a quiz.',
       },
-
       copyOfExam: {
         message: 'Copy of { examTitle }',
         context:
