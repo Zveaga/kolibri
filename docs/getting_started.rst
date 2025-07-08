@@ -162,7 +162,7 @@ Note that the ``--upgrade`` flags above can usually be omitted to speed up the p
 Install Node.js, Yarn and other dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Install `Node.js <https://nodejs.org/en/download/>`__ (version 18.x is required)
+#. Install `Node.js <https://nodejs.org/en/download/>`__ (version 20.x is required)
 #. Install `Yarn <https://yarnpkg.com/>`__
 #. Install non-python project-specific dependencies
 
