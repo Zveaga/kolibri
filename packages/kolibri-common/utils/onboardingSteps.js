@@ -1,5 +1,4 @@
-import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
-
+import {kolibriOnboardingGuideStrings} from 'kolibri-common/strings/kolibriOnboardingGuideStrings'
 export const onboardingSteps = {
   LibraryPage: [
     {

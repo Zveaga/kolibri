@@ -26,7 +26,6 @@
         v-if="currentStepIndex > 0"
         :primary="false"
         appearance="flat-button"
-        class="back-btn"
         @click="$emit('back')"
       >
         Back
@@ -54,8 +53,14 @@
     name: 'TooltipContent',
     mixins: [commonCoreStrings],
     props: {
-      steps: Array,
-      currentStepIndex: Number,
+       steps: {
+        type: Array,
+        default: () => [],
+      },
+      currentStepIndex: {
+        type: Number,
+        default: 0,
+      },
     },
   };
 

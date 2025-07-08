@@ -119,7 +119,8 @@
               this.tippyInstance.show();
             }
           } catch (e) {
-            console.log('Error showing tooltip:', e);
+            // eslint-disable-next-line no-console
+            console.error('Error showing tooltip:', e);
           }
         });
       },
@@ -217,14 +218,6 @@
     background: #4368f5;
   }
 
-  .close-btn {
-    font-size: 16px;
-    color: #000000;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-  }
-
   .onboarding-tooltip-body {
     margin-top: 12px;
     font-size: 14px;
@@ -245,38 +238,6 @@
     align-items: center;
     justify-content: flex-end;
     margin-top: 16px;
-  }
-
-  .continue-btn {
-    gap: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #212121;
-    text-transform: uppercase;
-    cursor: pointer;
-    background: #eeeeee;
-    border: none;
-    border-radius: 2px;
-    box-shadow:
-      0 1px 3px 1px rgba(0, 0, 0, 0.15),
-      0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  }
-
-  .continue-btn:hover {
-    background: #e0e0e0;
-  }
-
-  .back-btn {
-    padding: 15px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #212121;
-    text-transform: uppercase;
-    cursor: pointer;
-    background: none;
-    border: none;
-    border-radius: 2px;
   }
 
 </style>

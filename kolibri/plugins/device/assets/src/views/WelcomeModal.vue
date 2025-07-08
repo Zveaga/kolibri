@@ -34,7 +34,8 @@
     setup() {
       const { isLearnerOnlyImport } = useUser();
       const { facilities } = useFacilities();
-      return { isLearnerOnlyImport, facilities };
+      const { onMyOwnWelcomeMessage } = kolibriOnboardingGuideStrings; 
+      return { isLearnerOnlyImport, facilities , onMyOwnWelcomeMessage };    
     },
     props: {
       importedFacility: {
@@ -59,7 +60,7 @@
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.isOnMyOwnUser) {
-          return [kolibriOnboardingGuideStrings.$tr('onMyOwnWelcomeMessage')];
+          return this.onMyOwnWelcomeMessage;
         }
         if (this.importedFacility) {
           return [
