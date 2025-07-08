@@ -130,6 +130,9 @@
               :label="classTitleLabel$()"
               :autofocus="true"
               :maxlength="120"
+              :showInvalidText="true"
+              :invalid="isClassNameInvalid"
+              :invalidText="classNameAlreadyExists$()"
             />
 
             <p class="side-panel-subtitle">{{ coachesAssignedToClassLabel$() }}</p>
@@ -158,6 +161,7 @@
               <KButton
                 :text="copyClasslabel$()"
                 :primary="true"
+                :disabled="isClassNameInvalid"
                 @click="handleSubmitingClassCopy"
               />
             </div>
@@ -179,6 +183,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { UserKinds } from 'kolibri/constants';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import useUserManagement from '../../composables/useUserManagement';
@@ -227,6 +232,7 @@
         numCoachesSelected$,
         classCopiedSuccessfully$,
         copyOfClass$,
+        classNameAlreadyExists$,
       } = bulkUserManagementStrings;
 
       const handleSelection = newSelection => {
@@ -239,7 +245,7 @@
 
         classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
         classCoaches.value = facilityUsers.value
-          .filter(user => user.kind === 'coach')
+          .filter(user => user.kind === UserKinds.COACH)
           .map(coach => ({
             id: coach.id,
             username: coach.username,
@@ -284,6 +290,7 @@
         createSnackbar,
         openRenameModal,
         copiedClassName,
+        classNameAlreadyExists$,
       };
     },
     computed: {
@@ -349,6 +356,9 @@
             id: 'delete',
           },
         ];
+      },
+      isClassNameInvalid() {
+        return this.tableRows.some(row => row[0] === this.copiedClassName);
       },
     },
     methods: {

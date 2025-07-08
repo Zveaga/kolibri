@@ -250,6 +250,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Class copied successfully',
     context: 'Message shown when class copying succeeds',
   },
+  classNameAlreadyExists: {
+    message: 'Class name already exists',
+    context: 'Error message shown when trying to copy a class with a name that already exists',
+  },
 
   // User Creation
   newUsers: {
