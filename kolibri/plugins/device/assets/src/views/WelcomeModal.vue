@@ -60,7 +60,7 @@
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.isOnMyOwnUser) {
-          return this.onMyOwnWelcomeMessage;
+          return [this.onMyOwnWelcomeMessage];
         }
         if (this.importedFacility) {
           return [
