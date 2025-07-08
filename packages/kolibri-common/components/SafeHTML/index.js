@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
 
-const ALLOWED_URI_REGEXP = /^blob:https?:/i;
+const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
 const FORBID_ATTR = ['style'];
 
@@ -12,12 +12,6 @@ DOMPurify.setConfig({
   ALLOWED_URI_REGEXP,
   FORBID_ATTR,
   KEEP_CONTENT: false,
-});
-
-DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
-  if ((node.nodeName === 'TD' || node.nodeName === 'TH') && data.attrName === 'colspan') {
-    data.forceKeepAttr = true;
-  }
 });
 
 export default {
