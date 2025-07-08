@@ -22,13 +22,16 @@
             :text="coreString('optionsLabel')"
           >
             <template #menu>
-              <KDropdownMenu :options="dropDownMenu" />
+              <KDropdownMenu
+                :options="pageDropdownOptions"
+                @select="handlePageDropdownSelection"
+              />
             </template>
           </KButton>
           <KRouterLink
             primary
             appearance="raised-button"
-            :text="$tr('newUserButtonLabel')"
+            :text="newUser$()"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
         </div>
@@ -43,28 +46,32 @@
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
       >
         <template #userActions>
-          <router-link :to="getSidePanelUrl(PageNames.ASSIGN_COACHES_SIDE_PANEL)">
+          <router-link :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })">
             <KIconButton
               icon="assignCoaches"
               :ariaLabel="assignCoach$()"
               :tooltip="assignCoach$()"
             />
           </router-link>
-          <router-link :to="getSidePanelUrl(PageNames.ENROLL_LEARNERS_SIDE_PANEL)">
+          <router-link :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })">
             <KIconButton
               icon="add"
               :ariaLabel="enrollToClass$()"
               :tooltip="enrollToClass$()"
             />
           </router-link>
-          <router-link :to="getSidePanelUrl(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)">
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
+          >
             <KIconButton
               icon="remove"
               :ariaLabel="removeFromClass$()"
               :tooltip="removeFromClass$()"
             />
           </router-link>
-          <router-link :to="getSidePanelUrl(PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL)">
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL })"
+          >
             <KIconButton
               icon="trash"
               :ariaLabel="deleteSelection$()"
@@ -95,6 +102,7 @@
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
+  import { overrideRoute } from '../../../utils';
 
   export default {
     name: 'UserPage',
@@ -113,9 +121,10 @@
       const selectedUsers = ref(new Set());
 
       const {
-        viewNewUsers$,
+        newUser$,
         viewTrash$,
         assignCoach$,
+        viewNewUsers$,
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
@@ -139,9 +148,10 @@
         usersCount,
         dataLoading,
         classes,
-        viewNewUsers$,
+        newUser$,
         viewTrash$,
         assignCoach$,
+        viewNewUsers$,
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
@@ -149,11 +159,12 @@
       };
     },
     computed: {
-      dropDownMenu() {
+      pageDropdownOptions() {
         return [
           {
             label: this.viewNewUsers$(),
             id: 'view_new_users',
+            value: PageNames.NEW_USERS_PAGE,
           },
           {
             label: this.viewTrash$(),
@@ -163,18 +174,14 @@
       },
     },
     methods: {
-      getSidePanelUrl(name) {
-        return {
-          name,
-          params: { facility_id: this.$route.params.facility_id },
-          query: { ...this.$route.query },
-        };
-      },
-    },
-    $trs: {
-      newUserButtonLabel: {
-        message: 'New User',
-        context: 'Button to create new user.',
+      overrideRoute,
+      handlePageDropdownSelection(option) {
+        if (option.value) {
+          this.$router.push({
+            name: option.value,
+            params: { facility_id: this.$store.getters.activeFacilityId },
+          });
+        }
       },
     },
   };
@@ -186,6 +193,7 @@
 
   .users-page-header {
     display: flex;
+    gap: 16px;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;

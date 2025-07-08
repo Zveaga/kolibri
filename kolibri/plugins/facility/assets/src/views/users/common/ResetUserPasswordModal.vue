@@ -7,7 +7,7 @@
     :submitDisabled="busy"
     :cancelDisabled="busy"
     @submit="submitForm"
-    @cancel="$emit('cancel')"
+    @cancel="$emit('close')"
   >
     <p>
       {{ $tr('username') }}<strong>{{ username }}</strong>
@@ -71,7 +71,7 @@
           })
           .then(() => {
             this.busy = false;
-            this.$emit('cancel');
+            this.$emit('close');
             this.showSnackbarNotification('passwordReset');
           })
           .catch(error => this.$store.dispatch('handleApiError', { error }));

@@ -12,7 +12,17 @@
           :text="backToUsers$()"
         />
       </p>
-      <h1>{{ newUsers$() }}</h1>
+      <div class="new-users-page-header">
+        <h1>{{ newUsers$() }}</h1>
+        <div>
+          <KRouterLink
+            primary
+            appearance="raised-button"
+            :text="newUser$()"
+            :to="$store.getters.facilityPageLinks.UserCreatePage"
+          />
+        </div>
+      </div>
       <UsersTable
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
@@ -20,13 +30,55 @@
         :dataLoading="dataLoading"
         :selectedUsers.sync="selectedUsers"
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS"
+        @change="onUsersChange"
       >
-        <template></template>
+        <template #userActions>
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS })"
+          >
+            <KIconButton
+              icon="assignCoaches"
+              :ariaLabel="assignCoach$()"
+              :tooltip="assignCoach$()"
+            />
+          </router-link>
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS })"
+          >
+            <KIconButton
+              icon="add"
+              :ariaLabel="enrollToClass$()"
+              :tooltip="enrollToClass$()"
+            />
+          </router-link>
+          <router-link
+            :to="
+              overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS })
+            "
+          >
+            <KIconButton
+              icon="remove"
+              :ariaLabel="removeFromClass$()"
+              :tooltip="removeFromClass$()"
+            />
+          </router-link>
+          <router-link
+            :to="
+              overrideRoute($route, { name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL__NEW_USERS })
+            "
+          >
+            <KIconButton
+              icon="trash"
+              :ariaLabel="deleteSelection$()"
+              :tooltip="deleteSelection$()"
+            />
+          </router-link>
+        </template>
       </UsersTable>
     </KPageContainer>
     <router-view
-      :backRoute="newUsersRoute"
-      @change="onUserCreate"
+      :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
+      @change="onUsersChange"
     />
   </ImmersivePage>
 
@@ -36,7 +88,7 @@
 <script>
 
   import store from 'kolibri/store';
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -45,6 +97,7 @@
 
   import useUserManagement from '../../composables/useUserManagement';
   import { PageNames } from '../../constants';
+  import { overrideRoute } from '../../utils';
   import UsersTable from './common/UsersTable.vue';
 
   // Constant for the maximum number of days to consider a user as a "new user"
@@ -72,28 +125,36 @@
 
       const selectedUsers = ref(new Set());
 
-      const newUsersRoute = computed(() => ({
-        ...route,
-        name: PageNames.NEW_USERS_PAGE,
-      }));
-
-      function onUserCreate() {
+      function onUsersChange() {
         fetchUsers();
       }
 
-      const { newUsers$, backToUsers$ } = bulkUserManagementStrings;
+      const {
+        newUser$,
+        newUsers$,
+        backToUsers$,
+        assignCoach$,
+        enrollToClass$,
+        removeFromClass$,
+        deleteSelection$,
+      } = bulkUserManagementStrings;
 
       return {
         PageNames,
-        newUsersRoute,
         facilityUsers,
         totalPages,
         usersCount,
         dataLoading,
         selectedUsers,
+        onUsersChange,
+        overrideRoute,
+        newUser$,
         newUsers$,
         backToUsers$,
-        onUserCreate,
+        assignCoach$,
+        enrollToClass$,
+        removeFromClass$,
+        deleteSelection$,
       };
     },
   };
@@ -103,32 +164,12 @@
 
 <style lang="scss" scoped>
 
-  .move-down {
-    position: relative;
-    margin-top: 24px;
-  }
-
-  .type-filter {
-    margin-bottom: 0;
-  }
-
-  .role-badge {
-    display: inline-block;
-    padding: 1px;
-    padding-right: 8px;
-    padding-left: 8px;
-    margin-left: 16px;
-    font-size: small;
-    white-space: nowrap;
-    border-radius: 4px;
-  }
-
-  .labeled-icon-wrapper {
-    width: auto;
-  }
-
-  .user-roster {
-    overflow-x: auto;
+  .new-users-page-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
   }
 
 </style>

@@ -30,6 +30,22 @@ export function facilityParamRequiredGuard(toRoute, subtopicName) {
   }
 }
 
+export function overrideRoute(route, newRoute) {
+  // Override the route with a new one, preserving the params and query
+  const { params, query } = route;
+  return {
+    ...newRoute,
+    params: {
+      ...params,
+      ...newRoute.params,
+    },
+    query: {
+      ...query,
+      ...newRoute.query,
+    },
+  };
+}
+
 const sidePanelRoutes = [
   {
     name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,

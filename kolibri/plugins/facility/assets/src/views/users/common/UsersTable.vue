@@ -24,7 +24,7 @@
               appearance="basic-link"
               :text="filterLabel$()"
               class="filter-button move-down"
-              :to="getSidePanelUrl(filterPageName)"
+              :to="overrideRoute($route, { name: filterPageName })"
             />
           </div>
         </KGridItem>
@@ -145,14 +145,15 @@
       v-if="modalShown === Modals.RESET_USER_PASSWORD"
       :id="userToChange.id"
       :username="userToChange.username"
-      @cancel="closeModal"
+      @close="closeModal"
     />
 
     <DeleteUserModal
       v-if="modalShown === Modals.DELETE_USER"
       :id="userToChange.id"
       :username="userToChange.username"
-      @cancel="closeModal"
+      @close="closeModal"
+      @change="$emit('change')"
     />
   </div>
 
@@ -182,6 +183,7 @@
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
   import { Modals } from '../../../constants';
+  import { overrideRoute } from '../../../utils';
   import DeleteUserModal from './DeleteUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
 
@@ -464,14 +466,6 @@
         });
       };
 
-      const getSidePanelUrl = name => {
-        return {
-          name,
-          params: { facility_id: route.params.facility_id },
-          query: { ...route.query },
-        };
-      };
-
       const userCanBeEdited = user => {
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
@@ -560,7 +554,7 @@
         clearSelectedUsers,
         isUserSelected,
         changeSortHandler,
-        getSidePanelUrl,
+        overrideRoute,
         userCanBeEdited,
         getTranslatedSelectedArialabel,
         getEmptyMessageForItems,
