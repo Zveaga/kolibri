@@ -1,147 +1,169 @@
 <template>
 
-  <PaginatedListContainerWithBackend
-    v-model="currentPage"
-    :itemsPerPage="itemsPerPage"
-    :totalPageNumber="totalPages"
-    :numFilteredItems="usersCount"
-  >
-    <KGrid>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-      >
-        <div class="search-filter-section">
-          <FilterTextbox
-            v-model="searchTerm"
-            :placeholder="coreStrings.searchForUser$()"
-            :aria-label="coreStrings.searchForUser$()"
-            class="move-down search-box"
-          />
-          <KRouterLink
-            appearance="basic-link"
-            :text="filterLabel$()"
-            class="filter-button move-down"
-            :to="getSidePanelUrl(filterPageName)"
-          />
-        </div>
-      </KGridItem>
-      <KGridItem
-        :layout="{ alignment: 'right' }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-        class="move-down"
-      >
-        <span v-if="selectedUsers.size > 0">
-          <span class="selected-count">
-            {{ numUsersSelected$({ n: selectedUsers.size }) }}
-          </span>
-
-          <KButton
-            appearance="basic-link"
-            :text="coreStrings.clearAction$()"
-            @click="clearSelectedUsers"
-          />
-        </span>
-        <slot name="userActions"></slot>
-      </KGridItem>
-    </KGrid>
-    <KTable
-      class="move-down user-roster"
-      :headers="tableHeaders"
-      :caption="coreStrings.usersLabel$()"
-      :rows="tableRows"
-      :dataLoading="dataLoading"
-      :emptyMessage="getEmptyMessageForItems(facilityUsers)"
-      sortable
-      disableBuiltinSorting
-      @changeSort="changeSortHandler"
+  <div>
+    <PaginatedListContainerWithBackend
+      v-model="currentPage"
+      :itemsPerPage="itemsPerPage"
+      :totalPageNumber="totalPages"
+      :numFilteredItems="usersCount"
     >
-      <template #header="{ header, colIndex }">
-        <template v-if="colIndex === 0">
-          <span class="screen-reader-only">{{ selectLabel$() }}</span>
-          <KCheckbox
-            :label="selectAllLabel$()"
-            :checked="selectAllState.checked"
-            :indeterminate="selectAllState.indeterminate"
-            :showLabel="false"
-            @change="handleSelectAllToggle"
-          />
-        </template>
-        <template v-else>
-          <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
-          <span v-if="colIndex === 3">
-            <CoreInfoIcon
-              class="tooltip"
-              :iconAriaLabel="coreStrings.identifierAriaLabel$()"
-              :tooltipText="coreStrings.identifierTooltip$()"
+      <KGrid>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+        >
+          <div class="search-filter-section">
+            <FilterTextbox
+              v-model="searchTerm"
+              :placeholder="coreStrings.searchForUser$()"
+              :aria-label="coreStrings.searchForUser$()"
+              class="move-down search-box"
+            />
+            <KRouterLink
+              appearance="basic-link"
+              :text="filterLabel$()"
+              class="filter-button move-down"
+              :to="getSidePanelUrl(filterPageName)"
+            />
+          </div>
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+          class="move-down"
+        >
+          <span v-if="selectedUsers.size > 0">
+            <span class="selected-count">
+              {{ numUsersSelected$({ n: selectedUsers.size }) }}
+            </span>
+
+            <KButton
+              appearance="basic-link"
+              :text="coreStrings.clearAction$()"
+              @click="clearSelectedUsers"
             />
           </span>
+          <slot name="userActions"></slot>
+        </KGridItem>
+      </KGrid>
+      <KTable
+        class="move-down user-roster"
+        :headers="tableHeaders"
+        :caption="coreStrings.usersLabel$()"
+        :rows="tableRows"
+        :dataLoading="dataLoading"
+        :emptyMessage="getEmptyMessageForItems(facilityUsers)"
+        sortable
+        disableBuiltinSorting
+        @changeSort="changeSortHandler"
+      >
+        <template #header="{ header, colIndex }">
+          <template v-if="colIndex === 0">
+            <span class="screen-reader-only">{{ selectLabel$() }}</span>
+            <KCheckbox
+              :label="selectAllLabel$()"
+              :checked="selectAllState.checked"
+              :indeterminate="selectAllState.indeterminate"
+              :showLabel="false"
+              @change="handleSelectAllToggle"
+            />
+          </template>
+          <template v-else>
+            <span :class="{ visuallyhidden: colIndex === 7 }">{{ header.label }}</span>
+            <span v-if="colIndex === 3">
+              <CoreInfoIcon
+                class="tooltip"
+                :iconAriaLabel="coreStrings.identifierAriaLabel$()"
+                :tooltipText="coreStrings.identifierTooltip$()"
+              />
+            </span>
+          </template>
         </template>
-      </template>
 
-      <template #cell="{ content, colIndex, row }">
-        <div v-if="colIndex === 0">
-          <KCheckbox
-            :label="getTranslatedSelectedArialabel(row)"
-            :checked="isUserSelected(row[6])"
-            :showLabel="false"
-            :aria-label="selectLabel$()"
-            @change="() => handleUserSelectionToggle(row[6])"
-          />
-        </div>
-        <span v-else-if="colIndex === 1">
-          <KLabeledIcon
-            class="user-type-icon"
-            icon="person"
-            :label="content"
-            :style="{ color: $themeTokens.text }"
-          />
-          <UserTypeDisplay
-            aria-hidden="true"
-            :userType="row[6].kind"
-            :omitLearner="true"
-            class="role-badge"
-            data-test="userRoleBadge"
-            :class="$computedClass(userRoleBadgeStyle)"
-          />
-        </span>
-        <span v-else-if="colIndex === 3">
-          <KOptionalText :text="content ? content : ''" />
-        </span>
-        <span v-else-if="colIndex === 4">
-          <GenderDisplayText :gender="content" />
-        </span>
-        <span v-else-if="colIndex === 5">
-          <BirthYearDisplayText :birthYear="content" />
-        </span>
-        <span v-else-if="colIndex === 6">
-          <KOptionalText :text="''" />
-        </span>
-        <span v-else-if="colIndex === 7">
-          <KIconButton
-            icon="optionsVertical"
-            :disabled="!userCanBeEdited(content)"
-          >
-            <template #menu>
-              <slot
-                name="userDropdownMenu"
-                :user="content"
-              ></slot>
-            </template>
-          </KIconButton>
-        </span>
-      </template>
-    </KTable>
-  </PaginatedListContainerWithBackend>
+        <template #cell="{ content, colIndex, row }">
+          <div v-if="colIndex === 0">
+            <KCheckbox
+              :label="getTranslatedSelectedArialabel(row)"
+              :checked="isUserSelected(row[6])"
+              :showLabel="false"
+              :aria-label="selectLabel$()"
+              @change="() => handleUserSelectionToggle(row[6])"
+            />
+          </div>
+          <span v-else-if="colIndex === 1">
+            <KLabeledIcon
+              class="user-type-icon"
+              icon="person"
+              :label="content"
+              :style="{ color: $themeTokens.text }"
+            />
+            <UserTypeDisplay
+              aria-hidden="true"
+              :userType="row[6].kind"
+              :omitLearner="true"
+              class="role-badge"
+              data-test="userRoleBadge"
+              :class="$computedClass(userRoleBadgeStyle)"
+            />
+          </span>
+          <span v-else-if="colIndex === 3">
+            <KOptionalText :text="content ? content : ''" />
+          </span>
+          <span v-else-if="colIndex === 4">
+            <GenderDisplayText :gender="content" />
+          </span>
+          <span v-else-if="colIndex === 5">
+            <BirthYearDisplayText :birthYear="content" />
+          </span>
+          <span v-else-if="colIndex === 6">
+            <KOptionalText :text="''" />
+          </span>
+          <span v-else-if="colIndex === 7">
+            <KIconButton
+              icon="optionsVertical"
+              :disabled="!userCanBeEdited(content)"
+            >
+              <template #menu>
+                <slot
+                  name="userDropdownMenu"
+                  :user="content"
+                >
+                  <KDropdownMenu
+                    :options="getManageUserOptions(content.id)"
+                    @select="handleManageUserAction($event, content)"
+                  />
+                </slot>
+              </template>
+            </KIconButton>
+          </span>
+        </template>
+      </KTable>
+    </PaginatedListContainerWithBackend>
+    <ResetUserPasswordModal
+      v-if="modalShown === Modals.RESET_USER_PASSWORD"
+      :id="userToChange.id"
+      :username="userToChange.username"
+      @cancel="closeModal"
+    />
+
+    <DeleteUserModal
+      v-if="modalShown === Modals.DELETE_USER"
+      :id="userToChange.id"
+      :username="userToChange.username"
+      @cancel="closeModal"
+    />
+  </div>
 
 </template>
 
 
 <script>
 
-  import { toRefs, computed, onBeforeUnmount } from 'vue';
+  import store from 'kolibri/store';
+  import cloneDeep from 'lodash/cloneDeep';
+  import { toRefs, ref, computed, onBeforeUnmount } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
@@ -159,6 +181,10 @@
   import useUser from 'kolibri/composables/useUser';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
+  import { Modals } from '../../../constants';
+  import DeleteUserModal from './DeleteUserModal';
+  import ResetUserPasswordModal from './ResetUserPasswordModal';
+
   const ALL_FILTER = 'all';
   const SELECTION_COLUMN_ID = 'selection';
 
@@ -168,17 +194,20 @@
       CoreInfoIcon,
       FilterTextbox,
       UserTypeDisplay,
+      DeleteUserModal,
       GenderDisplayText,
       BirthYearDisplayText,
+      ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
     },
     setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
+      const { isSuperuser, currentUserId } = useUser();
 
       const { facilityUsers } = toRefs(props);
-
-      const { isSuperuser } = useUser();
+      const modalShown = ref(null);
+      const userToChange = ref(null);
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -186,6 +215,7 @@
         selectLabel$,
         filterLabel$,
         noAdminsExist$,
+        resetPassword$,
         noCoachesExist$,
         noLearnersExist$,
         numUsersSelected$,
@@ -475,6 +505,34 @@
         return '';
       };
 
+      const closeModal = () => {
+        modalShown.value = null;
+        userToChange.value = null;
+      };
+
+      const getManageUserOptions = userId => {
+        return [
+          { label: coreStrings.editDetailsAction$(), value: Modals.EDIT_USER },
+          { label: resetPassword$(), value: Modals.RESET_USER_PASSWORD },
+          {
+            label: coreStrings.deleteAction$(),
+            value: Modals.DELETE_USER,
+            disabled: userId === currentUserId.value,
+          },
+        ];
+      };
+
+      const handleManageUserAction = (action, user) => {
+        if (action.value === Modals.EDIT_USER) {
+          const link = cloneDeep(store.getters.facilityPageLinks.UserEditPage);
+          link.params.id = user.id;
+          router.push(link);
+        } else {
+          userToChange.value = user;
+          modalShown.value = action.value;
+        }
+      };
+
       // --- Lifecycle Hooks ---
       onBeforeUnmount(() => {
         const { query } = route;
@@ -492,6 +550,9 @@
         searchTerm,
         currentPage,
         itemsPerPage,
+        Modals,
+        modalShown,
+        userToChange,
 
         // Methods
         handleSelectAllToggle,
@@ -503,6 +564,9 @@
         userCanBeEdited,
         getTranslatedSelectedArialabel,
         getEmptyMessageForItems,
+        closeModal,
+        getManageUserOptions,
+        handleManageUserAction,
 
         // Strings
         coreStrings,

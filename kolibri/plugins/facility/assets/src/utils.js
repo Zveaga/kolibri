@@ -3,6 +3,7 @@ import { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import logger from 'kolibri-logging';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
+import UserCreateSidePanel from './views/users/sidePanels/UserCreate/index.vue';
 import MoveToTrashSidePanel from './views/users/sidePanels/MoveToTrashSidePanel';
 import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel';
 import AssignCoachesSidePanel from './views/users/sidePanels/AssignCoachesSidePanel';
@@ -55,9 +56,21 @@ const sidePanelRoutes = [
     path: 'enroll-learners',
     component: EnrollLearnersSidePanel,
   },
+  {
+    name: PageNames.ADD_NEW_USER_SIDE_PANEL,
+    path: 'new',
+    component: UserCreateSidePanel,
+  },
 ];
 
-export function getSidePanelRoutes(...pageNames) {
+export function getSidePanelRoutes(pageNames, suffix = '') {
   const pages = new Set(pageNames);
-  return sidePanelRoutes.filter(route => pages.has(route.name));
+  const routes = sidePanelRoutes.filter(route => pages.has(route.name));
+  if (!suffix) {
+    return routes;
+  }
+  return routes.map(route => ({
+    ...route,
+    name: `${route.name}__${suffix}`,
+  }));
 }

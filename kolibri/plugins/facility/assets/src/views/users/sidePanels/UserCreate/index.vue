@@ -4,7 +4,7 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
-    @closePanel="$emit('close')"
+    @closePanel="close"
   >
     <template #header>
       <h1 class="side-panel-title">
@@ -128,7 +128,7 @@
 
   import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
-  import { useRoute } from 'vue-router/composables';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
@@ -171,6 +171,7 @@
     setup(props, { emit }) {
       const formId = 'create-user-form';
       const route = useRoute();
+      const router = useRouter();
       const $refs = getCurrentInstance().proxy.$refs;
       const { getFacilityConfig, facilityConfig } = useFacilities();
       const { createSnackbar } = useSnackbar();
@@ -272,7 +273,7 @@
 
       const handleSubmitSuccess = () => {
         createSnackbar(notificationStrings.userCreated$());
-        emit('save');
+        emit('change');
       };
 
       const handleSubmitFailure = error => {
@@ -339,10 +340,18 @@
         return true;
       };
 
+      const close = () => {
+        if (props.backRoute) {
+          router.push(props.backRoute);
+        } else {
+          router.back();
+        }
+      };
+
       const saveAndClose = async () => {
         const success = await submitForm();
         if (success) {
-          emit('close');
+          close();
         }
       };
 
@@ -382,8 +391,8 @@
         showPasswordInput,
         coachIsSelected,
         userTypeOptions,
+        close,
         usernameIsUnique,
-
         saveAndAddAnother,
         saveAndClose,
         formId,
@@ -391,6 +400,12 @@
         saveAndClose$,
         saveAndAddAnother$,
       };
+    },
+    props: {
+      backRoute: {
+        type: Object,
+        default: null,
+      },
     },
     $trs: {
       createNewUserHeader: {

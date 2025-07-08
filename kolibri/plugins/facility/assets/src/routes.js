@@ -84,21 +84,34 @@ export default [
         return;
       }
     },
-    children: getSidePanelRoutes(
+    children: getSidePanelRoutes([
       PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
       PageNames.FILTER_USERS_SIDE_PANEL,
       PageNames.ASSIGN_COACHES_SIDE_PANEL,
       PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
       PageNames.ENROLL_LEARNERS_SIDE_PANEL,
-    ),
+    ]),
   },
   {
-    name: PageNames.USER_CREATE_PAGE,
+    name: PageNames.NEW_USERS_PAGE,
     component: NewUsersPage,
-    path: '/:facility_id?/users/new',
-    handler: () => {
-      store.dispatch('preparePage', { isAsync: false });
+    path: '/:facility_id?/users/new-users',
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, NewUsersPage.name)) {
+        return;
+      }
     },
+    children: getSidePanelRoutes(
+      [
+        PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
+        PageNames.FILTER_USERS_SIDE_PANEL,
+        PageNames.ASSIGN_COACHES_SIDE_PANEL,
+        PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
+        PageNames.ENROLL_LEARNERS_SIDE_PANEL,
+        PageNames.ADD_NEW_USER_SIDE_PANEL,
+      ],
+      'NEW_USERS',
+    ),
   },
   {
     name: PageNames.USER_EDIT_PAGE,

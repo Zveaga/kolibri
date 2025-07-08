@@ -5,7 +5,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { _userState } from '../modules/mappers';
 
-export default function useUserManagement(activeFacilityId) {
+export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {}) {
   const facilityUsers = ref([]);
   const totalPages = ref(0);
   const usersCount = ref(0);
@@ -27,6 +27,7 @@ export default function useUserManagement(activeFacilityId) {
       const resp = await FacilityUserResource.fetchCollection({
         getParams: pickBy({
           member_of: activeFacilityId,
+          date_joined__gt: dateJoinedGt?.toISOString(),
           page: page.value,
           page_size: pageSize.value,
           search: search.value?.trim() || null,

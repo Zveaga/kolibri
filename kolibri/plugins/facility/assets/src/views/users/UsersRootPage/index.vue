@@ -17,20 +17,18 @@
         <h1>{{ coreString('usersLabel') }}</h1>
         <div class="users-page-header-actions">
           <KButton
-            :text="coreString('optionsLabel')"
-            :hasDropdown="true"
+            hasDropdown
             :primary="false"
-            appearance="raised-button"
-            :to="$store.getters.facilityPageLinks.UserCreatePage"
+            :text="coreString('optionsLabel')"
           >
             <template #menu>
               <KDropdownMenu :options="dropDownMenu" />
             </template>
           </KButton>
           <KRouterLink
-            :text="$tr('newUserButtonLabel')"
-            :primary="true"
+            primary
             appearance="raised-button"
+            :text="$tr('newUserButtonLabel')"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
         </div>
@@ -44,12 +42,6 @@
         :selectedUsers.sync="selectedUsers"
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
       >
-        <template #userDropdownMenu="{ user }">
-          <KDropdownMenu
-            :options="getManageUserOptions(user.id)"
-            @select="handleManageUserSelection($event, user)"
-          />
-        </template>
         <template #userActions>
           <router-link :to="getSidePanelUrl(PageNames.ASSIGN_COACHES_SIDE_PANEL)">
             <KIconButton
@@ -86,22 +78,6 @@
         :selectedUsers="selectedUsers"
         :classes="classes"
       />
-
-      <!-- Modals -->
-
-      <ResetUserPasswordModal
-        v-if="modalShown === Modals.RESET_USER_PASSWORD"
-        :id="selectedUser.id"
-        :username="selectedUser.username"
-        @cancel="closeModal"
-      />
-
-      <DeleteUserModal
-        v-if="modalShown === Modals.DELETE_USER"
-        :id="selectedUser.id"
-        :username="selectedUser.username"
-        @cancel="closeModal"
-      />
     </KPageContainer>
   </FacilityAppBarPage>
 
@@ -110,7 +86,6 @@
 
 <script>
 
-  import cloneDeep from 'lodash/cloneDeep';
   import { ref, getCurrentInstance, onMounted } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -118,10 +93,8 @@
   import translatedUserKinds from 'kolibri-common/uiText/userKinds';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
-  import { Modals, PageNames } from '../../../constants';
+  import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
-  import ResetUserPasswordModal from './ResetUserPasswordModal';
-  import DeleteUserModal from './DeleteUserModal';
 
   export default {
     name: 'UserPage',
@@ -133,20 +106,15 @@
     components: {
       UsersTable,
       FacilityAppBarPage,
-      ResetUserPasswordModal,
-      DeleteUserModal,
     },
     mixins: [commonCoreStrings, translatedUserKinds],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
-      const modalShown = ref(null);
-      const selectedUser = ref(null);
 
       const {
         viewNewUsers$,
         viewTrash$,
-        resetPassword$,
         assignCoach$,
         enrollToClass$,
         removeFromClass$,
@@ -157,7 +125,7 @@
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
       const { facilityUsers, totalPages, usersCount, dataLoading, classes, fetchClasses } =
-        useUserManagement(activeFacilityId);
+        useUserManagement({ activeFacilityId });
 
       onMounted(() => {
         fetchClasses();
@@ -177,14 +145,10 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
-        resetPassword$,
         selectedUsers,
-        selectedUser,
-        modalShown,
       };
     },
     computed: {
-      Modals: () => Modals,
       dropDownMenu() {
         return [
           {
@@ -199,30 +163,6 @@
       },
     },
     methods: {
-      closeModal() {
-        this.modalShown = '';
-      },
-      getManageUserOptions(userId) {
-        return [
-          { label: this.coreString('editDetailsAction'), value: Modals.EDIT_USER },
-          { label: this.resetPassword$(), value: Modals.RESET_USER_PASSWORD },
-          {
-            label: this.coreString('deleteAction'),
-            value: Modals.DELETE_USER,
-            disabled: userId === this.currentUserId,
-          },
-        ];
-      },
-      handleManageUserSelection(selection, user) {
-        if (selection.value === Modals.EDIT_USER) {
-          const link = cloneDeep(this.$store.getters.facilityPageLinks.UserEditPage);
-          link.params.id = user.id;
-          this.$router.push(link);
-        } else {
-          this.selectedUser = user;
-          this.modalShown = selection.value;
-        }
-      },
       getSidePanelUrl(name) {
         return {
           name,
