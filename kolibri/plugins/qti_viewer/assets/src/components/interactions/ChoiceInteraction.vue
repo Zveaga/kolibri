@@ -2,8 +2,8 @@
 
   import get from 'lodash/get';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { computed, h, ref, provide } from 'vue';
-  import { NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
+  import { computed, h, inject, provide } from 'vue';
+  import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
 
   function getComponentTag(vnode) {
@@ -15,30 +15,44 @@
     tag: 'qti-choice-interaction',
 
     setup(props, { slots, attrs }) {
-      const selections = ref({});
+      const responses = inject('responses');
+
+      const QTI_CONTEXT = inject('QTI_CONTEXT');
+
+      const interactive = inject('interactive');
 
       const typedProps = useTypedProps(props);
-
-      const isSelected = identifier => {
-        return !!selections.value[identifier];
-      };
 
       const multiSelectable = computed(() => {
         return typedProps.maxChoices.value !== 1;
       });
 
-      const toggleSelection = identifier => {
-        const isSelected = Boolean(selections.value[identifier]);
+      const isSelected = identifier => {
+        const variable = responses[typedProps.responseIdentifier.value];
+        if (!variable.value) {
+          return false;
+        }
+        if (multiSelectable.value) {
+          return variable.value.includes(identifier);
+        }
+        return variable.value === identifier;
+      };
 
-        if (isSelected) {
-          // eslint-disable-next-line no-unused-vars
-          const { [identifier]: _, ...rest } = selections.value;
-          selections.value = rest;
+      const toggleSelection = identifier => {
+        if (!interactive.value) {
+          return;
+        }
+        const currentlySelected = isSelected(identifier);
+        const variable = responses[typedProps.responseIdentifier.value];
+
+        if (currentlySelected) {
+          variable.value = multiSelectable.value
+            ? variable.value.filter(v => v !== identifier)
+            : null;
         } else {
-          // Add: create new object with this identifier
-          selections.value = multiSelectable.value
-            ? { ...selections.value, [identifier]: true }
-            : { [identifier]: true };
+          variable.value = multiSelectable.value
+            ? [...(variable.value || []), identifier]
+            : identifier;
         }
 
         return true;
@@ -49,16 +63,13 @@
       provide('toggleSelection', toggleSelection);
 
       const getShuffledOrder = choices => {
-        if (!props.shuffle) {
+        if (!typedProps.shuffle) {
           return choices;
         }
 
         const shuffleable = choices.filter(choice => !choice.fixed);
 
-        // Create deterministic seed from shuffleable identifiers
-        const seed = 'test';
-
-        const shuffledChoices = shuffled([...shuffleable], seed);
+        const shuffledChoices = shuffled([...shuffleable], QTI_CONTEXT.value.candidateIdentifier);
 
         // Merge back maintaining fixed positions
         const result = [];
@@ -90,7 +101,9 @@
         const choices = choiceVNodes.map(vnode => ({
           vnode,
           identifier: vnode.componentOptions.propsData.identifier,
-          fixed: vnode.componentOptions.propsData.fixed || false,
+          fixed:
+            vnode.componentOptions.propsData.fixed === 'true' ||
+            vnode.componentOptions.propsData.fixed === true,
         }));
 
         // Get shuffled order (or original if shuffle=false)
@@ -115,7 +128,7 @@
       /* eslint-disable vue/no-unused-properties */
       maxChoices: NonNegativeIntProp(false, 1),
       minChoices: NonNegativeIntProp(false, 0),
-      shuffle: { type: Boolean, default: false },
+      shuffle: BooleanProp(false, false),
       responseIdentifier: QTIIdentifierProp(true),
       dataMinSelectionsMessage: {
         type: String,

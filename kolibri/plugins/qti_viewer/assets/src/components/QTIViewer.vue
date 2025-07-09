@@ -13,7 +13,7 @@
 
 <script>
 
-  import { computed, ref, watch } from 'vue';
+  import { computed, provide, ref, watch } from 'vue';
   import logger from 'kolibri-logging';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
@@ -105,10 +105,57 @@
       // Initial load
       load();
 
+      let _checkAnswer = () => {
+        logging.warn('No AssessmentItem has registered a checkAnswer handler function');
+      };
+
+      const checkAnswer = () => {
+        return _checkAnswer();
+      };
+
+      provide('handlers', {
+        interaction: () => context.emit('interaction'),
+        answerGiven: () => context.emit('answerGiven', checkAnswer()),
+        // Because the actual assessment item can be instantiated at a variety of levels
+        // in the component hierarchy, we use this method to register a handler
+        // for checking the answer - this function is invoked in AssessmentItem.vue
+        // to allow direct reading of the assessment item responses and context to give
+        // the answer state (and in future, the score)
+        registerCheckAnswer: checkAnswerHandler => {
+          _checkAnswer = checkAnswerHandler;
+        },
+      });
+      // This should be put into a broader context declaration, but for now
+      // we are using this to drill down the candidateIdentifier.
+      provide(
+        'QTI_CONTEXT',
+        computed(
+          () =>
+            props.answerState?.QTI_CONTEXT ?? {
+              candidateIdentifier: props.userId,
+              testIdentifier: defaultFile?.checksum,
+              environmentIdentifier: __version,
+            },
+        ),
+      );
+
+      provide(
+        'answerState',
+        computed(() => props.answerState || {}),
+      );
+      provide(
+        'interactive',
+        computed(() => props.interactive),
+      );
+
       return {
         loading,
         xmlDoc,
         resourceType,
+        /**
+         * @public
+         */
+        checkAnswer,
       };
     },
     props: contentViewerProps,
