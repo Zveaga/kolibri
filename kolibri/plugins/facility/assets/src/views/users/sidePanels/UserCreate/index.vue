@@ -105,6 +105,10 @@
           />
         </section>
       </form>
+      <CloseConfirmationGuard
+        ref="closeConfirmationGuardRef"
+        :hasUnsavedChanges="hasUnsavedChanges"
+      />
     </template>
     <template #bottomNavigation>
       <div class="bottom-nav-container">
@@ -153,8 +157,9 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
-  import IdentifierTextbox from './IdentifierTextbox';
-  import ClassesSelect from './ClassesSelect';
+  import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
+  import IdentifierTextbox from './IdentifierTextbox.vue';
+  import ClassesSelect from './ClassesSelect.vue';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
@@ -175,6 +180,7 @@
       IdentifierTextbox,
       SidePanelModal,
       ExtraDemographics,
+      CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
     setup(props, { emit }) {
@@ -198,6 +204,8 @@
           value: UserKinds.ADMIN,
         },
       ];
+
+      const closeConfirmationGuardRef = ref(null);
 
       // Form data properties
       const fullName = ref('');
@@ -263,6 +271,26 @@
 
       const formIsValid = computed(() => {
         return [fullNameValid.value, usernameValid.value, passwordValid.value].every(Boolean);
+      });
+
+      const hasUnsavedChanges = computed(() => {
+        const formValuesUnsaved = [
+          fullName.value,
+          username.value,
+          password.value,
+          idNumber.value,
+          gender.value !== NOT_SPECIFIED,
+          birthYear.value !== NOT_SPECIFIED,
+          newUserRole.value !== UserKinds.LEARNER,
+          Object.values(extraDemographics.value).some(value => {
+            if (Array.isArray(value)) {
+              return value.length > 0;
+            }
+            return Boolean(value);
+          }),
+          selectedClasses.value.length > 0,
+        ];
+        return formValuesUnsaved.some(Boolean);
       });
 
       const usernameIsUnique = value => {
@@ -374,6 +402,10 @@
       const saveAndClose = async () => {
         const success = await submitForm();
         if (success) {
+          // Reset form to reset the hasUnsavedChanges state and
+          // prevent the close confirmation modal from showing
+          resetForm();
+          await nextTick();
           close();
         }
       };
@@ -407,6 +439,8 @@
         idNumber,
         loading,
         kind,
+        hasUnsavedChanges,
+        closeConfirmationGuardRef,
         classCoachIsSelected,
         selectedClasses,
         busy,
@@ -434,6 +468,9 @@
         type: Array,
         default: () => [],
       },
+    },
+    beforeRouteLeave(to, from, next) {
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
     $trs: {
       createNewUserHeader: {
