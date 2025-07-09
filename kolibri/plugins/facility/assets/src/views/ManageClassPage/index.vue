@@ -175,15 +175,17 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { UserKinds } from 'kolibri/constants';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
+  import useUserManagement from '../../composables/useUserManagement';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -216,6 +218,10 @@
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const { createSnackbar } = useSnackbar();
+      const { $store, $router } = getCurrentInstance().proxy;
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
+      const { facilityUsers } = useUserManagement(activeFacilityId);
       const {
         copyClasslabel$,
         renameClassLabel$,
@@ -237,12 +243,14 @@
         copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
 
         classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
-        classCoaches.value = classDetails.value.coaches.map(coach => ({
-          id: coach.id,
-          username: coach.username,
-          full_name: coach.full_name,
-          label: coach.full_name,
-        }));
+        classCoaches.value = facilityUsers.value
+          .filter(user => user.kind === UserKinds.COACH)
+          .map(coach => ({
+            id: coach.id,
+            username: coach.username,
+            full_name: coach.full_name,
+            label: coach.full_name,
+          }));
 
         if (selection.value === Modals.DELETE_CLASS) {
           selectClassToDelete(row);
