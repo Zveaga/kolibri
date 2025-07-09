@@ -13,7 +13,16 @@
 <script>
 
   import { computed } from 'vue';
-  import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
+  import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
+  import Prompt from './Prompt.vue';
+  import SimpleChoice from './interactions/SimpleChoice.vue';
+
+  const SafeHTML = createSafeHTML({
+    [ChoiceInteraction.tag]: ChoiceInteraction,
+    [Prompt.tag]: Prompt,
+    [SimpleChoice.tag]: SimpleChoice,
+  });
 
   export default {
     name: 'AssessmentItem',
@@ -36,7 +45,6 @@
       };
     },
     props: {
-      // Can receive XML from inline item or loaded from file
       xmlDoc: {
         type: Document,
         required: true,
