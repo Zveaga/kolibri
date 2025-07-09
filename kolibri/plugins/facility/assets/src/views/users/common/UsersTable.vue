@@ -118,7 +118,7 @@
             <BirthYearDisplayText :birthYear="content" />
           </span>
           <span v-else-if="colIndex === 6">
-            <KOptionalText :text="''" />
+            <KOptionalText :text="content" />
           </span>
           <span v-else-if="colIndex === 7">
             <KIconButton
@@ -164,7 +164,7 @@
 
   import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
-  import { toRefs, ref, computed, onBeforeUnmount } from 'vue';
+  import { toRefs, ref, computed, onBeforeUnmount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
@@ -206,6 +206,7 @@
       const route = useRoute();
       const router = useRouter();
       const { isSuperuser, currentUserId } = useUser();
+      const $formatDate = getCurrentInstance().proxy.$formatDate;
 
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
@@ -303,7 +304,7 @@
             user.id_number || '',
             user.gender || '',
             user.birth_year || '',
-            user,
+            $formatDate(user.date_joined),
             user,
           ];
         });
