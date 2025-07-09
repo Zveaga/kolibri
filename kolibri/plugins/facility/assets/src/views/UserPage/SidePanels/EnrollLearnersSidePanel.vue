@@ -82,17 +82,19 @@
       </div>
       <template #bottomNavigation>
         <div class="bottom-nav-container">
-          <KButton
-            :text="coreString('cancelAction')"
-            :disabled="loading"
-            @click="closeSidePanel(selectedOptions.length > 0 ? true : false)"
-          />
-          <KButton
-            primary
-            :text="enrollAction$()"
-            :disabled="!selectedOptions.length || loading"
-            @click="enrollLearners"
-          />
+          <KButtonGroup>
+            <KButton
+              :text="coreString('cancelAction')"
+              :disabled="loading"
+              @click="closeSidePanel(selectedOptions.length > 0 ? true : false)"
+            />
+            <KButton
+              primary
+              :text="enrollAction$()"
+              :disabled="!selectedOptions.length || loading"
+              @click="enrollLearners"
+            />
+          </KButtonGroup>
         </div>
       </template>
       <KModal
