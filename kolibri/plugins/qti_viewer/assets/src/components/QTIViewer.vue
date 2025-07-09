@@ -2,6 +2,10 @@
 
   <div class="qti-viewer">
     <KCircularLoader v-if="loading" />
+    <AssessmentItem
+      v-else-if="resourceType === 'imsqti_item_xmlv3p0'"
+      :xmlDoc="xmlDoc"
+    />
   </div>
 
 </template>
@@ -14,12 +18,16 @@
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
   import { loadQTIPackage, parseXML } from '../utils/xml';
+  import AssessmentItem from './AssessmentItem.vue';
 
   const logging = logger.getLogger(__filename);
 
   export default {
     name: 'QTIViewer',
     __usesContentViewerComposable: true,
+    components: {
+      AssessmentItem,
+    },
     setup(props, context) {
       const { defaultFile, reportLoadingError } = useContentViewer(props, context);
       const packageLoading = ref(true);
@@ -99,10 +107,8 @@
 
       return {
         loading,
-        /* eslint-disable vue/no-unused-properties */
         xmlDoc,
         resourceType,
-        /* eslint-enable */
       };
     },
     props: contentViewerProps,
