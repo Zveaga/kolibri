@@ -19,6 +19,7 @@
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
+  import TextEntryInteraction from './interactions/TextEntryInteraction.vue';
 
   /**
    * Extract QTI declarations of a specific type from an XML document
@@ -52,6 +53,7 @@
     [ChoiceInteraction.tag]: ChoiceInteraction,
     [Prompt.tag]: Prompt,
     [SimpleChoice.tag]: SimpleChoice,
+    [TextEntryInteraction.tag]: TextEntryInteraction,
   });
 
   export default {
