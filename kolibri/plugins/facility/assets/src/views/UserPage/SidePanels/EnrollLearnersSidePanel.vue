@@ -12,12 +12,17 @@
       @submit="handleUndoEnrollments"
     >
       <KCircularLoader v-if="loading" />
-      <span v-else>{{
-        undoUsersEnrolledMessage$({
-          numUsers: selectedUsers.size,
-          numClasses: selectedOptions.length,
-        })
-      }}</span>
+      <span
+        v-else
+        class="adjust-line-height"
+      >
+        {{
+          undoUsersEnrolledMessage$({
+            numUsers: selectedUsers.size,
+            numClasses: selectedOptions.length,
+          })
+        }}
+      </span>
     </KModal>
     <SidePanelModal
       v-else
@@ -91,7 +96,7 @@
             <KButton
               primary
               :text="enrollAction$()"
-              :disabled="!selectedOptions.length || loading"
+              :disabled="!selectedOptions.length || loading || !selectedUsers.size"
               @click="enrollLearners"
             />
           </KButtonGroup>
@@ -105,7 +110,7 @@
         @cancel="showCloseConfirmationModal = false"
         @submit="closeSidePanel(false)"
       >
-        <span>{{ discardWarning$() }}</span>
+        <span class="adjust-line-height">{{ discardWarning$() }}</span>
       </KModal>
     </SidePanelModal>
   </div>
@@ -115,7 +120,7 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { ref, computed, getCurrentInstance } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -134,10 +139,17 @@
       SelectableList,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const showUndoModal = ref(false);
       const showCloseConfirmationModal = ref(false);
       const showErrorWarning = ref(false);
+      const selectedOptions = ref([]);
+      const classCoaches = ref([]);
+      const classLearners = ref([]);
+      const loading = ref(false);
+      const memberships = ref([]);
+      const enrollments = ref([]);
+      const instance = getCurrentInstance();
       const {
         enrollToClass$,
         numUsersNotEnrolled$,
@@ -161,6 +173,124 @@
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
       const { dismissAction$ } = searchAndFilterStrings;
+
+      // Computed properties
+      const classList = computed(() =>
+        props.classes.map(classObj => ({
+          label: classObj.name,
+          id: classObj.id,
+        })),
+      );
+
+      const usersNotEnrolled = computed(() => {
+        const enrolledUsers = new Set(classLearners.value);
+        return [...props.selectedUsers].filter(userId => !enrolledUsers.has(userId)).length;
+      });
+
+      // Methods
+      async function setClassUsers() {
+        classLearners.value = [];
+        classCoaches.value = [];
+        loading.value = true;
+        const membershipsPromise = MembershipResource.fetchCollection({
+          getParams: { user_ids: { user_ids: Array.from(props.selectedUsers).join(',') } },
+        });
+        const userModelsPromise = Promise.all(
+          Array.from(props.selectedUsers).map(id => FacilityUserResource.fetchModel({ id })),
+        );
+        try {
+          const [membershipsData, userModels] = await Promise.all([
+            membershipsPromise,
+            userModelsPromise,
+          ]);
+          memberships.value = groupBy(membershipsData, 'user');
+          classLearners.value = Object.keys(memberships.value);
+          classCoaches.value = Array.from(
+            userModels
+              .filter(user => user.roles.some(role => role.kind.includes(UserKinds.COACH)))
+              .reduce((set, user) => set.add(user.id), new Set()),
+          );
+        } finally {
+          loading.value = false;
+        }
+      }
+
+      async function enrollLearners() {
+        loading.value = true;
+        try {
+          enrollments.value = selectedOptions.value
+            .map(collection_id => {
+              const user_ids = Array.from(props.selectedUsers).filter(userId => {
+                const userMemberships = memberships.value[userId] || [];
+                return !userMemberships.some(m => m.collection === collection_id);
+              });
+              return { collection_id, user_ids };
+            })
+            .filter(e => e.user_ids.length > 0);
+          if (enrollments.value.length === 0) {
+            createSnackbar(usersEnrolledNotice$());
+            showUndoModal.value = true;
+            return;
+          }
+          for (const membership of enrollments.value) {
+            await MembershipResource.saveCollection({
+              getParams: {
+                collection: membership.collection_id,
+              },
+              data: membership.user_ids.map(user => ({
+                collection: membership.collection_id,
+                user: user,
+              })),
+            });
+          }
+          createSnackbar(usersEnrolledNotice$());
+          showUndoModal.value = true;
+        } catch (error) {
+          instance.proxy.$store.dispatch('handleApiError', { error });
+          showUndoModal.value = false;
+          showErrorWarning.value = true;
+        } finally {
+          loading.value = false;
+        }
+      }
+
+      function closeSidePanel(close = true) {
+        if (close) {
+          showCloseConfirmationModal.value = true;
+        } else {
+          instance.proxy.$router.back();
+        }
+      }
+
+      function handleDismissConfirmation() {
+        showUndoModal.value = false;
+        instance.proxy.$router.back();
+      }
+
+      async function handleUndoEnrollments() {
+        loading.value = true;
+        try {
+          if (enrollments.value.length > 0) {
+            await Promise.all(
+              enrollments.value.flatMap(({ collection_id, user_ids }) =>
+                MembershipResource.deleteCollection({
+                  collection: collection_id,
+                  user_id: user_ids,
+                }),
+              ),
+            );
+          }
+          createSnackbar(enrollUndoneNotice$());
+        } catch (error) {
+          instance.proxy.$store.dispatch('handleApiError', { error });
+          createSnackbar(defaultErrorMessage$());
+        } finally {
+          showUndoModal.value = false;
+          loading.value = false;
+          instance.proxy.$router.back();
+        }
+      }
+
       return {
         enrollToClass$,
         numUsersNotEnrolled$,
@@ -180,12 +310,19 @@
         keepEditingAction$,
         disgardChanges$,
         undoAction$,
-        enrollUndoneNotice$,
-        usersEnrolledNotice$,
         showUndoModal,
         showCloseConfirmationModal,
         showErrorWarning,
-        createSnackbar,
+        selectedOptions,
+        classCoaches,
+        loading,
+        classList,
+        usersNotEnrolled,
+        setClassUsers,
+        enrollLearners,
+        closeSidePanel,
+        handleDismissConfirmation,
+        handleUndoEnrollments,
       };
     },
     props: {
@@ -198,137 +335,8 @@
         required: true,
       },
     },
-    data() {
-      return {
-        selectedOptions: [],
-        classCoaches: [],
-        classLearners: [],
-        loading: false,
-        memberships: [],
-        enrollments: [],
-      };
-    },
-    computed: {
-      classList() {
-        return this.classes.map(classObj => ({
-          label: classObj.name,
-          id: classObj.id,
-        }));
-      },
-      usersNotEnrolled() {
-        const enrolledUsers = new Set(this.classLearners);
-        return [...this.selectedUsers].filter(userId => !enrolledUsers.has(userId)).length;
-      },
-    },
     created() {
       this.setClassUsers();
-    },
-    methods: {
-      async setClassUsers() {
-        // Clear previous data
-        this.classLearners = [];
-        this.classCoaches = [];
-        this.loading = true;
-        // Fetch memberships and user models for all selected users
-        const membershipsPromise = MembershipResource.fetchCollection({
-          getParams: { user_ids: { user_ids: Array.from(this.selectedUsers).join(',') } },
-        });
-        const userModelsPromise = Promise.all(
-          Array.from(this.selectedUsers).map(id => FacilityUserResource.fetchModel({ id })),
-        );
-        try {
-          const [membershipsData, userModels] = await Promise.all([
-            membershipsPromise,
-            userModelsPromise,
-          ]);
-          // group memberships by user
-          this.memberships = groupBy(membershipsData, 'user');
-          this.classLearners = Object.keys(this.memberships);
-          // filter coaches by role
-          this.classCoaches = Array.from(
-            userModels
-              .filter(user => user.roles.some(role => role.kind.includes(UserKinds.COACH)))
-              .reduce((set, user) => set.add(user.id), new Set()),
-          );
-        } finally {
-          this.loading = false;
-        }
-      },
-      async enrollLearners() {
-        this.loading = true;
-        try {
-          // Find users already enrolled in the selected classes and filter them out
-          this.enrollments = this.selectedOptions
-            .map(collection_id => {
-              const user_ids = Array.from(this.selectedUsers).filter(userId => {
-                const userMemberships = this.memberships[userId] || [];
-                return !userMemberships.some(m => m.collection === collection_id);
-              });
-              return { collection_id, user_ids };
-            })
-            // remove classes that have an empty user_ids array
-            .filter(e => e.user_ids.length > 0);
-          // If there’s no users to enroll, return early
-          if (this.enrollments.length === 0) {
-            this.createSnackbar(this.usersEnrolledNotice$());
-            this.showUndoModal = true;
-            return;
-          }
-          for (const membership of this.enrollments) {
-            await MembershipResource.saveCollection({
-              getParams: {
-                collection: membership.collection_id,
-              },
-              data: membership.user_ids.map(user => ({
-                collection: membership.collection_id,
-                user: user,
-              })),
-            });
-          }
-          this.createSnackbar(this.usersEnrolledNotice$());
-          this.showUndoModal = true;
-        } catch (error) {
-          this.$store.dispatch('handleApiError', { error });
-          this.showUndoModal = false;
-          this.showErrorWarning = true;
-        } finally {
-          this.loading = false;
-        }
-      },
-      closeSidePanel(close = true) {
-        if (close) {
-          this.showCloseConfirmationModal = true;
-        } else {
-          this.$router.back();
-        }
-      },
-      handleDismissConfirmation() {
-        this.showUndoModal = false;
-        this.$router.back();
-      },
-      async handleUndoEnrollments() {
-        this.loading = true;
-        try {
-          if (this.enrollments.length > 0) {
-            await Promise.all(
-              this.enrollments.flatMap(({ collection_id, user_ids }) =>
-                MembershipResource.deleteCollection({
-                  collection: collection_id,
-                  user_id: user_ids,
-                }),
-              ),
-            );
-          }
-          this.createSnackbar(this.enrollUndoneNotice$());
-        } catch (error) {
-          this.$store.dispatch('handleApiError', { error });
-          this.createSnackbar(this.defaultErrorMessage$());
-        } finally {
-          this.showUndoModal = false;
-          this.loading = false;
-          this.$router.back();
-        }
-      },
     },
   };
 
@@ -353,6 +361,12 @@
     display: flex;
     justify-content: flex-end;
     width: 100%;
+  }
+
+  .adjust-line-height {
+    // Override default global line-height of 1.15 to prevent
+    // scrollbars in KModal and add space for single-line content
+    line-height: 1.5;
   }
 
 </style>
