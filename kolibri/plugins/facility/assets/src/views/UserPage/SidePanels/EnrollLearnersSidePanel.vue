@@ -195,9 +195,11 @@
         const membershipsPromise = MembershipResource.fetchCollection({
           getParams: { user_ids: { user_ids: Array.from(props.selectedUsers).join(',') } },
         });
-        const userModelsPromise = Promise.all(
-          Array.from(props.selectedUsers).map(id => FacilityUserResource.fetchModel({ id })),
-        );
+        const userModelsPromise = FacilityUserResource.fetchCollection({
+          getParams: {
+            by_ids: Array.from(props.selectedUsers).join(','),
+          },
+        });
         try {
           const [membershipsData, userModels] = await Promise.all([
             membershipsPromise,
