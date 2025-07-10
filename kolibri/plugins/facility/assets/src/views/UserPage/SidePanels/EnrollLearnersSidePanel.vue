@@ -147,8 +147,8 @@
       const classCoaches = ref([]);
       const classLearners = ref([]);
       const loading = ref(false);
-      const memberships = ref([]);
-      const enrollments = ref([]);
+      const membershipsByUser = ref({});
+      const createdMemberships = ref([]);
       const instance = getCurrentInstance();
       const {
         enrollToClass$,
@@ -205,8 +205,8 @@
             membershipsPromise,
             userModelsPromise,
           ]);
-          memberships.value = groupBy(membershipsData, 'user');
-          classLearners.value = Object.keys(memberships.value);
+          membershipsByUser.value = groupBy(membershipsData, 'user');
+          classLearners.value = Object.keys(membershipsByUser.value);
           classCoaches.value = Array.from(
             userModels
               .filter(user => user.roles.some(role => role.kind.includes(UserKinds.COACH)))
@@ -219,36 +219,26 @@
 
       async function enrollLearners() {
         loading.value = true;
+        createdMemberships.value = [];
+        const enrollments = selectedOptions.value.flatMap(collection_id => {
+          const alreadyEnrolled = membershipsByUser.value;
+          return Array.from(props.selectedUsers)
+            .filter(
+              userId => !(alreadyEnrolled[userId] || []).some(m => m.collection === collection_id),
+            )
+            .map(user => ({ collection: collection_id, user }));
+        });
+        if (!enrollments.length) {
+          createSnackbar(usersEnrolledNotice$());
+          showUndoModal.value = true;
+          return;
+        }
         try {
-          enrollments.value = selectedOptions.value
-            .map(collection_id => {
-              const user_ids = Array.from(props.selectedUsers).filter(userId => {
-                const userMemberships = memberships.value[userId] || [];
-                return !userMemberships.some(m => m.collection === collection_id);
-              });
-              return { collection_id, user_ids };
-            })
-            .filter(e => e.user_ids.length > 0);
-          if (enrollments.value.length === 0) {
-            createSnackbar(usersEnrolledNotice$());
-            showUndoModal.value = true;
-            return;
-          }
-          for (const membership of enrollments.value) {
-            await MembershipResource.saveCollection({
-              getParams: {
-                collection: membership.collection_id,
-              },
-              data: membership.user_ids.map(user => ({
-                collection: membership.collection_id,
-                user: user,
-              })),
-            });
-          }
+          const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
+          createdMemberships.value = newMemberships;
           createSnackbar(usersEnrolledNotice$());
           showUndoModal.value = true;
         } catch (error) {
-          instance.proxy.$store.dispatch('handleApiError', { error });
           showUndoModal.value = false;
           showErrorWarning.value = true;
         } finally {
@@ -272,19 +262,12 @@
       async function handleUndoEnrollments() {
         loading.value = true;
         try {
-          if (enrollments.value.length > 0) {
-            await Promise.all(
-              enrollments.value.flatMap(({ collection_id, user_ids }) =>
-                MembershipResource.deleteCollection({
-                  collection: collection_id,
-                  user_id: user_ids,
-                }),
-              ),
-            );
+          if (createdMemberships.value.length > 0) {
+            const ids = createdMemberships.value.map(m => m.id).join(',');
+            await MembershipResource.deleteCollection({ by_ids: ids });
           }
           createSnackbar(enrollUndoneNotice$());
         } catch (error) {
-          instance.proxy.$store.dispatch('handleApiError', { error });
           createSnackbar(defaultErrorMessage$());
         } finally {
           showUndoModal.value = false;
