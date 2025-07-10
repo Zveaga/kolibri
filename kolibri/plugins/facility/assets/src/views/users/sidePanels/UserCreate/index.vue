@@ -96,6 +96,7 @@
             v-model="selectedClasses"
             :classes="classes"
             :disabled="busy || !classes.length"
+            :action="classesAction"
           />
 
           <ExtraDemographics
@@ -112,21 +113,19 @@
     </template>
     <template #bottomNavigation>
       <div class="bottom-nav-container">
-        <KButtonGroup>
-          <KButton
-            primary
-            :form="formId"
-            :text="saveAndClose$()"
-            :disabled="busy"
-            @click="saveAndClose()"
-          />
-          <KButton
-            :form="formId"
-            :text="saveAndAddAnother$()"
-            :disabled="busy"
-            @click="saveAndAddAnother()"
-          />
-        </KButtonGroup>
+        <KButton
+          primary
+          :form="formId"
+          :text="saveAndClose$()"
+          :disabled="busy"
+          @click="saveAndClose()"
+        />
+        <KButton
+          :form="formId"
+          :text="saveAndAddAnother$()"
+          :disabled="busy"
+          @click="saveAndAddAnother()"
+        />
       </div>
     </template>
   </SidePanelModal>
@@ -158,6 +157,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
+  import { ClassesActions } from '../../../../constants';
   import IdentifierTextbox from './IdentifierTextbox.vue';
   import ClassesSelect from './ClassesSelect.vue';
 
@@ -293,6 +293,12 @@
         return formValuesUnsaved.some(Boolean);
       });
 
+      const classesAction = computed(() =>
+        kind.value.value === UserKinds.LEARNER
+          ? ClassesActions.ENROLL_LEARNER
+          : ClassesActions.ASSIGN_COACH,
+      );
+
       const usernameIsUnique = value => {
         return !facilityUsers.value.find(
           ({ username }) => username.toLowerCase() === value.toLowerCase(),
@@ -345,6 +351,16 @@
         });
       };
 
+      const assignCoachToClasses = (userId, classIds) => {
+        return RoleResource.saveCollection({
+          data: classIds.map(classId => ({
+            collection: classId,
+            user: userId,
+            kind: UserKinds.COACH,
+          })),
+        });
+      };
+
       const createFacilityUser = async () => {
         let passwordValue = password.value;
         if (!showPasswordInput.value) {
@@ -366,7 +382,11 @@
           await saveUserRole(facilityUser, newUserRole.value);
         }
         if (selectedClasses.value.length > 0) {
-          await enrollLearnerInClasses(facilityUser.id, selectedClasses.value);
+          if (classesAction.value === ClassesActions.ASSIGN_COACH) {
+            await assignCoachToClasses(facilityUser.id, selectedClasses.value);
+          } else {
+            await enrollLearnerInClasses(facilityUser.id, selectedClasses.value);
+          }
         }
       };
 
@@ -427,6 +447,7 @@
       const { saveAndClose$ } = coreStrings;
       const { saveAndAddAnother$ } = bulkUserManagementStrings;
       return {
+        classesAction,
         fullName,
         fullNameValid,
         username,
@@ -489,6 +510,7 @@
   .coach-selector {
     padding: 0;
     margin: 0;
+    margin-bottom: 16px;
     border: 0;
   }
 
@@ -511,6 +533,8 @@
 
   .bottom-nav-container {
     display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
     justify-content: flex-end;
     width: 100%;
   }

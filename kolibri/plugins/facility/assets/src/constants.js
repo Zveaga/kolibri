@@ -68,3 +68,8 @@ export const UsersExportStatuses = {
   EXPORTING: 'EXPORTING',
   FINISHED: 'FINISHED',
 };
+
+export const ClassesActions = {
+  ENROLL_LEARNER: 'ENROLL_LEARNER',
+  ASSIGN_COACH: 'ASSIGN_COACH',
+};

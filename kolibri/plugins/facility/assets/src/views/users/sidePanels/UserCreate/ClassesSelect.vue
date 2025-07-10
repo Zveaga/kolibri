@@ -2,7 +2,7 @@
 
   <KSelect
     multiple
-    :label="enrollAClassLabel$()"
+    :label="fieldLabel"
     :options="selectOptions"
     :value="selectValue"
     :disabled="disabled"
@@ -22,8 +22,10 @@
 
 <script>
 
-  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { computed, toRefs } from 'vue';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+
+  import { ClassesActions } from '../../../../constants';
 
   const ALL_VALUE = 'ALL';
 
@@ -32,12 +34,19 @@
     setup(props, { emit }) {
       const { classes } = toRefs(props);
 
-      const { enrollAClassLabel$, assignToAllClasses$ } = bulkUserManagementStrings;
+      const { enrollAClassLabel$, assignToAClassLabel$, enrollToAllClasses$, assignToAllClasses$ } =
+        bulkUserManagementStrings;
 
-      const allClassesOption = {
-        label: assignToAllClasses$(),
+      const isEnrollingToAClass = computed(() => props.action === ClassesActions.ENROLL_LEARNER);
+
+      const fieldLabel = computed(() => {
+        return isEnrollingToAClass.value ? enrollAClassLabel$() : assignToAClassLabel$();
+      });
+
+      const allClassesOption = computed(() => ({
+        label: isEnrollingToAClass.value ? enrollToAllClasses$() : assignToAllClasses$(),
         value: ALL_VALUE,
-      };
+      }));
 
       const selectOptions = computed(() => {
         const classesOptions = classes.value.map(classItem => ({
@@ -45,7 +54,7 @@
           value: classItem.id,
         }));
 
-        classesOptions.unshift(allClassesOption);
+        classesOptions.unshift(allClassesOption.value);
         return classesOptions;
       });
 
@@ -54,7 +63,7 @@
           const selectedOptions =
             props.value.map(id => selectOptions.value.find(option => option.value === id)) || [];
           if (selectedOptions.length === classes.value.length) {
-            selectedOptions.push(allClassesOption);
+            selectedOptions.push(allClassesOption.value);
           }
           return selectedOptions;
         },
@@ -89,10 +98,10 @@
 
       return {
         onSelect,
+        fieldLabel,
         selectValue,
         displayText,
         selectOptions,
-        enrollAClassLabel$,
       };
     },
     props: {
@@ -107,6 +116,11 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+      action: {
+        type: String,
+        required: true,
+        validator: value => Object.values(ClassesActions).includes(value),
       },
     },
   };
