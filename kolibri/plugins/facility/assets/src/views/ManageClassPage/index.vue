@@ -182,10 +182,11 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds } from 'kolibri/constants';
+  import pickBy from 'lodash/pickBy';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import useUserManagement from '../../composables/useUserManagement';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
@@ -209,9 +210,13 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const classDetails = ref({});
+      const classDetails = ref({
+        id: '',
+        name: '',
+      });
       const classCoachesIds = ref([]);
       const classCoaches = ref([]);
+      const facilityUsers = ref([]);
       const copiedClassName = ref(null);
       const openCopyClassPanel = ref(false);
       const openRenameModal = ref(false);
@@ -221,7 +226,7 @@
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-      const { facilityUsers } = useUserManagement(activeFacilityId);
+
       const {
         copyClasslabel$,
         renameClassLabel$,
@@ -238,19 +243,28 @@
         classCoachesIds.value = newSelection;
       };
 
+      const fetchFacilityUsers = async () => {
+        const resp = await FacilityUserResource.fetchCollection({
+          getParams: pickBy({
+            member_of: activeFacilityId,
+            user_type: UserKinds.COACH,
+          }),
+          force: true,
+        });
+        facilityUsers.value = resp;
+      };
+
       const handleOptionSelection = (selection, row) => {
         classDetails.value = row;
         copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
 
         classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
-        classCoaches.value = facilityUsers.value
-          .filter(user => user.kind === UserKinds.COACH)
-          .map(coach => ({
-            id: coach.id,
-            username: coach.username,
-            full_name: coach.full_name,
-            label: coach.full_name,
-          }));
+        classCoaches.value = facilityUsers.value.map(coach => ({
+          id: coach.id,
+          username: coach.username,
+          full_name: coach.full_name,
+          label: coach.full_name,
+        }));
 
         if (selection.value === Modals.DELETE_CLASS) {
           selectClassToDelete(row);
@@ -268,6 +282,7 @@
         }
       };
 
+      fetchFacilityUsers();
       return {
         classToDelete,
         clearClassToDelete,
