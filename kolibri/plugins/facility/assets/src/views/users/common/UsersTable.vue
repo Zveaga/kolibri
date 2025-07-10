@@ -85,11 +85,11 @@
         <template #cell="{ content, colIndex, row }">
           <div v-if="colIndex === 0">
             <KCheckbox
-              :label="getTranslatedSelectedArialabel(row)"
-              :checked="isUserSelected(row[6])"
+              :label="getTranslatedSelectedArialabel(content)"
+              :checked="isUserSelected(content)"
               :showLabel="false"
               :aria-label="selectLabel$()"
-              @change="() => handleUserSelectionToggle(row[6])"
+              @change="() => handleUserSelectionToggle(content)"
             />
           </div>
           <span v-else-if="colIndex === 1">
@@ -101,7 +101,7 @@
             />
             <UserTypeDisplay
               aria-hidden="true"
-              :userType="row[6].kind"
+              :userType="row[0].kind"
               :omitLearner="true"
               class="role-badge"
               data-test="userRoleBadge"
@@ -298,7 +298,7 @@
       const tableRows = computed(() => {
         return facilityUsers.value.map(user => {
           return [
-            '',
+            user,
             user.full_name || '',
             user.username || '',
             user.id_number || '',
@@ -473,9 +473,9 @@
         return isSuperuser.value || !user.is_superuser;
       };
 
-      const getTranslatedSelectedArialabel = row => {
+      const getTranslatedSelectedArialabel = user => {
         const userKindMap = getUserKindDisplayMap();
-        return selectLabel$() + ' ' + row[1] + ', ' + userKindMap[row[6].kind];
+        return selectLabel$() + ' ' + user.full_name + ', ' + userKindMap[user.kind];
       };
 
       const getEmptyMessageForItems = items => {
