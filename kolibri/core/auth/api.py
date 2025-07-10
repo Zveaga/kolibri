@@ -81,6 +81,7 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -614,6 +615,33 @@ class UsernameAvailableView(views.APIView):
             )
         except ObjectDoesNotExist:
             return Response(True, status=status.HTTP_200_OK)
+
+
+class UserIdParamSerializer(serializers.Serializer):
+    user_id = HexOnlyUUIDField()
+
+
+class DeleteImportedUserView(views.APIView):
+    permission_classes = [KolibriAuthPermissions]
+
+    def delete(self, request, user_id):
+        """
+        Given a user ID, delete the user from the current facility, and remove
+        certificates and corresponding morango records.
+        """
+        serializer = UserIdParamSerializer(data={"user_id": user_id})
+        serializer.is_valid(raise_exception=True)
+
+        validated_user_id = serializer.validated_data["user_id"]
+        try:
+            user = FacilityUser.objects.get(id=validated_user_id)
+            self.check_object_permissions(request, user)
+
+            delete_imported_user(user)
+
+            return Response({"user_id": user.id})
+        except FacilityUser.DoesNotExist:
+            raise Http404("User does not exist")
 
 
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
