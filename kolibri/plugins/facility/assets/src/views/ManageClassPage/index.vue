@@ -139,7 +139,7 @@
             <SelectableList
               :value="classCoachesIds"
               :options="classCoaches"
-              :ariaLabelledby="'coaches-assigned-label'"
+              ariaLabelledby="coaches-assigned-label"
               :selectAllLabel="selectAllLabel$()"
               :searchLabel="coreString('searchLabel')"
               @input="handleSelection"
