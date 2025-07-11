@@ -107,81 +107,16 @@
         @cancel="closeModal"
         @success="handleRenameSuccess()"
       />
-      <SidePanelModal
+
+      <CopyClassSidePanel
         v-if="openCopyClassPanel"
-        alignment="right"
-        sidePanelWidth="700px"
-        closeButtonIconType="close"
-        @closePanel="openCopyClassPanel = false"
-      >
-        <template #header>
-          <h1 class="side-panel-title">{{ copyClasslabel$() }}</h1>
-        </template>
-        <template #default>
-          <div>
-            <KTextbox
-              v-model="copiedClassName"
-              type="text"
-              :label="classTitleLabel$()"
-              :autofocus="true"
-              :maxlength="120"
-              :showInvalidText="true"
-              :invalid="isClassNameInvalid"
-              :invalidText="classNameAlreadyExists$()"
-            />
-
-            <p
-              id="coaches-assigned-label"
-              class="side-panel-subtitle"
-            >
-              {{ coachesAssignedToClassLabel$() }}
-            </p>
-            <SelectableList
-              :value="classCoachesIds"
-              :options="classCoaches"
-              ariaLabelledby="coaches-assigned-label"
-              :selectAllLabel="selectAllLabel$()"
-              :searchLabel="coreString('searchLabel')"
-              @input="handleSelection"
-            >
-              <template #option="{ option }">
-                <span>
-                  {{ option }}
-                  <UserTypeDisplay
-                    aria-hidden="true"
-                    userType="coach"
-                    :omitLearner="true"
-                    class="role-badge"
-                    :distinguishCoachTypes="false"
-                    data-test="userRoleBadge"
-                    :class="$computedClass(userRoleBadgeStyle)"
-                  />
-                </span>
-              </template>
-            </SelectableList>
-          </div>
-        </template>
-
-        <template #bottomNavigation>
-          <div class="bottom-nav">
-            <div>{{ numCoachesSelected$({ n: classCoachesIds.length }) }}</div>
-            <div>
-              <KButton
-                :text="coreString('cancelAction')"
-                appearance="raised-button"
-                class="cancel-copy-class-button"
-                @click="openCopyClassPanel = false"
-              />
-              <KButton
-                :text="copyClasslabel$()"
-                :primary="true"
-                :disabled="isClassNameInvalid"
-                @click="handleSubmitingClassCopy"
-              />
-            </div>
-          </div>
-        </template>
-      </SidePanelModal>
+        :coachesIds="classCoachesIds"
+        :classroom="tableRows"
+        :className="copiedClassName"
+        :classCoaches="classCoaches"
+        :classes="classes"
+        @closeSidePanel="closeModal"
+      />
     </KPageContainer>
   </FacilityAppBarPage>
 
@@ -195,18 +130,15 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds } from 'kolibri/constants';
-  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
-  import SelectableList from './SelectableList.vue';
+  import CopyClassSidePanel from './CopyClassSidePanel.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -220,9 +152,7 @@
       ClassCreateModal,
       ClassDeleteModal,
       ClassRenameModal,
-      SidePanelModal,
-      SelectableList,
-      UserTypeDisplay,
+      CopyClassSidePanel,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -238,26 +168,12 @@
       const openRenameModal = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
-      const { createSnackbar } = useSnackbar();
+
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
 
-      const {
-        copyClasslabel$,
-        renameClassLabel$,
-        coachesAssignedToClassLabel$,
-        classTitleLabel$,
-        selectAllLabel$,
-        numCoachesSelected$,
-        classCopiedSuccessfully$,
-        copyOfClass$,
-        classNameAlreadyExists$,
-      } = bulkUserManagementStrings;
-
-      const handleSelection = newSelection => {
-        classCoachesIds.value = newSelection;
-      };
+      const { copyClasslabel$, renameClassLabel$, copyOfClass$ } = bulkUserManagementStrings;
 
       const fetchFacilityUsers = async () => {
         const resp = await FacilityUserResource.fetchCollection({
@@ -308,18 +224,10 @@
         classDetails,
         classCoachesIds,
         openCopyClassPanel,
-        coachesAssignedToClassLabel$,
-        classTitleLabel$,
-        selectAllLabel$,
-        numCoachesSelected$,
-        classCopiedSuccessfully$,
-        handleSelection,
+        copiedClassName,
         classCoaches,
         handleOptionSelection,
-        createSnackbar,
         openRenameModal,
-        copiedClassName,
-        classNameAlreadyExists$,
       };
     },
     computed: {
@@ -386,27 +294,12 @@
           },
         ];
       },
-      isClassNameInvalid() {
-        return this.tableRows.some(row => row[0] === this.copiedClassName) && !this.submitting;
-      },
-      userRoleBadgeStyle() {
-        return {
-          color: this.$themePalette.grey.v_800,
-          backgroundColor: this.$themePalette.grey.v_300,
-          padding: '0.3em',
-          borderRadius: '2px',
-          fontSize: '10px',
-          '::selection': {
-            color: this.$themeTokens.text,
-          },
-        };
-      },
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
-      ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       closeModal() {
         this.openRenameModal = false;
+        this.openCopyClassPanel = false;
         this.displayModal(false);
       },
       handleCreateSuccess() {
@@ -457,42 +350,6 @@
         }
         return null;
       },
-      async handleSubmitingClassCopy() {
-        this.submitting = true;
-
-        try {
-          await this.$store.dispatch('classManagement/createClass', this.copiedClassName);
-          await this.$nextTick();
-
-          const createdClass = this.classes.find(cls => cls.name === this.copiedClassName);
-
-          if (createdClass?.id) {
-            const coaches = this.classCoachesIds;
-
-            await this.assignCoachesToClass({
-              classId: createdClass.id,
-              coaches,
-            });
-
-            const updatedClasses = this.classes.map(c => {
-              if (c.name === this.copiedClassName) {
-                const updatedCoaches = coaches
-                  .map(coachId => this.classCoaches.find(coach => coach.id === coachId))
-                  .filter(Boolean);
-
-                return { ...c, coaches: updatedCoaches };
-              }
-              return c;
-            });
-
-            this.openCopyClassPanel = false;
-            this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
-            this.createSnackbar(this.classCopiedSuccessfully$());
-          }
-        } finally {
-          this.submitting = false;
-        }
-      },
     },
     $trs: {
       adminClassPageSubheader: {
@@ -535,35 +392,6 @@
   .move-down {
     position: relative;
     margin-top: 24px;
-  }
-
-  .side-panel-title {
-    margin-left: 15px;
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .side-panel-subtitle {
-    font-size: 16px;
-    font-weight: bold;
-  }
-
-  /deep/ .textbox {
-    max-width: 100% !important;
-  }
-
-  .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 100%;
-  }
-
-  .bottom-nav {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .cancel-copy-class-button {
-    margin-right: 1em;
   }
 
   .class-name {
