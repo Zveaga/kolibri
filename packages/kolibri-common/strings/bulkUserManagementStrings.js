@@ -312,4 +312,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Class title',
     context: 'Label for the class title input field in the copy class modal',
   },
+  // Error Handling
+  defaultErrorMessage: {
+    message: 'Sorry! Something went wrong, please try again.',
+    context: 'Default error message for API errors.',
+  },
 });
