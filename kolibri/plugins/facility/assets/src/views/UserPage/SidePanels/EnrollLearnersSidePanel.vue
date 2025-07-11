@@ -193,7 +193,7 @@
         classCoaches.value = [];
         loading.value = true;
         const membershipsPromise = MembershipResource.fetchCollection({
-          getParams: { user_ids: { user_ids: Array.from(props.selectedUsers).join(',') } },
+          getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
         });
         const userModelsPromise = FacilityUserResource.fetchCollection({
           getParams: {
@@ -228,9 +228,10 @@
             )
             .map(user => ({ collection: collection_id, user }));
         });
-        if (!enrollments.length) {
+        if (enrollments.length === 0) {
           createSnackbar(usersEnrolledNotice$());
           showUndoModal.value = true;
+          loading.value = false;
           return;
         }
         try {

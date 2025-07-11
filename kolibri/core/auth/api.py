@@ -656,7 +656,6 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filterset_class = MembershipFilter
-    fields = ["user", "collection", "user_ids", "by_ids"]
 
 
 class RoleFilter(FilterSet):
