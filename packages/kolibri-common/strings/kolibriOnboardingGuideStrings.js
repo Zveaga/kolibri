@@ -37,6 +37,10 @@ export const kolibriOnboardingGuideStrings = createTranslator('kolibriOnboarding
     context:
       'This is a description of the info and add icons that appear on the channel card on the Explore Libraries page.',
   },
+  channelCardDescription: {
+    message: 'Channels are collections of videos, exercises, and other learning resources.',
+    context: 'This is description for channel cards that appear on library page.',
+  },
   fullDeviceLibraryMenuDescription: {
     message:
       'Your downloaded channels and learning materials will be here. You can also find and explore the libraries on devices of other people around you.',
@@ -59,5 +63,8 @@ export const kolibriOnboardingGuideStrings = createTranslator('kolibriOnboarding
     message:
       'If there are any classes and materials currently available to you, they will appear on the home page.',
     context: 'This is a description of the learn home page.',
+  },
+  onMyOwnWelcomeMessage: {
+    message: 'The first thing you should do is add learning resources to your library.',
   },
 });

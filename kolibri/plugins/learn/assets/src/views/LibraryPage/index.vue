@@ -184,6 +184,11 @@
           :canDownloadExternally="canDownloadExternally && !deviceId"
         />
       </SidePanelModal>
+      <TooltipTour
+        v-if="tourActive"
+        page="LibraryPage"
+        @tourEnded="tourActive = false"
+      />
     </LearnAppBarPage>
   </div>
 
@@ -208,6 +213,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri-common/composables/useTour';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -252,13 +259,14 @@
       OtherLibraries,
       PostSetupModalGroup,
       NoResourcePage,
+      TooltipTour,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-
+      const { tourActive, startTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -428,6 +436,8 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        tourActive,
+        startTour,
       };
     },
     props: {
@@ -558,6 +568,9 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+        setTimeout(() => {
+          this.startTour();
+        }, 800);
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
