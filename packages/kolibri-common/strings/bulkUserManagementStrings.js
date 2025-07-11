@@ -203,6 +203,22 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Enroll',
     context: 'Label for the button that will enroll users in classes',
   },
+  enrollAClassLabel: {
+    message: 'Enroll in a class',
+    context: 'Label for the classes input field in the create user modal',
+  },
+  assignToAClassLabel: {
+    message: 'Assign to a class',
+    context: 'Label for the classes input field in the create user modal',
+  },
+  assignToAllClasses: {
+    message: 'Assign to all classes',
+    context: 'Label for checkbox that allows user to assign selected users to all classes',
+  },
+  enrollToAllClasses: {
+    message: 'Enroll to all classes',
+    context: 'Label for checkbox that allows user to enroll selected users in all classes',
+  },
 
   // Move to trash
   movingToTrash: {
@@ -316,5 +332,43 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   defaultErrorMessage: {
     message: 'Sorry! Something went wrong, please try again.',
     context: 'Default error message for API errors.',
+  },
+
+  // Users table
+  allUsersFilteredOut: {
+    message: "No users match the filter: '{filterText}'",
+    context: "Refers to the 'Search for a user' filter when no users are found.",
+  },
+  noLearnersExist: {
+    message: 'There are no learners in this facility',
+    context:
+      "Displayed when there are no learners in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noCoachesExist: {
+    message: 'There are no coaches in this facility',
+    context:
+      "Displayed when there are no coaches in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noSuperAdminsExist: {
+    message: 'There are no super admins in this facility',
+    context:
+      "Displayed when there are no super admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noAdminsExist: {
+    message: 'There are no admins in this facility',
+    context:
+      "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
+  },
+  noNewUsersLabel: {
+    message: 'No new users',
+    context: 'Displayed when there are no recently created users in the facility.',
+  },
+  noNewUsersDescription: {
+    message: 'New users added in the last 30 days will be stored here',
+    context: 'Description shown when there are no recently created users in the facility.',
+  },
+  addNewUserLabel: {
+    message: 'Add new user',
+    context: 'Label for button that opens the user creation modal',
   },
 });

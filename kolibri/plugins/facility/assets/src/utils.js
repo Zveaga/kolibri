@@ -3,11 +3,12 @@ import { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import logger from 'kolibri-logging';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
-import MoveToTrashSidePanel from './views/UserPage/SidePanels/MoveToTrashSidePanel';
-import FilterUsersSidePanel from './views/UserPage/SidePanels/FilterUsersSidePanel';
-import AssignCoachesSidePanel from './views/UserPage/SidePanels/AssignCoachesSidePanel';
-import RemoveFromClassSidePanel from './views/UserPage/SidePanels/RemoveFromClassSidePanel';
-import EnrollLearnersSidePanel from './views/UserPage/SidePanels/EnrollLearnersSidePanel';
+import UserCreateSidePanel from './views/users/sidePanels/UserCreate/index.vue';
+import MoveToTrashSidePanel from './views/users/sidePanels/MoveToTrashSidePanel';
+import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel';
+import AssignCoachesSidePanel from './views/users/sidePanels/AssignCoachesSidePanel';
+import RemoveFromClassSidePanel from './views/users/sidePanels/RemoveFromClassSidePanel';
+import EnrollLearnersSidePanel from './views/users/sidePanels/EnrollLearnersSidePanel';
 
 const logging = logger.getLogger(__filename);
 
@@ -27,6 +28,22 @@ export function facilityParamRequiredGuard(toRoute, subtopicName) {
       });
     return true;
   }
+}
+
+export function overrideRoute(route, newRoute) {
+  // Override the route with a new one, preserving the params and query
+  const { params, query } = route;
+  return {
+    ...newRoute,
+    params: {
+      ...params,
+      ...newRoute.params,
+    },
+    query: {
+      ...query,
+      ...newRoute.query,
+    },
+  };
 }
 
 const sidePanelRoutes = [
@@ -55,9 +72,21 @@ const sidePanelRoutes = [
     path: 'enroll-learners',
     component: EnrollLearnersSidePanel,
   },
+  {
+    name: PageNames.ADD_NEW_USER_SIDE_PANEL,
+    path: 'new',
+    component: UserCreateSidePanel,
+  },
 ];
 
-export function getSidePanelRoutes(...pageNames) {
+export function getSidePanelRoutes(pageNames, suffix = '') {
   const pages = new Set(pageNames);
-  return sidePanelRoutes.filter(route => pages.has(route.name));
+  const routes = sidePanelRoutes.filter(route => pages.has(route.name));
+  if (!suffix) {
+    return routes;
+  }
+  return routes.map(route => ({
+    ...route,
+    name: `${route.name}__${suffix}`,
+  }));
 }

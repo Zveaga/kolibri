@@ -12,8 +12,8 @@ import DataPage from './views/DataPage';
 import ImportCsvPage from './views/ImportCsvPage';
 import FacilityConfigPage from './views/FacilityConfigPage';
 import ManageClassPage from './views/ManageClassPage';
-import UserPage from './views/UserPage';
-import UserCreatePage from './views/UserCreatePage';
+import UsersRootPage from './views/users/UsersRootPage';
+import NewUsersPage from './views/users/NewUsersPage.vue';
 import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
 import { showClassesPage } from './modules/classManagement/handlers';
@@ -77,28 +77,41 @@ export default [
   },
   {
     name: PageNames.USER_MGMT_PAGE,
-    component: UserPage,
+    component: UsersRootPage,
     path: '/:facility_id?/users/',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
+      if (facilityParamRequiredGuard(toRoute, UsersRootPage.name)) {
         return;
       }
     },
-    children: getSidePanelRoutes(
+    children: getSidePanelRoutes([
       PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
       PageNames.FILTER_USERS_SIDE_PANEL,
       PageNames.ASSIGN_COACHES_SIDE_PANEL,
       PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
       PageNames.ENROLL_LEARNERS_SIDE_PANEL,
-    ),
+    ]),
   },
   {
-    name: PageNames.USER_CREATE_PAGE,
-    component: UserCreatePage,
-    path: '/:facility_id?/users/new',
-    handler: () => {
-      store.dispatch('preparePage', { isAsync: false });
+    name: PageNames.NEW_USERS_PAGE,
+    component: NewUsersPage,
+    path: '/:facility_id?/users/new-users',
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, NewUsersPage.name)) {
+        return;
+      }
     },
+    children: getSidePanelRoutes(
+      [
+        PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
+        PageNames.FILTER_USERS_SIDE_PANEL,
+        PageNames.ASSIGN_COACHES_SIDE_PANEL,
+        PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
+        PageNames.ENROLL_LEARNERS_SIDE_PANEL,
+        PageNames.ADD_NEW_USER_SIDE_PANEL,
+      ],
+      'NEW_USERS',
+    ),
   },
   {
     name: PageNames.USER_EDIT_PAGE,

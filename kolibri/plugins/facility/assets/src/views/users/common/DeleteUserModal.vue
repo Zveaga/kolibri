@@ -6,7 +6,7 @@
     :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
     @submit="handleDeleteUser"
-    @cancel="$emit('cancel')"
+    @cancel="$emit('close')"
   >
     <p>{{ $tr('confirmation', { username: username }) }}</p>
     <p>{{ $tr('warning', { username: username }) }}</p>
@@ -45,7 +45,8 @@
           .dispatch('userManagement/deleteFacilityUser', { userId: this.id })
           .then(() => {
             this.$store.commit('userManagement/DELETE_USER', this.id);
-            this.$emit('cancel');
+            this.$emit('close');
+            this.$emit('change');
             this.showSnackbarNotification('userDeleted');
           })
           .catch(error => {

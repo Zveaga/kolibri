@@ -1,10 +1,11 @@
-import { ref, computed, getCurrentInstance, watch } from 'vue';
 import pickBy from 'lodash/pickBy';
+import isEqual from 'lodash/isEqual';
+import { ref, computed, getCurrentInstance, watch } from 'vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { _userState } from '../modules/mappers';
 
-export default function useUserManagement(activeFacilityId) {
+export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {}) {
   const facilityUsers = ref([]);
   const totalPages = ref(0);
   const usersCount = ref(0);
@@ -26,6 +27,7 @@ export default function useUserManagement(activeFacilityId) {
       const resp = await FacilityUserResource.fetchCollection({
         getParams: pickBy({
           member_of: activeFacilityId,
+          date_joined__gt: dateJoinedGt?.toISOString(),
           page: page.value,
           page_size: pageSize.value,
           search: search.value?.trim() || null,
@@ -60,8 +62,10 @@ export default function useUserManagement(activeFacilityId) {
   // re-running fetchUsers whenever the relevant query params change
   watch(
     () => [page.value, pageSize.value, search.value, userType.value, ordering.value, order.value],
-    () => {
-      fetchUsers();
+    (newFilters, oldFilters) => {
+      if (!isEqual(newFilters, oldFilters)) {
+        fetchUsers();
+      }
     },
     { immediate: true },
   );
