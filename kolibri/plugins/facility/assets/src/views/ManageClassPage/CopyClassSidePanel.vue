@@ -17,7 +17,7 @@
             type="text"
             :label="classTitleLabel$()"
             :autofocus="true"
-            :maxlength="120"
+            :maxlength="100"
             :showInvalidText="true"
             :invalid="isClassNameInvalid"
             :invalidText="classNameAlreadyExists$()"
