@@ -77,7 +77,12 @@
           presentational
           :checked="isOptionSelected(option)"
           :label="option.label"
-        />
+        >
+          <slot
+            :option="option.label"
+            name="option"
+          ></slot>
+        </KCheckbox>
       </li>
     </ul>
     <p

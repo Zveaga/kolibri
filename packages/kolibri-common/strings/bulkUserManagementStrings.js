@@ -48,6 +48,14 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'View trash',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
+  copyClasslabel: {
+    message: 'Copy class',
+    context: 'Label for dropdown item that duplicates a class',
+  },
+  renameClassLabel: {
+    message: 'Rename class',
+    context: 'Label for dropdown item that allows user to modify the name of a class',
+  },
 
   // Bulk actions
   enrollToClass: {
@@ -68,6 +76,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   deleteSelection: {
     message: 'Delete selection',
     context: 'Label for bulk-action button that will allow user to delete selected users',
+  },
+  selectAllLabel: {
+    message: 'Select all',
+    context: 'Label for bulk-action button that will select all users in the current view',
   },
   resetPassword: {
     message: 'Reset password',
@@ -126,6 +138,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Assign action has been undone',
     context:
       'Notification shown after the user has chosen to undo a recent coach assignment action.',
+  },
+  coachesAssignedToClassLabel: {
+    message: 'Coaches assigned to this class',
+    context: 'label to indicate coaches assigned to a class in sidepanel',
   },
 
   // Remove from class
@@ -234,6 +250,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Class copied successfully',
     context: 'Message shown when class copying succeeds',
   },
+  classNameAlreadyExists: {
+    message: 'Class name already exists',
+    context: 'Error message shown when trying to copy a class with a name that already exists',
+  },
 
   // User Creation
   newUsers: {
@@ -285,8 +305,12 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Action button label for beginning bulk actions',
   },
   copyOfClass: {
-    message: `Copy of '{class}'`,
+    message: 'Copy of {class}',
     context: 'Initial name of a class upon being copied',
+  },
+  classTitleLabel: {
+    message: 'Class title',
+    context: 'Label for the class title input field in the copy class modal',
   },
   // Error Handling
   defaultErrorMessage: {
