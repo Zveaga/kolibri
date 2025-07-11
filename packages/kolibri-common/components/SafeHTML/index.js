@@ -22,9 +22,9 @@ export default {
       required: true,
       type: String,
     },
-    windowSizeClass: {
-      required: true,
-      type: String,
+    styleOverrides: {
+      type: Object,
+      default: () => ({}),
     },
   },
   render(h, context) {
@@ -59,7 +59,7 @@ export default {
               }
               // Inject the captionId into captions
               captionAttrs.id = captionId;
-              captionAttrs.class = 'safe-html' + context.props.windowSizeClass;
+              captionAttrs.class = 'safe-html' + context.props.styleOverrides.windowSizeClass;
               children.push(
                 h('caption', { attrs: captionAttrs }, mapChildren(childNode.childNodes)),
               );

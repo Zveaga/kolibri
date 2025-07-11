@@ -9,7 +9,9 @@
     <SafeHTML
       v-else
       :html="html"
-      :windowSizeClass="windowSizeClass"
+      :styleOverrides="{
+        windowSizeClass: windowSizeClass,
+      }"
     />
   </div>
 
