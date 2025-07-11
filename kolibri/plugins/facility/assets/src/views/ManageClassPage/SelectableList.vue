@@ -78,20 +78,10 @@
           :checked="isOptionSelected(option)"
           :label="option.label"
         >
-          <template v-if="displayUserRole">
-            <span>
-              {{ option.label }}
-              <UserTypeDisplay
-                aria-hidden="true"
-                userType="coach"
-                :omitLearner="true"
-                class="role-badge"
-                :distinguishCoachTypes="false"
-                data-test="userRoleBadge"
-                :class="$computedClass(userRoleBadgeStyle)"
-              />
-            </span>
-          </template>
+          <slot
+            :option="option.label"
+            name="option"
+          ></slot>
         </KCheckbox>
       </li>
     </ul>
@@ -118,13 +108,11 @@
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
 
   export default {
     name: 'SelectableList',
     components: {
       FilterTextbox,
-      UserTypeDisplay,
     },
     setup(props, { emit }) {
       const { value, options } = toRefs(props);
@@ -381,24 +369,6 @@
       searchLabel: {
         type: String,
         required: true,
-      },
-      displayUserRole: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    computed: {
-      userRoleBadgeStyle() {
-        return {
-          color: this.$themePalette.grey.v_800,
-          backgroundColor: this.$themePalette.grey.v_300,
-          padding: '0.3em',
-          borderRadius: '2px',
-          fontSize: '10px',
-          '::selection': {
-            color: this.$themeTokens.text,
-          },
-        };
       },
     },
   };

@@ -77,9 +77,6 @@
             <KIconButton icon="optionsVertical">
               <template #menu>
                 <KDropdownMenu
-                  :primary="false"
-                  :disabled="false"
-                  :hasIcons="true"
                   :options="dropDownOptions"
                   @select="handleOptionSelection($event, row[3])"
                 />
@@ -103,7 +100,7 @@
       />
 
       <ClassRenameModal
-        v-show="openRenameModal"
+        v-if="openRenameModal"
         :classname="classDetails.name"
         :classid="classDetails.id"
         :classes="classes"
@@ -111,8 +108,7 @@
         @success="handleRenameSuccess()"
       />
       <SidePanelModal
-        v-show="openCopyClassPanel"
-        ref="resourcePanel"
+        v-if="openCopyClassPanel"
         alignment="right"
         sidePanelWidth="700px"
         closeButtonIconType="close"
@@ -134,16 +130,35 @@
               :invalidText="classNameAlreadyExists$()"
             />
 
-            <p class="side-panel-subtitle">{{ coachesAssignedToClassLabel$() }}</p>
+            <p
+              id="coaches-assigned-label"
+              class="side-panel-subtitle"
+            >
+              {{ coachesAssignedToClassLabel$() }}
+            </p>
             <SelectableList
               :value="classCoachesIds"
               :options="classCoaches"
-              :ariaLabelledby="coachesAssignedToClassLabel$()"
+              :ariaLabelledby="'coaches-assigned-label'"
               :selectAllLabel="selectAllLabel$()"
               :searchLabel="coreString('searchLabel')"
-              :displayUserRole="true"
               @input="handleSelection"
-            />
+            >
+              <template #option="{ option }">
+                <span>
+                  {{ option }}
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    userType="coach"
+                    :omitLearner="true"
+                    class="role-badge"
+                    :distinguishCoachTypes="false"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </span>
+              </template>
+            </SelectableList>
           </div>
         </template>
 
@@ -184,7 +199,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds } from 'kolibri/constants';
-  import pickBy from 'lodash/pickBy';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
@@ -207,6 +222,7 @@
       ClassRenameModal,
       SidePanelModal,
       SelectableList,
+      UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -245,17 +261,17 @@
 
       const fetchFacilityUsers = async () => {
         const resp = await FacilityUserResource.fetchCollection({
-          getParams: pickBy({
+          getParams: {
             member_of: activeFacilityId,
             user_type: UserKinds.COACH,
-          }),
+          },
           force: true,
         });
         facilityUsers.value = resp;
       };
 
-      const handleOptionSelection = (selection, row) => {
-        classDetails.value = row;
+      const handleOptionSelection = (selection, classroom) => {
+        classDetails.value = classroom;
         copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
 
         classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
@@ -267,7 +283,7 @@
         }));
 
         if (selection.value === Modals.DELETE_CLASS) {
-          selectClassToDelete(row);
+          selectClassToDelete(classroom);
           return;
         }
 
@@ -281,7 +297,6 @@
           return;
         }
       };
-
       fetchFacilityUsers();
       return {
         classToDelete,
@@ -372,7 +387,19 @@
         ];
       },
       isClassNameInvalid() {
-        return this.tableRows.some(row => row[0] === this.copiedClassName);
+        return this.tableRows.some(row => row[0] === this.copiedClassName) && !this.submitting;
+      },
+      userRoleBadgeStyle() {
+        return {
+          color: this.$themePalette.grey.v_800,
+          backgroundColor: this.$themePalette.grey.v_300,
+          padding: '0.3em',
+          borderRadius: '2px',
+          fontSize: '10px',
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
       },
     },
     methods: {
@@ -431,33 +458,39 @@
         return null;
       },
       async handleSubmitingClassCopy() {
-        await this.$store.dispatch('classManagement/createClass', this.copiedClassName);
-        await this.$nextTick();
+        this.submitting = true;
 
-        const createdClass = this.classes.find(cls => cls.name === this.copiedClassName);
+        try {
+          await this.$store.dispatch('classManagement/createClass', this.copiedClassName);
+          await this.$nextTick();
 
-        if (createdClass?.id) {
-          const coaches = this.classCoachesIds;
+          const createdClass = this.classes.find(cls => cls.name === this.copiedClassName);
 
-          await this.assignCoachesToClass({
-            classId: createdClass.id,
-            coaches,
-          });
+          if (createdClass?.id) {
+            const coaches = this.classCoachesIds;
 
-          const updatedClasses = this.classes.map(c => {
-            if (c.name === this.copiedClassName) {
-              const updatedCoaches = coaches
-                .map(coachId => this.classCoaches.find(coach => coach.id === coachId))
-                .filter(Boolean);
+            await this.assignCoachesToClass({
+              classId: createdClass.id,
+              coaches,
+            });
 
-              return { ...c, coaches: updatedCoaches };
-            }
-            return c;
-          });
+            const updatedClasses = this.classes.map(c => {
+              if (c.name === this.copiedClassName) {
+                const updatedCoaches = coaches
+                  .map(coachId => this.classCoaches.find(coach => coach.id === coachId))
+                  .filter(Boolean);
 
-          this.openCopyClassPanel = false;
-          this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
-          this.createSnackbar(this.classCopiedSuccessfully$());
+                return { ...c, coaches: updatedCoaches };
+              }
+              return c;
+            });
+
+            this.openCopyClassPanel = false;
+            this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
+            this.createSnackbar(this.classCopiedSuccessfully$());
+          }
+        } finally {
+          this.submitting = false;
         }
       },
     },
