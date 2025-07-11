@@ -665,13 +665,17 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
 
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
+    by_ids = CharFilter(method="filter_by_ids")
 
     def filter_user_ids(self, queryset, name, value):
         return queryset.filter(user_id__in=value.split(","))
 
+    def filter_by_ids(self, queryset, name, value):
+        return queryset.filter(id__in=value.split(","))
+
     class Meta:
         model = Membership
-        fields = ["user", "collection", "user_ids"]
+        fields = ["user", "collection", "user_ids", "by_ids"]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
@@ -680,7 +684,6 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filterset_class = MembershipFilter
-    filterset_fields = ["user", "collection", "user_ids"]
 
 
 class RoleFilter(FilterSet):

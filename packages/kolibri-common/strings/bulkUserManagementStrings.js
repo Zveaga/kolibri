@@ -34,6 +34,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "You've selected {num, number} {num, plural, one {user} other {users}}",
     context: 'Label showing the number of users selected',
   },
+  searchForAClass: {
+    message: 'Search for a class',
+    context: 'Placeholder text for class search input',
+  },
 
   // Dropdown options
   viewNewUsers: {
@@ -68,6 +72,26 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   resetPassword: {
     message: 'Reset password',
     context: 'Label that will allow user to reset passwords for selected user',
+  },
+  undoAction: {
+    message: 'Undo',
+    context: 'Label for the button that will undo the last action taken on the users',
+  },
+  disgardChanges: {
+    message: 'Discard changes?',
+    context: 'Heading for the confirmation modal that asks user if they want to discard changes',
+  },
+  discardAction: {
+    message: 'Discard',
+    context: 'Label for the button to dismiss selection changes',
+  },
+  discardWarning: {
+    message: "Any selections you've made in this panel will be lost.",
+    context: 'Warning message to inform user of lost selections if they discard changes',
+  },
+  keepEditingAction: {
+    message: 'Keep editing',
+    context: 'Label for the button to keep editing selections in the side panel',
   },
 
   // Selection warnings
@@ -134,7 +158,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Warning message about users already in selected classes',
   },
   undoUsersEnrolledHeading: {
-    message: '{num, number} {num, plural, one {user} other {users}} have been enrolled. Undo this?',
+    message:
+      '{num, number} {num, plural, one {user has} other {users have}} been enrolled. Undo this?',
     context: 'Heading for undo confirmation after enrolling users',
   },
   undoUsersEnrolledMessage: {
@@ -149,6 +174,18 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   enrollUndoneNotice: {
     message: 'Enroll action has been undone',
     context: 'Confirmation message when enroll action is undone',
+  },
+  enrollInAllClasses: {
+    message: 'Enroll in all classes',
+    context: 'Label for the selection to enroll users in all classes',
+  },
+  enrollInSelectedClasses: {
+    message: 'Enroll users in selected classes',
+    context: 'Heading for the selection to enroll users in the selected classes',
+  },
+  enrollAction: {
+    message: 'Enroll',
+    context: 'Label for the button that will enroll users in classes',
   },
 
   // Move to trash
@@ -250,5 +287,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   copyOfClass: {
     message: `Copy of '{class}'`,
     context: 'Initial name of a class upon being copied',
+  },
+  // Error Handling
+  defaultErrorMessage: {
+    message: 'Sorry! Something went wrong, please try again.',
+    context: 'Default error message for API errors.',
   },
 });
