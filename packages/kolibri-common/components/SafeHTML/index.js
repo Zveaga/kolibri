@@ -1,10 +1,11 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
 import SafeHtmlTable from './SafeHtmlTable.js';
+import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
 
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
-const FORBID_ATTR = ['style'];
+const FORBID_ATTR = ['style', 'width', 'height'];
 
 const parser = new DOMParser();
 
@@ -66,7 +67,24 @@ export default {
             // Wrap each image in a container to constrain its size
             'div',
             { class: 'image-container' },
-            [h(tag, { attrs: attributes }, mapChildren(node.childNodes))],
+            [
+              h('div', { class: 'img-wrapper' }, [
+                h(tag, { attrs: attributes }, mapChildren(node.childNodes)),
+                h(KIconButton, {
+                  class: 'expand-btn',
+                  style: {
+                    transition:
+                      'color 0.15s, background-color 0.15s, box-shadow 0.15s, opacity 0.15s',
+                  },
+                  props: {
+                    icon: 'expand',
+                    appearance: 'raised-button',
+                    ariaLabel: 'Expand image',
+                    tooltip: 'Expand image',
+                  },
+                }),
+              ]),
+            ],
           );
         }
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
