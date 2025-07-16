@@ -132,16 +132,21 @@ export default class BloomRunner {
   initBloom() {
     try {
       this.loaded();
-      const options = new URLSearchParams({
+      const params = {
         url: this.contentUrl,
-        distributionUrl: this.distributionUrl,
         metaJsonUrl: this.metaUrl,
-        questionsJsonUrl: this.questionsUrl,
         independent: false,
         hideFullScreenButton: true,
         initiallyShowAppBar: true,
         allowToggleAppBar: false,
-      });
+      };
+      if (this.distributionUrl) {
+        params.distributionUrl = this.distributionUrl;
+      }
+      if (this.questionsUrl) {
+        params.questionsJsonUrl = this.questionsUrl;
+      }
+      const options = new URLSearchParams(params);
 
       this.iframe.src = `../bloom/bloomplayer.htm?${options.toString()}`;
     } catch (e) {
@@ -160,7 +165,7 @@ export default class BloomRunner {
         this.contentUrl = htmFile[0].toUrl();
       }),
       this.zip.file('.distribution').then(distributionFile => {
-        this.distributionUrl = distributionFile.toUrl();
+        this.distributionUrl = distributionFile?.toUrl();
       }),
       this.zip.file('meta.json').then(meta => {
         this.metaUrl = meta.toUrl();
