@@ -41,13 +41,11 @@
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
             </h1>
-            <ContentRenderer
+            <ContentViewer
               v-if="itemId"
-              ref="contentRenderer"
-              :kind="content.kind"
+              ref="contentViewer"
               :lang="content.lang"
               :files="content.files"
-              :available="content.available"
               :extraFields="extraFields"
               :itemId="itemId"
               :assessment="true"
@@ -416,8 +414,8 @@
         });
       },
       checkAnswer() {
-        if (this.$refs.contentRenderer) {
-          return this.$refs.contentRenderer.checkAnswer();
+        if (this.$refs.contentViewer) {
+          return this.$refs.contentViewer.checkAnswer();
         }
         return null;
       },

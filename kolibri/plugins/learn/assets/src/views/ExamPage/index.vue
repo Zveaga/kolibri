@@ -181,12 +181,10 @@
               >
                 {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
               </h2>
-              <ContentRenderer
+              <ContentViewer
                 v-if="content && itemId"
-                ref="contentRenderer"
-                :kind="content.kind"
+                ref="contentViewer"
                 :files="content.files"
-                :available="content.available"
                 :extraFields="content.extra_fields"
                 :itemId="itemId"
                 :assessment="true"
@@ -642,8 +640,8 @@
           });
       },
       checkAnswer() {
-        if (this.$refs.contentRenderer) {
-          return this.$refs.contentRenderer.checkAnswer();
+        if (this.$refs.contentViewer) {
+          return this.$refs.contentViewer.checkAnswer();
         }
         return null;
       },
