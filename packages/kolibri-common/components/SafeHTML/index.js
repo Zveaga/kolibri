@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
 import SafeHtmlTable from './SafeHtmlTable.js';
-import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
+import SafeHtmlImage from './SafeHtmlImage.vue';
 
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
@@ -61,32 +61,15 @@ export default {
             },
           });
         }
+
         if (tag === 'img') {
-          attributes.tabindex = '0';
-          return h(
-            // Wrap each image in a container to constrain its size
-            'div',
-            { class: 'image-container' },
-            [
-              h('div', { class: 'img-wrapper' }, [
-                h(tag, { attrs: attributes }, mapChildren(node.childNodes)),
-                h(KIconButton, {
-                  class: 'expand-btn',
-                  style: {
-                    transition:
-                      'color 0.15s, background-color 0.15s, box-shadow 0.15s, opacity 0.15s',
-                  },
-                  props: {
-                    icon: 'expand',
-                    appearance: 'raised-button',
-                    ariaLabel: 'Expand image',
-                    tooltip: 'Expand image',
-                  },
-                }),
-              ]),
-            ],
-          );
+          const handler = context.listeners && context.listeners['expand-img'];
+          return h(SafeHtmlImage, {
+            attrs: attributes,
+            on: handler ? { 'expand-img': handler } : {},
+          });
         }
+
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;

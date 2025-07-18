@@ -12,6 +12,7 @@
       :styleOverrides="{
         windowSizeClass: windowSizeClass,
       }"
+      @expand-img="openLightbox"
     />
   </div>
 
@@ -126,6 +127,10 @@
         this.timeout = setTimeout(() => {
           this.recordProgress();
         }, 5000);
+      },
+      openLightbox(/* payload */) {
+        // TODO: Implement lightbox when ready
+        // payload contains: { src, alt }
       },
     },
   };
