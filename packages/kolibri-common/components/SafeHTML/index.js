@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
+import SafeHtmlTable from './SafeHtmlTable.js';
 
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
@@ -46,44 +47,18 @@ export default {
 
         if (tag === 'table') {
           tableCounter += 1;
-          const captionId = `table-caption-${tableCounter}`;
-          const children = [];
-          for (const childNode of node.childNodes) {
-            if (
-              childNode.nodeType === Node.ELEMENT_NODE &&
-              childNode.tagName.toLowerCase() === 'caption'
-            ) {
-              const captionAttrs = {};
-              for (const attr of childNode.attributes) {
-                captionAttrs[attr.name] = attr.value;
-              }
-              // Inject the captionId into captions
-              captionAttrs.id = captionId;
-              captionAttrs.class = 'safe-html' + context.props.styleOverrides.windowSizeClass;
-              children.push(
-                h('caption', { attrs: captionAttrs }, mapChildren(childNode.childNodes)),
-              );
-            } else {
-              children.push(mapNode(childNode));
-            }
-          }
-
-          const firstRow = node.querySelector('tr');
-          const colCount = firstRow ? firstRow.children.length : 0;
-          let tableWidth = '640px';
-          if (colCount > 3) {
-            tableWidth = `${colCount * 200}px`;
-          }
-
-          return h(
-            // Wrap tables in an accessible container
-            'div',
-            {
-              class: 'table-container',
-              attrs: { role: 'region', 'aria-labelledby': captionId },
+          return h(SafeHtmlTable, {
+            props: {
+              node,
+              attributes,
+              tableCounter,
+              windowSizeClass: context.props.styleOverrides
+                ? context.props.styleOverrides.windowSizeClass
+                : '',
+              mapNode,
+              mapChildren,
             },
-            [h(tag, { attrs: attributes, style: { width: tableWidth } }, children)],
-          );
+          });
         }
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
