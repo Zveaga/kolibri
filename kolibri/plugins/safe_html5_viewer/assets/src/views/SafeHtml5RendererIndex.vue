@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="cssVars">
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
@@ -9,6 +9,9 @@
     <SafeHTML
       v-else
       :html="html"
+      :styleOverrides="{
+        windowSizeClass: windowSizeClass,
+      }"
     />
   </div>
 
@@ -20,6 +23,8 @@
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { computed } from 'vue';
 
   export default {
     name: 'SafeHtml5RendererIndex',
@@ -28,12 +33,17 @@
       SafeHTML,
     },
     setup(props, context) {
+      const { windowIsSmall } = useKResponsiveWindow();
+      const windowSizeClass = computed(() => {
+        return windowIsSmall.value ? ' small-window' : '';
+      });
       const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
         props,
         context,
         { defaultDuration: 300 },
       );
       return {
+        windowSizeClass,
         defaultFile,
         forceDurationBasedProgress,
         durationBasedProgress,
@@ -53,6 +63,14 @@
       scrollBasedProgress() {
         return 0.5;
       },
+      cssVars() {
+        return {
+          '--color-primary-500': this.$themeBrand.primary.v_500,
+          '--color-primary-100': this.$themeBrand.primary.v_100,
+          '--color-grey-300': this.$themePalette.grey.v_300,
+          '--color-grey-100': this.$themePalette.grey.v_100,
+        };
+      },
     },
     async created() {
       const storageUrl = this.defaultFile.storage_url;
@@ -63,13 +81,31 @@
       this.$emit('startTracking');
       this.pollProgress();
     },
+    mounted() {
+      this.$nextTick(() => {
+        this.applyTabIndexes();
+        window.addEventListener('resize', this.applyTabIndexes);
+      });
+    },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+      window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
     methods: {
+      applyTabIndexes() {
+        const tableContainers = this.$el.querySelectorAll('.table-container');
+        tableContainers.forEach(container => {
+          const scrollable = container.scrollWidth > container.clientWidth;
+          if (scrollable) {
+            container.setAttribute('tabindex', '0');
+          } else {
+            container.removeAttribute('tabindex');
+          }
+        });
+      },
       recordProgress() {
         let progress;
         if (this.forceDurationBasedProgress) {

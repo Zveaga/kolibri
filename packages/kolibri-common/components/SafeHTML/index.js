@@ -1,7 +1,8 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
+import SafeHtmlTable from './SafeHtmlTable.js';
 
-const ALLOWED_URI_REGEXP = /^blob:https?:/i;
+const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
 const FORBID_ATTR = ['style'];
 
@@ -22,6 +23,10 @@ export default {
       required: true,
       type: String,
     },
+    styleOverrides: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   render(h, context) {
     const sanitizedHTML = DOMPurify.sanitize(context.props.html);
@@ -29,14 +34,33 @@ export default {
     // Create temporary container to parse HTML
     const doc = parser.parseFromString(sanitizedHTML, 'text/html');
 
+    let tableCounter = 0;
+
     function mapNode(node) {
       if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = node.tagName.toLowerCase();
         const attributes = {};
         for (const attr of node.attributes) {
           attributes[attr.name] = attr.value;
         }
         attributes.class = 'safe-html';
-        return h(node.tagName.toLowerCase(), { attrs: attributes }, mapChildren(node.childNodes));
+
+        if (tag === 'table') {
+          tableCounter += 1;
+          return h(SafeHtmlTable, {
+            props: {
+              node,
+              attributes,
+              tableCounter,
+              windowSizeClass: context.props.styleOverrides
+                ? context.props.styleOverrides.windowSizeClass
+                : '',
+              mapNode,
+              mapChildren,
+            },
+          });
+        }
+        return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;
       }
