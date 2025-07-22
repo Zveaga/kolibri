@@ -6,12 +6,7 @@
         :src="src"
         :alt="alt"
         v-bind="$attrs"
-        tabindex="0"
-        role="button"
-        :aria-label="`Expand image: ${alt}`"
-        aria-haspopup="dialog"
         @click="handleExpand"
-        @keydown="onImgKeydown"
       >
       <KIconButton
         class="expand-btn expand-btn-transition"
@@ -40,15 +35,6 @@
     methods: {
       handleExpand() {
         this.$emit('expand-img', { src: this.src, alt: this.alt });
-      },
-      onImgKeydown(event) {
-        if (event.key === ' ') {
-          event.preventDefault();
-          this.handleExpand();
-        }
-        if (event.key === 'Enter') {
-          this.handleExpand();
-        }
       },
     },
   };
