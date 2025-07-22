@@ -5,7 +5,7 @@
       <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
         <template #options>
           <!-- Margins to and bottom adds space when buttons are vertically stacked -->
-          <div style="display: flex; gap: 8px; justify-content: flex-end">
+          <KButtonGroup>
             <KButton
               v-if="isAnyFacilityRegistered"
               :text="$tr('syncAllAction')"
@@ -20,12 +20,13 @@
             >
               <template #menu>
                 <KDropdownMenu
+                  v-if="!showSyncAllModal"
                   :options="options"
                   @select="handleSelect"
                 />
               </template>
             </KButton>
-          </div>
+          </KButtonGroup>
         </template>
       </HeaderWithOptions>
 
