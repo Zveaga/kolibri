@@ -5,7 +5,7 @@
       <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
         <template #options>
           <!-- Margins to and bottom adds space when buttons are vertically stacked -->
-          <KButtonGroup>
+          <div style="display: flex; gap: 8px; justify-content: flex-end">
             <KButton
               v-if="isAnyFacilityRegistered"
               :text="$tr('syncAllAction')"
@@ -25,7 +25,7 @@
                 />
               </template>
             </KButton>
-          </KButtonGroup>
+          </div>
         </template>
       </HeaderWithOptions>
 
