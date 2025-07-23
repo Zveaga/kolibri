@@ -106,6 +106,11 @@
             : !this.wizardContext('requirePassword');
         }
       },
+      userBasedOnOs() {
+        // On my own setup with OS user means that the user will be created
+        // at login time, based on the OS user.
+        return this.isOnMyOwnSetup && checkCapability('get_os_user');
+      },
       learnerCanEditPassword() {
         // Note that we don't ask this question of a user during onboarding -- however,
         // the nonformal facility will set this to `true` by default -- which does not jive
@@ -114,7 +119,7 @@
           // Learner cannot edit a password they cannot set
           this.learnerCanLoginWithNoPassword ||
           // OS on my own users don't use password to sign in
-          (this.isOnMyOwnSetup && checkCapability('get_os_user'))
+          this.userBasedOnOs
         ) {
           return false; // Learner cannot edit a password they cannot set
         } else {
@@ -126,7 +131,7 @@
         let superuser = null;
         // We need the superuser information unless the superuser will be created at login,
         // based on the os user - this is only the case for on my own setup.
-        if (!(this.isOnMyOwnSetup && checkCapability('get_os_user'))) {
+        if (!this.userBasedOnOs) {
           // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
           // superuser as they were the first imported user.
           if (this.wizardContext('firstImportedLodUser')) {
@@ -213,10 +218,13 @@
           }
           if (task.status === TaskStatuses.COMPLETED) {
             const facilityId = task.extra_metadata.facility_id;
+            // Taking the username from the task extra metadata in case the superuser was created
+            // from the OS user.
+            const username = task.extra_metadata.username;
             this.clearPollingTasks();
             this.wrapOnboarding();
-            if (this.deviceProvisioningData.superuser) {
-              const { username, password } = this.deviceProvisioningData.superuser;
+            if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
+              const { password } = this.deviceProvisioningData.superuser || {};
               return this.kolibriLogin({
                 facilityId,
                 username,

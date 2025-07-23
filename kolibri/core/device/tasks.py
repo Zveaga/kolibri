@@ -223,4 +223,7 @@ def provisiondevice(**data):  # noqa C901
 
         job = get_current_job()
         if job:
-            job.update_metadata(facility_id=facility.id)
+            job.update_metadata(
+                facility_id=facility.id,
+                username=superuser.username if superuser else None,
+            )
