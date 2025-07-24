@@ -129,6 +129,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
           runtimeErrors: false,
         },
       },
+      allowedHosts: [options.host, 'localhost'],
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -224,7 +225,7 @@ const buildCommand = program
   .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
-  .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
+  .option('--host <host>', 'Set a host to serve devserver', String, '127.0.0.1')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .option('--cache', 'Use cache in webpack', false)
   .option('--transpile', 'Transpile code using Babel', false)
