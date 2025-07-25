@@ -46,36 +46,48 @@
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
       >
         <template #userActions>
-          <router-link :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })">
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
+            :class="{ 'disabled-link': !canAssignCoaches }"
+          >
             <KIconButton
               icon="assignCoaches"
               :ariaLabel="assignCoach$()"
               :tooltip="assignCoach$()"
+              :disabled="!canAssignCoaches"
             />
           </router-link>
-          <router-link :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })">
+          <router-link
+            :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
+            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+          >
             <KIconButton
               icon="add"
               :ariaLabel="enrollToClass$()"
               :tooltip="enrollToClass$()"
+              :disabled="!canEnrollOrRemoveFromClass"
             />
           </router-link>
           <router-link
             :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
+            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
           >
             <KIconButton
               icon="remove"
               :ariaLabel="removeFromClass$()"
               :tooltip="removeFromClass$()"
+              :disabled="!canEnrollOrRemoveFromClass"
             />
           </router-link>
           <router-link
             :to="overrideRoute($route, { name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL })"
+            :class="{ 'disabled-link': !hasSelectedUsers || listContainsLoggedInUser }"
           >
             <KIconButton
               icon="trash"
               :ariaLabel="deleteSelection$()"
               :tooltip="deleteSelection$()"
+              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
             />
           </router-link>
         </template>
@@ -97,6 +109,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import { UserKinds } from 'kolibri/constants';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -116,6 +130,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { currentUserId } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
 
@@ -155,6 +170,7 @@
         removeFromClass$,
         deleteSelection$,
         selectedUsers,
+        currentUserId,
       };
     },
     computed: {
@@ -170,6 +186,37 @@
             id: 'view_trash',
           },
         ];
+      },
+      hasSelectedUsers() {
+        return this.selectedUsers && this.selectedUsers.size > 0;
+      },
+      listContainsLoggedInUser() {
+        return this.selectedUsers.has(this.currentUserId);
+      },
+      canAssignCoaches() {
+        if (!this.hasSelectedUsers) return false;
+        return this.facilityUsers
+          .filter(user => this.selectedUsers.has(user.id))
+          .every(
+            user =>
+              user.kind === UserKinds.COACH ||
+              user.kind === UserKinds.ADMIN ||
+              user.kind === UserKinds.SUPERUSER ||
+              user.is_superuser,
+          );
+      },
+      canEnrollOrRemoveFromClass() {
+        if (!this.hasSelectedUsers) return false;
+        return this.facilityUsers
+          .filter(user => this.selectedUsers.has(user.id))
+          .every(
+            user =>
+              user.kind === UserKinds.LEARNER ||
+              user.roles.some(role => role.kind.includes(UserKinds.COACH)) ||
+              user.kind === UserKinds.ADMIN ||
+              user.kind === UserKinds.SUPERUSER ||
+              user.is_superuser,
+          );
       },
     },
     methods: {
@@ -208,6 +255,11 @@
       align-items: center;
       justify-content: flex-end;
     }
+  }
+
+  .disabled-link {
+    pointer-events: none;
+    cursor: not-allowed;
   }
 
 </style>
