@@ -158,7 +158,6 @@
       const examMap = computed(() => store.state.classSummary.examMap);
 
       const {
-        sectionSettings$,
         sectionTitle$,
         sectionTitleUniqueWarning$,
         optionalDescriptionLabel$,
@@ -321,7 +320,6 @@
         maxQuestionsLabel,
         // i18n
         displaySectionTitle,
-        sectionSettings$,
         sectionTitle$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
@@ -471,10 +469,10 @@
     left: 0;
     display: flex;
     justify-content: space-between;
-    padding: 1em;
+    padding: 1em 2em;
     margin-top: 1em;
     background-color: #ffffff;
-    border-top: 1px solid black;
+    @extend %dropshadow-2dp;
   }
 
   /deep/ .textbox {
