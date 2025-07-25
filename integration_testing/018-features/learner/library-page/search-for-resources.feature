@@ -1,11 +1,10 @@
-Feature: Search with topic
+Feature: Search for resources on the device
 
   Background:
-    Given there is at least one channel loaded to the device
+    Given there are imported channels on the device
     When I go to the *Library* tab
-      And I click one of the channel cards displayed at the top of the default page
-      And I see the contents of the channel page
-      And I have clicked the *Search* tab
+      And I see the filter panel on the left
+      And there are filter options available for each filter
 
   Scenario: Behavior of other filter fields relative to a selected filter option
     When I select an option from a filter
