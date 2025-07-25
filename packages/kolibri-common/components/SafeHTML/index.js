@@ -1,10 +1,11 @@
 import DOMPurify from 'dompurify';
 import './style.scss';
 import SafeHtmlTable from './SafeHtmlTable.js';
+import SafeHtmlImage from './SafeHtmlImage.vue';
 
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
-const FORBID_ATTR = ['style'];
+const FORBID_ATTR = ['style', 'width', 'height'];
 
 const parser = new DOMParser();
 
@@ -60,6 +61,15 @@ export default {
             },
           });
         }
+
+        if (tag === 'img') {
+          const handler = context.listeners && context.listeners['expand-img'];
+          return h(SafeHtmlImage, {
+            attrs: attributes,
+            on: handler ? { 'expand-img': handler } : {},
+          });
+        }
+
         return h(tag, { attrs: attributes }, mapChildren(node.childNodes));
       } else if (node.nodeType === Node.TEXT_NODE) {
         return node.textContent;

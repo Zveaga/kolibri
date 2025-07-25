@@ -12,6 +12,7 @@
       :styleOverrides="{
         windowSizeClass: windowSizeClass,
       }"
+      @expand-img="openLightbox"
     />
   </div>
 
@@ -69,6 +70,7 @@
           '--color-primary-100': this.$themeBrand.primary.v_100,
           '--color-grey-300': this.$themePalette.grey.v_300,
           '--color-grey-100': this.$themePalette.grey.v_100,
+          '--color-fineline': this.$themeTokens.fineLine,
         };
       },
     },
@@ -125,6 +127,10 @@
         this.timeout = setTimeout(() => {
           this.recordProgress();
         }, 5000);
+      },
+      openLightbox(/* payload */) {
+        // TODO: Implement lightbox when ready
+        // payload contains: { src, alt }
       },
     },
   };
