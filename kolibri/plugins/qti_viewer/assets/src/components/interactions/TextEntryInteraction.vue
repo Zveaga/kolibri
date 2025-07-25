@@ -5,6 +5,10 @@
     class="qti-text-entry-interaction"
     :placeholder="placeholder"
     :disabled="!interactive"
+    :style="{
+      minWidth: `${expectedLength ?? 20}ch`,
+      width: `${variable.length}ch`,
+    }"
   >
 
 </template>
