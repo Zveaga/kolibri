@@ -68,12 +68,14 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.6+ (Kolibri doesn't currently support Python 3.12.0 or higher)
+* Python 3.9 or higher (Note: Kolibri does not yet support Python 3.14 or above)
 * `pip <https://pypi.python.org/pypi/pip>`__
 
 Managing Python installations can be quite tricky. We *highly* recommend using `pyenv <https://github.com/pyenv/pyenv>`__ or if you are more comfortable using a package manager, then package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
 
 To install pyenv see the detailed instructions here :doc:`/howtos/installing_pyenv`.
+..note::
+  If you are using a package manager, make sure to install a Python version compatible with Kolibri (3.9 or above, but below 3.14). If you're using `pyenv`, you can install it with a command like `pyenv install 3.9.9`.
 
 .. warning::
   Never modify your system's built-in version of Python
@@ -87,6 +89,7 @@ There are many ways to set up Python virtual environments: You can use `pyenv-vi
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
+ Direct development on Windows is not supported. If you're using a Windows machine, please set up your development environment using WSL (Windows Subsystem for Linux).
 
 To setup and start using pyenv-virtualenv, follow the instructions here :doc:`/howtos/pyenv_virtualenv`.
 
@@ -95,7 +98,7 @@ Once pyenv-virtualenv is installed, you can use the following commands to set up
 
 .. code-block:: bash
 
-  pyenv virtualenv 3.9.9 kolibri-py3.9  # can also make a python 2 environment
+  pyenv virtualenv 3.9.9 kolibri-py3.9  # can also make an environment for other Python versions, e.g. 3.10
   pyenv activate kolibri-py3.9  # activates the virtual environment
 
 Now, any commands you run will target your virtual environment rather than the global Python installation. To deactivate the virtualenv, simply run:
