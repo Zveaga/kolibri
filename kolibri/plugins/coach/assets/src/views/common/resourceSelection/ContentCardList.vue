@@ -9,10 +9,7 @@
       :disabled="isSelectAllDisabled"
       @change="$emit('changeselectall', $event)"
     />
-    <KCardGrid
-      layout="1-1-1"
-      :layoutOverride="gridLayoutOverrides"
-    >
+    <KCardGrid layout="1-1-1">
       <component
         :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
         v-for="content in contentList"
@@ -240,9 +237,6 @@
     },
 
     computed: {
-      gridLayoutOverrides() {
-        return [{ breakpoints: [0, 1, 2, 3, 4, 5, 6, 7], rowGap: '24px', cardsPerRow: 1 }];
-      },
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },
