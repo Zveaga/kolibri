@@ -199,7 +199,7 @@
           .filter(user => this.selectedUsers.has(user.id))
           .every(
             user =>
-              user.kind === UserKinds.COACH ||
+              user.kind.includes(UserKinds.COACH) ||
               user.kind === UserKinds.ADMIN ||
               user.kind === UserKinds.SUPERUSER ||
               user.is_superuser,
@@ -212,7 +212,7 @@
           .every(
             user =>
               user.kind === UserKinds.LEARNER ||
-              user.roles.some(role => role.kind.includes(UserKinds.COACH)) ||
+              user.kind.includes(UserKinds.COACH) ||
               user.kind === UserKinds.ADMIN ||
               user.kind === UserKinds.SUPERUSER ||
               user.is_superuser,
