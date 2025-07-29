@@ -26,7 +26,7 @@
       @closePanel="close"
     >
       <template #header>
-        <h1>{{ moveToTrashLabel$() }}</h1>
+        <h1 class="side-panel-title">{{ moveToTrashLabel$() }}</h1>
       </template>
       <template #default>
         <KCircularLoader v-if="loading" />
@@ -38,7 +38,7 @@
             icon="warning"
             :color="$themePalette.orange.v_500"
           >
-            <strong>{{ numUsersYouHaveSelected$({ num: selectedUsers.size }) }}</strong>
+            <h2>{{ numUsersYouHaveSelected$({ num: selectedUsers.size }) }}</h2>
           </KLabeledIcon>
           <p
             v-for="message in selectionMessages"
@@ -50,9 +50,9 @@
         <div class="attention-warning">
           <KLabeledIcon
             icon="warning"
-            :color="$themePalette.orange.v_500"
+            :color="$themePalette.yellow.v_500"
           >
-            <strong>{{ attentionLabel$() }}</strong>
+            <h2>{{ attentionLabel$() }}</h2>
           </KLabeledIcon>
           <p>
             {{ attentionMessageA$() }}
@@ -99,8 +99,8 @@
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
   import { _userState } from '../../../modules/mappers';
 
@@ -219,11 +219,11 @@
       const loadData = async () => {
         loading.value = true;
         const membershipsPromise = MembershipResource.fetchCollection({
-          getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
+          getParams: { user_ids: Array.from(props.selectedUsers) },
         });
         const userModelsPromise = FacilityUserResource.fetchCollection({
           getParams: {
-            by_ids: Array.from(props.selectedUsers).join(','),
+            by_ids: Array.from(props.selectedUsers),
           },
         });
 
@@ -275,7 +275,11 @@
         }
       };
 
-      loadData();
+      if (props.selectedUsers.size === 0) {
+        close();
+      } else {
+        loadData();
+      }
 
       return {
         // ref and computed properties
@@ -319,9 +323,23 @@
 
 <style lang="scss" scoped>
 
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
   .selection-metadata,
   .attention-warning {
     font-size: 14px;
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .selection-metadata {
+    margin-bottom: 32px;
   }
 
   .bottom-nav-container {
