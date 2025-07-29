@@ -3,10 +3,10 @@
   <SidePanelModal
     alignment="right"
     sidePanelWidth="700px"
-    @closePanel="$router.back()"
+    @closePanel="closeSidePanel"
   >
     <template #header>
-      <h1>{{ moveToTrashTitle$() }}</h1>
+      <h1>{{ moveToTrashLabel$() }}</h1>
     </template>
     <template #default>
       <KCircularLoader v-if="loading" />
@@ -45,6 +45,20 @@
         </p>
       </div>
     </template>
+    <template #bottomNavigation>
+      <div class="bottom-nav-container">
+        <KButton
+          :text="coreStrings.cancelAction$()"
+          @click="closeSidePanel"
+        />
+        <KButton
+          primary
+          :text="moveToTrashLabel$()"
+          :disabled="loading || !selectedUsers.size"
+          @click="moveToTrash"
+        />
+      </div>
+    </template>
   </SidePanelModal>
 
 </template>
@@ -55,10 +69,14 @@
   import uniq from 'lodash/uniq';
   import groupBy from 'lodash/groupBy';
   import { computed, ref } from 'vue';
+  import { useRouter } from 'vue-router/composables';
 
   import { UserKinds } from 'kolibri/constants';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
@@ -70,17 +88,24 @@
       SidePanelModal,
     },
     setup(props) {
+      const router = useRouter();
+      const { createSnackbar } = useSnackbar();
+      const { sendPoliteMessage } = useKLiveRegion();
+
       const loading = ref(false);
       const users = ref([]);
       const usersEnrollments = ref({});
 
       const {
-        numAdminsSelected$,
+        movingToTrash$,
         attentionLabel$,
-        moveToTrashTitle$,
+        moveToTrashLabel$,
         attentionMessageA$,
         attentionMessageB$,
         attentionMessageC$,
+        numAdminsSelected$,
+        usersTrashedNotice$,
+        defaultErrorMessage$,
         numUsersYouHaveSelected$,
         numLearnersEnrolledInNClasses$,
         numCoachesAssignedToNClasses$,
@@ -186,13 +211,40 @@
         }
       };
 
+      const closeSidePanel = () => {
+        router.back();
+      };
+
+      const moveToTrash = async () => {
+        loading.value = true;
+        sendPoliteMessage(movingToTrash$());
+        try {
+          await FacilityUserResource.deleteCollection({
+            by_ids: Array.from(props.selectedUsers).join(','),
+          });
+          createSnackbar(usersTrashedNotice$());
+          closeSidePanel();
+        } catch (error) {
+          createSnackbar(defaultErrorMessage$());
+          loading.value = false;
+        }
+      };
+
       loadData();
 
       return {
+        // computed properties
         loading,
         selectionMessages,
+        coreStrings,
+
+        // methods
+        moveToTrash,
+        closeSidePanel,
+
+        // translation functions
         attentionLabel$,
-        moveToTrashTitle$,
+        moveToTrashLabel$,
         attentionMessageA$,
         attentionMessageB$,
         attentionMessageC$,
@@ -219,6 +271,13 @@
   .selection-metadata,
   .attention-warning {
     font-size: 14px;
+  }
+
+  .bottom-nav-container {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    width: 100%;
   }
 
 </style>

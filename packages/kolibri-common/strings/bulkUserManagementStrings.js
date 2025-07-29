@@ -288,7 +288,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Move to trash
-  moveToTrashTitle: {
+  moveToTrashLabel: {
     message: 'Move to trash',
     context: 'Title of the modal that allows users to move selected users to trash',
   },
