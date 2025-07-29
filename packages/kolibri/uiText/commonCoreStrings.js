@@ -58,6 +58,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Used to delete an element from Kolibri.\n\nFor example, an admin can delete a user from a facility if they are no longer a user there.',
   },
+  dismissAction: {
+    message: 'Dismiss',
+    context: 'Button label to dismiss a notification',
+  },
   editAction: {
     message: 'Edit',
     context:

@@ -5,7 +5,7 @@
       v-if="showUndoModal"
       :title="undoUsersEnrolledHeading$({ num: selectedUsers.size })"
       :submitText="undoAction$()"
-      :cancelText="dismissAction$()"
+      :cancelText="coreString('dismissAction')"
       :submitDisabled="loading"
       :cancelDisabled="loading"
       @cancel="handleDismissConfirmation"
@@ -127,7 +127,6 @@
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
@@ -172,7 +171,6 @@
         usersEnrolledNotice$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
-      const { dismissAction$ } = searchAndFilterStrings;
 
       // Computed properties
       const classList = computed(() =>
@@ -289,7 +287,6 @@
         undoUsersEnrolledHeading$,
         undoUsersEnrolledMessage$,
         defaultErrorMessage$,
-        dismissAction$,
         enrollAction$,
         discardAction$,
         discardWarning$,

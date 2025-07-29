@@ -106,10 +106,6 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context:
       'Indicates time spent by learner on a specific activity. Only translate minute/minutes.',
   },
-  dismissAction: {
-    message: 'Dismiss',
-    context: 'Button label to dismiss a notification',
-  },
   insufficientResources: {
     message:
       'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, contact your administrator to add more resources to your library.',

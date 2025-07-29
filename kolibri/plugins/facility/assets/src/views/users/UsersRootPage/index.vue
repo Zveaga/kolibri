@@ -99,6 +99,7 @@
       <router-view
         :selectedUsers="selectedUsers"
         :classes="classes"
+        @change="onUsersChange"
       />
     </KPageContainer>
   </FacilityAppBarPage>
@@ -164,13 +165,16 @@
         resetFilters,
       } = useUserManagement({ activeFacilityId });
 
+      const onUsersChange = ({ resetSelection = false } = {}) => {
+        fetchUsers();
+        if (resetSelection) {
+          selectedUsers.value.clear();
+        }
+      };
+
       onMounted(() => {
         fetchClasses();
       });
-
-      function onUsersChange() {
-        fetchUsers();
-      }
 
       return {
         PageNames,

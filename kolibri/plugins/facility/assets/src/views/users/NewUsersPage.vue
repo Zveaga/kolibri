@@ -161,8 +161,11 @@
 
       const selectedUsers = ref(new Set());
 
-      function onUsersChange() {
+      function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
+        if (resetSelection) {
+          selectedUsers.value.clear();
+        }
       }
 
       const {

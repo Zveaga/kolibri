@@ -1,65 +1,86 @@
 <template>
 
-  <SidePanelModal
-    alignment="right"
-    sidePanelWidth="700px"
-    @closePanel="closeSidePanel"
-  >
-    <template #header>
-      <h1>{{ moveToTrashLabel$() }}</h1>
-    </template>
-    <template #default>
+  <div>
+    <KModal
+      v-if="usersRemoved"
+      :title="undoTrashHeading$({ num: usersRemoved.length })"
+      :submitText="undoAction$()"
+      :cancelText="coreStrings.dismissAction$()"
+      :submitDisabled="loading"
+      :cancelDisabled="loading"
+      @cancel="close"
+      @submit="undoMoveToTrash"
+    >
       <KCircularLoader v-if="loading" />
-      <div
-        v-else
-        class="selection-metadata"
-      >
-        <KLabeledIcon
-          icon="warning"
-          :color="$themePalette.orange.v_500"
+      <p>
+        {{ undoTrashMessageA$({ numUsers: usersRemoved.length }) }}
+      </p>
+      <p>
+        {{ undoTrashMessageB$() }}
+      </p>
+    </KModal>
+    <SidePanelModal
+      v-else
+      alignment="right"
+      sidePanelWidth="700px"
+      @closePanel="close"
+    >
+      <template #header>
+        <h1>{{ moveToTrashLabel$() }}</h1>
+      </template>
+      <template #default>
+        <KCircularLoader v-if="loading" />
+        <div
+          v-else
+          class="selection-metadata"
         >
-          <strong>{{ numUsersYouHaveSelected$({ num: selectedUsers.size }) }}</strong>
-        </KLabeledIcon>
-        <p
-          v-for="message in selectionMessages"
-          :key="message"
-        >
-          {{ message }}
-        </p>
-      </div>
-      <div class="attention-warning">
-        <KLabeledIcon
-          icon="warning"
-          :color="$themePalette.orange.v_500"
-        >
-          <strong>{{ attentionLabel$() }}</strong>
-        </KLabeledIcon>
-        <p>
-          {{ attentionMessageA$() }}
-        </p>
-        <p>
-          {{ attentionMessageB$() }}
-        </p>
-        <p>
-          {{ attentionMessageC$() }}
-        </p>
-      </div>
-    </template>
-    <template #bottomNavigation>
-      <div class="bottom-nav-container">
-        <KButton
-          :text="coreStrings.cancelAction$()"
-          @click="closeSidePanel"
-        />
-        <KButton
-          primary
-          :text="moveToTrashLabel$()"
-          :disabled="loading || !selectedUsers.size"
-          @click="moveToTrash"
-        />
-      </div>
-    </template>
-  </SidePanelModal>
+          <KLabeledIcon
+            icon="warning"
+            :color="$themePalette.orange.v_500"
+          >
+            <strong>{{ numUsersYouHaveSelected$({ num: selectedUsers.size }) }}</strong>
+          </KLabeledIcon>
+          <p
+            v-for="message in selectionMessages"
+            :key="message"
+          >
+            {{ message }}
+          </p>
+        </div>
+        <div class="attention-warning">
+          <KLabeledIcon
+            icon="warning"
+            :color="$themePalette.orange.v_500"
+          >
+            <strong>{{ attentionLabel$() }}</strong>
+          </KLabeledIcon>
+          <p>
+            {{ attentionMessageA$() }}
+          </p>
+          <p>
+            {{ attentionMessageB$() }}
+          </p>
+          <p>
+            {{ attentionMessageC$() }}
+          </p>
+        </div>
+      </template>
+      <template #bottomNavigation>
+        <div class="bottom-nav-container">
+          <KButton
+            :text="coreStrings.cancelAction$()"
+            @click="close"
+          />
+          <KButton
+            primary
+            :text="moveToTrashLabel$()"
+            :disabled="loading || !selectedUsers.size"
+            @click="moveToTrash"
+          />
+        </div>
+      </template>
+    </SidePanelModal>
+  </div>
 
 </template>
 
@@ -78,6 +99,7 @@
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { _userState } from '../../../modules/mappers';
@@ -87,7 +109,7 @@
     components: {
       SidePanelModal,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const router = useRouter();
       const { createSnackbar } = useSnackbar();
       const { sendPoliteMessage } = useKLiveRegion();
@@ -95,10 +117,16 @@
       const loading = ref(false);
       const users = ref([]);
       const usersEnrollments = ref({});
+      const usersRemoved = ref(null);
 
       const {
+        undoAction$,
+        undoTrashMessageA$,
+        undoTrashMessageB$,
+        trashUndoneNotice$,
         movingToTrash$,
         attentionLabel$,
+        undoTrashHeading$,
         moveToTrashLabel$,
         attentionMessageA$,
         attentionMessageB$,
@@ -211,7 +239,7 @@
         }
       };
 
-      const closeSidePanel = () => {
+      const close = () => {
         router.back();
       };
 
@@ -223,7 +251,24 @@
             by_ids: Array.from(props.selectedUsers).join(','),
           });
           createSnackbar(usersTrashedNotice$());
-          closeSidePanel();
+          loading.value = false;
+          usersRemoved.value = Array.from(props.selectedUsers);
+          emit('change', { resetSelection: true });
+        } catch (error) {
+          createSnackbar(defaultErrorMessage$());
+          loading.value = false;
+        }
+      };
+
+      const undoMoveToTrash = async () => {
+        loading.value = true;
+        try {
+          await DeletedFacilityUserResource.restoreCollection({
+            by_ids: usersRemoved.value.join(','),
+          });
+          createSnackbar(trashUndoneNotice$());
+          emit('change');
+          close();
         } catch (error) {
           createSnackbar(defaultErrorMessage$());
           loading.value = false;
@@ -233,17 +278,23 @@
       loadData();
 
       return {
-        // computed properties
+        // ref and computed properties
         loading,
-        selectionMessages,
         coreStrings,
+        usersRemoved,
+        selectionMessages,
 
         // methods
+        close,
         moveToTrash,
-        closeSidePanel,
+        undoMoveToTrash,
 
         // translation functions
+        undoAction$,
+        undoTrashMessageA$,
+        undoTrashMessageB$,
         attentionLabel$,
+        undoTrashHeading$,
         moveToTrashLabel$,
         attentionMessageA$,
         attentionMessageB$,
