@@ -164,9 +164,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context:
       'A notice indicating the number of users that are selected which are not enrolled in a class',
   },
-  numUsersEnrolledInNClasses: {
+  numLearnersEnrolledInNClasses: {
     message:
-      '{num, number} {num, plural, one {user is enrolled in} other {users are enrolled in}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
+      '{num, number} {num, plural, one {learner is enrolled in} other {learners are enrolled in}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
     context:
       'A notice indicating the number of users that are selected which are enrolled in a class',
   },
@@ -179,6 +179,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
       '{num, number} {num, plural, one {coach is assigned to} other {coaches are assigned to}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
     context:
       'A notice indicating the number of coaches that are selected which are assigned to a class',
+  },
+  numAdminsSelected: {
+    message: '{num, number} {num, plural, one {admin is} other {admins are}} selected',
+    context: 'A notice indicating the number of admins that are selected',
   },
 
   // Assign coaches to class
