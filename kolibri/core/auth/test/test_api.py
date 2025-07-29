@@ -1031,6 +1031,7 @@ class UserUpdateTestCase(APITestCase):
         self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
 
 
+@patch("kolibri.core.auth.api.cleanup_expired_deleted_users")
 class UserDeleteTestCase(APITestCase):
     databases = "__all__"
 
@@ -1051,7 +1052,7 @@ class UserDeleteTestCase(APITestCase):
     def tearDown(self):
         self.user.delete()
 
-    def test_user_delete(self):
+    def test_user_delete(self, mock_cleanup_task):
         response = self.client.delete(
             reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
             format="json",
@@ -1063,8 +1064,9 @@ class UserDeleteTestCase(APITestCase):
             ).exists()
         )
         self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
+        mock_cleanup_task.enqueue.assert_called_once()
 
-    def test_superuser_delete_self(self):
+    def test_superuser_delete_self(self, mock_cleanup_task):
         response = self.client.delete(
             reverse(
                 "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.pk}
@@ -1073,7 +1075,7 @@ class UserDeleteTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_bulk_delete_users(self):
+    def test_bulk_delete_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
 
@@ -1090,7 +1092,7 @@ class UserDeleteTestCase(APITestCase):
             )
             self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
 
-    def test_bulk_delete_excludes_superuser(self):
+    def test_bulk_delete_excludes_superuser(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(2)]
         user_ids = [str(user.id) for user in users] + [str(self.superuser.id)]
 
@@ -1103,7 +1105,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.objects.filter(id=self.superuser.id).exists()
         )
 
-    def test_get_soft_deleted_users(self):
+    def test_get_soft_deleted_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         self.client.delete(
@@ -1128,7 +1130,7 @@ class UserDeleteTestCase(APITestCase):
             )
         )
 
-    def test_date_deleted_ordering(self):
+    def test_date_deleted_ordering(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         for idx, user in enumerate(users):
@@ -1160,7 +1162,7 @@ class UserDeleteTestCase(APITestCase):
         for idx, deleted_user in enumerate(response.data):
             self.assertEqual(deleted_user["id"], str(expected_users[idx]))
 
-    def test_bulk_hard_delete_without_filters(self):
+    def test_bulk_hard_delete_without_filters(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1176,7 +1178,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
         )
 
-    def test_bulk_hard_delete_non_soft_deleted_users(self):
+    def test_bulk_hard_delete_non_soft_deleted_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
 
@@ -1191,7 +1193,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
         )
 
-    def test_bulk_hard_delete_users(self):
+    def test_bulk_hard_delete_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1210,7 +1212,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.all_objects.filter(id__in=user_ids).exists()
         )
 
-    def test_restore_soft_deleted_users_without_filters(self):
+    def test_restore_soft_deleted_users_without_filters(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1227,7 +1229,7 @@ class UserDeleteTestCase(APITestCase):
             len(users),
         )
 
-    def test_restore_non_soft_deleted_users(self):
+    def test_restore_non_soft_deleted_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
 
@@ -1239,7 +1241,7 @@ class UserDeleteTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_restore_soft_deleted_users(self):
+    def test_restore_soft_deleted_users(self, mock_cleanup_task):
         users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
         user_ids = [str(user.id) for user in users]
         # Soft delete users
@@ -1261,7 +1263,7 @@ class UserDeleteTestCase(APITestCase):
             models.FacilityUser.objects.filter(id__in=user_ids).count(), len(users)
         )
 
-    def test_not_able_to_create_soft_deleted_user(self):
+    def test_not_able_to_create_soft_deleted_user(self, mock_cleanup_task):
         # Try to create a new user with the same username as a soft-deleted user
         new_user_data = {
             "username": "testuser",
@@ -1276,7 +1278,7 @@ class UserDeleteTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 405)
 
-    def test_not_able_to_update_soft_deleted_user(self):
+    def test_not_able_to_update_soft_deleted_user(self, mock_cleanup_task):
         # Create a user and then soft delete it
         user = FacilityUserFactory.create(facility=self.facility, username="testuser")
         self.client.delete(
