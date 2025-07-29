@@ -153,15 +153,32 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Selection warnings
+  attentionLabel: {
+    message: 'Attention',
+    context:
+      'Label for the warning message that appears when showing a warning message to the user',
+  },
   numUsersNotEnrolled: {
     message:
       '{num, number} {num, plural, one {user is} other {users are}} not enrolled in any class',
     context:
       'A notice indicating the number of users that are selected which are not enrolled in a class',
   },
+  numUsersEnrolledInNClasses: {
+    message:
+      '{num, number} {num, plural, one {user is enrolled in} other {users are enrolled in}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
+    context:
+      'A notice indicating the number of users that are selected which are enrolled in a class',
+  },
   numUsersCoaches: {
     message: '{num, number} {num, plural, one {user is a coach} other {users are coaches}}',
     context: 'A notice indicating the number of users the user selected that are coaches',
+  },
+  numCoachesAssignedToNClasses: {
+    message:
+      '{num, number} {num, plural, one {coach is assigned to} other {coaches are assigned to}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
+    context:
+      'A notice indicating the number of coaches that are selected which are assigned to a class',
   },
 
   // Assign coaches to class
@@ -267,6 +284,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Move to trash
+  moveToTrashTitle: {
+    message: 'Move to trash',
+    context: 'Title of the modal that allows users to move selected users to trash',
+  },
   movingToTrash: {
     message: 'Moving to trash',
     context:
@@ -293,6 +314,19 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   trashUndoneNotice: {
     message: 'Move to trash has been undone',
     context: 'Notification confirming that the trash action was reversed',
+  },
+  attentionMessageA: {
+    message: 'Users will be removed from assigned classes',
+    context: 'First paragraph of the warning message when moving users to trash',
+  },
+  attentionMessageB: {
+    message:
+      'Users will be kept in Trash for 30 days and can be recovered anytime before being permanently deleted',
+    context: 'Second paragraph of the warning message when moving users to trash',
+  },
+  attentionMessageC: {
+    message: 'Deletion will reflect on synced devices when sync completes',
+    context: 'Third paragraph of the warning message when moving users to trash',
   },
 
   // Copy a class
