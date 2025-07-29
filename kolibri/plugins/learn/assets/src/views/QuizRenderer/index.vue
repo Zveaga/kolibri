@@ -27,6 +27,7 @@
               :questionNumber="questionNumber"
               :wrapperComponentRefs="$refs"
               :questions="itemIdArray"
+              :currentQuestionAnswered="currentQuestionAnswered"
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
@@ -55,7 +56,7 @@
               :userId="userId"
               :userFullName="userFullName"
               :timeSpent="timeSpent"
-              @interaction="saveAnswer"
+              @interaction="interactionHandler"
               @updateProgress="updateProgress"
               @updateContentState="updateContentState"
               @error="err => $emit('error', err)"
@@ -174,7 +175,6 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
@@ -261,6 +261,7 @@
         startTime: Date.now(),
         questionNumber: 0,
         submitting: false,
+        currentQuestionAnswered: false,
       };
     },
     computed: {
@@ -307,27 +308,22 @@
         return this.itemIdArray[this.questionNumber];
       },
       questionsAnswered() {
-        return Object.keys(
-          this.pastattempts.reduce((map, attempt) => {
-            if (attempt.answer) {
-              map[attempt.item] = true;
-            }
-            return map;
-          }, {}),
-        ).length;
+        const answeredAttemptItems = this.pastattempts.reduce((map, attempt) => {
+          if (attempt.answer) {
+            map[attempt.item] = true;
+          }
+          return map;
+        }, {});
+        if (!answeredAttemptItems[this.itemId] && this.currentQuestionAnswered) {
+          answeredAttemptItems[this.itemId] = true;
+        }
+        return Object.keys(answeredAttemptItems).length;
       },
       questionsUnanswered() {
         return this.questionsTotal - this.questionsAnswered;
       },
       questionsTotal() {
         return this.content.assessmentmetadata.assessment_item_ids.length;
-      },
-      debouncedSetAndSaveCurrentExamAttemptLog() {
-        // So as not to share debounced functions between instances of the same component
-        // and also to allow access to the cancel method of the debounced function
-        // best practice seems to be to do it as a computed property and not a method:
-        // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
-        return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
       },
       bottomBarLayoutDirection() {
         // Allows contents to be displayed visually in reverse-order,
@@ -361,6 +357,7 @@
       itemId(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.startTime = Date.now();
+          this.currentQuestionAnswered = false;
         }
       },
       mastered(newVal, oldVal) {
@@ -419,9 +416,19 @@
         }
         return null;
       },
+      interactionHandler() {
+        const answer = this.checkAnswer();
+        if (answer) {
+          this.currentQuestionAnswered = true;
+        }
+      },
       saveAnswer(close = false) {
         const answer = this.checkAnswer();
-        if (answer && !isEqual(answer.answerState, this.currentAttempt.answer)) {
+        if (
+          this.currentQuestionAnswered &&
+          answer &&
+          !isEqual(answer.answerState, this.currentAttempt.answer)
+        ) {
           const interaction = {
             answer: answer.answerState,
             simple_answer: answer.simpleAnswer || '',
@@ -432,26 +439,23 @@
               ((this.currentAttempt.time_spent || 0) + Date.now() - this.startTime) / 1000,
           };
           this.startTime = Date.now();
-          if (close) {
-            return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
-          }
-          return this.debouncedSetAndSaveCurrentExamAttemptLog({ interaction });
+          return this.setAndSaveCurrentExamAttemptLog({ close, interaction });
         } else if (close) {
           return this.setAndSaveCurrentExamAttemptLog({ close });
         }
         return Promise.resolve();
       },
       goToQuestion(questionNumber) {
+        this.saveAnswer();
         this.questionNumber = questionNumber;
       },
       toggleModal() {
         // Flush any existing save event to ensure
-        // that the subit modal contains the latest state
-        Promise.resolve(
-          this.submitModalOpen || this.debouncedSetAndSaveCurrentExamAttemptLog.flush(),
-        ).then(() => {
-          this.submitModalOpen = !this.submitModalOpen;
-        });
+        // that the submit modal contains the latest state
+        if (!this.submitModalOpen) {
+          this.saveAnswer();
+        }
+        this.submitModalOpen = !this.submitModalOpen;
       },
       finishExam() {
         this.saveAnswer(true).then(() => {
