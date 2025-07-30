@@ -78,6 +78,19 @@
         :style="separatorStyles"
       ></div>
     </template>
+    <template #bottomNavigation>
+      <div class="bottom-nav-container">
+        <KButton
+          :text="coreStrings.clearAction$()"
+          @click="clearFilters"
+        />
+        <KButton
+          primary
+          :text="applyFiltersLabel$()"
+          @click="applyFilters"
+        />
+      </div>
+    </template>
   </SidePanelModal>
 
 </template>
@@ -85,7 +98,9 @@
 
 <script>
 
-  import { computed, reactive } from 'vue';
+  import { computed, reactive, ref } from 'vue';
+  import { useRouter, useRoute } from 'vue-router/composables';
+
   import { UserKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
@@ -93,7 +108,8 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import SelectableList from '../../../common/SelectableList.vue';
-  import { DateRangeFilters } from '../../../../constants';
+  import { DateRangeFilters, PageNames } from '../../../../constants';
+  import { overrideRoute } from '../../../../utils';
   import BirthYearRangeSelect from './BirthYearRangeSelect.vue';
 
   export default {
@@ -112,7 +128,10 @@
         lastNMonthsLabel$,
         lastYearLabel$,
         allTimeLabel$,
+        applyFiltersLabel$,
       } = bulkUserManagementStrings;
+      const router = useRouter();
+      const route = useRoute();
 
       const filters = reactive({
         userTypes: [],
@@ -121,8 +140,10 @@
           start: null,
           end: null,
         },
-        creationDate: null,
+        creationDate: {},
       });
+
+      const prevRoute = ref(null);
 
       const userFilterOptions = [
         { id: UserKinds.SUPERUSER, label: coreStrings.superAdminsLabel$(), icon: 'superAdmins' },
@@ -140,27 +161,27 @@
 
       const creationDateOptions = [
         {
-          id: DateRangeFilters.LAST_7_DAYS,
+          value: DateRangeFilters.LAST_7_DAYS,
           label: lastNDaysLabel$({ num: 7 }),
         },
         {
-          id: DateRangeFilters.LAST_30_DAYS,
+          value: DateRangeFilters.LAST_30_DAYS,
           label: lastNDaysLabel$({ num: 30 }),
         },
         {
-          id: DateRangeFilters.THIS_MONTH,
+          value: DateRangeFilters.THIS_MONTH,
           label: thisMonthLabel$(),
         },
         {
-          id: DateRangeFilters.LAST_6_MONTHS,
+          value: DateRangeFilters.LAST_6_MONTHS,
           label: lastNMonthsLabel$({ num: 6 }),
         },
         {
-          id: DateRangeFilters.LAST_YEAR,
+          value: DateRangeFilters.LAST_YEAR,
           label: lastYearLabel$(),
         },
         {
-          id: DateRangeFilters.ALL_TIME,
+          value: DateRangeFilters.ALL_TIME,
           label: allTimeLabel$(),
         },
       ];
@@ -171,18 +192,68 @@
         marginBottom: '24px',
       };
 
+      const clearFilters = () => {
+        filters.userTypes = [];
+        filters.classes = [];
+        filters.birthYear = { start: null, end: null };
+        filters.creationDate = {};
+      };
+
+      const getFilterQuery = () => {
+        const query = {};
+        // Check if all options are selected, then we are not applying any filters
+        if (filters.userTypes.length && filters.userTypes.length < userFilterOptions.length) {
+          query.userTypes = filters.userTypes.join(',');
+        }
+        if (filters.classes.length && filters.classes.length < props.classes.length) {
+          query.classes = filters.classes.join(',');
+        }
+        if (filters.birthYear.start) {
+          query.birthYearStart = filters.birthYear.start;
+        }
+        if (filters.birthYear.end) {
+          query.birthYearEnd = filters.birthYear.end;
+        }
+        if (filters.creationDate.value) {
+          query.creationDate = filters.creationDate.value;
+        }
+        return query;
+      };
+
+      const applyFilters = () => {
+        const fallbackRoute = overrideRoute(route, {
+          name: PageNames.USER_MGMT_PAGE,
+        });
+        let nextRoute = prevRoute.value;
+        if (!nextRoute?.name) {
+          nextRoute = fallbackRoute;
+        }
+        nextRoute = {
+          ...nextRoute,
+          query: getFilterQuery(),
+        };
+        router.push(nextRoute).catch(() => {});
+      };
+
       return {
         // ref and computed properties
         filters,
+        // eslint-disable-next-line vue/no-unused-properties
+        prevRoute,
         coreStrings,
         classesOptions,
         separatorStyles,
         userFilterOptions,
         creationDateOptions,
 
+        // methods
+        clearFilters,
+        applyFilters,
+
         // translation functions
         allUsersLabel$,
         filterUsersLabel$,
+        applyFiltersLabel$,
       };
     },
     props: {
@@ -190,6 +261,11 @@
         type: Array,
         default: () => [],
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
     },
   };
 
@@ -221,6 +297,13 @@
 
   .birth-year-range-select {
     max-width: 316px;
+  }
+
+  .bottom-nav-container {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    width: 100%;
   }
 
 </style>

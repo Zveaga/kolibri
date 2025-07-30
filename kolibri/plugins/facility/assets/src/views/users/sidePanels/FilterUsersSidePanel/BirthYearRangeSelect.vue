@@ -2,7 +2,7 @@
 
   <div class="birth-year-range-select">
     <BirthYearSelect
-      v-model="startYear"
+      :value.sync="startYear"
       clearable
       class="birthyear-select"
       :showInfoIcon="false"
@@ -10,7 +10,7 @@
       :excludeNotSpecified="true"
     />
     <BirthYearSelect
-      v-model="endYear"
+      :value.sync="endYear"
       clearable
       class="birthyear-select"
       :showInfoIcon="false"
@@ -34,18 +34,18 @@
     components: {
       BirthYearSelect,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const { fromLabel$, upToLabel$ } = bulkUserManagementStrings;
       const startYear = computed({
         get: () => props.value.start,
         set: value => {
-          props.$emit('update:value', { ...props.value, start: value });
+          emit('input', { ...props.value, start: value });
         },
       });
       const endYear = computed({
         get: () => props.value.end,
         set: value => {
-          props.$emit('update:value', { ...props.value, end: value });
+          emit('input', { ...props.value, end: value });
         },
       });
       return {
@@ -62,12 +62,12 @@
         validator: value =>
           validateObject(value, {
             start: {
-              type: Number,
+              type: String,
               required: false,
               default: null,
             },
             end: {
-              type: Number,
+              type: String,
               required: false,
               default: null,
             },

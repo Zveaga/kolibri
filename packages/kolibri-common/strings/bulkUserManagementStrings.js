@@ -54,6 +54,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Up to',
     context: 'Label for the end date input in the date range filter',
   },
+  applyFiltersLabel: {
+    message: 'Apply filters',
+    context: 'Label for the button that applies the selected filters',
+  },
 
   // Date range filters
   lastNDaysLabel: {
