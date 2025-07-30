@@ -26,6 +26,14 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Filter',
     context: 'Label for the filter dropdown',
   },
+  filterUsersLabel: {
+    message: 'Filter users',
+    context: 'Label for the filter users side panel',
+  },
+  allUsersLabel: {
+    message: 'All users',
+    context: 'Label for the all users filter option',
+  },
   selectLabel: {
     message: 'Select',
     context: 'Label for the selecting a user',
@@ -37,6 +45,36 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   searchForAClass: {
     message: 'Search for a class',
     context: 'Placeholder text for class search input',
+  },
+  fromLabel: {
+    message: 'From',
+    context: 'Label for the start date input in the date range filter',
+  },
+  upToLabel: {
+    message: 'Up to',
+    context: 'Label for the end date input in the date range filter',
+  },
+
+  // Date range filters
+  lastNDaysLabel: {
+    message: 'Last {num, number} days',
+    context: 'Label for the last N days date range filter',
+  },
+  thisMonthLabel: {
+    message: 'This month',
+    context: 'Label for the this month date range filter',
+  },
+  lastNMonthsLabel: {
+    message: 'Last {num, number} months',
+    context: 'Label for the last N months date range filter',
+  },
+  lastYearLabel: {
+    message: 'Last year',
+    context: 'Label for the last year date range filter',
+  },
+  allTimeLabel: {
+    message: 'All time',
+    context: 'Label for the all time date range filter',
   },
 
   // Dropdown options

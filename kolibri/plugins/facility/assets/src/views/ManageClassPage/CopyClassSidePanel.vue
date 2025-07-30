@@ -39,7 +39,7 @@
           >
             <template #option="{ option }">
               <span>
-                {{ option }}
+                {{ option.label }}
                 <UserTypeDisplay
                   aria-hidden="true"
                   userType="coach"
@@ -89,7 +89,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import SelectableList from './SelectableList.vue';
+  import SelectableList from '../common/SelectableList.vue';
 
   export default {
     name: 'CopyClassSidePanel',

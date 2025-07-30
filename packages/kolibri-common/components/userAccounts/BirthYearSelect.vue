@@ -3,14 +3,17 @@
   <div class="pos-rel">
     <KSelect
       class="birthyear-select"
+      :class="{ 'with-info-icon': showInfoIcon }"
       :value="selected"
-      :label="coreString('birthYearLabel')"
+      :label="$attrs.label || coreString('birthYearLabel')"
       :placeholder="$tr('placeholder')"
       :options="options"
       :disabled="$attrs.disabled"
+      :clearable="$attrs.clearable"
       @change="$emit('update:value', $event.value)"
     />
     <CoreInfoIcon
+      v-if="showInfoIcon"
       class="info-icon"
       :tooltipText="$tr('birthYearTooltip')"
       :tooltipPlacement="tooltipPlacement"
@@ -54,6 +57,14 @@
         type: String,
         default: null,
       },
+      showInfoIcon: {
+        type: Boolean,
+        default: true,
+      },
+      excludeNotSpecified: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -71,14 +82,14 @@
         if (Number(this.value) > firstYear) {
           extraYears = this.makeYearOptions(Number(this.value), firstYear - 1);
         }
-        return [
-          {
+        const options = [...extraYears, ...this.yearOptions];
+        if (!this.excludeNotSpecified) {
+          options.unshift({
             value: NOT_SPECIFIED,
             label: this.coreString('birthYearNotSpecified'),
-          },
-          ...extraYears,
-          ...this.yearOptions,
-        ];
+          });
+        }
+        return options;
       },
       tooltipPlacement() {
         if (this.windowIsSmall) {
@@ -129,7 +140,7 @@
     position: relative;
   }
 
-  .birthyear-select {
+  .birthyear-select.with-info-icon {
     width: calc(100% - 32px);
   }
 

@@ -74,3 +74,12 @@ export const ClassesActions = {
   ENROLL_LEARNER: 'ENROLL_LEARNER',
   ASSIGN_COACH: 'ASSIGN_COACH',
 };
+
+export const DateRangeFilters = {
+  LAST_7_DAYS: 'LAST_7_DAYS',
+  LAST_30_DAYS: 'LAST_30_DAYS',
+  THIS_MONTH: 'THIS_MONTH',
+  LAST_6_MONTHS: 'LAST_6_MONTHS',
+  LAST_YEAR: 'LAST_YEAR',
+  ALL_TIME: 'ALL_TIME',
+};
