@@ -19,8 +19,8 @@
             :autofocus="true"
             :maxlength="100"
             :showInvalidText="true"
-            :invalid="isClassNameInvalid"
-            :invalidText="classNameAlreadyExists$()"
+            :invalid="Boolean(classNameInvalidText)"
+            :invalidText="classNameInvalidText"
           />
 
           <p
@@ -68,7 +68,7 @@
             <KButton
               :text="copyClasslabel$()"
               :primary="true"
-              :disabled="isClassNameInvalid"
+              :disabled="Boolean(classNameInvalidText) || submitting"
               @click="handleSubmitingClassCopy"
             />
           </div>
@@ -102,6 +102,7 @@
     setup(props) {
       const classCoachesIds = ref([]);
       const copiedClassName = ref(null);
+      const submitting = ref(false);
       const { className } = props;
 
       const {
@@ -138,6 +139,7 @@
         copiedClassName,
         createSnackbar,
         classCoachesIds,
+        submitting,
       };
     },
     props: {
@@ -163,8 +165,16 @@
       },
     },
     computed: {
-      isClassNameInvalid() {
-        return this.classroom.some(row => row[0] === this.copiedClassName) && !this.submitting;
+      classNameInvalidText() {
+        if (!this.submitting) {
+          const name = (this.copiedClassName || '').trim();
+          if (!name) {
+            return this.coreString('requiredFieldError');
+          } else if (this.classroom.some(row => row[0] === name)) {
+            return this.classNameAlreadyExists$();
+          }
+        }
+        return '';
       },
       userRoleBadgeStyle() {
         return {
