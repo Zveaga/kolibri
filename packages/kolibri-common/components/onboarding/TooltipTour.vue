@@ -43,7 +43,10 @@
     },
     computed: {
       steps() {
-        return onboardingSteps[this.page] || [];
+        return onboardingSteps[this.page]?.steps || [];
+      },
+      pageLabel() {
+        return onboardingSteps[this.page]?.label || '';
       },
       highlightStyle() {
         return {
@@ -88,7 +91,7 @@
           const TooltipConstructor = Vue.extend(TooltipContent);
           const instance = new TooltipConstructor({
             propsData: {
-              page: this.page,
+              page: this.pageLabel,
               steps: this.steps,
               currentStepIndex: this.currentStepIndex,
             },

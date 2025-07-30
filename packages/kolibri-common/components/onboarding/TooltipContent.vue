@@ -74,10 +74,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
 
-  const pageLabels = {
-    LibraryPage: 'libraryLabel',
-  };
-
   export default {
     name: 'TooltipContent',
     mixins: [commonCoreStrings],
@@ -118,8 +114,7 @@
         this.$refs.continueButton?.$el.focus();
       },
       getTranslatedPageLabel() {
-        const labelKey = pageLabels[this.page];
-        return labelKey ? this.coreString(labelKey) : this.page;
+        return this.page ? this.coreString(this.page) : this.page;
       },
     },
   };
