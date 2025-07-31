@@ -4,6 +4,7 @@ import { ref, computed, getCurrentInstance, watch } from 'vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { _userState } from '../modules/mappers';
+import useUsersFilters from './useUsersFilters';
 
 export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {}) {
   const facilityUsers = ref([]);
@@ -19,7 +20,8 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
   const ordering = computed(() => route.value.query.ordering || null);
   const order = computed(() => route.value.query.order || '');
   const search = computed(() => route.value.query.search || null);
-  const userType = computed(() => route.value.query.user_type || null);
+
+  const { routeFilters, getBackendFilters } = useUsersFilters({ classes });
 
   const fetchUsers = async () => {
     dataLoading.value = true;
@@ -32,7 +34,7 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
           page_size: pageSize.value,
           search: search.value?.trim() || null,
           ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
-          user_type: userType.value,
+          ...getBackendFilters(),
         }),
         force: true,
       });
@@ -61,7 +63,14 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
 
   // re-running fetchUsers whenever the relevant query params change
   watch(
-    () => [page.value, pageSize.value, search.value, userType.value, ordering.value, order.value],
+    () => [
+      page.value,
+      pageSize.value,
+      search.value,
+      ordering.value,
+      order.value,
+      routeFilters.value,
+    ],
     (newFilters, oldFilters) => {
       if (!isEqual(newFilters, oldFilters)) {
         fetchUsers();
@@ -80,7 +89,6 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
     ordering,
     order,
     search,
-    userType,
     classes,
     // methods
     fetchUsers,

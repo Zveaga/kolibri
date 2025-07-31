@@ -1,0 +1,217 @@
+import { computed, reactive, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router/composables';
+
+import { UserKinds } from 'kolibri/constants';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+
+import { DateRangeFilters } from '../constants';
+
+export default function useUsersFilters({ classes }) {
+  const router = useRouter();
+  const route = useRoute();
+
+  const routeFilters = computed(() => {
+    return {
+      userTypes: route.query.user_types?.split(',') || [],
+      classes: route.query.classes?.split(',') || [],
+      birthYear: {
+        start: route.query.birth_year_start || null,
+        end: route.query.birth_year_end || null,
+      },
+      creationDate: route.query.creation_date || null,
+    };
+  });
+
+  const workingFilters = reactive({
+    userTypes: [],
+    classes: [],
+    birthYear: {
+      start: null,
+      end: null,
+    },
+    creationDate: {},
+  });
+
+  const { lastNDaysLabel$, thisMonthLabel$, lastNMonthsLabel$, lastYearLabel$, allTimeLabel$ } =
+    bulkUserManagementStrings;
+
+  const userFilterOptions = [
+    { id: UserKinds.SUPERUSER, label: coreStrings.superAdminsLabel$(), icon: 'superAdmins' },
+    { id: UserKinds.LEARNER, label: coreStrings.learnersLabel$(), icon: 'learners' },
+    { id: UserKinds.ADMIN, label: coreStrings.adminsLabel$(), icon: 'admins' },
+    { id: UserKinds.COACH, label: coreStrings.coachesLabel$(), icon: 'coaches' },
+  ];
+
+  const classesOptions = computed(() =>
+    classes.value.map(cls => ({
+      id: cls.id,
+      label: cls.name,
+    })),
+  );
+
+  const creationDateOptions = [
+    {
+      value: DateRangeFilters.LAST_7_DAYS,
+      label: lastNDaysLabel$({ num: 7 }),
+      filter: {
+        days: 7,
+      },
+    },
+    {
+      value: DateRangeFilters.LAST_30_DAYS,
+      label: lastNDaysLabel$({ num: 30 }),
+      filter: {
+        days: 30,
+      },
+    },
+    {
+      value: DateRangeFilters.THIS_MONTH,
+      label: thisMonthLabel$(),
+      filter: {
+        days: new Date().getDate() - 1, // Days in the current month
+      },
+    },
+    {
+      value: DateRangeFilters.LAST_6_MONTHS,
+      label: lastNMonthsLabel$({ num: 6 }),
+      filter: {
+        months: 6,
+      },
+    },
+    {
+      value: DateRangeFilters.LAST_YEAR,
+      label: lastYearLabel$(),
+      filter: {
+        years: 1,
+      },
+    },
+    {
+      value: DateRangeFilters.ALL_TIME,
+      label: allTimeLabel$(),
+    },
+  ];
+
+  watch(
+    routeFilters,
+    newFilters => {
+      workingFilters.userTypes = [...newFilters.userTypes];
+      workingFilters.classes = [...newFilters.classes];
+      workingFilters.birthYear = newFilters.birthYear;
+      workingFilters.creationDate =
+        creationDateOptions.find(option => option.value === newFilters.creationDate) || {};
+    },
+    { immediate: true },
+  );
+
+  const applyFilters = ({ nextRouteName } = {}) => {
+    const nextQuery = { ...route.query };
+    delete nextQuery.page; // Reset to the first page when applying filters
+
+    if (
+      workingFilters.userTypes.length &&
+      workingFilters.userTypes.length < userFilterOptions.length
+    ) {
+      nextQuery.user_types = workingFilters.userTypes.join(',');
+    } else {
+      delete nextQuery.user_types;
+    }
+
+    if (
+      workingFilters.classes.length &&
+      workingFilters.classes.length < classesOptions.value.length
+    ) {
+      nextQuery.classes = workingFilters.classes.join(',');
+    } else {
+      delete nextQuery.classes;
+    }
+
+    if (workingFilters.birthYear.start) {
+      nextQuery.birth_year_start = workingFilters.birthYear.start;
+    } else {
+      delete nextQuery.birth_year_start;
+    }
+
+    if (workingFilters.birthYear.end) {
+      nextQuery.birth_year_end = workingFilters.birthYear.end;
+    } else {
+      delete nextQuery.birth_year_end;
+    }
+
+    if (workingFilters.creationDate.value) {
+      nextQuery.creation_date = workingFilters.creationDate.value;
+    } else {
+      delete nextQuery.creation_date;
+    }
+
+    router.push({ ...route, name: nextRouteName || route.name, query: nextQuery });
+  };
+
+  const getBackendFilters = () => {
+    const backendFilters = {};
+
+    const creationDate =
+      creationDateOptions.find(option => option.value === routeFilters.value.creationDate) || {};
+    if (creationDate.filter) {
+      const currentDate = new Date();
+      if (creationDate.filter.days) {
+        currentDate.setDate(currentDate.getDate() - creationDate.filter.days);
+      }
+      if (creationDate.filter.months) {
+        currentDate.setMonth(currentDate.getMonth() - creationDate.filter.months);
+      }
+      if (creationDate.filter.years) {
+        currentDate.setFullYear(currentDate.getFullYear() - creationDate.filter.years);
+      }
+      backendFilters.date_joined__gte = currentDate.toISOString();
+    }
+
+    if (routeFilters.value.userTypes.length) {
+      backendFilters.user_type__in = routeFilters.value.userTypes;
+    }
+
+    if (routeFilters.value.classes.length) {
+      backendFilters.related_to__in = routeFilters.value.classes;
+    }
+
+    if (routeFilters.value.birthYear.start) {
+      backendFilters.birth_year_gte = routeFilters.value.birthYear.start;
+    }
+
+    if (routeFilters.value.birthYear.end) {
+      backendFilters.birth_year_lte = routeFilters.value.birthYear.end;
+    }
+
+    return backendFilters;
+  };
+
+  const resetWorkingFilters = () => {
+    workingFilters.userTypes = [];
+    workingFilters.classes = [];
+    workingFilters.birthYear.start = null;
+    workingFilters.birthYear.end = null;
+    workingFilters.creationDate = {};
+  };
+
+  const resetFilters = () => {
+    resetWorkingFilters();
+    applyFilters();
+  };
+
+  return {
+    // Filters
+    routeFilters,
+    workingFilters,
+
+    // Options
+    classesOptions,
+    userFilterOptions,
+    creationDateOptions,
+
+    // Methods
+    applyFilters,
+    resetFilters,
+    getBackendFilters,
+    resetWorkingFilters,
+  };
+}

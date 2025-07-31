@@ -12,7 +12,7 @@
       <section class="filter-section">
         <h2 id="user-filter-type-label">{{ coreStrings.userTypeLabel$() }}</h2>
         <SelectableList
-          v-model="filters.userTypes"
+          v-model="workingFilters.userTypes"
           :searchable="false"
           :options="userFilterOptions"
           ariaLabelledby="user-filter-type-label"
@@ -43,7 +43,7 @@
       <section class="filter-section">
         <h2 id="class-filter-label">{{ coreStrings.classLabel$() }}</h2>
         <SelectableList
-          v-model="filters.classes"
+          v-model="workingFilters.classes"
           :options="classesOptions"
           ariaLabelledby="class-filter-label"
           :selectAllLabel="coreStrings.allClassesLabel$()"
@@ -57,7 +57,7 @@
       <section class="filter-section">
         <h2>{{ coreStrings.birthYearLabel$() }}</h2>
         <BirthYearRangeSelect
-          v-model="filters.birthYear"
+          v-model="workingFilters.birthYear"
           class="birth-year-range-select"
         />
       </section>
@@ -65,24 +65,26 @@
         class="section-separator"
         :style="separatorStyles"
       ></div>
-      <section class="filter-section">
-        <h2>{{ coreStrings.dateCreated$() }}</h2>
-        <KSelect
-          v-model="filters.creationDate"
-          :label="coreStrings.dateCreated$()"
-          :options="creationDateOptions"
-        />
-      </section>
-      <div
-        class="section-separator"
-        :style="separatorStyles"
-      ></div>
+      <template v-if="!hideDateCreatedFilter">
+        <section class="filter-section">
+          <h2>{{ coreStrings.dateCreated$() }}</h2>
+          <KSelect
+            v-model="workingFilters.creationDate"
+            :label="coreStrings.dateCreated$()"
+            :options="creationDateOptions"
+          />
+        </section>
+        <div
+          class="section-separator"
+          :style="separatorStyles"
+        ></div>
+      </template>
     </template>
     <template #bottomNavigation>
       <div class="bottom-nav-container">
         <KButton
           :text="coreStrings.clearAction$()"
-          @click="clearFilters"
+          @click="resetWorkingFilters"
         />
         <KButton
           primary
@@ -98,18 +100,17 @@
 
 <script>
 
-  import { computed, reactive, ref } from 'vue';
-  import { useRouter, useRoute } from 'vue-router/composables';
+  import { computed, ref, toRefs } from 'vue';
+  import { useRoute } from 'vue-router/composables';
 
-  import { UserKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import SelectableList from '../../../common/SelectableList.vue';
-  import { DateRangeFilters, PageNames } from '../../../../constants';
-  import { overrideRoute } from '../../../../utils';
+  import useUsersFilters from '../../../../composables/useUsersFilters';
+  import { PageNames } from '../../../../constants';
   import BirthYearRangeSelect from './BirthYearRangeSelect.vue';
 
   export default {
@@ -120,71 +121,25 @@
       BirthYearRangeSelect,
     },
     setup(props) {
-      const {
-        filterUsersLabel$,
-        allUsersLabel$,
-        lastNDaysLabel$,
-        thisMonthLabel$,
-        lastNMonthsLabel$,
-        lastYearLabel$,
-        allTimeLabel$,
-        applyFiltersLabel$,
-      } = bulkUserManagementStrings;
-      const router = useRouter();
+      const { filterUsersLabel$, allUsersLabel$, applyFiltersLabel$ } = bulkUserManagementStrings;
+      const { classes } = toRefs(props);
       const route = useRoute();
-
-      const filters = reactive({
-        userTypes: [],
-        classes: [],
-        birthYear: {
-          start: null,
-          end: null,
-        },
-        creationDate: {},
-      });
-
       const prevRoute = ref(null);
 
-      const userFilterOptions = [
-        { id: UserKinds.SUPERUSER, label: coreStrings.superAdminsLabel$(), icon: 'superAdmins' },
-        { id: UserKinds.LEARNER, label: coreStrings.learnersLabel$(), icon: 'learners' },
-        { id: UserKinds.ADMIN, label: coreStrings.adminsLabel$(), icon: 'admins' },
-        { id: UserKinds.COACH, label: coreStrings.coachesLabel$(), icon: 'coaches' },
-      ];
+      const {
+        workingFilters,
+        classesOptions,
+        userFilterOptions,
+        creationDateOptions,
+        applyFilters: _applyFilters,
+        resetWorkingFilters,
+      } = useUsersFilters({
+        classes,
+      });
 
-      const classesOptions = computed(() =>
-        props.classes.map(cls => ({
-          id: cls.id,
-          label: cls.name,
-        })),
-      );
-
-      const creationDateOptions = [
-        {
-          value: DateRangeFilters.LAST_7_DAYS,
-          label: lastNDaysLabel$({ num: 7 }),
-        },
-        {
-          value: DateRangeFilters.LAST_30_DAYS,
-          label: lastNDaysLabel$({ num: 30 }),
-        },
-        {
-          value: DateRangeFilters.THIS_MONTH,
-          label: thisMonthLabel$(),
-        },
-        {
-          value: DateRangeFilters.LAST_6_MONTHS,
-          label: lastNMonthsLabel$({ num: 6 }),
-        },
-        {
-          value: DateRangeFilters.LAST_YEAR,
-          label: lastYearLabel$(),
-        },
-        {
-          value: DateRangeFilters.ALL_TIME,
-          label: allTimeLabel$(),
-        },
-      ];
+      const hideDateCreatedFilter = computed(() => {
+        return route.name === PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS;
+      });
 
       const separatorStyles = {
         height: '1px',
@@ -192,52 +147,14 @@
         marginBottom: '24px',
       };
 
-      const clearFilters = () => {
-        filters.userTypes = [];
-        filters.classes = [];
-        filters.birthYear = { start: null, end: null };
-        filters.creationDate = {};
-      };
-
-      const getFilterQuery = () => {
-        const query = {};
-        // Check if all options are selected, then we are not applying any filters
-        if (filters.userTypes.length && filters.userTypes.length < userFilterOptions.length) {
-          query.userTypes = filters.userTypes.join(',');
-        }
-        if (filters.classes.length && filters.classes.length < props.classes.length) {
-          query.classes = filters.classes.join(',');
-        }
-        if (filters.birthYear.start) {
-          query.birthYearStart = filters.birthYear.start;
-        }
-        if (filters.birthYear.end) {
-          query.birthYearEnd = filters.birthYear.end;
-        }
-        if (filters.creationDate.value) {
-          query.creationDate = filters.creationDate.value;
-        }
-        return query;
-      };
-
       const applyFilters = () => {
-        const fallbackRoute = overrideRoute(route, {
-          name: PageNames.USER_MGMT_PAGE,
-        });
-        let nextRoute = prevRoute.value;
-        if (!nextRoute?.name) {
-          nextRoute = fallbackRoute;
-        }
-        nextRoute = {
-          ...nextRoute,
-          query: getFilterQuery(),
-        };
-        router.push(nextRoute).catch(() => {});
+        const nextRouteName = prevRoute.value.name || PageNames.USER_MGMT_PAGE;
+        _applyFilters({ nextRouteName });
       };
 
       return {
         // ref and computed properties
-        filters,
+        workingFilters,
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
         coreStrings,
@@ -245,9 +162,10 @@
         separatorStyles,
         userFilterOptions,
         creationDateOptions,
+        hideDateCreatedFilter,
 
         // methods
-        clearFilters,
+        resetWorkingFilters,
         applyFilters,
 
         // translation functions
