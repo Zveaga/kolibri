@@ -27,7 +27,7 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
       const resp = await FacilityUserResource.fetchCollection({
         getParams: pickBy({
           member_of: activeFacilityId,
-          date_joined__gt: dateJoinedGt?.toISOString(),
+          date_joined__gte: dateJoinedGt?.toISOString(),
           page: page.value,
           page_size: pageSize.value,
           search: search.value?.trim() || null,
