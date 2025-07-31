@@ -10,8 +10,8 @@
       <KGrid>
         <KGridItem
           :layout="{ alignment: 'right' }"
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
+          :layout8="{ span: 5 }"
+          :layout12="{ span: 7 }"
         >
           <div class="search-filter-section">
             <FilterTextbox
@@ -22,16 +22,26 @@
             />
             <KRouterLink
               appearance="basic-link"
-              :text="filterLabel$()"
+              :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
               class="filter-button move-down"
               :to="overrideRoute($route, { name: filterPageName })"
+            />
+            <KButton
+              v-if="numAppliedFilters > 0"
+              appearance="basic-link"
+              :text="clearFiltersLabel$()"
+              class="filter-button move-down"
+              :style="{
+                color: $themePalette.red.v_600 + ' !important',
+              }"
+              @click="$emit('clearFilters')"
             />
           </div>
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
+          :layout8="{ span: 3 }"
+          :layout12="{ span: 5 }"
           class="move-down"
         >
           <span v-if="selectedUsers.size > 0">
@@ -215,6 +225,7 @@
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
         createdAt$,
+        numFilters$,
         selectLabel$,
         filterLabel$,
         noAdminsExist$,
@@ -222,6 +233,7 @@
         noCoachesExist$,
         noLearnersExist$,
         numUsersSelected$,
+        clearFiltersLabel$,
         noSuperAdminsExist$,
         allUsersFilteredOut$,
       } = bulkUserManagementStrings;
@@ -564,10 +576,12 @@
 
         // Strings
         coreStrings,
+        numFilters$,
         selectLabel$,
         filterLabel$,
         selectAllLabel$,
         numUsersSelected$,
+        clearFiltersLabel$,
       };
     },
     props: {
@@ -590,6 +604,10 @@
       filterPageName: {
         type: String,
         required: true,
+      },
+      numAppliedFilters: {
+        type: Number,
+        default: 0,
       },
       selectedUsers: {
         type: Set,

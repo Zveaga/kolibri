@@ -54,7 +54,7 @@
       role="listbox"
       data-focus="true"
       aria-multiselectable="true"
-      :style="{ outline: 'none' }"
+      :style="{ outline: 'none', maxHeight: maxHeight }"
       :aria-labelledby="ariaLabelledby"
       :aria-describedby="ariaDescribedById"
       :aria-activedescendant="getElementOptionId(focusedOption)"
@@ -378,6 +378,10 @@
         type: String,
         required: true,
       },
+      maxHeight: {
+        type: String,
+        default: null,
+      },
     },
   };
 
@@ -394,6 +398,7 @@
   .list-options {
     padding: 0;
     margin: 0;
+    overflow: auto;
     list-style: none;
   }
 

@@ -87,7 +87,7 @@
     gap: 16px;
 
     .birthyear-select {
-      width: 100%;
+      min-width: 100%;
     }
   }
 

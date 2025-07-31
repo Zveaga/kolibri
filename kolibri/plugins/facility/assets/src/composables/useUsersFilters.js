@@ -33,6 +33,23 @@ export default function useUsersFilters({ classes }) {
     creationDate: {},
   });
 
+  const numAppliedFilters = computed(() => {
+    let count = 0;
+    if (routeFilters.value.userTypes.length) {
+      count += 1;
+    }
+    if (routeFilters.value.classes.length) {
+      count += 1;
+    }
+    if (routeFilters.value.birthYear.start || routeFilters.value.birthYear.end) {
+      count += 1;
+    }
+    if (routeFilters.value.creationDate) {
+      count += 1;
+    }
+    return count;
+  });
+
   const { lastNDaysLabel$, thisMonthLabel$, lastNMonthsLabel$, lastYearLabel$, allTimeLabel$ } =
     bulkUserManagementStrings;
 
@@ -202,6 +219,7 @@ export default function useUsersFilters({ classes }) {
     // Filters
     routeFilters,
     workingFilters,
+    numAppliedFilters,
 
     // Options
     classesOptions,

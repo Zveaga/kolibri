@@ -44,6 +44,9 @@
         :dataLoading="dataLoading"
         :selectedUsers.sync="selectedUsers"
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
+        :numAppliedFilters="numAppliedFilters"
+        @clearFilters="resetFilters"
+        @change="onUsersChange"
       >
         <template #userActions>
           <router-link
@@ -147,12 +150,25 @@
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-      const { facilityUsers, totalPages, usersCount, dataLoading, classes, fetchClasses } =
-        useUserManagement({ activeFacilityId });
+      const {
+        facilityUsers,
+        totalPages,
+        usersCount,
+        dataLoading,
+        classes,
+        numAppliedFilters,
+        fetchUsers,
+        fetchClasses,
+        resetFilters,
+      } = useUserManagement({ activeFacilityId });
 
       onMounted(() => {
         fetchClasses();
       });
+
+      function onUsersChange() {
+        fetchUsers();
+      }
 
       return {
         PageNames,
@@ -162,6 +178,9 @@
         usersCount,
         dataLoading,
         classes,
+        numAppliedFilters,
+        resetFilters,
+        onUsersChange,
         newUser$,
         viewTrash$,
         assignCoach$,

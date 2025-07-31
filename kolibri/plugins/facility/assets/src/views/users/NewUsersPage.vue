@@ -24,13 +24,15 @@
         </div>
       </div>
       <UsersTable
-        v-if="facilityUsers.length"
+        v-if="facilityUsers.length || numAppliedFilters > 0 || dataLoading"
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
         :totalPages="totalPages"
         :dataLoading="dataLoading"
         :selectedUsers.sync="selectedUsers"
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS"
+        :numAppliedFilters="numAppliedFilters"
+        @clearFilters="resetFilters"
         @change="onUsersChange"
       >
         <template #userActions>
@@ -146,8 +148,10 @@
         totalPages,
         usersCount,
         dataLoading,
+        numAppliedFilters,
         fetchUsers,
         fetchClasses,
+        resetFilters,
       } = useUserManagement({
         activeFacilityId,
         dateJoinedGt: newUsersCreationTreshold,
@@ -184,8 +188,10 @@
         usersCount,
         dataLoading,
         selectedUsers,
+        numAppliedFilters,
         onUsersChange,
         overrideRoute,
+        resetFilters,
         newUser$,
         newUsers$,
         backToUsers$,

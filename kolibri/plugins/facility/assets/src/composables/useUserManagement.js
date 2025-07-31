@@ -21,7 +21,9 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
   const order = computed(() => route.value.query.order || '');
   const search = computed(() => route.value.query.search || null);
 
-  const { routeFilters, getBackendFilters } = useUsersFilters({ classes });
+  const { routeFilters, numAppliedFilters, getBackendFilters, resetFilters } = useUsersFilters({
+    classes,
+  });
 
   const fetchUsers = async () => {
     dataLoading.value = true;
@@ -90,8 +92,10 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
     order,
     search,
     classes,
+    numAppliedFilters,
     // methods
     fetchUsers,
     fetchClasses,
+    resetFilters,
   };
 }

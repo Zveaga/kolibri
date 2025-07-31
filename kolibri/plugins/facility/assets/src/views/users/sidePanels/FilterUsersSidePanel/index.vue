@@ -48,6 +48,7 @@
           ariaLabelledby="class-filter-label"
           :selectAllLabel="coreStrings.allClassesLabel$()"
           :searchLabel="coreStrings.searchLabel$()"
+          maxHeight="200px"
         />
       </section>
       <div

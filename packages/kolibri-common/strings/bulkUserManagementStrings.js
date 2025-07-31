@@ -26,6 +26,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Filter',
     context: 'Label for the filter dropdown',
   },
+  clearFiltersLabel: {
+    message: 'Clear filters',
+    context: 'Label for the button that clears all filters applied to the user table',
+  },
   filterUsersLabel: {
     message: 'Filter users',
     context: 'Label for the filter users side panel',
