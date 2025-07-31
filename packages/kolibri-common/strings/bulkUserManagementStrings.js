@@ -375,6 +375,11 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Sorry! Something went wrong, please try again.',
     context: 'Default error message for API errors.',
   },
+  birthYearRangeError: {
+    message: 'The start year cannot be greater than the end year.',
+    context:
+      'Error message shown when the start year is greater than the end year in the birth year range filter.',
+  },
 
   // Users table
   allUsersFilteredOut: {

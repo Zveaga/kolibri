@@ -10,6 +10,8 @@
       :options="options"
       :disabled="$attrs.disabled"
       :clearable="$attrs.clearable"
+      :invalid="true"
+      :invalidText="$attrs.invalidText"
       @change="$emit('update:value', $event.value)"
     />
     <CoreInfoIcon

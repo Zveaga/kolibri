@@ -8,6 +8,8 @@
       :showInfoIcon="false"
       :label="fromLabel$()"
       :excludeNotSpecified="true"
+      :invalid="startYearError"
+      :invalidText="startYearError"
     />
     <BirthYearSelect
       :value.sync="endYear"
@@ -48,9 +50,16 @@
           emit('input', { ...props.value, end: value });
         },
       });
+      const startYearError = computed(() => {
+        if (startYear.value && endYear.value && startYear.value > endYear.value) {
+          return bulkUserManagementStrings.birthYearRangeError$();
+        }
+        return null;
+      });
       return {
         startYear,
         endYear,
+        startYearError,
         fromLabel$,
         upToLabel$,
       };
