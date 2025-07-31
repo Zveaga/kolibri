@@ -7,6 +7,13 @@ import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManage
 
 import { DateRangeFilters } from '../constants';
 
+/**
+ * Composable to manage user filters in the user management pages.
+ *
+ * @param {object} options
+ * @param {Array} options.classes - Ref to the list of classes available for filtering.
+ * @returns
+ */
 export default function useUsersFilters({ classes }) {
   const router = useRouter();
   const route = useRoute();
@@ -71,35 +78,35 @@ export default function useUsersFilters({ classes }) {
     {
       value: DateRangeFilters.LAST_7_DAYS,
       label: lastNDaysLabel$({ num: 7 }),
-      filter: {
+      dateSubtraction: {
         days: 7,
       },
     },
     {
       value: DateRangeFilters.LAST_30_DAYS,
       label: lastNDaysLabel$({ num: 30 }),
-      filter: {
+      dateSubtraction: {
         days: 30,
       },
     },
     {
       value: DateRangeFilters.THIS_MONTH,
       label: thisMonthLabel$(),
-      filter: {
+      dateSubtraction: {
         days: new Date().getDate() - 1, // Days in the current month
       },
     },
     {
       value: DateRangeFilters.LAST_6_MONTHS,
       label: lastNMonthsLabel$({ num: 6 }),
-      filter: {
+      dateSubtraction: {
         months: 6,
       },
     },
     {
       value: DateRangeFilters.LAST_YEAR,
       label: lastYearLabel$(),
-      filter: {
+      dateSubtraction: {
         years: 1,
       },
     },
@@ -121,6 +128,15 @@ export default function useUsersFilters({ classes }) {
     { immediate: true },
   );
 
+  /**
+   * Apply the current filters to the route by updating the query parameters,
+   * and pushing the new route. This will remove from the query any filters
+   * that are not longer applied, but will leave any other query parameters intact.
+   *
+   * @param {object} options
+   * @param {string} options.nextRouteName - The name of the route to navigate to
+   *                                         after applying filters.
+   */
   const applyFilters = ({ nextRouteName } = {}) => {
     const nextQuery = { ...route.query };
     delete nextQuery.page; // Reset to the first page when applying filters
@@ -169,18 +185,18 @@ export default function useUsersFilters({ classes }) {
 
     const creationDate =
       creationDateOptions.find(option => option.value === routeFilters.value.creationDate) || {};
-    if (creationDate.filter) {
-      const currentDate = new Date();
-      if (creationDate.filter.days) {
-        currentDate.setDate(currentDate.getDate() - creationDate.filter.days);
+    if (creationDate.dateSubtraction) {
+      const startDate = new Date();
+      if (creationDate.dateSubtraction.days) {
+        startDate.setDate(startDate.getDate() - creationDate.dateSubtraction.days);
       }
-      if (creationDate.filter.months) {
-        currentDate.setMonth(currentDate.getMonth() - creationDate.filter.months);
+      if (creationDate.dateSubtraction.months) {
+        startDate.setMonth(startDate.getMonth() - creationDate.dateSubtraction.months);
       }
-      if (creationDate.filter.years) {
-        currentDate.setFullYear(currentDate.getFullYear() - creationDate.filter.years);
+      if (creationDate.dateSubtraction.years) {
+        startDate.setFullYear(startDate.getFullYear() - creationDate.dateSubtraction.years);
       }
-      backendFilters.date_joined__gte = currentDate.toISOString();
+      backendFilters.date_joined__gte = startDate.toISOString();
     }
 
     if (routeFilters.value.userTypes.length) {
