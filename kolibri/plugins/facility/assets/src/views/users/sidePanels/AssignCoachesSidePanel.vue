@@ -1,79 +1,105 @@
 <template>
 
-  <SidePanelModal
-    alignment="right"
-    sidePanelWidth="700px"
-    @closePanel="$router.back()"
-  >
-    <template #header>
-      <h1>Assign to class</h1>
-    </template>
-
-    <div class="assign-coaches-content">
+  <div>
+    <KModal
+      v-if="showUndoModal"
+      :title="undoAssignCoachHeading$({ num: selectedUsersCount })"
+      :submitText="undoAction$()"
+      :cancelText="dismissAction$()"
+      :submitDisabled="isLoading"
+      :cancelDisabled="isLoading"
+      @cancel="handleDismissConfirmation"
+      @submit="handleUndoAssignments"
+    >
       <KCircularLoader v-if="isLoading" />
-      <div v-else>
-        <div
-          v-if="showErrorWarning"
-          class="enroll-warning-label"
-          :style="{ color: $themeTokens.error }"
-        >
-          <span>{{ defaultErrorMessage$() }}</span>
-        </div>
-        <p>You've selected {{ selectedUsersCount }} users</p>
-        <div class="warning-message">
-          <KIcon
-            icon="warning"
-            color="yellow"
-            class="sidepanel-icon"
-          />
-          {{ selectedUsersCount }} users are not enrolled in any class
-        </div>
-        <div class="warning-message">
-          <KIcon
-            icon="warning"
-            color="yellow"
-            class="sidepanel-icon"
-          />
-          {{ selectedUsersCount }} users are coaches
-        </div>
-        <div class="info-message">
-          <KIcon
-            icon="info"
-            color="orange"
-            class="sidepanel-icon"
-          />
-          Users already not in selected classes will not be affected.
-        </div>
-        <hr class="divider" >
-        <h2>Assign users to selected classes</h2>
-        <SelectableList
-          v-model="selectedClasses"
-          :options="formattedClasses"
-          aria-labelledby="classes-heading"
-          :selectAllLabel="'Select all classes'"
-          :searchLabel="'Search classes...'"
-        />
+      <span
+        v-else
+        class="adjust-line-height"
+      >
+        {{
+          undoAssignCoachMessage$({
+            numUsers: selectedUsersCount,
+            numClasses: selectedClasses.length,
+          })
+        }}
+      </span>
+    </KModal>
+    <SidePanelModal
+      v-else
+      alignment="right"
+      sidePanelWidth="700px"
+      @closePanel="$router.back()"
+    >
+      <template #header>
+        <h1>{{ assignCoach$() }}</h1>
+      </template>
 
-        <!-- Footer Buttons -->
-        <div class="footer-buttons">
-          <KButton
-            appearance="secondary-button"
-            @click="handleCancel"
+      <div class="assign-coaches-content">
+        <KCircularLoader v-if="isLoading" />
+        <div v-else>
+          <div
+            v-if="showErrorWarning"
+            class="enroll-warning-label"
+            :style="{ color: $themeTokens.error }"
           >
-            Cancel
-          </KButton>
-          <KButton
-            primary
-            appearance="raised-button"
-            :disabled="!hasSelectedClasses || isLoading"
-            @click="handleEnroll"
-          >
-            {{ 'Enroll' }}
-          </KButton>
+            <span>{{ defaultErrorMessage$() }}</span>
+          </div>
+          <p>{{ numUsersYouHaveSelected$({ num: selectedUsersCount }) }}</p>
+          <div class="warning-message">
+            <KIcon
+              icon="warning"
+              color="yellow"
+              class="sidepanel-icon"
+            />
+            {{ numUsersNotEnrolled$({ num: selectedUsersCount }) }}
+          </div>
+          <div class="warning-message">
+            <KIcon
+              icon="warning"
+              color="yellow"
+              class="sidepanel-icon"
+            />
+            {{ numUsersCoaches$({ num: selectedUsersCount }) }}
+          </div>
+          <div class="info-message">
+            <KIcon
+              icon="info"
+              color="orange"
+              class="sidepanel-icon"
+            />
+            {{ usersNotInClassNotAffected$() }}
+          </div>
+          <hr class="divider" >
+          <h2>{{ assignToAClassLabel$() }}</h2>
+          <SelectableList
+            v-model="selectedClasses"
+            :options="formattedClasses"
+            aria-labelledby="classes-heading"
+            :selectAllLabel="selectAllLabel$()"
+            :searchLabel="searchForAClass$()"
+          />
+
+          <!-- Footer Buttons -->
+          <div class="footer-buttons">
+            <KButton
+              appearance="secondary-button"
+              @click="handleCancel"
+            >
+              {{ coreString('cancelAction') }}
+            </KButton>
+            <KButton
+              primary
+              appearance="raised-button"
+              :disabled="!hasSelectedClasses || isLoading"
+              @click="handleEnroll"
+            >
+              {{ enrollAction$() }}
+            </KButton>
+          </div>
         </div>
       </div>
-    </div>
-  </SidePanelModal>
+    </SidePanelModal>
+  </div>
 
 </template>
 
@@ -87,6 +113,8 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import SelectableList from '../../ManageClassPage/SelectableList';
 
   export default {
@@ -101,9 +129,29 @@
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
+      const showUndoModal = ref(false);
+      const createdRoles = ref([]);
       const instance = getCurrentInstance();
 
-      const { defaultErrorMessage$ } = bulkUserManagementStrings;
+      const {
+        defaultErrorMessage$,
+        undoAssignCoachHeading$,
+        undoAssignCoachMessage$,
+        coachesAssignedNotice$,
+        assignCoachUndoneNotice$,
+        undoAction$,
+        assignCoach$,
+        numUsersYouHaveSelected$,
+        numUsersNotEnrolled$,
+        numUsersCoaches$,
+        usersNotInClassNotAffected$,
+        assignToAClassLabel$,
+        enrollAction$,
+        selectAllLabel$,
+        searchForAClass$,
+      } = bulkUserManagementStrings;
+      const { createSnackbar } = useSnackbar();
+      const { dismissAction$ } = searchAndFilterStrings;
 
       // Computed properties
       const formattedClasses = computed(() =>
@@ -129,10 +177,14 @@
 
         isLoading.value = true;
         showErrorWarning.value = false;
+        createdRoles.value = [];
 
         try {
           await assignCoachesToClasses();
-          instance.proxy.$router.back();
+          createSnackbar(coachesAssignedNotice$());
+          if (createdRoles.value.length > 0) {
+            showUndoModal.value = true;
+          }
         } catch (error) {
           showErrorWarning.value = true;
         } finally {
@@ -145,18 +197,44 @@
         const userIds = Array.from(props.selectedUsers);
 
         for (const classObj of selectedClasses) {
-          await RoleResource.saveCollection({
+          const newRoles = await RoleResource.saveCollection({
             data: userIds.map(userId => ({
               collection: classObj.id,
               user: userId,
               kind: UserKinds.COACH,
             })),
           });
+          createdRoles.value.push(...newRoles);
         }
       }
 
       function handleCancel() {
         instance.proxy.$router.back();
+      }
+
+      function handleDismissConfirmation() {
+        showUndoModal.value = false;
+        instance.proxy.$router.back();
+      }
+
+      async function handleUndoAssignments() {
+        isLoading.value = true;
+        try {
+          if (createdRoles.value.length > 0) {
+            for (const role of createdRoles.value) {
+              if (role.id) {
+                await RoleResource.deleteModel(role.id);
+              }
+            }
+          }
+          createSnackbar(assignCoachUndoneNotice$());
+        } catch (error) {
+          createSnackbar(defaultErrorMessage$());
+        } finally {
+          showUndoModal.value = false;
+          isLoading.value = false;
+          instance.proxy.$router.back();
+        }
       }
 
       return {
@@ -166,9 +244,25 @@
         selectedUsersCount,
         hasSelectedClasses,
         showErrorWarning,
+        showUndoModal,
         defaultErrorMessage$,
+        assignCoach$,
+        numUsersYouHaveSelected$,
+        numUsersNotEnrolled$,
+        numUsersCoaches$,
+        usersNotInClassNotAffected$,
+        assignToAClassLabel$,
+        enrollAction$,
+        selectAllLabel$,
+        searchForAClass$,
         handleEnroll,
         handleCancel,
+        handleDismissConfirmation,
+        handleUndoAssignments,
+        undoAction$,
+        dismissAction$,
+        undoAssignCoachHeading$,
+        undoAssignCoachMessage$,
       };
     },
     props: {
@@ -234,6 +328,12 @@
     padding-top: 16px;
     margin-top: 24px;
     border-top: 1px solid #eeeeee;
+  }
+
+  .adjust-line-height {
+    /* Override default global line-height of 1.15 to prevent
+       scrollbars in KModal and add space for single-line content */
+    line-height: 1.5;
   }
 
 </style>
