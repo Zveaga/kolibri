@@ -270,6 +270,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Class name already exists',
     context: 'Error message shown when trying to copy a class with a name that already exists',
   },
+  className: {
+    message: ' Class name',
+    context: 'Label for the class name input field in the copy class modal',
+  },
 
   // User Creation
   newUsers: {
@@ -323,10 +327,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   copyOfClass: {
     message: 'Copy of {class}',
     context: 'Initial name of a class upon being copied',
-  },
-  classTitleLabel: {
-    message: 'Class title',
-    context: 'Label for the class title input field in the copy class modal',
   },
   // Error Handling
   defaultErrorMessage: {
