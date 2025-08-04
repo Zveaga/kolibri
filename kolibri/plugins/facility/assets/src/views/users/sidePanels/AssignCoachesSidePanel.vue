@@ -145,39 +145,15 @@
         const userIds = Array.from(props.selectedUsers);
 
         for (const classObj of selectedClasses) {
-          try {
-            // First, get existing coaches for this class
-            const existingRoles = await RoleResource.fetchCollection({
-              getParams: {
-                collection: classObj.id,
-                kind: UserKinds.COACH,
-              },
-            });
-            // Filter out users who are already coaches
-            const existingCoachIds = new Set(existingRoles.map(role => role.user));
-            const newCoachIds = userIds.filter(userId => !existingCoachIds.has(userId));
-
-            if (newCoachIds.length === 0) {
-              console.log(`All selected users are already coaches for class: ${classObj.name}`);
-              continue;
-            }
-
-            // Only assign new coaches
-            await RoleResource.saveCollection({
-              data: newCoachIds.map(userId => ({
-                collection: classObj.id,
-                user: userId,
-                kind: UserKinds.COACH,
-              })),
-            });
-          } catch (error) {
-            console.error(`Failed to assign coaches to class ${classObj.id} (${classObj.name}):`, error);
-            throw error;
-          }
+          await RoleResource.saveCollection({
+            data: userIds.map(userId => ({
+              collection: classObj.id,
+              user: userId,
+              kind: UserKinds.COACH,
+            })),
+          });
         }
       }
-
-
 
       function handleCancel() {
         instance.proxy.$router.back();

@@ -1441,6 +1441,23 @@ class Role(AbstractFacilityDataModel):
                     collection__in=self.collection.children.all(),
                     kind=role_kinds.COACH,
                 ).delete()
+            elif (
+                self.collection.kind == collection_kinds.CLASSROOM
+                and self.kind == role_kinds.COACH
+            ):
+                other_coach_roles = Role.objects.filter(
+                    user=self.user,
+                    kind=role_kinds.COACH,
+                    collection__kind=collection_kinds.CLASSROOM,
+                ).exclude(id=self.id)
+
+                if not other_coach_roles.exists():
+                    Role.objects.filter(
+                        user=self.user,
+                        collection=self.collection.parent,
+                        kind=role_kinds.ASSIGNABLE_COACH,
+                    ).delete()
+
             return super(Role, self).delete(**kwargs)
 
 
