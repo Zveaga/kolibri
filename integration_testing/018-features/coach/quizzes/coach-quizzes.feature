@@ -225,7 +225,7 @@ Feature: Quizzes
     When I click the *Select* link
     Then I see the *Select groups and individual learners* side panel
     	And I see all of the available groups
-    	And I see a *Search for a user* search field
+    	And I see a *Search for a user...* search field
     	And I see a table with all individual learners
     When I select the desired individual learners
     	And I click *Save*
@@ -264,9 +264,9 @@ Feature: Quizzes
   		And there is a *Section 1* tab with added questions
   	When I click the *Add section* button
   	Then I see the *Section settings* side panel
-    When I fill in the *Section title*
-      And I fill in the *Description (optional)*
-      And I select the type of question order, either *Randomized* or *Fixed*
+    When I fill in the *Section title* #optional
+      And I fill in the *Description (optional)* #optional
+      And I select the type of question order, either *Randomized* or *Fixed* #*Fixed* is selected by default
       And I click on *Add questions*
     Then I see the *Questions settings for '<section title>'* side panel
     When I click *Continue*
@@ -283,7 +283,7 @@ Feature: Quizzes
    		And I select *Edit section*
    	Then I see the *Sections settings* side panel
    		And I see the *Section title* and *Description (optional)* fields
-   		And I see the radio buttons for the *Question order* with *Randomized* selected by default
+   		And I see the radio buttons for the *Question order* with *Fixed* selected by default
    		And I see the *Current number of questions in this section: NN* text
    		And I see the *Add more questions* button
    	When I change one or several of the available settings
@@ -338,13 +338,13 @@ Feature: Quizzes
     Then I am back at the *Create new quiz* page
       And I see the *Question list* with all the newly added questions
 
-   Scenario: Coach can change the order of the questions
+  Scenario: Coach can change the order of the questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I click on the drag handle icon and I drag and drop a question to any position of the list with questions
    	Then I see the order of the questions changed accordingly
 
-   Scenario: Coach can delete questions
+  Scenario: Coach can delete questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I select a question or several questions
@@ -352,7 +352,7 @@ Feature: Quizzes
    	Then all of the selected questions are removed from the list
       And I see a snackbar message *N question(s) deleted*
 
-   Scenario: Coach can replace individual questions
+  Scenario: Coach can replace individual questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I click the replace icon to the right of the question
@@ -368,7 +368,7 @@ Feature: Quizzes
    		And I see the following snackbar message *1 question successfully replaced*
    		And I can see that the question has been replaced
 
-   Scenario: Coach can bulk replace questions
+  Scenario: Coach can bulk replace questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I select a question or several questions
@@ -385,14 +385,14 @@ Feature: Quizzes
    		And I see the following snackbar message *N question(s) successfully replaced*
    		And I can see that the questions have been replaced
 
-   Scenario: Coach can auto-replace individual questions
+  Scenario: Coach can auto-replace individual questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I click the auto-replace icon to the right of the question
    	Then I see the following snackbar message *1 question successfully replaced*
    		And I can see that the question has been auto-replaced
 
-   Scenario: Coach can auto-replace multiple questions
+  Scenario: Coach can auto-replace multiple questions
    	Given I am at the *Create new quiz* modal
    		And there is a *Section 1* tab with added questions
    	When I select a question or several questions
@@ -400,7 +400,7 @@ Feature: Quizzes
    	Then I see the following snackbar message *N question(s) successfully replaced*
    		And I can see that the questions have been replaced
 
-   Scenario: Coach can expand and collapse questions
+  Scenario: Coach can expand and collapse questions
     Given I am at the *Create new quiz* modal
       And there is a *Section 1* tab with added questions
       And all questions are collapsed by default
@@ -415,7 +415,7 @@ Feature: Quizzes
     When I click again on the title of the question
     Then the question gets collapsed
 
-   Scenario: Coach can change the section order
+  Scenario: Coach can change the section order
     Given I am at the *Create new quiz* modal
       And there are several section tabs
       And the *Fixed* radio-button in the *Section order* section is selected by default
@@ -429,7 +429,7 @@ Feature: Quizzes
     When I look at the order of the section tabs
     Then I can see that their order is changed accordingly
 
-   Scenario: Coach can change the type of question order in a section
+  Scenario: Coach can change the type of question order in a section
     Given I am at the *Section settings* side panel
       And I have already added several questions
       And *Randomized* is the selected radio button in the *Question order* section
@@ -437,7 +437,7 @@ Feature: Quizzes
       And I click the *Apply settings* button
     Then I am back at the *Create new quiz* modal #NOTE: This should be further discussed as there is no clear indication whether the questions are randomized or not. Even if I've selected the *Fixed* option I'm still able to reorder them.
 
-   Scenario: Coach can increase or decrease the number of questions to add by manually inputting a valid number
+  Scenario: Coach can increase or decrease the number of questions to add by manually inputting a valid number
     Given I am at the *Question settings for 'Section N'* side panel
     When I click in the *Number of questions* field
       And I change the value to a different valid number such as 5
@@ -451,7 +451,7 @@ Feature: Quizzes
     	And I see the *N questions successfully added* snackbar message
       And I see that the questions are added to *Section N*
 
-   Scenario: Coach can increase or decrease the number of questions to add by using the plus and minus buttons
+  Scenario: Coach can increase or decrease the number of questions to add by using the plus and minus buttons
     Given I am at the *Question settings for 'Section N'* side panel
     When I click the *+* button next to the *Number of questions* field
     Then I see the number of the questions increased by 1
