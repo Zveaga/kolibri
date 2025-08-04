@@ -24,7 +24,6 @@
 
   import { computed, toRefs } from 'vue';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-
   import { ClassesActions } from '../../../../constants';
 
   const ALL_VALUE = 'ALL';
@@ -55,7 +54,7 @@
         }));
 
         classesOptions.unshift(allClassesOption.value);
-        return classesOptions;
+        return classesOptions.sort((a, b) => a.label.localeCompare(b.label));
       });
 
       const selectValue = computed({
