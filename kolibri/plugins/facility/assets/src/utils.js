@@ -4,8 +4,7 @@ import logger from 'kolibri-logging';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import UserCreateSidePanel from './views/users/sidePanels/UserCreate/index.vue';
-import MoveToTrashSidePanel from './views/users/sidePanels/MoveToTrashSidePanel';
-import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel/index.vue';
+import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel';
 import AssignCoachesSidePanel from './views/users/sidePanels/AssignCoachesSidePanel';
 import RemoveFromClassSidePanel from './views/users/sidePanels/RemoveFromClassSidePanel';
 import EnrollLearnersSidePanel from './views/users/sidePanels/EnrollLearnersSidePanel';
@@ -54,11 +53,6 @@ export function getRootRouteName(route) {
 }
 
 const sidePanelRoutes = [
-  {
-    name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
-    path: 'trash',
-    component: MoveToTrashSidePanel,
-  },
   {
     name: PageNames.FILTER_USERS_SIDE_PANEL,
     path: 'filter',
