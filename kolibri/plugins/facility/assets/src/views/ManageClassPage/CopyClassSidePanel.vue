@@ -15,7 +15,7 @@
           <KTextbox
             v-model="copiedClassName"
             type="text"
-            :label="classTitleLabel$()"
+            :label="coreString('classNameLabel')"
             :autofocus="true"
             :maxlength="100"
             :showInvalidText="true"
@@ -107,7 +107,6 @@
 
       const {
         coachesAssignedToClassLabel$,
-        classTitleLabel$,
         selectAllLabel$,
         numCoachesSelected$,
         classNameAlreadyExists$,
@@ -129,7 +128,6 @@
 
       return {
         coachesAssignedToClassLabel$,
-        classTitleLabel$,
         selectAllLabel$,
         numCoachesSelected$,
         copyClasslabel$,

@@ -324,10 +324,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Copy of {class}',
     context: 'Initial name of a class upon being copied',
   },
-  classTitleLabel: {
-    message: 'Class title',
-    context: 'Label for the class title input field in the copy class modal',
-  },
   // Error Handling
   defaultErrorMessage: {
     message: 'Sorry! Something went wrong, please try again.',
