@@ -7,16 +7,22 @@ from collections import OrderedDict
 
 from dateutil import parser
 from django.core.cache import cache
+from django.db.models import Case
+from django.db.models import CharField
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models import Subquery
+from django.db.models import Value
+from django.db.models import When
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from le_utils.constants import content_kinds
 
 from .models import ContentSessionLog
 from .models import ContentSummaryLog
+from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.models import Role
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.utils.csv import open_csv_for_writing
@@ -115,12 +121,19 @@ mappings = {
     "content_title": get_cached_content_title,
     "time_spent": lambda x: "{:.1f}".format(round(x["time_spent"], 1)),
     "progress": lambda x: "{:.4f}".format(math.floor(x["progress"] * 10000.0) / 10000),
+    "user_type": lambda x: user_kinds.labels.get(
+        x.get("user_type"), x.get("user_type")
+    ),
 }
 
 labels = OrderedDict(
     (
         ("user__facility__name", _("Facility name")),
         ("user__username", _("Username")),
+        (
+            "user_type",
+            pgettext_lazy("CSV column header for the type of user", "User type"),
+        ),
         ("channel_id", _("Channel id")),
         ("channel_name", _("Channel name")),
         ("content_id", _("Content id")),
@@ -191,10 +204,32 @@ def map_object(item, topic_headers_length):
     return mapped_item
 
 
+user_type_annotations = {
+    "user_facility_role_kind": Subquery(
+        Role.objects.filter(
+            user=OuterRef("user"),
+            collection=OuterRef("user__facility"),
+        ).values("kind")[:1]
+    ),
+    "user_type": Case(
+        When(
+            user__devicepermissions__is_superuser=True, then=Value(user_kinds.SUPERUSER)
+        ),
+        When(user__roles__isnull=True, then=Value(user_kinds.LEARNER)),
+        When(user_facility_role_kind__isnull=False, then=F("user_facility_role_kind")),
+        When(
+            user__roles__kind=user_kinds.COACH, then=Value(user_kinds.ASSIGNABLE_COACH)
+        ),
+        default=Value(user_kinds.LEARNER),
+        output_field=CharField(),
+    ),
+}
+
 classes_info = {
     "session": {
         "queryset": ContentSessionLog.objects.exclude(kind=content_kinds.QUIZ).annotate(
-            most_recent_session_log_extra_fields=F("extra_fields")
+            most_recent_session_log_extra_fields=F("extra_fields"),
+            **user_type_annotations,
         ),
         "filename": CSV_EXPORT_FILENAMES["session"],
         "db_columns": (
@@ -208,6 +243,7 @@ classes_info = {
             "progress",
             "kind",
             "most_recent_session_log_extra_fields",
+            "user_type",
         ),
     },
     "summary": {
@@ -220,7 +256,8 @@ classes_info = {
                 )
                 .order_by("-end_timestamp")
                 .values("extra_fields")[:1]
-            )
+            ),
+            **user_type_annotations,
         ),
         "filename": CSV_EXPORT_FILENAMES["summary"],
         "db_columns": (
@@ -235,6 +272,7 @@ classes_info = {
             "progress",
             "kind",
             "most_recent_session_log_extra_fields",
+            "user_type",
         ),
     },
 }
@@ -300,8 +338,10 @@ def csv_file_generator(
     ) as f:
         writer = csv.DictWriter(f, header_labels)
         writer.writeheader()
-        for item in queryset.select_related("user", "user__facility").values(
-            *log_info["db_columns"]
+        for item in (
+            queryset.select_related("user", "user__facility")
+            .prefetch_related("user__roles")
+            .values(*log_info["db_columns"])
         ):
             writer.writerow(map_object(item, len(topic_headers)))
             yield
