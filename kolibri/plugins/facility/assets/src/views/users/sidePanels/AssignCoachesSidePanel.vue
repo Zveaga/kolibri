@@ -3,7 +3,12 @@
   <div>
     <KModal
       v-if="showUndoModal"
-      :title="undoAssignCoachHeading$({ num: selectedUsersCount })"
+      :title="
+        undoAssignCoachHeading$({
+          numUsers: selectedUsersCount,
+          numClasses: selectedClasses.length,
+        })
+      "
       :submitText="undoAction$()"
       :cancelText="dismissAction$()"
       :submitDisabled="isLoading"
@@ -204,7 +209,9 @@
               kind: UserKinds.COACH,
             })),
           });
-          createdRoles.value.push(...newRoles);
+          // Only add roles that were actually created (have an id)
+          const actuallyCreatedRoles = newRoles.filter(role => role.id);
+          createdRoles.value.push(...actuallyCreatedRoles);
         }
       }
 
@@ -223,7 +230,7 @@
           if (createdRoles.value.length > 0) {
             for (const role of createdRoles.value) {
               if (role.id) {
-                await RoleResource.deleteModel(role.id);
+                await RoleResource.deleteModel({ id: role.id });
               }
             }
           }

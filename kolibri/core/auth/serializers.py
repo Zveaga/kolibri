@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator
@@ -31,35 +30,16 @@ logger = logging.getLogger(__name__)
 class RoleListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         ModelClass = self.child.Meta.model
-        objects_to_create = []
+        created_objects = []
 
         for model_data in validated_data:
-            object_to_create = self.child.create(model_data)
-            objects_to_create.append(object_to_create)
-
-        try:
-            created_objects = ModelClass._default_manager.bulk_create(
-                objects_to_create, ignore_conflicts=True
-            )
-        except TypeError:
-            tb = traceback.format_exc()
-            msg = (
-                "Got a `TypeError` when calling `%s.%s.create()`. "
-                "This may be because you have a writable field on the "
-                "serializer class that is not a valid argument to "
-                "`%s.%s.create()`. You may need to make the field "
-                "read-only, or override the %s.create() method to handle "
-                "this correctly.\nOriginal exception was:\n %s"
-                % (
-                    ModelClass.__name__,
-                    ModelClass._default_manager.name,
-                    ModelClass.__name__,
-                    ModelClass._default_manager.name,
-                    self.__class__.__name__,
-                    tb,
-                )
-            )
-            raise TypeError(msg)
+            try:
+                obj, created = ModelClass.objects.get_or_create(**model_data)
+                if created:
+                    created_objects.append(obj)
+            except Exception as e:
+                logger.warning(f"Error creating role {model_data}: {e}")
+                continue
 
         return created_objects
 
