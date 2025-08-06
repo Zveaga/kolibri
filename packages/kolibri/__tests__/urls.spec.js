@@ -144,7 +144,7 @@ describe('UrlResolver', () => {
       plugin_data.urls = undefined;
       const UrlsNoData = createUrlResolver();
 
-      expect(UrlsNoData['user_profile_detail']).toBeUndefined;
+      expect(UrlsNoData['user_profile_detail']).toBeUndefined();
     });
     test('throws error if URL pattern contains a dash', () => {
       jest.resetModules();
