@@ -15,7 +15,7 @@
           <KTextbox
             v-model="copiedClassName"
             type="text"
-            :label="className$()"
+            :label="coreString('classNameLabel')"
             :autofocus="true"
             :maxlength="100"
             :showInvalidText="true"
@@ -111,7 +111,6 @@
         classNameAlreadyExists$,
         copyClasslabel$,
         classCopiedSuccessfully$,
-        className$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
 
@@ -132,7 +131,6 @@
         numCoachesSelected$,
         copyClasslabel$,
         classNameAlreadyExists$,
-        className$,
         classCopiedSuccessfully$,
         handleSelection,
         copiedClassName,
