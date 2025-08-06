@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/vue';
-import ContentRendererLoading from '../ContentRendererLoading.vue';
+import ContentViewerLoading from '../ContentViewerLoading.vue';
 
-describe('ContentRendererLoading', () => {
+describe('ContentViewerLoading', () => {
   test('the component should render correctly', () => {
-    render(ContentRendererLoading);
+    render(ContentViewerLoading);
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });

@@ -55,7 +55,10 @@
           </p>
           <div class="value-box">
             <p class="value">{{ lessonsCompleted }}</p>
-            <p style="display: inline; word-wrap: break-word">
+            <p
+              v-if="learnerLessons.length > 0"
+              style="display: inline; word-wrap: break-word"
+            >
               {{ $tr('totalLessons', { total: learnerLessons.length }) }}
             </p>
           </div>
@@ -140,6 +143,7 @@
         const statuses = this.lessonStatuses.filter(
           status =>
             status.status === this.STATUSES.completed &&
+            status.learner_id === this.learner.id &&
             learnerLessonIds.includes(status.lesson_id),
         );
         if (!statuses.length) {

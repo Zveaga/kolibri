@@ -13,7 +13,7 @@
         <KButton
           :primary="true"
           :text="coreString('retryAction')"
-          @click="provisionDevice"
+          @click="startProvisionDeviceTask"
         />
       </template>
     </AppError>
@@ -36,19 +36,22 @@
 
 <script>
 
+  import { mapActions } from 'vuex';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { checkCapability } from 'kolibri/utils/appCapabilities';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
   import KolibriLoadingSnippet from 'kolibri-common/components/KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { Presets } from 'kolibri/constants';
-  import urls from 'kolibri/urls';
-  import client from 'kolibri/client';
   import Lockr from 'lockr';
   import { DeviceTypePresets } from '../../constants';
+
+  const PROVISION_TASK_QUEUE = 'device_provision';
 
   export default {
     name: 'SettingUpKolibri',
@@ -103,6 +106,11 @@
             : !this.wizardContext('requirePassword');
         }
       },
+      userBasedOnOs() {
+        // On my own setup with OS user means that the user will be created
+        // at login time, based on the OS user.
+        return this.isOnMyOwnSetup && checkCapability('get_os_user');
+      },
       learnerCanEditPassword() {
         // Note that we don't ask this question of a user during onboarding -- however,
         // the nonformal facility will set this to `true` by default -- which does not jive
@@ -111,7 +119,7 @@
           // Learner cannot edit a password they cannot set
           this.learnerCanLoginWithNoPassword ||
           // OS on my own users don't use password to sign in
-          (this.isOnMyOwnSetup && checkCapability('get_os_user'))
+          this.userBasedOnOs
         ) {
           return false; // Learner cannot edit a password they cannot set
         } else {
@@ -123,7 +131,7 @@
         let superuser = null;
         // We need the superuser information unless the superuser will be created at login,
         // based on the os user - this is only the case for on my own setup.
-        if (!(this.isOnMyOwnSetup && checkCapability('get_os_user'))) {
+        if (!this.userBasedOnOs) {
           // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
           // superuser as they were the first imported user.
           if (this.wizardContext('firstImportedLodUser')) {
@@ -178,9 +186,10 @@
       },
     },
     created() {
-      this.provisionDevice();
+      this.startProvisionDeviceTask();
     },
     methods: {
+      ...mapActions(['kolibriLogin']),
       startOver() {
         this.$store.dispatch('clearError');
         this.wizardService.send('START_OVER');
@@ -189,28 +198,62 @@
       wizardContext(key) {
         return this.wizardService.state.context[key];
       },
-      provisionDevice() {
-        this.$store.dispatch('clearError');
-        client({
-          url: urls['kolibri:core:deviceprovision'](),
-          method: 'POST',
-          data: this.deviceProvisioningData,
-        })
-          .then(() => {
-            const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-            const facilityImported = 'FACILITY_IS_IMPORTED';
-            window.sessionStorage.setItem(welcomeDismissalKey, false);
-            window.sessionStorage.setItem(
-              facilityImported,
-              this.wizardContext('isImportedFacility'),
-            );
-
-            Lockr.rm('savedState'); // Clear out saved state machine
-            redirectBrowser();
-          })
-          .catch(e => {
-            this.$store.dispatch('handleApiError', { error: e });
+      async startProvisionDeviceTask() {
+        try {
+          await TaskResource.startTask({
+            type: TaskTypes.PROVISIONDEVICE,
+            ...this.deviceProvisioningData,
           });
+          this.pollProvisionTask();
+        } catch (e) {
+          this.$store.dispatch('handleApiError', { error: e });
+        }
+      },
+      async pollProvisionTask() {
+        try {
+          const tasks = await TaskResource.list({ queue: PROVISION_TASK_QUEUE });
+          const [task] = tasks || [];
+          if (!task) {
+            throw new Error('Device provisioning task not found');
+          }
+          if (task.status === TaskStatuses.COMPLETED) {
+            const facilityId = task.extra_metadata.facility_id;
+            // Taking the username from the task extra metadata in case the superuser was created
+            // from the OS user.
+            const username = task.extra_metadata.username;
+            this.clearPollingTasks();
+            this.wrapOnboarding();
+            if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
+              const { password } = this.deviceProvisioningData.superuser || {};
+              return this.kolibriLogin({
+                facilityId,
+                username,
+                password,
+              });
+            } else {
+              return redirectBrowser();
+            }
+          } else if (task.status === TaskStatuses.FAILED) {
+            this.$store.dispatch('handleApiError', { error: task.error });
+          } else {
+            setTimeout(() => {
+              this.pollProvisionTask();
+            }, 1000);
+          }
+        } catch (e) {
+          this.$store.dispatch('handleApiError', { error: e });
+        }
+      },
+      wrapOnboarding() {
+        const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+        const facilityImported = 'FACILITY_IS_IMPORTED';
+        window.localStorage.setItem(welcomeDismissalKey, false);
+        window.localStorage.setItem(facilityImported, this.wizardContext('isImportedFacility'));
+
+        Lockr.rm('savedState'); // Clear out saved state machine
+      },
+      clearPollingTasks() {
+        TaskResource.clearAll(PROVISION_TASK_QUEUE);
       },
     },
     $trs: {

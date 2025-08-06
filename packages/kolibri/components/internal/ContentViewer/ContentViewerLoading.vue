@@ -8,7 +8,7 @@
 <script>
 
   export default {
-    name: 'ContentRendererLoading',
+    name: 'ContentViewerLoading',
   };
 
 </script>

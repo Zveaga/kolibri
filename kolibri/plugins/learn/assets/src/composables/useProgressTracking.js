@@ -175,7 +175,7 @@ export default function useProgressTracking(store) {
 
   /**
    * Initialize a content session for progress tracking
-   * To be called on page load for content renderers
+   * To be called on page load for content viewers
    */
   function initContentSession({ node, lessonId, quizId, repeat = false } = {}) {
     const data = {};
