@@ -54,8 +54,9 @@
           value: classItem.id,
         }));
 
+        classesOptions.sort((a, b) => a.label.localeCompare(b.label));
         classesOptions.unshift(allClassesOption.value);
-        return classesOptions.sort((a, b) => a.label.localeCompare(b.label));
+        return classesOptions;
       });
 
       const selectValue = computed({
