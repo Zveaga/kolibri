@@ -159,6 +159,7 @@
               v-if="!showCorrectAnswer"
               :interactions="currentInteractionHistory"
               :selectedInteractionIndex="selectedInteractionIndex"
+              :reverse="reverseInteractions"
               @select="navigateToQuestionAttempt"
             />
           </div>
@@ -446,11 +447,17 @@
           ) || []
           : [];
       },
+      reverseInteractions() {
+        return this.isQuiz || this.isSurvey;
+      },
       currentInteraction() {
-        return (
-          this.currentInteractionHistory &&
-          this.currentInteractionHistory[this.selectedInteractionIndex]
-        );
+        if (!this.currentInteractionHistory) {
+          return null;
+        }
+        const history = this.reverseInteractions
+          ? this.currentInteractionHistory.toReversed()
+          : this.currentInteractionHistory;
+        return history[this.selectedInteractionIndex];
       },
       titleIcon() {
         if (this.isSurvey) {
