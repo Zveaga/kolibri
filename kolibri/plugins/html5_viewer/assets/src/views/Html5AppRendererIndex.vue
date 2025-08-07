@@ -65,7 +65,6 @@
   const frameTopbarHeight = '37px';
   export default {
     name: 'Html5AppRendererIndex',
-    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
     },

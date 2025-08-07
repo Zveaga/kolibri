@@ -92,10 +92,11 @@
 
 <script>
 
-  import vue from 'vue';
+  import vue, { ref, computed } from 'vue';
   import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import { languageIdToCode } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -124,11 +125,28 @@
     name: 'MediaPlayerIndex',
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, context) {
+      const player = ref(null);
       const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
       const { elementWidth } = useKResponsiveElement();
-      return { windowIsSmall, windowIsPortrait, elementWidth };
+      const { thumbnailFiles, supplementaryFiles, reportLoadingError } = useContentViewer(
+        props,
+        context,
+        {
+          defaultDuration: computed(() => player?.value?.duration()),
+        },
+      );
+      return {
+        windowIsSmall,
+        windowIsPortrait,
+        elementWidth,
+        thumbnailFiles,
+        supplementaryFiles,
+        reportLoadingError,
+        player,
+      };
     },
+    props: contentViewerProps,
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,
@@ -137,8 +155,6 @@
       playerVolume: 1.0,
       playerMuted: false,
       playerRate: 1.0,
-      // TODO figure if this prop is supposed to be used
-      // defaultLangCode: GlobalLangCode,
       updateContentStateInterval: null,
       isFullscreen: false,
     }),

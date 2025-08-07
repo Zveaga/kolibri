@@ -3,7 +3,6 @@ import logging from 'kolibri-logging';
 import scriptLoader from 'kolibri/utils/scriptLoader';
 import { VIEWER_SUFFIX } from 'kolibri/constants';
 import { languageDirection, languageDirections, currentLanguage } from 'kolibri/utils/i18n';
-import contentViewerMixin from '../components/internal/ContentViewer/mixin';
 import ContentViewerLoading from '../components/internal/ContentViewer/ContentViewerLoading';
 import ContentViewerError from '../components/internal/ContentViewer/ContentViewerError';
 
@@ -26,25 +25,6 @@ const publicMethods = [
   'loadDirectionalCSS',
   'ready',
 ];
-
-function mergeMixin(component) {
-  // Skip mixin injection if component already uses the composable
-  if (component.__usesContentViewerComposable) {
-    return component;
-  }
-
-  logger.warn(
-    `${component.name} is using the old content viewer mixin.
-    Please update to use the new content viewer composable.
-    import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';`,
-  );
-
-  if (!component.mixins) {
-    component.mixins = [];
-  }
-  component.mixins.push(contentViewerMixin);
-  return component;
-}
 
 const domParser = new DOMParser();
 
@@ -387,12 +367,7 @@ export default function pluginMediatorFactory(facade) {
         const kolibriModuleName = this._contentViewerRegistry[preset];
         function resolveComponent(module) {
           if (module.viewerComponent) {
-            resolve(mergeMixin(module.viewerComponent));
-          } else if (module.rendererComponent) {
-            logging.warn(
-              `Please update ${kolibriModuleName} to use the latest kolibri-viewer module, this version will not be supported in 0.19.`,
-            );
-            resolve(mergeMixin(module.rendererComponent));
+            resolve(module.viewerComponent);
           } else {
             reject(
               `Content viewer registered for ${preset} but no viewerComponent found in module ${kolibriModuleName}`,

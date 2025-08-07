@@ -147,7 +147,6 @@
   const MARGIN = 16;
   export default {
     name: 'PdfRendererIndex',
-    __usesContentViewerComposable: true,
     components: {
       SideBar,
       PdfPage,

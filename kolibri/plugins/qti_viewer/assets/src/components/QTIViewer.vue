@@ -24,7 +24,6 @@
 
   export default {
     name: 'QTIViewer',
-    __usesContentViewerComposable: true,
     components: {
       AssessmentItem,
     },

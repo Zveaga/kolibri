@@ -36,11 +36,5 @@ Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 
 Vue.component('ContentViewer', ContentViewer);
-// Alias to deprecated name for backwards compatibility
-// This will be removed in Kolibri 0.19.0
-Vue.component('ContentRenderer', () => {
-  logging.warning('ContentRenderer component is deprecated. Please use ContentViewer instead.');
-  return ContentViewer;
-});
 
 export default coreApp;

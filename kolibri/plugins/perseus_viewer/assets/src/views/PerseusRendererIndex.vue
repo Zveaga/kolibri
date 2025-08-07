@@ -244,7 +244,6 @@
 
   export default {
     name: 'PerseusRendererIndex',
-    __usesContentViewerComposable: true,
     setup(props, context) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const { defaultFile } = useContentViewer(props, context);

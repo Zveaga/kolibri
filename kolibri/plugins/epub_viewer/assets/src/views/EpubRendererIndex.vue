@@ -206,7 +206,6 @@
 
   export default {
     name: 'EpubRendererIndex',
-    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
       TopBar,
