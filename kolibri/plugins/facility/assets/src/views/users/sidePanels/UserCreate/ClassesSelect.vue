@@ -54,6 +54,7 @@
           value: classItem.id,
         }));
 
+        classesOptions.sort((a, b) => a.label.localeCompare(b.label));
         classesOptions.unshift(allClassesOption.value);
         return classesOptions;
       });
