@@ -22,12 +22,6 @@
     <KModal
       v-else
       :title="moveToTrashLabel$({ num: selectedUsers.size })"
-      :submitText="moveToTrashAction$()"
-      :cancelText="coreStrings.cancelAction$()"
-      :submitDisabled="loading"
-      :cancelDisabled="loading"
-      @submit="moveToTrash"
-      @cancel="close"
     >
       <KCircularLoader v-if="loading" />
       <div
@@ -53,6 +47,20 @@
           {{ moveToTrashWarning$() }}
         </p>
       </div>
+      <template #actions>
+        <KButton
+          :disabled="loading"
+          style="margin-right: 16px"
+          :text="coreStrings.cancelAction$()"
+          @click="close"
+        />
+        <KButton
+          :appearanceOverrides="removeButtonStyles"
+          :disabled="loading"
+          :text="moveToTrashAction$()"
+          @click="moveToTrash"
+        />
+      </template>
     </KModal>
   </div>
 
@@ -62,6 +70,8 @@
 <script>
 
   import { computed, ref } from 'vue';
+  import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
 
   import { UserKinds } from 'kolibri/constants';
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -154,7 +164,17 @@
         }
       };
 
-      loadData();
+      const removeButtonStyles = {
+        color: themeTokens().textInverted,
+        backgroundColor: themePalette().red.v_600,
+        ':hover': { backgroundColor: darken1(themePalette().red.v_600) },
+      };
+
+      if (props.selectedUsers.size > 0) {
+        loadData();
+      } else {
+        close();
+      }
 
       return {
         // ref and computed properties
@@ -162,6 +182,7 @@
         coreStrings,
         usersRemoved,
         adminUsers,
+        removeButtonStyles,
 
         // methods
         close,
@@ -191,32 +212,6 @@
 
 
 <style lang="scss" scoped>
-
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .selection-metadata,
-  .attention-warning {
-    font-size: 14px;
-
-    h2 {
-      margin: 0;
-      font-size: 14px;
-    }
-  }
-
-  .selection-metadata {
-    margin-bottom: 32px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    gap: 16px;
-    justify-content: flex-end;
-    width: 100%;
-  }
 
   .fix-line-height {
     // Override default global line-height of 1.15 which is not enough
