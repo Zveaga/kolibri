@@ -37,7 +37,7 @@
   import DownloadButton from 'kolibri/components/DownloadButton';
 
   export default {
-    name: 'ContentRendererError',
+    name: 'ContentViewerError',
     components: {
       DownloadButton,
       ReportErrorModal,

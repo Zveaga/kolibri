@@ -1,4 +1,9 @@
-const kolibriPackageJson = require('kolibri/package.json');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const contents = fs.readFileSync(path.resolve(__dirname, '../../kolibri/package.json'), 'utf8');
+
+const kolibriPackageJson = JSON.parse(contents);
 
 const apiSpec = kolibriPackageJson.exports || {};
 

@@ -167,7 +167,7 @@ export const ERROR_CONSTANTS = {
 
 export const ContentErrorConstants = {
   // These are constants that can be used to define the type of error that a
-  // content renderer has encountered.
+  // content viewer has encountered.
   LOADING_ERROR: 'LOADING_ERROR',
 };
 
@@ -204,7 +204,7 @@ export const MAX_QUESTIONS_PER_QUIZ_SECTION = 25;
 
 export const DisconnectionErrorCodes = [0, 502, 504, 511];
 
-export const RENDERER_SUFFIX = '_renderer';
+export const VIEWER_SUFFIX = '_viewer';
 
 // enum identifying the types of setup for Lod devices
 export const LodTypePresets = Object.freeze({

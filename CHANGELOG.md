@@ -2,6 +2,35 @@
 
 List of the most important changes for each release.
 
+## 0.18.2
+
+### High level overview
+
+This release contains MVP functionality for the use of short-form survey responses as a type of exercise, which introduces the first pieces of QTI into Kolibri. The release contains foundational technical pieces for HTML5 article rendering, although not the feature. Finally, it contains bug fixes.
+
+### Added
+QTI and HTML5 Article Rendering
+* MVP Implementation of QTI Multiple Choice and Text Entry by @rtibbles in https://github.com/learningequality/kolibri/pull/8070
+* Content viewer composable by @rtibbles in https://github.com/learningequality/kolibri/pull/13533
+* Fix answer saving for quizzes, practice quizzes, and surveys by @rtibbles in https://github.com/learningequality/kolibri/pull/13602
+* [HTML5 Article Renderer] Apply text styling by @WinnyChang in https://github.com/learningequality/kolibri/pull/13503
+* [HTML5 Article Renderer] Apply image styling by @WinnyChang in https://github.com/learningequality/kolibri/pull/13567
+* [HTML5 Article Renderer] Apply table styling by @WinnyChang in https://github.com/learningequality/kolibri/pull/13523
+
+
+### Fixed
+* Remove unnecessary max-width on the Kolibri logo by @rtibbles in https://github.com/learningequality/kolibri/pull/13547
+* Tweak content queue polling to prevent overloading the server by @rtibbles in https://github.com/learningequality/kolibri/pull/13500
+* Fix build failures by @rtibbles in https://github.com/learningequality/kolibri/pull/13553
+* Allow bloompubs with undefined distribution files to be rendered by @rtibbles in https://github.com/learningequality/kolibri/pull/13576
+* Fix urls.js module regression by @rtibbles in https://github.com/learningequality/kolibri/pull/13568
+* Remove unnecessary menu items displaying along with the "Sync all facility data" by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13582
+* Create task for initial device provisioning by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13102
+* upgrade version to 0.18.2 by @marcellamaki in https://github.com/learningequality/kolibri/pull/13595
+* invokes translated string variables by @akolson in https://github.com/learningequality/kolibri/pull/13545
+* Fix lesson completed number to be filtered by user by @marcellamaki in https://github.com/learningequality/kolibri/pull/13601
+
+
 ## 0.18.1
 
 ### High level overview

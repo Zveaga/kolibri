@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="cssVars">
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
@@ -9,6 +9,10 @@
     <SafeHTML
       v-else
       :html="html"
+      :styleOverrides="{
+        windowSizeClass: windowSizeClass,
+      }"
+      @expand-img="openLightbox"
     />
   </div>
 
@@ -19,12 +23,34 @@
 
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { computed } from 'vue';
 
   export default {
     name: 'SafeHtml5RendererIndex',
+    __usesContentViewerComposable: true,
     components: {
       SafeHTML,
     },
+    setup(props, context) {
+      const { windowIsSmall } = useKResponsiveWindow();
+      const windowSizeClass = computed(() => {
+        return windowIsSmall.value ? ' small-window' : '';
+      });
+      const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
+        props,
+        context,
+        { defaultDuration: 300 },
+      );
+      return {
+        windowSizeClass,
+        defaultFile,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+      };
+    },
+    props: contentViewerProps,
     data() {
       return {
         loading: true,
@@ -32,18 +58,20 @@
       };
     },
     computed: {
-      /**
-       * @public
-       * Note: the default duration historically for HTML5 Apps has been 5 min
-       */
-      defaultDuration() {
-        return 300;
-      },
       entry() {
         return (this.options && this.options.entry) || 'index.html';
       },
       scrollBasedProgress() {
         return 0.5;
+      },
+      cssVars() {
+        return {
+          '--color-primary-500': this.$themeBrand.primary.v_500,
+          '--color-primary-100': this.$themeBrand.primary.v_100,
+          '--color-grey-300': this.$themePalette.grey.v_300,
+          '--color-grey-100': this.$themePalette.grey.v_100,
+          '--color-fineline': this.$themeTokens.fineLine,
+        };
       },
     },
     async created() {
@@ -55,13 +83,31 @@
       this.$emit('startTracking');
       this.pollProgress();
     },
+    mounted() {
+      this.$nextTick(() => {
+        this.applyTabIndexes();
+        window.addEventListener('resize', this.applyTabIndexes);
+      });
+    },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+      window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
     methods: {
+      applyTabIndexes() {
+        const tableContainers = this.$el.querySelectorAll('.table-container');
+        tableContainers.forEach(container => {
+          const scrollable = container.scrollWidth > container.clientWidth;
+          if (scrollable) {
+            container.setAttribute('tabindex', '0');
+          } else {
+            container.removeAttribute('tabindex');
+          }
+        });
+      },
       recordProgress() {
         let progress;
         if (this.forceDurationBasedProgress) {
@@ -82,6 +128,10 @@
           this.recordProgress();
         }, 5000);
       },
+      openLightbox(/* payload */) {
+        // TODO: Implement lightbox when ready
+        // payload contains: { src, alt }
+      },
     },
   };
 
@@ -96,7 +146,7 @@
     left: calc(50% - 16px);
   }
 
-  .content-renderer > div {
+  .content-viewer > div {
     padding: 40px 16px;
     background-color: white;
   }

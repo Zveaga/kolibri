@@ -548,7 +548,7 @@
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
-      if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
+      if (window.localStorage.getItem(welcomeDismissalKey) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
 

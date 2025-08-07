@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import logger from 'kolibri-logging';
-import heartbeat from 'kolibri/heartbeat';
 import { ContentErrorConstants } from 'kolibri/constants';
 import {
   defaultLanguage,
@@ -9,24 +8,11 @@ import {
   languageDirections,
 } from 'kolibri/utils/i18n';
 import { getRenderableFiles, getDefaultFile } from './utils';
-import ContentRendererError from './ContentRendererError';
+import ContentViewerError from './ContentViewerError';
 
 const logging = logger.getLogger(__filename);
 
-const ContentRendererErrorComponent = Vue.extend(ContentRendererError);
-
-const interactionEvents = [
-  'answerGiven',
-  'hintTaken',
-  'itemError',
-  'interaction',
-  'addProgress',
-  'updateProgress',
-  'updateContentState',
-  'startTracking',
-  'navigateTo',
-  'finished',
-];
+const ContentViewerErrorComponent = Vue.extend(ContentViewerError);
 
 const fileFieldMap = {
   storage_url: {
@@ -97,15 +83,15 @@ export default {
       validator: fileValidator,
     },
     // As an alternative to passing a file object to set the state of the
-    // content renderer, can also pass raw itemData (which will be parsed by
-    // the renderer if there are no files or file object).
-    // The type could depend on the renderer, so we enforce nothing here
+    // content viewer, can also pass raw itemData (which will be parsed by
+    // the viewer if there are no files or file object).
+    // The type could depend on the viewer, so we enforce nothing here
     // except a null default.
     itemData: {
       default: null,
     },
     // If just itemData is passed, we have no mechanism for knowing the preset
-    // of the data, and hence which renderer to choose. If itemData is utilized
+    // of the data, and hence which viewer to choose. If itemData is utilized
     // the preset must be explicitly set.
     preset: {
       default: null,
@@ -130,7 +116,7 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    // Allow content renderers to display in a static mode
+    // Allow content viewers to display in a static mode
     // where user interaction is not allowed
     interactive: {
       type: Boolean,
@@ -158,11 +144,10 @@ export default {
     return { _resourceError: null };
   },
   created() {
-    this.$on(interactionEvents, heartbeat.setUserActive);
     this.$on('error', this._reportError);
   },
   computed: {
-    // For when we want to force a renderer to use time-based progress (e.g. instead of % completed)
+    // For when we want to force a viewer to use time-based progress (e.g. instead of % completed)
     forceDurationBasedProgress() {
       return this.options.force_duration_based_progress || false;
     },
@@ -201,14 +186,14 @@ export default {
      * @public
      */
     checkAnswer() {
-      logging.warn('This content renderer has not implemented the checkAnswer method');
+      logging.warn('This content viewer has not implemented the checkAnswer method');
       return null;
     },
     /**
      * @public
      */
     takeHint() {
-      logging.warn('This content renderer has not implemented the takeHint method');
+      logging.warn('This content viewer has not implemented the takeHint method');
       return null;
     },
     _reportError(error) {
@@ -216,7 +201,7 @@ export default {
       if (!this._errorComponent) {
         const domNode = document.createElement('div');
         this.$el.prepend(domNode);
-        this._errorComponent = new ContentRendererErrorComponent({
+        this._errorComponent = new ContentViewerErrorComponent({
           el: domNode,
           parent: this,
           propsData: { error: this._resourceError, files: this.files },

@@ -1,11 +1,11 @@
 import Vue from 'vue';
-import { RENDERER_SUFFIX } from 'kolibri/constants';
+import { VIEWER_SUFFIX } from 'kolibri/constants';
 import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } from '../utils';
 
 // Add a component to the Vue instance that can be used to test the utility functions
 const addRegisterableComponents = (...presets) => {
   presets.forEach(preset => {
-    Vue.component(preset + RENDERER_SUFFIX, { template: '<div></div>' });
+    Vue.component(preset + VIEWER_SUFFIX, { template: '<div></div>' });
   });
 };
 
@@ -15,12 +15,12 @@ describe('Utility Functions', () => {
   });
 
   describe('canRenderContent', () => {
-    test('returns true if preset renderer component is registered', () => {
+    test('returns true if preset viewer component is registered', () => {
       addRegisterableComponents('preset1');
       expect(canRenderContent('preset1')).toBe(true);
     });
 
-    test('returns false if preset renderer component is not registered', () => {
+    test('returns false if preset viewer component is not registered', () => {
       expect(canRenderContent('preset2')).toBe(false);
     });
   });

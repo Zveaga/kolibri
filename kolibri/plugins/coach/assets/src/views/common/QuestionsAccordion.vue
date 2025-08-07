@@ -99,13 +99,11 @@
                 :id="`question-panel-${question.item}`"
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
-                <ContentRenderer
+                <ContentViewer
                   v-if="getQuestionContent(question)"
                   :ref="`contentRenderer-${question.item}`"
-                  :kind="getQuestionContent(question).kind"
                   :lang="getQuestionContent(question).lang"
                   :files="getQuestionContent(question).files"
-                  :available="getQuestionContent(question).available"
                   :itemId="question.question_id"
                   :assessment="true"
                   :allowHints="false"

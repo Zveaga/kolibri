@@ -30,6 +30,7 @@ export default {
   'kolibri/components/pages/ImmersivePage': require('kolibri/components/pages/ImmersivePage'),
   'kolibri/components/pages/NotificationsRoot': require('kolibri/components/pages/NotificationsRoot'),
   'kolibri/components/pages/ScrollingHeader': require('kolibri/components/pages/ScrollingHeader'),
+  'kolibri/composables/useContentViewer': require('kolibri/composables/useContentViewer'),
   'kolibri/composables/useMinimumKolibriVersion': require('kolibri/composables/useMinimumKolibriVersion'),
   'kolibri/composables/useNav': require('kolibri/composables/useNav'),
   'kolibri/composables/useNow': require('kolibri/composables/useNow'),

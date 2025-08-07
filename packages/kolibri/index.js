@@ -3,10 +3,13 @@ import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
-import ContentRenderer from './components/internal/ContentRenderer';
+import logger from 'kolibri-logging';
+import ContentViewer from './components/internal/ContentViewer';
 import initializeTheme from './styles/internal/initializeTheme';
 import setupPluginMediator from './internal/pluginMediator';
 import apiSpec from './internal/apiSpec';
+
+export const logging = logger.getLogger(__filename);
 
 /**
  * Object that forms the public API for the Kolibri
@@ -32,6 +35,12 @@ Vue.use(VueMeta);
 // - Register KDS components
 Vue.use(KThemePlugin);
 
-Vue.component('ContentRenderer', ContentRenderer);
+Vue.component('ContentViewer', ContentViewer);
+// Alias to deprecated name for backwards compatibility
+// This will be removed in Kolibri 0.19.0
+Vue.component('ContentRenderer', () => {
+  logging.warning('ContentRenderer component is deprecated. Please use ContentViewer instead.');
+  return ContentViewer;
+});
 
 export default coreApp;

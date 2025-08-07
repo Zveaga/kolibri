@@ -23,7 +23,7 @@
 
   import useUser from 'kolibri/composables/useUser';
   import { validateObject } from 'kolibri/utils/objectSpecs';
-  import { getRenderableFiles } from './internal/ContentRenderer/utils';
+  import { getRenderableFiles } from './internal/ContentViewer/utils';
   import { getFilePresetString } from './internal/filePresetStrings';
 
   export default {

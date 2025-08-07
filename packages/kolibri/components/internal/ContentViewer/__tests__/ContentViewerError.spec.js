@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import ContentRendererError from '../ContentRendererError.vue';
+import ContentViewerError from '../ContentViewerError.vue';
 
 // Helper function to render the component with given props and a router
 const renderComponent = props => {
-  return render(ContentRendererError, {
+  return render(ContentViewerError, {
     props,
   });
 };
@@ -14,7 +14,7 @@ const RENDERED_NOT_AVAILABLE_MESSAGE = 'Kolibri is unable to render this resourc
 
 const sampleError = { message: 'Test error message' };
 
-describe('ContentRendererError', () => {
+describe('ContentViewerError', () => {
   test('renders the error prompt properly if an error is provided', () => {
     renderComponent({ error: sampleError });
 

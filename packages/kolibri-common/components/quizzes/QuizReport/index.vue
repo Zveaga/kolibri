@@ -159,15 +159,14 @@
               v-if="!showCorrectAnswer"
               :interactions="currentInteractionHistory"
               :selectedInteractionIndex="selectedInteractionIndex"
+              :reverse="reverseInteractions"
               @select="navigateToQuestionAttempt"
             />
           </div>
-          <ContentRenderer
+          <ContentViewer
             :itemId="renderableItemId"
             :allowHints="false"
-            :kind="exercise.kind"
             :files="exercise.files"
-            :available="exercise.available"
             :extraFields="exercise.extra_fields"
             :interactive="false"
             :assessment="true"
@@ -432,7 +431,7 @@
           : this.attemptLogs[this.questionNumber].item;
       },
       renderableItemId() {
-        // This item value is used to pass into ContentRenderer to set the correct question,
+        // This item value is used to pass into ContentViewer to set the correct question,
         // so reclaim the actual item id value here by splitting on ':'.
         // This is only needed in cases where the item id has been artificially generated for coach
         // assigned quizzes.
@@ -448,11 +447,17 @@
           ) || []
           : [];
       },
+      reverseInteractions() {
+        return this.isQuiz || this.isSurvey;
+      },
       currentInteraction() {
-        return (
-          this.currentInteractionHistory &&
-          this.currentInteractionHistory[this.selectedInteractionIndex]
-        );
+        if (!this.currentInteractionHistory) {
+          return null;
+        }
+        const history = this.reverseInteractions
+          ? this.currentInteractionHistory.toReversed()
+          : this.currentInteractionHistory;
+        return history[this.selectedInteractionIndex];
       },
       titleIcon() {
         if (this.isSurvey) {

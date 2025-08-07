@@ -91,7 +91,7 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .content-renderer {
+  /deep/ .content-viewer {
     position: relative;
     max-height: 500px;
   }
