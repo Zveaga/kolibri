@@ -22,10 +22,8 @@ export default function useUsersFilters({ classes }) {
     return {
       userTypes: route.query.user_types?.split(',') || [],
       classes: route.query.classes?.split(',') || [],
-      birthYear: {
-        start: route.query.birth_year_start || null,
-        end: route.query.birth_year_end || null,
-      },
+      birthYearStart: route.query.birth_year_start || null,
+      birthYearEnd: route.query.birth_year_end || null,
       creationDate: route.query.creation_date || null,
     };
   });
@@ -48,7 +46,7 @@ export default function useUsersFilters({ classes }) {
     if (routeFilters.value.classes.length) {
       count += 1;
     }
-    if (routeFilters.value.birthYear.start || routeFilters.value.birthYear.end) {
+    if (routeFilters.value.birthYearStart || routeFilters.value.birthYearEnd) {
       count += 1;
     }
     if (routeFilters.value.creationDate) {
@@ -68,10 +66,12 @@ export default function useUsersFilters({ classes }) {
   ];
 
   const classesOptions = computed(() =>
-    classes.value.map(cls => ({
-      id: cls.id,
-      label: cls.name,
-    })),
+    classes.value
+      .map(cls => ({
+        id: cls.id,
+        label: cls.name,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
   const creationDateOptions = [
@@ -121,7 +121,8 @@ export default function useUsersFilters({ classes }) {
     newFilters => {
       workingFilters.userTypes = [...newFilters.userTypes];
       workingFilters.classes = [...newFilters.classes];
-      workingFilters.birthYear = newFilters.birthYear;
+      workingFilters.birthYear.start = newFilters.birthYearStart;
+      workingFilters.birthYear.end = newFilters.birthYearEnd;
       workingFilters.creationDate =
         creationDateOptions.find(option => option.value === newFilters.creationDate) || {};
     },
@@ -141,19 +142,13 @@ export default function useUsersFilters({ classes }) {
     const nextQuery = { ...route.query };
     delete nextQuery.page; // Reset to the first page when applying filters
 
-    if (
-      workingFilters.userTypes.length &&
-      workingFilters.userTypes.length < userFilterOptions.length
-    ) {
+    if (workingFilters.userTypes.length) {
       nextQuery.user_types = workingFilters.userTypes.join(',');
     } else {
       delete nextQuery.user_types;
     }
 
-    if (
-      workingFilters.classes.length &&
-      workingFilters.classes.length < classesOptions.value.length
-    ) {
+    if (workingFilters.classes.length) {
       nextQuery.classes = workingFilters.classes.join(',');
     } else {
       delete nextQuery.classes;
@@ -207,12 +202,12 @@ export default function useUsersFilters({ classes }) {
       backendFilters.related_to__in = routeFilters.value.classes;
     }
 
-    if (routeFilters.value.birthYear.start) {
-      backendFilters.birth_year_gte = routeFilters.value.birthYear.start;
+    if (routeFilters.value.birthYearStart) {
+      backendFilters.birth_year_gte = routeFilters.value.birthYearStart;
     }
 
-    if (routeFilters.value.birthYear.end) {
-      backendFilters.birth_year_lte = routeFilters.value.birthYear.end;
+    if (routeFilters.value.birthYearEnd) {
+      backendFilters.birth_year_lte = routeFilters.value.birthYearEnd;
     }
 
     return backendFilters;

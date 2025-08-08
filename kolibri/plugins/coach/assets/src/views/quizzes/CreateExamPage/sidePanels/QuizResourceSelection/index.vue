@@ -176,10 +176,10 @@
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
-  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
