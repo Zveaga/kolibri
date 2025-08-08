@@ -120,7 +120,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
       'Label for bulk-action button that will allow user to assign selected coaches to classes',
   },
   deleteSelection: {
-    message: 'Delete selection',
+    message: 'Remove selected users',
     context: 'Label for bulk-action button that will allow user to delete selected users',
   },
   selectAllLabel: {
@@ -284,42 +284,43 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
 
   // Move to trash
   moveToTrashLabel: {
-    message: 'Move {num, number} {num, plural, one {user to} other {users to}} trash',
+    message: 'Remove {num, number} {num, plural, one {user} other {users}}',
     context: 'Title of the modal that allows users to move selected users to trash',
   },
   moveToTrashAction: {
-    message: 'Yes, move to trash',
+    message: 'Yes, remove',
     context: 'Label for the button that confirms moving users to trash',
   },
   movingToTrash: {
-    message: 'Moving to trash',
+    message: 'Removing users',
     context:
       'Message to users when they click to move users to the trash to indicate that something is happening in the background',
   },
   moveToTrashWarning: {
-    message: 'Users will be removed from all classes and deleted permanently after 30 days.',
+    message:
+      'Users will be removed from all classes and immediately deactivated. Deactivated users will be deleted permanently after 30 days.',
     context: 'Warning message about trash deletion timeline',
   },
   undoTrashHeading: {
     message:
-      '{num, number} {num, plural, one {user has} other {users have}} been moved to trash. Undo this?',
-    context: 'Confirmation heading asking if user wants to undo moving multiple users to trash',
+      '{num, number} {num, plural, one {user has} other {users have}} been removed. Undo this?',
+    context: 'Confirmation heading asking if user wants to undo removing multiple users',
   },
   undoTrashMessageA: {
     message:
-      "You've successfully moved {numUsers, number} {numUsers, plural, one {user} other {users}} to trash.",
-    context: 'Success notification after users have been moved to trash',
+      "You've successfully removed {numUsers, number} {numUsers, plural, one {user} other {users}}.",
+    context: 'Success notification after users have been removed',
   },
   undoTrashMessageB: {
     message: 'These users will be deleted in 30 days. If this was a mistake, you can undo it.',
     context: 'Informational message about trash deletion timeline and undo option',
   },
   usersTrashedNotice: {
-    message: 'Selected users have been moved to trash',
-    context: 'Brief notification confirming users were moved to trash',
+    message: 'Selected users have been removed',
+    context: 'Brief notification confirming users were removed',
   },
   trashUndoneNotice: {
-    message: 'Move to trash has been undone',
+    message: 'Remove has been undone',
     context: 'Notification confirming that the trash action was reversed',
   },
 

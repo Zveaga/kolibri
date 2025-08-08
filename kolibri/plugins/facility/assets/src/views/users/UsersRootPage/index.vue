@@ -175,7 +175,7 @@
       const onUsersChange = ({ resetSelection = false } = {}) => {
         fetchUsers();
         if (resetSelection) {
-          selectedUsers.value.clear();
+          selectedUsers.value = new Set();
         }
       };
 
