@@ -70,9 +70,9 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
-  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject

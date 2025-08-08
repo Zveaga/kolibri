@@ -118,6 +118,7 @@
   import { useRoute } from 'vue-router/composables';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import useUserManagement from '../../composables/useUserManagement';
@@ -135,6 +136,7 @@
       ImmersivePage,
     },
     setup() {
+      usePreviousRoute();
       const route = useRoute();
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;

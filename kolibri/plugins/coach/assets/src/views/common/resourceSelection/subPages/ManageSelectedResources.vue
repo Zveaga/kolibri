@@ -76,7 +76,7 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { useGoBack } from '../../../../composables/usePreviousRoute.js';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { coachStrings } from '../../commonCoachStrings.js';
   import { PageNames } from '../../../../constants/index.js';
   import { SelectionTarget } from '../contants.js';

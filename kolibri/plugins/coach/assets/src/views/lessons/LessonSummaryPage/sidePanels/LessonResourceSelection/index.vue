@@ -112,9 +112,9 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
+  import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute.js';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
-  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
   import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';

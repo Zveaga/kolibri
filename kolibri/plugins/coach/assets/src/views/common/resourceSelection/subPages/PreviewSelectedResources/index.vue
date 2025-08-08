@@ -113,9 +113,9 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings.js';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { SelectionTarget } from '../../contants.js';
   import { PageNames } from '../../../../../constants/index.js';
-  import { useGoBack } from '../../../../../composables/usePreviousRoute.js';
   import QuizResourceSelectionHeader from '../../QuizResourceSelectionHeader.vue';
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';

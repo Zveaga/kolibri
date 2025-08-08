@@ -3,7 +3,7 @@
   <SidePanelModal
     alignment="right"
     sidePanelWidth="700px"
-    @closePanel="$router.back()"
+    @closePanel="goBack"
   >
     <template #header>
       <h1 class="side-panel-title">{{ filterUsersLabel$() }}</h1>
@@ -101,17 +101,19 @@
 
 <script>
 
-  import { computed, ref, toRefs } from 'vue';
+  import { computed, toRefs } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import { injectPreviousRoute, useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import SelectableList from '../../../common/SelectableList.vue';
   import useUsersFilters from '../../../../composables/useUsersFilters';
   import { PageNames } from '../../../../constants';
+  import { getRootRouteName, overrideRoute } from '../../../../utils';
   import BirthYearRangeSelect from './BirthYearRangeSelect.vue';
 
   export default {
@@ -125,7 +127,14 @@
       const { filterUsersLabel$, allUsersLabel$, applyFiltersLabel$ } = bulkUserManagementStrings;
       const { classes } = toRefs(props);
       const route = useRoute();
-      const prevRoute = ref(null);
+      const prevRoute = injectPreviousRoute();
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          return overrideRoute(route, {
+            name: getRootRouteName(route),
+          });
+        },
+      });
 
       const {
         workingFilters,
@@ -149,15 +158,13 @@
       };
 
       const applyFilters = () => {
-        const nextRouteName = prevRoute.value.name || PageNames.USER_MGMT_PAGE;
+        const nextRouteName = prevRoute.value?.name || getRootRouteName(route);
         _applyFilters({ nextRouteName });
       };
 
       return {
         // ref and computed properties
         workingFilters,
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         coreStrings,
         classesOptions,
         separatorStyles,
@@ -166,6 +173,7 @@
         hideDateCreatedFilter,
 
         // methods
+        goBack,
         resetWorkingFilters,
         applyFilters,
 
@@ -180,11 +188,6 @@
         type: Array,
         default: () => [],
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
   };
 

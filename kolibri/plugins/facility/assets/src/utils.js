@@ -46,6 +46,13 @@ export function overrideRoute(route, newRoute) {
   };
 }
 
+export function getRootRouteName(route) {
+  if (route.name?.endsWith('__NEW_USERS')) {
+    return PageNames.NEW_USERS_PAGE;
+  }
+  return PageNames.USER_MGMT_PAGE;
+}
+
 const sidePanelRoutes = [
   {
     name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,

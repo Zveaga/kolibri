@@ -114,6 +114,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
+  import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -133,6 +134,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePreviousRoute();
       const { currentUserId } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());

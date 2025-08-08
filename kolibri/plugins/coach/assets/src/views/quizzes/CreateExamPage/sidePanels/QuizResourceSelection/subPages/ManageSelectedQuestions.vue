@@ -45,8 +45,8 @@
   import { watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { PageNames } from '../../../../../../constants';
-  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
   import QuestionsAccordion from '../../../../../common/QuestionsAccordion.vue';
 
   export default {
