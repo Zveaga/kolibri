@@ -109,7 +109,10 @@
           :deviceId="deviceId"
         />
 
-        <TransitionGroup name="bar-actions">
+        <TransitionGroup
+          name="bar-actions"
+          data-onboarding-id="contentPageTopBar"
+        >
           <KIconButton
             v-for="action in barActions"
             :key="action.id"
@@ -171,6 +174,11 @@
         </span>
       </template>
     </KToolbar>
+    <TooltipTour
+      v-if="tourActive && isTourActive('LearningActivityBarPage') && isLearner"
+      page="LearningActivityBarPage"
+      @tourEnded="endTour()"
+    />
   </nav>
 
 </template>
@@ -191,8 +199,11 @@
   import SuggestedTime from 'kolibri-common/components/SuggestedTime';
   import get from 'lodash/get';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import commonLearnStrings from './commonLearnStrings';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
+  import useTour from 'kolibri/composables/useTour';
+  import useUser from 'kolibri/composables/useUser';
   import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
+  import commonLearnStrings from './commonLearnStrings';
 
   export default {
     name: 'LearningActivityBar',
@@ -206,6 +217,7 @@
       TimeDuration,
       SuggestedTime,
       DeviceConnectionStatus,
+      TooltipTour,
     },
     filters: {
       truncateText(value, maxLength) {
@@ -218,8 +230,15 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
+      const { isLearner } = useUser();
       return {
         windowBreakpoint,
+        tourActive,
+        isTourActive,
+        startTour,
+        endTour,
+        isLearner,
       };
     },
     /**
@@ -480,6 +499,11 @@
     },
     beforeDestroy() {
       window.removeEventListener('click', this.onWindowClick);
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.startTour('LearningActivityBarPage');
+      });
     },
     methods: {
       closeMenu({ focusMoreOptionsButton = true } = {}) {

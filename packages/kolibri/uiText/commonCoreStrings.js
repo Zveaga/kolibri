@@ -600,6 +600,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Refers to the sidebar menu in Kolibri that allows switching between main app sections like Learn, Coach, Facility, Device.',
   },
+  contentActionsLabel: {
+    message: 'Content actions',
+    context:
+      'Refers to the set of actions that can be performed on a resource, such as bookmarking, downloading, etc.',
+  },
 
   // Learning Activities
   all: {

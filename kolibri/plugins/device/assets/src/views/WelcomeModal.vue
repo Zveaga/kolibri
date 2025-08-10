@@ -32,10 +32,16 @@
     name: 'WelcomeModal',
     mixins: [commonCoreStrings],
     setup() {
-      const { isLearnerOnlyImport } = useUser();
+      const { isLearnerOnlyImport, isLearner } = useUser();
       const { facilities } = useFacilities();
-      const { onMyOwnWelcomeMessage$ } = kolibriOnboardingGuideStrings;
-      return { isLearnerOnlyImport, facilities, onMyOwnWelcomeMessage$ };
+      const { onMyOwnWelcomeMessage$, HomePageWelcomeMessage$ } = kolibriOnboardingGuideStrings;
+      return {
+        isLearnerOnlyImport,
+        facilities,
+        isLearner,
+        onMyOwnWelcomeMessage$,
+        HomePageWelcomeMessage$,
+      };
     },
     props: {
       importedFacility: {
@@ -58,6 +64,9 @@
               ? this.$tr('learnOnlyDeviceWelcomeMessage2')
               : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
+        }
+        if (this.isLearner) {
+          return [this.HomePageWelcomeMessage$()];
         }
         if (this.isOnMyOwnUser) {
           return [this.onMyOwnWelcomeMessage$()];
