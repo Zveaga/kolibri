@@ -33,7 +33,7 @@
       v-else
       alignment="right"
       sidePanelWidth="700px"
-      @closePanel="$router.back()"
+      @closePanel="closeSidePanel(false)"
     >
       <template #header>
         <h1>{{ assignCoach$() }}</h1>
@@ -88,7 +88,8 @@
           <div class="footer-buttons">
             <KButton
               appearance="secondary-button"
-              @click="handleCancel"
+              :disabled="isLoading"
+              @click="closeSidePanel(selectedClasses.length > 0 ? true : false)"
             >
               {{ coreString('cancelAction') }}
             </KButton>
@@ -103,6 +104,16 @@
           </div>
         </div>
       </div>
+      <KModal
+        v-if="showCloseConfirmationModal"
+        :submitText="discardAction$()"
+        :cancelText="keepEditingAction$()"
+        :title="disgardChanges$()"
+        @cancel="showCloseConfirmationModal = false"
+        @submit="closeSidePanel(false)"
+      >
+        <span class="adjust-line-height">{{ discardWarning$() }}</span>
+      </KModal>
     </SidePanelModal>
   </div>
 
@@ -135,6 +146,7 @@
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
       const showUndoModal = ref(false);
+      const showCloseConfirmationModal = ref(false);
       const createdRoles = ref([]);
       const instance = getCurrentInstance();
 
@@ -154,6 +166,10 @@
         assignAction$,
         assignToAllClasses$,
         searchForAClass$,
+        discardAction$,
+        discardWarning$,
+        keepEditingAction$,
+        disgardChanges$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
       const { dismissAction$ } = searchAndFilterStrings;
@@ -215,10 +231,6 @@
         }
       }
 
-      function handleCancel() {
-        instance.proxy.$router.back();
-      }
-
       function handleDismissConfirmation() {
         showUndoModal.value = false;
         instance.proxy.$router.back();
@@ -244,6 +256,14 @@
         }
       }
 
+      function closeSidePanel(saveChanges = false) {
+        if (saveChanges) {
+          showCloseConfirmationModal.value = true;
+        } else {
+          instance.proxy.$router.back();
+        }
+      }
+
       return {
         selectedClasses,
         isLoading,
@@ -252,6 +272,7 @@
         hasSelectedClasses,
         showErrorWarning,
         showUndoModal,
+        showCloseConfirmationModal,
         defaultErrorMessage$,
         assignCoach$,
         numUsersYouHaveSelected$,
@@ -263,13 +284,17 @@
         assignToAllClasses$,
         searchForAClass$,
         handleAssign,
-        handleCancel,
         handleDismissConfirmation,
         handleUndoAssignments,
         undoAction$,
         dismissAction$,
         undoAssignCoachHeading$,
         undoAssignCoachMessage$,
+        closeSidePanel,
+        discardAction$,
+        discardWarning$,
+        keepEditingAction$,
+        disgardChanges$,
       };
     },
     props: {
