@@ -222,10 +222,14 @@ class PreferredDevices(object):
         filters = filters or {}
         # only include devices that are not a subset of the user's device
         filters.update(subset_of_users_device=False)
-        instance_ids = (
-            SyncSession.objects.order_by("-last_activity_timestamp")
-            .values_list("server_instance_id", flat=True)
-            .distinct()
+        instance_ids = list(
+            set(
+                (
+                    SyncSession.objects.order_by("-last_activity_timestamp")
+                    .values_list("server_instance_id", flat=True)
+                    .distinct()
+                )
+            )
         )
         return cls(
             instance_ids,
