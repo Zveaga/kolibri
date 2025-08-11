@@ -187,7 +187,7 @@
       <TooltipTour
         v-if="tourActive"
         page="LibraryPage"
-        @tourEnded="tourActive = false"
+        @tourEnded="endTour()"
       />
     </LearnAppBarPage>
   </div>
@@ -266,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, startTour } = useTour();
+      const { tourActive, startTour, endTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -438,6 +438,7 @@
         isLearnerOnlyImport,
         tourActive,
         startTour,
+        endTour,
       };
     },
     props: {

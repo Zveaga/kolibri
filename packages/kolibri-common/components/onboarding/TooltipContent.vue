@@ -1,46 +1,70 @@
 <template>
 
-  <div class="onboarding-tooltip">
-    <div class="onboarding-tooltip-header">
-      <div class="onboarding-tooltip-progress">
-        <span
-          v-for="(step, index) in steps"
-          :key="index"
-          :class="['dot', { active: index === currentStepIndex }]"
-        ></span>
+  <KFocusTrap
+    @shouldFocusFirstEl="focusFirstEl"
+    @shouldFocusLastEl="focusLastEl"
+  >
+    <div
+      class="onboarding-tooltip"
+      role="dialog"
+      aria-modal="true"
+    >
+      <h1 class="visuallyhidden">
+        {{
+          onboardingStepDescription$({
+            pageTitle: getTranslatedPageLabel(),
+            currentStep: currentStepIndex + 1,
+            totalSteps: steps.length,
+          })
+        }}
+      </h1>
+      <div class="onboarding-tooltip-header">
+        <div class="onboarding-tooltip-progress">
+          <span
+            v-for="(step, index) in steps"
+            :key="index"
+            :class="['dot', { active: index === currentStepIndex }]"
+          ></span>
+        </div>
+        <KIconButton
+          ref="closeButton"
+          icon="close"
+          :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
+          @click="$emit('close')"
+        />
       </div>
-      <KIconButton
-        ref="closeButton"
-        class="close-button"
-        icon="close"
-        :ariaLabel="coreString('closeAction')"
-        :tooltip="coreString('closeAction')"
-        @click="$emit('close')"
-      />
+
+      <div class="onboarding-tooltip-body">
+        <p id="tooltip-title">{{ steps[currentStepIndex].content }}</p>
+      </div>
+
+      <div class="onboarding-tooltip-footer">
+        <KButton
+          v-if="currentStepIndex > 0"
+          ref="backButton"
+          data-back-btn="backButton"
+          :primary="false"
+          appearance="flat-button"
+          @click="$emit('back')"
+        >
+          Back
+        </KButton>
+
+        <KButton
+          ref="continueButton"
+          data-continue-btn="continueButton"
+          secondary
+          :text="
+            currentStepIndex === steps.length - 1
+              ? coreString('finishAction')
+              : coreString('continueAction')
+          "
+          @click="$emit('next')"
+        />
+      </div>
     </div>
-    <div class="onboarding-tooltip-body">
-      <p>{{ steps[currentStepIndex].content }}</p>
-    </div>
-    <div class="onboarding-tooltip-footer">
-      <KButton
-        v-if="currentStepIndex > 0"
-        :primary="false"
-        appearance="flat-button"
-        @click="$emit('back')"
-      >
-        Back
-      </KButton>
-      <KButton
-        secondary
-        :text="
-          currentStepIndex === steps.length - 1
-            ? coreString('finishAction')
-            : coreString('continueAction')
-        "
-        @click="$emit('next')"
-      />
-    </div>
-  </div>
+  </KFocusTrap>
 
 </template>
 
@@ -48,11 +72,22 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
 
   export default {
     name: 'TooltipContent',
     mixins: [commonCoreStrings],
+    setup() {
+      const { onboardingStepDescription$ } = kolibriOnboardingGuideStrings;
+      return {
+        onboardingStepDescription$,
+      };
+    },
     props: {
+      page: {
+        type: String,
+        required: true,
+      },
       steps: {
         type: Array,
         default: () => [],
@@ -60,6 +95,26 @@
       currentStepIndex: {
         type: Number,
         default: 0,
+      },
+    },
+
+    mounted() {
+      this.$nextTick(() => {
+        const btn = this.$refs.closeButton?.$el;
+        if (btn && typeof btn.focus === 'function') {
+          btn.focus();
+        }
+      });
+    },
+    methods: {
+      focusFirstEl() {
+        this.$refs.closeButton?.$el.focus();
+      },
+      focusLastEl() {
+        this.$refs.continueButton?.$el.focus();
+      },
+      getTranslatedPageLabel() {
+        return this.page ? this.coreString(this.page) : this.page;
       },
     },
   };

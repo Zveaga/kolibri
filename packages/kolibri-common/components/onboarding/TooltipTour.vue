@@ -4,6 +4,8 @@
     <div
       v-if="showOverlay"
       class="overlay"
+      aria-hidden="true"
+      tabindex="-1"
       @click.stop
     ></div>
     <div
@@ -41,7 +43,10 @@
     },
     computed: {
       steps() {
-        return onboardingSteps[this.page] || [];
+        return onboardingSteps[this.page]?.steps || [];
+      },
+      pageLabel() {
+        return onboardingSteps[this.page]?.label || '';
       },
       highlightStyle() {
         return {
@@ -59,6 +64,10 @@
     },
     mounted() {
       this.showTooltip();
+      window.document.documentElement.style['overflow'] = 'hidden';
+    },
+    destroyed() {
+      window.document.documentElement.style['overflow'] = 'auto';
     },
     methods: {
       showTooltip() {
@@ -82,6 +91,7 @@
           const TooltipConstructor = Vue.extend(TooltipContent);
           const instance = new TooltipConstructor({
             propsData: {
+              page: this.pageLabel,
               steps: this.steps,
               currentStepIndex: this.currentStepIndex,
             },
