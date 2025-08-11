@@ -44,7 +44,7 @@
         <div v-else>
           <div
             v-if="showErrorWarning"
-            class="enroll-warning-label"
+            class="assign-warning-label"
             :style="{ color: $themeTokens.error }"
           >
             <span>{{ defaultErrorMessage$() }}</span>
@@ -56,7 +56,7 @@
               color="yellow"
               class="sidepanel-icon"
             />
-            {{ numUsersNotEnrolled$({ num: selectedUsersCount }) }}
+            {{ numUsersNotAssigned$({ num: selectedUsersCount }) }}
           </div>
           <div class="warning-message">
             <KIcon
@@ -80,7 +80,7 @@
             v-model="selectedClasses"
             :options="formattedClasses"
             aria-labelledby="classes-heading"
-            :selectAllLabel="selectAllLabel$()"
+            :selectAllLabel="assignToAllClasses$()"
             :searchLabel="searchForAClass$()"
           />
 
@@ -96,9 +96,9 @@
               primary
               appearance="raised-button"
               :disabled="!hasSelectedClasses || isLoading"
-              @click="handleEnroll"
+              @click="handleAssign"
             >
-              {{ enrollAction$() }}
+              {{ assignAction$() }}
             </KButton>
           </div>
         </div>
@@ -147,12 +147,12 @@
         undoAction$,
         assignCoach$,
         numUsersYouHaveSelected$,
-        numUsersNotEnrolled$,
+        numUsersNotAssigned$,
         numUsersCoaches$,
         usersNotInClassNotAffected$,
         assignToAClassLabel$,
-        enrollAction$,
-        selectAllLabel$,
+        assignAction$,
+        assignToAllClasses$,
         searchForAClass$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
@@ -175,7 +175,7 @@
       );
 
       // Methods
-      async function handleEnroll() {
+      async function handleAssign() {
         if (!hasSelectedClasses.value) {
           return;
         }
@@ -255,14 +255,14 @@
         defaultErrorMessage$,
         assignCoach$,
         numUsersYouHaveSelected$,
-        numUsersNotEnrolled$,
+        numUsersNotAssigned$,
         numUsersCoaches$,
         usersNotInClassNotAffected$,
         assignToAClassLabel$,
-        enrollAction$,
-        selectAllLabel$,
+        assignAction$,
+        assignToAllClasses$,
         searchForAClass$,
-        handleEnroll,
+        handleAssign,
         handleCancel,
         handleDismissConfirmation,
         handleUndoAssignments,
@@ -295,7 +295,7 @@
     position: relative;
   }
 
-  .enroll-warning-label {
+  .assign-warning-label {
     margin-bottom: 10px;
   }
 

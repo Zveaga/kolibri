@@ -213,6 +213,16 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Coaches assigned to this class',
     context: 'label to indicate coaches assigned to a class in sidepanel',
   },
+  assignAction: {
+    message: 'Assign',
+    context: 'Label for the button that will assign coaches to classes',
+  },
+  numUsersNotAssigned: {
+    message:
+      '{num, number} {num, plural, one {user is} other {users are}} not assigned to any class',
+    context:
+      'A notice indicating the number of users that are selected which are not assigned to a class as coaches',
+  },
 
   // Remove from class
   usersNotInClassNotAffected: {
