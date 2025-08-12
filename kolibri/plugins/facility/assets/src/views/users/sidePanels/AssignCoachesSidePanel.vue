@@ -50,6 +50,19 @@
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
           <p>{{ numUsersYouHaveSelected$({ num: selectedUsersCount }) }}</p>
+
+          <div
+            v-if="ineligibleUsersCount > 0"
+            class="warning-message"
+          >
+            <KIcon
+              icon="warning"
+              color="yellow"
+              class="sidepanel-icon"
+            />
+            {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
+          </div>
+
           <div class="warning-message">
             <KIcon
               icon="warning"
@@ -151,7 +164,10 @@
       const instance = getCurrentInstance();
 
       const {
-        defaultErrorMessage$,
+        defaultErrorMessage$  const ineligibleUsers = computed(() => {
+        if (!props.facilityUsers || props.facilityUsers.length === 0) {
+          return [];
+        },
         undoAssignCoachHeading$,
         undoAssignCoachMessage$,
         coachesAssignedNotice$,
@@ -170,6 +186,7 @@
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
+        numUsersNotEligible$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
       const { dismissAction$ } = searchAndFilterStrings;
@@ -189,6 +206,35 @@
       const getSelectedClassObjects = computed(() =>
         props.classes.filter(cls => selectedClasses.value.includes(cls.id)),
       );
+
+      // Filter eligible users (coaches, admins, superusers)
+      const eligibleUsers = computed(() => {
+        if (!props.facilityUsers || props.facilityUsers.length === 0) {
+          return Array.from(props.selectedUsers);
+        }
+
+        return props.facilityUsers.filter(
+          user =>
+            props.selectedUsers.has(user.id) &&
+            (user.kind.includes(UserKinds.COACH) ||
+              user.kind === UserKinds.ADMIN ||
+              user.kind === UserKinds.SUPERUSER ||
+              user.is_superuser),
+        );
+      });
+
+      // Filter ineligible users (learners)
+      const ineligibleUsers = computed(() => {
+        if (!props.facilityUsers || props.facilityUsers.length === 0) {
+          return [];
+        }
+
+        return props.facilityUsers.filter(
+          user => props.selectedUsers.has(user.id) && user.kind === UserKinds.LEARNER,
+        );
+      });
+
+      const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
       // Methods
       async function handleAssign() {
@@ -215,11 +261,15 @@
 
       async function assignCoachesToClasses() {
         const selectedClasses = getSelectedClassObjects.value;
-        const userIds = Array.from(props.selectedUsers);
+        const eligibleUserIds = eligibleUsers.value.map(user => user.id);
+
+        if (eligibleUserIds.length === 0) {
+          return;
+        }
 
         for (const classObj of selectedClasses) {
           const newRoles = await RoleResource.saveCollection({
-            data: userIds.map(userId => ({
+            data: eligibleUserIds.map(userId => ({
               collection: classObj.id,
               user: userId,
               kind: UserKinds.COACH,
@@ -270,6 +320,7 @@
         formattedClasses,
         selectedUsersCount,
         hasSelectedClasses,
+        ineligibleUsersCount,
         showErrorWarning,
         showUndoModal,
         showCloseConfirmationModal,
@@ -295,6 +346,7 @@
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
+        numUsersNotEligible$,
       };
     },
     props: {
@@ -305,6 +357,10 @@
       },
       /* eslint-enable vue/no-unused-properties */
       classes: {
+        type: Array,
+        default: () => [],
+      },
+      facilityUsers: {
         type: Array,
         default: () => [],
       },

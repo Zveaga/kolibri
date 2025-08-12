@@ -95,6 +95,7 @@
       <router-view
         :selectedUsers="selectedUsers"
         :classes="classes"
+        :facilityUsers="facilityUsers"
         @change="onUsersChange"
         @hook:beforeDestroy="selectedUsers = new Set()"
       />
@@ -232,7 +233,7 @@
         if (!this.hasSelectedUsers) return false;
         return this.facilityUsers
           .filter(user => this.selectedUsers.has(user.id))
-          .every(
+          .some(
             user =>
               user.kind.includes(UserKinds.COACH) ||
               user.kind === UserKinds.ADMIN ||

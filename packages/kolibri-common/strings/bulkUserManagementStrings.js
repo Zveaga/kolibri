@@ -223,6 +223,12 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context:
       'A notice indicating the number of users that are selected which are not assigned to a class as coaches',
   },
+  numUsersNotEligible: {
+    message:
+      "{num, number} {num, plural, one {learner} other {learners}} can't be assigned as coaches. They won't be added.",
+    context:
+      'A notice indicating the number of learners that are selected which cannot be assigned as coaches and will be skipped',
+  },
 
   // Remove from class
   usersNotInClassNotAffected: {

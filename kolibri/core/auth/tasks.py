@@ -702,4 +702,4 @@ def cleanup_expired_deleted_users():
     if FacilityUser.soft_deleted_objects.exists():
         job = get_current_job()
         # Re-enqueue to run again in 24 hours
-        job.retry_in(24 * 60 * 60)
+        job.retry_in(datetime.timedelta(days=1))
