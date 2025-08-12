@@ -5,7 +5,7 @@
       v-if="showUndoModal"
       :title="
         undoAssignCoachHeading$({
-          numUsers: selectedUsersCount,
+          numUsers: eligibleUsersCount,
           numClasses: selectedClasses.length,
         })
       "
@@ -23,7 +23,7 @@
       >
         {{
           undoAssignCoachMessage$({
-            numUsers: selectedUsersCount,
+            numUsers: eligibleUsersCount,
             numClasses: selectedClasses.length,
           })
         }}
@@ -236,6 +236,13 @@
 
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
+      const eligibleUsersCount = computed(() => {
+        if (!props.facilityUsers || props.facilityUsers.length === 0) {
+          return props.selectedUsers.size; // fallback
+        }
+        return eligibleUsers.value.length;
+      });
+
       // Methods
       async function handleAssign() {
         if (!hasSelectedClasses.value) {
@@ -249,9 +256,7 @@
         try {
           await assignCoachesToClasses();
           createSnackbar(coachesAssignedNotice$());
-          if (createdRoles.value.length > 0) {
-            showUndoModal.value = true;
-          }
+          showUndoModal.value = true;
         } catch (error) {
           showErrorWarning.value = true;
         } finally {
@@ -320,6 +325,7 @@
         formattedClasses,
         selectedUsersCount,
         hasSelectedClasses,
+        eligibleUsersCount,
         ineligibleUsersCount,
         showErrorWarning,
         showUndoModal,
