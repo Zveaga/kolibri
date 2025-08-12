@@ -37,10 +37,10 @@
   import { computed, getCurrentInstance } from 'vue';
   import { now } from 'kolibri/utils/serverClock';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
-  import { useGoBack } from '../../../../composables/usePreviousRoute';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**

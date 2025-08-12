@@ -5,7 +5,7 @@ import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import UserCreateSidePanel from './views/users/sidePanels/UserCreate/index.vue';
 import MoveToTrashSidePanel from './views/users/sidePanels/MoveToTrashSidePanel';
-import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel';
+import FilterUsersSidePanel from './views/users/sidePanels/FilterUsersSidePanel/index.vue';
 import AssignCoachesSidePanel from './views/users/sidePanels/AssignCoachesSidePanel';
 import RemoveFromClassSidePanel from './views/users/sidePanels/RemoveFromClassSidePanel';
 import EnrollLearnersSidePanel from './views/users/sidePanels/EnrollLearnersSidePanel';
@@ -44,6 +44,13 @@ export function overrideRoute(route, newRoute) {
       ...newRoute.query,
     },
   };
+}
+
+export function getRootRouteName(route) {
+  if (route.name?.endsWith('__NEW_USERS')) {
+    return PageNames.NEW_USERS_PAGE;
+  }
+  return PageNames.USER_MGMT_PAGE;
 }
 
 const sidePanelRoutes = [

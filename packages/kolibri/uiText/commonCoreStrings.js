@@ -220,6 +220,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Refers to a user with an admin role. This role is marked with a label in a list of users.',
   },
+  classLabel: {
+    message: 'Class',
+    context:
+      'A class is a group of enrolled learners and assigned coaches, created and managed by an admin.\n\nCoaches can assign lessons and quizzes to the learners in a class, and view reports of their progress and performance.',
+  },
   allClassesLabel: {
     message: 'All classes',
     context:

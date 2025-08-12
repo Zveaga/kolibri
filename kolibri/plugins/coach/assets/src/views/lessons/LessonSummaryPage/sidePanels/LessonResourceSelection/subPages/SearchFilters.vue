@@ -20,8 +20,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { PageNames } from '../../../../../../constants';
-  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject

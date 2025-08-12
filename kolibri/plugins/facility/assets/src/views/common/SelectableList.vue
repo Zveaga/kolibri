@@ -7,6 +7,7 @@
     }"
   >
     <div
+      v-if="searchable"
       class="searchbox-container"
       :style="{
         borderBottom: `1px solid ${$themeTokens.fineLine}`,
@@ -35,7 +36,9 @@
         :disabled="!filteredOptions.length"
         :aria-controls="listboxId"
         @change="changeSelectAll"
-      />
+      >
+        <slot name="selectAllLabel"></slot>
+      </KCheckbox>
     </div>
     <p
       :id="ariaDescribedById"
@@ -51,7 +54,7 @@
       role="listbox"
       data-focus="true"
       aria-multiselectable="true"
-      :style="{ outline: 'none' }"
+      :style="{ outline: 'none', maxHeight: maxHeight }"
       :aria-labelledby="ariaLabelledby"
       :aria-describedby="ariaDescribedById"
       :aria-activedescendant="getElementOptionId(focusedOption)"
@@ -79,7 +82,7 @@
           :label="option.label"
         >
           <slot
-            :option="option.label"
+            :option="option"
             name="option"
           ></slot>
         </KCheckbox>
@@ -364,11 +367,20 @@
       },
       selectAllLabel: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
+      },
+      searchable: {
+        type: Boolean,
+        default: true,
       },
       searchLabel: {
         type: String,
         required: true,
+      },
+      maxHeight: {
+        type: String,
+        default: null,
       },
     },
   };
@@ -386,6 +398,7 @@
   .list-options {
     padding: 0;
     margin: 0;
+    overflow: auto;
     list-style: none;
   }
 

@@ -130,7 +130,7 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
-  import SelectableList from '../../ManageClassPage/SelectableList.vue';
+  import SelectableList from '../../common/SelectableList.vue';
 
   export default {
     name: 'EnrollLearnersSidePanel',

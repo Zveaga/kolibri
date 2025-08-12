@@ -44,6 +44,9 @@
         :dataLoading="dataLoading"
         :selectedUsers.sync="selectedUsers"
         :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
+        :numAppliedFilters="numAppliedFilters"
+        @clearFilters="resetFilters"
+        @change="onUsersChange"
       >
         <template #userActions>
           <router-link
@@ -111,6 +114,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
+  import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -130,6 +134,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      usePreviousRoute();
       const { currentUserId } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
@@ -147,12 +152,25 @@
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-      const { facilityUsers, totalPages, usersCount, dataLoading, classes, fetchClasses } =
-        useUserManagement({ activeFacilityId });
+      const {
+        facilityUsers,
+        totalPages,
+        usersCount,
+        dataLoading,
+        classes,
+        numAppliedFilters,
+        fetchUsers,
+        fetchClasses,
+        resetFilters,
+      } = useUserManagement({ activeFacilityId });
 
       onMounted(() => {
         fetchClasses();
       });
+
+      function onUsersChange() {
+        fetchUsers();
+      }
 
       return {
         PageNames,
@@ -162,6 +180,9 @@
         usersCount,
         dataLoading,
         classes,
+        numAppliedFilters,
+        resetFilters,
+        onUsersChange,
         newUser$,
         viewTrash$,
         assignCoach$,

@@ -79,6 +79,7 @@ from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.constants import user_kinds
+from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
@@ -109,6 +110,14 @@ logger = logging.getLogger(__name__)
 
 
 class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
+
+
+class ModelChoiceInFilter(BaseInFilter, ModelChoiceFilter):
+    pass
+
+
+class ChoiceInFilter(BaseInFilter, ChoiceFilter):
     pass
 
 
@@ -306,7 +315,14 @@ class FacilityUserFilter(FilterSet):
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
     )
+    related_to__in = ModelChoiceInFilter(
+        method="filter_related_to__in", queryset=Collection.objects.all()
+    )
     user_type = ChoiceFilter(
+        choices=USER_TYPE_CHOICES,
+        method="filter_user_type",
+    )
+    user_type__in = ChoiceInFilter(
         choices=USER_TYPE_CHOICES,
         method="filter_user_type",
     )
@@ -320,31 +336,60 @@ class FacilityUserFilter(FilterSet):
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
-    date_joined__gt = DateTimeFilter(
+    date_joined__gte = DateTimeFilter(
         field_name="date_joined",
-        lookup_expr="gt",
+        lookup_expr="gte",
     )
-    date_joined__lt = DateTimeFilter(
+    date_joined__lte = DateTimeFilter(
         field_name="date_joined",
-        lookup_expr="lt",
+        lookup_expr="lte",
     )
+    birth_year_gte = CharFilter(method="filter_birth_year_gte")
+    birth_year_lte = CharFilter(method="filter_birth_year_lte")
+
     by_ids = UUIDInFilter(field_name="id")
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
 
+    def filter_related_to__in(self, queryset, name, value):
+        """
+        Filter users related to any of the collections in the provided value. Related through
+        memberships, facility, or roles.
+        """
+        return queryset.filter(
+            Q(memberships__collection__in=value)
+            | Q(facility__in=value)
+            | Q(roles__collection__in=value)
+        )
+
     def filter_user_type(self, queryset, name, value):
-        if value == "learner":
-            return queryset.filter(roles__isnull=True)
-        if value == "coach":
+        if isinstance(value, str):
+            value = [value]
+
+        user_type_filter = Q()
+
+        if "learner" in value:
+            user_type_filter |= Q(roles__isnull=True)
+
+        if "coach" in value:
             # Return users with either coach or classroom assignable coach roles
-            return queryset.filter(
-                Q(roles__kind=role_kinds.COACH)
-                | Q(roles__kind=role_kinds.ASSIGNABLE_COACH)
+            user_type_filter |= Q(roles__kind=role_kinds.COACH) | Q(
+                roles__kind=role_kinds.ASSIGNABLE_COACH
             )
-        if value == "superuser":
-            return queryset.filter(devicepermissions__is_superuser=True)
-        return queryset.filter(roles__kind=value)
+        if "superuser" in value:
+            user_type_filter |= Q(devicepermissions__is_superuser=True)
+
+        rest_filters = [
+            user_type_value
+            for user_type_value in value
+            if user_type_value not in ["learner", "coach", "superuser"]
+        ]
+
+        if rest_filters:
+            user_type_filter |= Q(roles__kind__in=rest_filters)
+
+        return queryset.filter(user_type_filter)
 
     def filter_exclude_member_of(self, queryset, name, value):
         return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
@@ -366,16 +411,38 @@ class FacilityUserFilter(FilterSet):
             return queryset.exclude(devicepermissions__is_superuser=True)
         return queryset.exclude(roles__kind=value)
 
+    def filter_birth_year_gte(self, queryset, name, value):
+        queryset = queryset.exclude(
+            Q(birth_year__isnull=True)
+            | Q(birth_year=NOT_SPECIFIED)
+            | Q(birth_year=DEFERRED)
+        )
+
+        return queryset.filter(Q(birth_year__gte=value))
+
+    def filter_birth_year_lte(self, queryset, name, value):
+        queryset = queryset.exclude(
+            Q(birth_year__isnull=True)
+            | Q(birth_year=NOT_SPECIFIED)
+            | Q(birth_year=DEFERRED)
+        )
+
+        return queryset.filter(Q(birth_year__lte=value))
+
     class Meta:
         model = FacilityUser
         fields = [
             "member_of",
+            "related_to__in",
             "user_type",
+            "user_type__in",
             "exclude_member_of",
             "exclude_user_type",
             "by_ids",
-            "date_joined__gt",
-            "date_joined__lt",
+            "date_joined__gte",
+            "date_joined__lte",
+            "birth_year_gte",
+            "birth_year_lte",
         ]
 
 
