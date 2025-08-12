@@ -956,7 +956,7 @@ class CleanupExpiredDeletedUsersTaskTestCase(TestCase):
         mock_job = Mock()
         mock_get_current_job.return_value = mock_job
         cleanup_expired_deleted_users()
-        mock_job.retry_in.assert_called_once_with(24 * 60 * 60)
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(days=1))
 
     @patch("kolibri.core.auth.tasks.get_current_job")
     def test_soft_deleted_users_future_deletion_date_does_reenqueue(
@@ -971,7 +971,7 @@ class CleanupExpiredDeletedUsersTaskTestCase(TestCase):
         mock_job = Mock()
         mock_get_current_job.return_value = mock_job
         cleanup_expired_deleted_users()
-        mock_job.retry_in.assert_called_once_with(24 * 60 * 60)
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(days=1))
 
     @patch("kolibri.core.auth.tasks.get_current_job")
     def test_expired_soft_deleted_user_gets_deleted_and_no_reenqueue(
