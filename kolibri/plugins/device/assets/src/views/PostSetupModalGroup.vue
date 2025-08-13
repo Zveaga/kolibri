@@ -2,7 +2,7 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME && isUserLoggedIn"
+      v-if="step === Steps.WELCOME && isUserLoggedIn && classesLoaded"
       :importedFacility="importedFacility"
       :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
@@ -45,6 +45,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useLearnerResources from '../../../../learn/assets/src/composables/useLearnerResources';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -71,11 +72,13 @@
       const { isUserLoggedIn } = useUser();
       const { createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
+      const { classes } = useLearnerResources();
 
       return {
         isUserLoggedIn,
         createSnackbar,
         facilities,
+        classes,
       };
     },
     props: {
@@ -99,6 +102,9 @@
           return facility;
         }
         return null;
+      },
+      classesLoaded() {
+        return Array.isArray(this.classes);
       },
     },
     methods: {

@@ -27,6 +27,7 @@
   import { kolibriOnboardingGuideStrings } from 'kolibri/uiText/kolibriOnboardingGuideStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useLearnerResources from '../../../../../../kolibri/plugins/learn/assets/src/composables/useLearnerResources';
 
   export default {
     name: 'WelcomeModal',
@@ -35,12 +36,15 @@
       const { isLearnerOnlyImport, isLearner } = useUser();
       const { facilities } = useFacilities();
       const { onMyOwnWelcomeMessage$, HomePageWelcomeMessage$ } = kolibriOnboardingGuideStrings;
+      const { classes } = useLearnerResources();
+
       return {
         isLearnerOnlyImport,
         facilities,
         isLearner,
         onMyOwnWelcomeMessage$,
         HomePageWelcomeMessage$,
+        classes,
       };
     },
     props: {
@@ -65,8 +69,8 @@
               : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
-        if (this.isLearner) {
-          return [this.HomePageWelcomeMessage$()];
+        if (this.isLearner && this.classes.length > 0) {
+          return [this.HomePageWelcomeMessage$({ facilityName: '' })];
         }
         if (this.isOnMyOwnUser) {
           return [this.onMyOwnWelcomeMessage$()];
