@@ -447,4 +447,34 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Add new user',
     context: 'Label for button that opens the user creation modal',
   },
+
+  // Trash page
+  removedUsersTitle: {
+    message: 'Removed Users',
+    context: 'Title of the page listing users who have been removed from the facility.',
+  },
+  noRemovedUsersLabel: {
+    message: 'No removed users',
+    context: 'Displayed when there are no users who have been removed from the facility.',
+  },
+  removedUsersNotice: {
+    message: 'Removed users are stored here for 30 days before being permanently deleted',
+    context: 'Displayed when there are users who have been removed from the facility.',
+  },
+  removedUsersPageDescription: {
+    message: 'Records will show the days remaining before permanent deletion.',
+    context: 'Description shown on the trash page below the title.',
+  },
+  deletePermanentlyLabel: {
+    message: 'Delete permanently',
+    context: 'Label for the button to permanently delete a user from the facility.',
+  },
+  recoverLabel: {
+    message: 'Recover',
+    context: 'Label for the button to recover a user from the trash.',
+  },
+  recoverSelectionLabel: {
+    message: 'Recover selection',
+    context: 'Label for the button to recover multiple users from the trash.',
+  },
 });

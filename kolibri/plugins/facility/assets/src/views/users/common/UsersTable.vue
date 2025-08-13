@@ -93,6 +93,7 @@
         </template>
 
         <template #cell="{ content, colIndex, row }">
+          <!-- Column 0: Selection Checkbox -->
           <div v-if="colIndex === 0">
             <KCheckbox
               :label="getTranslatedSelectedArialabel(content)"
@@ -102,6 +103,7 @@
               @change="() => handleUserSelectionToggle(content)"
             />
           </div>
+          <!-- Column 1: User name -->
           <span v-else-if="colIndex === 1">
             <KLabeledIcon
               class="user-type-icon"
@@ -118,18 +120,23 @@
               :class="$computedClass(userRoleBadgeStyle)"
             />
           </span>
+          <!-- Column 3: User identifier -->
           <span v-else-if="colIndex === 3">
             <KOptionalText :text="content ? content : ''" />
           </span>
+          <!-- Column 4: User gender -->
           <span v-else-if="colIndex === 4">
             <GenderDisplayText :gender="content" />
           </span>
+          <!-- Column 5: User birth year -->
           <span v-else-if="colIndex === 5">
             <BirthYearDisplayText :birthYear="content" />
           </span>
+          <!-- Column 6: User creation date -->
           <span v-else-if="colIndex === 6">
             <KOptionalText :text="content" />
           </span>
+          <!-- Column 7: User options -->
           <span v-else-if="colIndex === 7">
             <KIconButton
               icon="optionsVertical"
