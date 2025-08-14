@@ -62,6 +62,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Apply filters',
     context: 'Label for the button that applies the selected filters',
   },
+  SelectClassesLabel: {
+    message: 'Select classes',
+    context: 'Heading label for selecting classes in side panels',
+  },
 
   // Date range filters
   lastNDaysLabel: {
@@ -140,7 +144,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Heading for the confirmation modal that asks user if they want to discard changes',
   },
   discardAction: {
-    message: 'Discard',
+    message: 'Yes, Discard',
     context: 'Label for the button to dismiss selection changes',
   },
   discardWarning: {
@@ -178,6 +182,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   numAdminsSelected: {
     message: '{num, number} {num, plural, one {admin} other {admins}} selected',
     context: 'A notice indicating the number of admins that are selected',
+  },
+  usersNotInClasses: {
+    message: 'Users already not in these classes stay unchanged',
+    context: 'Warning message about users already not in selected classes',
   },
 
   // Assign coaches to class
@@ -217,17 +225,28 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Heading for undo confirmation after removing users',
   },
   undoUsersRemovedMessage: {
-    message:
-      "You've successfully removed {numUsers, number} {numUsers, plural, one {user} other {users}} from {numClasses, number} {numClasses, plural, one {class} other {classes}}. If this was a mistake, you can undo it.",
-    context: 'Detailed message for undo confirmation after removing users',
+    message: 'Remove users undone',
+    context: 'Snackbare message for undo confirmation after removing users',
   },
   usersRemovedNotice: {
-    message: 'Selected users have been removed',
+    message: 'Selected users removed',
     context: 'Confirmation message when users are removed from classes',
   },
   removeUndoneNotice: {
     message: 'Remove action has been undone',
     context: 'Confirmation message when remove action is undone',
+  },
+  removeUsersFromClassesHeading: {
+    message: 'Remove {numUsers, number} {numUsers, plural, one {user} other {users}} from classes',
+    context: 'Heading for the side panel that allows users to remove users from classes',
+  },
+  removeFromAllClassesLabel: {
+    message: 'Remove from all classes',
+    context: 'Label for checkbox that allows user to remove selected users from all classes',
+  },
+  removeAction: {
+    message: 'Remove',
+    context: 'Label for the button that will remove users from classes',
   },
 
   // Enroll to class
