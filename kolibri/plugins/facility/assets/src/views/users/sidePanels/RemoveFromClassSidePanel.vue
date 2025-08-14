@@ -13,7 +13,8 @@
       <div v-else>
         <div
           v-if="showErrorWarning"
-          :style="{ color: $themeTokens.error, marginBottom: '10px' }"
+          :style="{ color: $themeTokens.error }"
+          class="warning-text"
         >
           <span>{{ defaultErrorMessage$() }}</span>
         </div>
@@ -21,17 +22,25 @@
           class="info-box"
           :style="{ backgroundColor: $themePalette.grey.v_100 }"
         >
-          <KIcon
-            icon="infoOutline"
-            class="remove-info-icon"
-          />
-          <span v-if="selectedUsers.size > 0 && classCoaches.length > 0">
-            <span>{{ numUsersCoaches$({ num: classCoaches.length }) }}</span>
-            <div style="margin-top: 10px">
-              <span class="warning-text">{{ usersNotInClasses$() }}</span>
-            </div>
-          </span>
-          <span v-else>{{ usersNotInClasses$() }}</span>
+          <div style="display: flex">
+            <KIcon
+              icon="infoOutline"
+              class="remove-info-icon"
+            />
+            <template v-if="selectedUsers.size > 0 && classCoaches.length > 0">
+              <div class="info-wrapper">
+                <span>
+                  {{ numUsersCoaches$({ num: classCoaches.length }) }}
+                </span>
+                <span>{{ usersNotInClasses$() }}</span>
+              </div>
+            </template>
+            <template v-else>
+              <div class="info-wrapper">
+                <span>{{ usersNotInClasses$() }}</span>
+              </div>
+            </template>
+          </div>
         </div>
         <h2 id="remove-from-selected-classes">{{ SelectClassesLabel$() }}</h2>
         <SelectableList
@@ -316,15 +325,23 @@
   }
 
   .remove-info-icon {
-    position: relative;
-    top: 0.4em;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    margin-right: 4px;
+  }
+
+  .info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+    line-height: 1.4;
   }
 
   .warning-text {
-    margin-left: 30px;
+    margin-bottom: 10px;
+    margin-left: 5px;
   }
 
   .bottom-nav-container {
