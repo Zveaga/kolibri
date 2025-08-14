@@ -29,17 +29,12 @@ logger = logging.getLogger(__name__)
 
 class RoleListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
-        ModelClass = self.child.Meta.model
         created_objects = []
 
         for model_data in validated_data:
-            try:
-                obj, created = ModelClass.objects.get_or_create(**model_data)
-                if created:
-                    created_objects.append(obj)
-            except Exception as e:
-                logger.warning(f"Error creating role {model_data}: {e}")
-                continue
+            obj, created = Role.objects.get_or_create(**model_data)
+            if created:
+                created_objects.append(obj)
 
         return created_objects
 
