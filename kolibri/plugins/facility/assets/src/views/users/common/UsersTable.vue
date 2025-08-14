@@ -44,7 +44,10 @@
           :layout12="{ span: 5 }"
           class="move-down"
         >
-          <span v-if="selectedUsers.size > 0">
+          <span
+            v-if="selectedUsers.size > 0"
+            class="mr-8"
+          >
             <span class="selected-count">
               {{ numUsersSelected$({ n: selectedUsers.size }) }}
             </span>
@@ -267,11 +270,13 @@
         },
       });
 
-      const showDeletedDate = computed(() => facilityUsers.value.some(user => user.date_deleted));
+      const isShowingDeletedUsers = computed(() =>
+        facilityUsers.value.some(user => user.date_deleted),
+      );
 
       const dateColumn = computed(() => {
-        const label = showDeletedDate.value ? permanentDeletion$() : createdAt$();
-        const columnId = showDeletedDate.value ? 'date_deleted' : 'date_joined';
+        const label = isShowingDeletedUsers.value ? permanentDeletion$() : createdAt$();
+        const columnId = isShowingDeletedUsers.value ? 'date_deleted' : 'date_joined';
         return {
           label,
           dataType: 'date',
@@ -353,7 +358,7 @@
       };
 
       const getDateContent = user => {
-        if (showDeletedDate.value) {
+        if (isShowingDeletedUsers.value) {
           return getRelativeDeletedDate(user.date_deleted);
         }
         return {
@@ -536,6 +541,10 @@
       const userCanBeEdited = user => {
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
+        // If showing deleted users, they cannot be edited.
+        if (isShowingDeletedUsers.value) {
+          return false;
+        }
         return isSuperuser.value || !user.is_superuser;
       };
 
@@ -710,6 +719,10 @@
   .filter-button {
     padding-top: 8px;
     margin-left: 1em;
+  }
+
+  .mr-8 {
+    margin-right: 8px;
   }
 
   .screen-reader-only {

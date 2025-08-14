@@ -16,7 +16,7 @@ import UsersRootPage from './views/users/UsersRootPage';
 import NewUsersPage from './views/users/NewUsersPage.vue';
 import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
-import UsersTrashPage from './views/users/UsersTrashPage.vue';
+import UsersTrashPage from './views/users/UsersTrashPage/index.vue';
 
 import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';

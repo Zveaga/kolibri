@@ -91,7 +91,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Label for dropdown item that links user to page of recently added users',
   },
   viewTrash: {
-    message: 'View trash',
+    message: 'View removed users',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
   copyClasslabel: {
@@ -481,5 +481,27 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Permanent deletion',
     context:
       'Label for the column of the users table indicating when a user will be deleted permanently.',
+  },
+  deleteSelectionLabel: {
+    message: 'Delete selection?',
+    context: 'Label for the confirmation dialog when permanently deleting multiple users.',
+  },
+  deleteSelectionDescription: {
+    message:
+      'This will permanently delete {num, number} {num, plural, one {user} other {users}} from this device. You cannot undo this.',
+    context:
+      'Description shown in the confirmation dialog when permanently deleting multiple users.',
+  },
+  deletingLabel: {
+    message: 'Deleting',
+    context: 'Message to indicate that users are being deleted.',
+  },
+  usersDeletedNotice: {
+    message: 'Selected users have been deleted',
+    context: 'Displayed when users have been successfully deleted.',
+  },
+  usersRecoveredNotice: {
+    message: '{num, number} {num, plural, one {user} other {users}} recovered',
+    context: 'Displayed when users have been successfully recovered.',
   },
 });

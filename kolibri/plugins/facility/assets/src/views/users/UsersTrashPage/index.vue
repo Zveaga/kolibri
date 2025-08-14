@@ -33,12 +33,16 @@
         <template #userActions>
           <KIconButton
             icon="refresh"
+            :disabled="!selectedUsers.size || loading"
             :tooltip="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+            @click="recoverUsers"
           />
           <KIconButton
             icon="trash"
+            :disabled="!selectedUsers.size || loading"
             :ariaLabel="deletePermanentlyLabel$()"
             :tooltip="deletePermanentlyLabel$()"
+            @click="showPermanentDeleteModal = true"
           />
         </template>
       </UsersTable>
@@ -64,6 +68,12 @@
       :selectedUsers="selectedUsers"
       @change="onUsersChange"
     />
+    <PermanentDeleteModal
+      v-if="showPermanentDeleteModal"
+      :selectedUsers="selectedUsers"
+      @close="showPermanentDeleteModal = false"
+      @change="onUsersChange"
+    />
   </ImmersivePage>
 
 </template>
@@ -75,24 +85,31 @@
   import { onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
-  import useUserManagement from '../../composables/useUserManagement';
-  import { PageNames } from '../../constants';
-  import { overrideRoute } from '../../utils';
-  import UsersTable from './common/UsersTable.vue';
+  import useUserManagement from '../../../composables/useUserManagement';
+  import { PageNames } from '../../../constants';
+  import { overrideRoute } from '../../../utils';
+  import UsersTable from '../common/UsersTable.vue';
+  import PermanentDeleteModal from './PermanentDeleteModal.vue';
 
   export default {
     name: 'UsersTrashPage',
     components: {
       UsersTable,
       ImmersivePage,
+      PermanentDeleteModal,
     },
     setup() {
+      const { createSnackbar } = useSnackbar();
       usePreviousRoute();
       const route = useRoute();
+      const showPermanentDeleteModal = ref(false);
+      const loading = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
 
@@ -113,8 +130,11 @@
 
       const selectedUsers = ref(new Set());
 
-      function onUsersChange() {
+      function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
+        if (resetSelection) {
+          selectedUsers.value.clear();
+        }
       }
 
       const {
@@ -123,16 +143,32 @@
         removedUsersTitle$,
         removedUsersNotice$,
         noRemovedUsersLabel$,
+        usersRecoveredNotice$,
         recoverSelectionLabel$,
         deletePermanentlyLabel$,
         removedUsersPageDescription$,
       } = bulkUserManagementStrings;
+
+      const recoverUsers = async () => {
+        try {
+          loading.value = true;
+          await DeletedFacilityUserResource.restoreCollection({
+            by_ids: Array.from(selectedUsers.value).join(','),
+          });
+          createSnackbar(usersRecoveredNotice$({ num: selectedUsers.value.size }));
+          onUsersChange({ resetSelection: true });
+          loading.value = false;
+        } catch (error) {
+          loading.value = false;
+        }
+      };
 
       onMounted(() => {
         fetchClasses();
       });
 
       return {
+        loading,
         PageNames,
         classes,
         facilityUsers,
@@ -141,6 +177,8 @@
         dataLoading,
         selectedUsers,
         numAppliedFilters,
+        showPermanentDeleteModal,
+        recoverUsers,
         onUsersChange,
         overrideRoute,
         resetFilters,
