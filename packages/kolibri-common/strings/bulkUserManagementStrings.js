@@ -477,4 +477,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Recover selection',
     context: 'Label for the button to recover multiple users from the trash.',
   },
+  permanentDeletion: {
+    message: 'Permanent deletion',
+    context:
+      'Label for the column of the users table indicating when a user will be deleted permanently.',
+  },
 });

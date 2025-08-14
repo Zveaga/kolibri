@@ -628,7 +628,7 @@ class DeletedFacilityUserViewSet(
         ValuesViewsetOrderingFilter,
     )
 
-    order_by_field = "-date_deleted"
+    order_by_field = "date_deleted"
     queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
     serializer_class = FacilityUserSerializer
     filterset_class = FacilityUserFilter
