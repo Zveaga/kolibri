@@ -84,26 +84,26 @@
             :selectAllLabel="assignToAllClasses$()"
             :searchLabel="searchForAClass$()"
           />
-
-          <!-- Footer Buttons -->
-          <div class="footer-buttons">
-            <KButton
-              :disabled="isLoading"
-              @click="closeSidePanel(selectedClasses.length > 0 ? true : false)"
-            >
-              {{ coreString('cancelAction') }}
-            </KButton>
-            <KButton
-              primary
-              appearance="raised-button"
-              :disabled="!hasSelectedClasses || isLoading"
-              @click="handleAssign"
-            >
-              {{ assignAction$() }}
-            </KButton>
-          </div>
         </div>
       </div>
+      <template #bottomNavigation>
+        <div class="bottom-nav-container">
+          <KButtonGroup>
+            <KButton
+              :text="coreString('cancelAction')"
+              :disabled="isLoading"
+              @click="closeSidePanel(selectedClasses.length > 0 ? true : false)"
+            />
+            <KButton
+              primary
+              :text="assignAction$()"
+              :disabled="!hasSelectedClasses || isLoading"
+              @click="handleAssign"
+            />
+          </KButtonGroup>
+        </div>
+      </template>
+
       <KModal
         v-if="showCloseConfirmationModal"
         :submitText="discardAction$()"
@@ -367,24 +367,10 @@
     margin-bottom: 10px;
   }
 
-  .info-message {
+  .bottom-nav-container {
     display: flex;
-    align-items: center;
-  }
-
-  .sidepanel-icon {
-    padding-right: 8px;
-    padding-left: 8px;
-    font-size: 32px;
-  }
-
-  .footer-buttons {
-    display: flex;
-    gap: 12px;
     justify-content: flex-end;
-    padding-top: 16px;
-    margin-top: 24px;
-    border-top: 1px solid #eeeeee;
+    width: 100%;
   }
 
   .adjust-line-height {
