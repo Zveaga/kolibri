@@ -308,6 +308,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Assign to a class',
     context: 'Label for the classes input field in the create user modal',
   },
+  selectClassesLabel: {
+    message: 'Select classes',
+    context: 'Heading label for selecting classes in side panels',
+  },
   assignToAllClasses: {
     message: 'Assign to all classes',
     context: 'Label for checkbox that allows user to assign selected users to all classes',
@@ -482,7 +486,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Add new user',
     context: 'Label for button that opens the user creation modal',
   },
-
+  assignUsersHeading: {
+    message: 'Assign {num, number} {num, plural, one {user} other {users}}',
+    context: 'Side panel H1 heading showing the number of selected users to assign as coaches',
+  },
   // Trash page
   removedUsersTitle: {
     message: 'Removed users',

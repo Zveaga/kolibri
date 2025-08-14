@@ -33,10 +33,11 @@
       v-else
       alignment="right"
       sidePanelWidth="700px"
+      :addBottomBorder="false"
       @closePanel="closeSidePanel(false)"
     >
       <template #header>
-        <h1>{{ assignCoach$() }}</h1>
+        <h1>{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
       </template>
 
       <div class="assign-coaches-content">
@@ -49,46 +50,33 @@
           >
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
-          <p>{{ numUsersYouHaveSelected$({ num: selectedUsersCount }) }}</p>
 
           <div
-            v-if="ineligibleUsersCount > 0"
-            class="warning-message"
+            class="top-info-box"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
-            <KIcon
-              icon="warning"
-              color="yellow"
-              class="sidepanel-icon"
-            />
-            {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
+            <template v-if="ineligibleUsersCount > 0">
+              <div class="info-flex">
+                <KIcon
+                  icon="infoOutline"
+                  class="info-icon"
+                />
+                <div class="info-lines">
+                  <div class="info-line">
+                    {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
+                  </div>
+                  <div class="info-line">{{ usersInClassNotAffected$() }}</div>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="info-lines">
+                <div class="info-line">{{ usersInClassNotAffected$() }}</div>
+              </div>
+            </template>
           </div>
 
-          <div class="warning-message">
-            <KIcon
-              icon="warning"
-              color="yellow"
-              class="sidepanel-icon"
-            />
-            {{ numUsersNotAssigned$({ num: selectedUsersCount }) }}
-          </div>
-          <div class="warning-message">
-            <KIcon
-              icon="warning"
-              color="yellow"
-              class="sidepanel-icon"
-            />
-            {{ numUsersCoaches$({ num: selectedUsersCount }) }}
-          </div>
-          <div class="info-message">
-            <KIcon
-              icon="info"
-              color="orange"
-              class="sidepanel-icon"
-            />
-            {{ usersNotInClassNotAffected$() }}
-          </div>
-          <hr class="divider" >
-          <h2>{{ assignToAClassLabel$() }}</h2>
+          <h2>{{ selectClassesLabel$() }}</h2>
           <SelectableList
             v-model="selectedClasses"
             :options="formattedClasses"
@@ -100,7 +88,6 @@
           <!-- Footer Buttons -->
           <div class="footer-buttons">
             <KButton
-              appearance="secondary-button"
               :disabled="isLoading"
               @click="closeSidePanel(selectedClasses.length > 0 ? true : false)"
             >
@@ -173,20 +160,17 @@
         coachesAssignedNotice$,
         assignCoachUndoneNotice$,
         undoAction$,
-        assignCoach$,
-        numUsersYouHaveSelected$,
-        numUsersNotAssigned$,
-        numUsersCoaches$,
-        usersNotInClassNotAffected$,
-        assignToAClassLabel$,
+        usersInClassNotAffected$,
         assignAction$,
-        assignToAllClasses$,
         searchForAClass$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
         numUsersNotEligible$,
+        selectClassesLabel$,
+        assignUsersHeading$,
+        assignToAllClasses$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
       const { dismissAction$ } = searchAndFilterStrings;
@@ -331,15 +315,10 @@
         showUndoModal,
         showCloseConfirmationModal,
         defaultErrorMessage$,
-        assignCoach$,
-        numUsersYouHaveSelected$,
-        numUsersNotAssigned$,
-        numUsersCoaches$,
-        usersNotInClassNotAffected$,
-        assignToAClassLabel$,
+        usersInClassNotAffected$,
         assignAction$,
-        assignToAllClasses$,
         searchForAClass$,
+        selectClassesLabel$,
         handleAssign,
         handleDismissConfirmation,
         handleUndoAssignments,
@@ -353,6 +332,8 @@
         keepEditingAction$,
         disgardChanges$,
         numUsersNotEligible$,
+        assignUsersHeading$,
+        assignToAllClasses$,
       };
     },
     props: {
@@ -386,33 +367,15 @@
     margin-bottom: 10px;
   }
 
-  .warning-message {
-    display: flex;
-    align-items: center;
-  }
-
-  .warning-icon {
-    margin-right: 4px;
-  }
-
   .info-message {
     display: flex;
     align-items: center;
-  }
-
-  .info-icon {
-    margin-right: 4px;
   }
 
   .sidepanel-icon {
     padding-right: 8px;
     padding-left: 8px;
     font-size: 32px;
-  }
-
-  .divider {
-    margin: 16px 0 0;
-    border-top: 2px solid #f0f0f0;
   }
 
   .footer-buttons {
@@ -428,6 +391,47 @@
     /* Override default global line-height of 1.15 to prevent
        scrollbars in KModal and add space for single-line content */
     line-height: 1.5;
+  }
+
+  .top-info-box {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
+  ::v-deep(.side-panel-content) {
+    padding-top: 0 !important ;
+  }
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
+  ::v-deep(.side-panel-header) {
+    padding-right: 32px !important ;
+    padding-left: 32px !important ;
+  }
+
+  .info-flex {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .info-icon {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+  }
+
+  .info-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-line {
+    line-height: 1.4;
+  }
+
+  .info-line:last-child {
+    margin-bottom: 0;
   }
 
 </style>
