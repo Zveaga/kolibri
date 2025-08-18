@@ -131,7 +131,7 @@
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import SelectableList from '../../ManageClassPage/SelectableList';
+  import SelectableList from '../../common/SelectableList.vue';
 
   export default {
     name: 'AssignCoachesSidePanel',
