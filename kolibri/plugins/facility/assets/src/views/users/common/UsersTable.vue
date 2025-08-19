@@ -158,10 +158,9 @@
       @close="closeModal"
     />
 
-    <DeleteUserModal
+    <MoveToTrashModal
       v-if="modalShown === Modals.DELETE_USER"
-      :id="userToChange.id"
-      :username="userToChange.username"
+      :selectedUsers="new Set([userToChange.id])"
       @close="closeModal"
       @change="$emit('change')"
     />
@@ -194,7 +193,7 @@
 
   import { Modals } from '../../../constants';
   import { overrideRoute } from '../../../utils';
-  import DeleteUserModal from './DeleteUserModal';
+  import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
 
   const ALL_FILTER = 'all';
@@ -206,7 +205,7 @@
       CoreInfoIcon,
       FilterTextbox,
       UserTypeDisplay,
-      DeleteUserModal,
+      MoveToTrashModal,
       GenderDisplayText,
       BirthYearDisplayText,
       ResetUserPasswordModal,
