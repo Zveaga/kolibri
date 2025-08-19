@@ -581,12 +581,8 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const {
-        numberOfSelectedResources$,
-        numberOfSelectedQuestions$,
-        dismissAction$,
-        NOutOfMSelectedQuestions$,
-      } = searchAndFilterStrings;
+      const { numberOfSelectedResources$, numberOfSelectedQuestions$, NOutOfMSelectedQuestions$ } =
+        searchAndFilterStrings;
 
       const numberOfSelectedResourcesLabel = computed(() => {
         if (!workingResourcePool.value.length) {
@@ -668,7 +664,7 @@
         return questionsUnusedInSection$({ count: unusedQuestions });
       };
 
-      const { goBackAction$ } = coreStrings;
+      const { goBackAction$, dismissAction$ } = coreStrings;
 
       return {
         title,

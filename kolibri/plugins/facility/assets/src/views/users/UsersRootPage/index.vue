@@ -82,23 +82,28 @@
               :disabled="!canEnrollOrRemoveFromClass"
             />
           </router-link>
-          <router-link
-            :to="overrideRoute($route, { name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL })"
-            :class="{ 'disabled-link': !hasSelectedUsers || listContainsLoggedInUser }"
-          >
-            <KIconButton
-              icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
-            />
-          </router-link>
+          <KIconButton
+            icon="trash"
+            :ariaLabel="deleteSelection$()"
+            :tooltip="deleteSelection$()"
+            :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+            @click="isMoveToTrashModalOpen = true"
+          />
         </template>
       </UsersTable>
       <!-- For sidepanels -->
       <router-view
         :selectedUsers="selectedUsers"
         :classes="classes"
+        @change="onUsersChange"
+      />
+
+      <!-- Modals -->
+      <MoveToTrashModal
+        v-if="isMoveToTrashModalOpen"
+        :selectedUsers="selectedUsers"
+        @close="isMoveToTrashModalOpen = false"
+        @change="onUsersChange"
       />
     </KPageContainer>
   </FacilityAppBarPage>
@@ -120,6 +125,7 @@
   import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
   import { overrideRoute } from '../../../utils';
+  import MoveToTrashModal from '../common/MoveToTrashModal.vue';
 
   export default {
     name: 'UserPage',
@@ -130,6 +136,7 @@
     },
     components: {
       UsersTable,
+      MoveToTrashModal,
       FacilityAppBarPage,
     },
     mixins: [commonCoreStrings],
@@ -138,6 +145,7 @@
       const { currentUserId } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
+      const isMoveToTrashModalOpen = ref(false);
 
       const {
         newUser$,
@@ -164,13 +172,16 @@
         resetFilters,
       } = useUserManagement({ activeFacilityId });
 
+      const onUsersChange = ({ resetSelection = false } = {}) => {
+        fetchUsers();
+        if (resetSelection) {
+          selectedUsers.value = new Set();
+        }
+      };
+
       onMounted(() => {
         fetchClasses();
       });
-
-      function onUsersChange() {
-        fetchUsers();
-      }
 
       return {
         PageNames,
@@ -181,6 +192,7 @@
         dataLoading,
         classes,
         numAppliedFilters,
+        isMoveToTrashModalOpen,
         resetFilters,
         onUsersChange,
         newUser$,

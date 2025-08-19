@@ -65,17 +65,12 @@
               :tooltip="removeFromClass$()"
             />
           </router-link>
-          <router-link
-            :to="
-              overrideRoute($route, { name: PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL__NEW_USERS })
-            "
-          >
-            <KIconButton
-              icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-            />
-          </router-link>
+          <KIconButton
+            icon="trash"
+            :ariaLabel="deleteSelection$()"
+            :tooltip="deleteSelection$()"
+            @click="isMoveToTrashModalOpen = true"
+          />
         </template>
       </UsersTable>
       <div
@@ -100,10 +95,19 @@
         />
       </div>
     </KPageContainer>
+    <!-- For sidepanels -->
     <router-view
       :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
       :classes="classes"
       :selectedUsers="selectedUsers"
+      @change="onUsersChange"
+    />
+
+    <!-- Modals -->
+    <MoveToTrashModal
+      v-if="isMoveToTrashModalOpen"
+      :selectedUsers="selectedUsers"
+      @close="isMoveToTrashModalOpen = false"
       @change="onUsersChange"
     />
   </ImmersivePage>
@@ -121,10 +125,11 @@
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
-  import useUserManagement from '../../composables/useUserManagement';
-  import { PageNames } from '../../constants';
   import { overrideRoute } from '../../utils';
+  import { PageNames } from '../../constants';
+  import useUserManagement from '../../composables/useUserManagement';
   import UsersTable from './common/UsersTable.vue';
+  import MoveToTrashModal from './common/MoveToTrashModal.vue';
 
   // Constant for the maximum number of days to consider a user as a "new user"
   const MAX_NEW_USER_DAYS = 30;
@@ -134,10 +139,12 @@
     components: {
       UsersTable,
       ImmersivePage,
+      MoveToTrashModal,
     },
     setup() {
       usePreviousRoute();
       const route = useRoute();
+      const isMoveToTrashModalOpen = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
 
@@ -161,8 +168,11 @@
 
       const selectedUsers = ref(new Set());
 
-      function onUsersChange() {
+      function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
+        if (resetSelection) {
+          selectedUsers.value.clear();
+        }
       }
 
       const {
@@ -191,6 +201,7 @@
         dataLoading,
         selectedUsers,
         numAppliedFilters,
+        isMoveToTrashModalOpen,
         onUsersChange,
         overrideRoute,
         resetFilters,

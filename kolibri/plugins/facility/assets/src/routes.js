@@ -85,7 +85,6 @@ export default [
       }
     },
     children: getSidePanelRoutes([
-      PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
       PageNames.FILTER_USERS_SIDE_PANEL,
       PageNames.ASSIGN_COACHES_SIDE_PANEL,
       PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
@@ -103,7 +102,6 @@ export default [
     },
     children: getSidePanelRoutes(
       [
-        PageNames.MOVE_TO_TRASH_TRASH_SIDE_PANEL,
         PageNames.FILTER_USERS_SIDE_PANEL,
         PageNames.ASSIGN_COACHES_SIDE_PANEL,
         PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL,
