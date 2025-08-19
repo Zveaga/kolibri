@@ -541,10 +541,6 @@
       const userCanBeEdited = user => {
         // If logged-in user is a superuser, then they can edit anybody (including other SUs).
         // Otherwise, only non-SUs can be edited.
-        // If showing deleted users, they cannot be edited.
-        if (isShowingDeletedUsers.value) {
-          return false;
-        }
         return isSuperuser.value || !user.is_superuser;
       };
 

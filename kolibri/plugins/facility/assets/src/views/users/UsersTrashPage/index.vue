@@ -42,7 +42,13 @@
             :disabled="!selectedUsers.size || loading"
             :ariaLabel="deletePermanentlyLabel$()"
             :tooltip="deletePermanentlyLabel$()"
-            @click="showPermanentDeleteModal = true"
+            @click="usersToDelete = selectedUsers"
+          />
+        </template>
+        <template #userDropdownMenu="{ user }">
+          <KDropdownMenu
+            :options="userDropdownMenuOptions"
+            @select="handleDropdownSelect($event, user)"
           />
         </template>
       </UsersTable>
@@ -69,9 +75,9 @@
       @change="onUsersChange"
     />
     <PermanentDeleteModal
-      v-if="showPermanentDeleteModal"
-      :selectedUsers="selectedUsers"
-      @close="showPermanentDeleteModal = false"
+      v-if="usersToDelete"
+      :selectedUsers="usersToDelete"
+      @close="usersToDelete = null"
       @change="onUsersChange"
     />
   </ImmersivePage>
@@ -108,7 +114,7 @@
       const { createSnackbar } = useSnackbar();
       usePreviousRoute();
       const route = useRoute();
-      const showPermanentDeleteModal = ref(false);
+      const usersToDelete = ref(null);
       const loading = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
@@ -149,17 +155,42 @@
         removedUsersPageDescription$,
       } = bulkUserManagementStrings;
 
-      const recoverUsers = async () => {
+      const recoverUsers = async users => {
         try {
           loading.value = true;
           await DeletedFacilityUserResource.restoreCollection({
-            by_ids: Array.from(selectedUsers.value).join(','),
+            by_ids: Array.from(users || selectedUsers.value).join(','),
           });
-          createSnackbar(usersRecoveredNotice$({ num: selectedUsers.value.size }));
+          createSnackbar(usersRecoveredNotice$({ num: users.size }));
           onUsersChange({ resetSelection: true });
           loading.value = false;
         } catch (error) {
           loading.value = false;
+        }
+      };
+
+      const UserActions = {
+        RESTORE: 'RESTORE',
+        PERMANENT_DELETE: 'PERMANENT_DELETE',
+      };
+
+      const userDropdownMenuOptions = [
+        {
+          label: recoverLabel$(),
+          value: UserActions.RESTORE,
+        },
+        {
+          label: deletePermanentlyLabel$(),
+          value: UserActions.PERMANENT_DELETE,
+        },
+      ];
+
+      const handleDropdownSelect = (action, user) => {
+        const userSet = new Set([user.id]);
+        if (action.value === UserActions.RESTORE) {
+          recoverUsers(userSet);
+        } else if (action.value === UserActions.PERMANENT_DELETE) {
+          usersToDelete.value = userSet;
         }
       };
 
@@ -168,20 +199,27 @@
       });
 
       return {
+        // ref and computed properties
         loading,
-        PageNames,
         classes,
-        facilityUsers,
+        PageNames,
         totalPages,
         usersCount,
         dataLoading,
+        facilityUsers,
+        usersToDelete,
         selectedUsers,
         numAppliedFilters,
-        showPermanentDeleteModal,
+        userDropdownMenuOptions,
+
+        // Methods
         recoverUsers,
         onUsersChange,
         overrideRoute,
         resetFilters,
+        handleDropdownSelect,
+
+        // Strings
         backToUsers$,
         recoverLabel$,
         recoverSelectionLabel$,
