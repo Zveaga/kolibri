@@ -217,7 +217,6 @@
           user => props.selectedUsers.has(user.id) && user.kind === UserKinds.LEARNER,
         );
       });
-
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
       const eligibleUsersCount = computed(() => {
