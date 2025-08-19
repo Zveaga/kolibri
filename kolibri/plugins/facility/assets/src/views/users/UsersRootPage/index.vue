@@ -96,6 +96,7 @@
         :selectedUsers="selectedUsers"
         :classes="classes"
         @change="onUsersChange"
+        @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
       <!-- Modals -->
