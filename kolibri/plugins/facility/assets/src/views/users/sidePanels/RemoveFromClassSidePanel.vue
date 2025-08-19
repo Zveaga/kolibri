@@ -4,10 +4,12 @@
     <SidePanelModal
       alignment="right"
       sidePanelWidth="700px"
-      @closePanel="$router.back()"
+      @closePanel="goBack"
     >
       <template #header>
-        <h1>{{ removeUsersFromClassesHeading$({ numUsers: selectedUsers.size }) }}</h1>
+        <h1 style="font-size: 20px">
+          {{ removeUsersFromClassesHeading$({ numUsers: selectedUsers.size }) }}
+        </h1>
       </template>
       <KCircularLoader v-if="loading" />
       <div v-else>
@@ -42,7 +44,12 @@
             </template>
           </div>
         </div>
-        <h2 id="remove-from-selected-classes">{{ SelectClassesLabel$() }}</h2>
+        <h2
+          id="remove-from-selected-classes"
+          style="font-size: 16px"
+        >
+          {{ SelectClassesLabel$() }}
+        </h2>
         <SelectableList
           v-model="selectedOptions"
           :options="classList"
@@ -57,7 +64,7 @@
             <KButton
               :text="coreString('cancelAction')"
               :disabled="loading"
-              @click="closeSidePanel(selectedOptions.length > 0 ? true : false)"
+              @click="goBack"
             />
             <KButton
               primary
@@ -68,24 +75,25 @@
           </KButtonGroup>
         </div>
       </template>
-      <KModal
-        v-if="showCloseConfirmationModal"
-        :submitText="discardAction$()"
-        :cancelText="keepEditingAction$()"
+      <CloseConfirmationGuard
+        ref="closeConfirmationGuardRef"
+        :hasUnsavedChanges="selectedOptions.length > 0 ? true : false"
         :title="disgardChanges$()"
-        @cancel="showCloseConfirmationModal = false"
-        @submit="closeSidePanel(false)"
+        :submitText="discardAction$()"
+        :submitTextStyle="{ primary: true }"
+        :cancelText="keepEditingAction$()"
+        :cancelTextStyle="{ primary: false }"
       >
-        <KIcon
-          icon="infoOutline"
-          class="remove-info-icon"
-          :color="$themePalette.red.v_600"
-        />
-        <span
-          :style="{ color: $themePalette.red.v_600 }"
-          class="adjust-line-height"
-        >{{ discardWarning$() }}</span>
-      </KModal>
+        <template #content>
+          <KIcon
+            icon="infoOutline"
+            :color="$themePalette.red.v_600"
+          />
+          <span :style="{ color: $themePalette.red.v_600 }">
+            {{ discardWarning$() }}
+          </span>
+        </template>
+      </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
 
@@ -94,7 +102,8 @@
 
 <script>
 
-  import { ref, computed, onMounted, getCurrentInstance } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -103,27 +112,30 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import SelectableList from '../../common/SelectableList.vue';
+  import { getRootRouteName, overrideRoute } from '../../../utils';
+  import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
 
   export default {
     name: 'RemoveFromClassSidePanel',
     components: {
       SidePanelModal,
       SelectableList,
+      CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const showCloseConfirmationModal = ref(false);
+      const closeConfirmationGuardRef = ref(null);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
       const classCoaches = ref([]);
-      const classLearners = ref([]);
       const loading = ref(false);
       const membershipsByUser = ref({});
       const rolesByUser = ref({});
       const removedLearnerMemberships = ref([]);
       const removedCoachRoles = ref([]);
-      const instance = getCurrentInstance();
+      const route = useRoute();
       const {
         numUsersCoaches$,
         searchForAClass$,
@@ -142,7 +154,15 @@
         undoUsersRemovedMessage$,
       } = bulkUserManagementStrings;
       const { createSnackbar, clearSnackbar } = useSnackbar();
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          return overrideRoute(route, {
+            name: getRootRouteName(route),
+          });
+        },
+      });
 
+      // computed properties
       const classList = computed(() => {
         // Get all class IDs where selected users are enrolled as learners
         const learnerClassIds = Object.values(membershipsByUser.value || {})
@@ -164,7 +184,16 @@
           .map(classObj => ({
             label: classObj.name,
             id: classObj.id,
-          }));
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label));
+      });
+
+      const hasRemovedLearners = computed(() => {
+        return removedLearnerMemberships.value.length > 0;
+      });
+
+      const hasRemovedCoaches = computed(() => {
+        return removedCoachRoles.value.length > 0;
       });
 
       // methods
@@ -177,54 +206,52 @@
           const [membershipsData, coachRoles] = await Promise.all([
             MembershipResource.fetchCollection({
               getParams: { user_ids: userIdsStr },
+              force: true,
             }),
             RoleResource.fetchCollection({
               getParams: {
                 user_ids: userIdsStr,
                 kind: UserKinds.COACH,
               },
+              force: true,
             }),
           ]);
 
           membershipsByUser.value = groupBy(membershipsData, 'user');
           rolesByUser.value = groupBy(coachRoles, 'user');
-          classLearners.value = Object.keys(membershipsByUser.value);
           classCoaches.value = Object.keys(rolesByUser.value);
+        } catch (error) {
+          showErrorWarning.value = true;
         } finally {
           loading.value = false;
-        }
-      }
-
-      function closeSidePanel(close = true) {
-        if (close) {
-          showCloseConfirmationModal.value = true;
-        } else {
-          instance.proxy.$router.back();
         }
       }
 
       async function undoUserRemoval() {
         clearSnackbar();
 
-        const hasLearnerMemberships = removedLearnerMemberships.value.length > 0;
-        const hasCoachRoles = removedCoachRoles.value.length > 0;
-
         try {
-          if (hasLearnerMemberships) {
-            const enrollments = removedLearnerMemberships.value.map(({ collection, user }) => ({
+          const enrollments = hasRemovedLearners.value
+            ? removedLearnerMemberships.value.map(({ collection, user }) => ({
               collection,
               user,
-            }));
-            await MembershipResource.saveCollection({ data: enrollments });
-          }
-          if (hasCoachRoles) {
-            const assignments = removedCoachRoles.value.map(({ collection, user }) => ({
+            }))
+            : [];
+          const assignments = hasRemovedCoaches.value
+            ? removedCoachRoles.value.map(({ collection, user }) => ({
               collection,
               user,
               kind: UserKinds.COACH,
-            }));
-            await RoleResource.saveCollection({ data: assignments });
-          }
+            }))
+            : [];
+          await Promise.all([
+            enrollments.length
+              ? MembershipResource.saveCollection({ data: enrollments })
+              : Promise.resolve(),
+            assignments.length
+              ? RoleResource.saveCollection({ data: assignments })
+              : Promise.resolve(),
+          ]);
           createSnackbar(undoUsersRemovedMessage$());
         } catch (error) {
           createSnackbar(defaultErrorMessage$());
@@ -255,7 +282,7 @@
           await removeItems(RoleResource, coachRolesToRemove);
           removedLearnerMemberships.value = learnerMembershipsToRemove || [];
           removedCoachRoles.value = coachRolesToRemove || [];
-          closeSidePanel(false);
+          goBack();
           createSnackbar({
             text: usersRemovedNotice$(),
             autoDismiss: true,
@@ -276,7 +303,9 @@
 
       return {
         // ref and computed properties
-        showCloseConfirmationModal,
+        closeConfirmationGuardRef,
+        hasRemovedLearners,
+        hasRemovedCoaches,
         showErrorWarning,
         selectedOptions,
         classCoaches,
@@ -298,8 +327,8 @@
         removeAction$,
 
         // methods
-        closeSidePanel,
         removeUsers,
+        goBack,
       };
     },
     props: {
@@ -311,6 +340,13 @@
         type: Array,
         default: () => [],
       },
+    },
+    beforeRouteLeave(to, from, next) {
+      if (this.hasRemovedLearners || this.hasRemovedCoaches) {
+        next();
+      } else {
+        this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
+      }
     },
   };
 
@@ -348,12 +384,6 @@
     display: flex;
     justify-content: flex-end;
     width: 100%;
-  }
-
-  .adjust-line-height {
-    // Override default global line-height of 1.15 to prevent
-    // scrollbars in KModal and add space for single-line content
-    line-height: 1.5;
   }
 
 </style>
