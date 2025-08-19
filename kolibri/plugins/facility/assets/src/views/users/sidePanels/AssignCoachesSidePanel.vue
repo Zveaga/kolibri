@@ -34,7 +34,7 @@
       alignment="right"
       sidePanelWidth="700px"
       :addBottomBorder="false"
-      @closePanel="closeSidePanel(false)"
+      @closePanel="closeSidePanel(selectedClasses.length > 0)"
     >
       <template #header>
         <h1>{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
@@ -92,7 +92,7 @@
             <KButton
               :text="coreString('cancelAction')"
               :disabled="isLoading"
-              @click="closeSidePanel(selectedClasses.length > 0 ? true : false)"
+              @click="closeSidePanel(selectedClasses.length > 0)"
             />
             <KButton
               primary
@@ -294,8 +294,8 @@
         }
       }
 
-      function closeSidePanel(saveChanges = false) {
-        if (saveChanges) {
+      function closeSidePanel(close = true) {
+        if (close) {
           showCloseConfirmationModal.value = true;
         } else {
           instance.proxy.$router.back();
