@@ -78,6 +78,11 @@
         class="empty-new-users"
       >
         <div class="empty-new-users-content">
+          <KImg
+            isDecorative
+            :src="emptyPlusCloudSvg"
+            backgroundColor="transparent"
+          />
           <strong> {{ noNewUsersLabel$() }}</strong>
           <p
             :style="{
@@ -128,6 +133,7 @@
   import { overrideRoute } from '../../utils';
   import { PageNames } from '../../constants';
   import useUserManagement from '../../composables/useUserManagement';
+  import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import UsersTable from './common/UsersTable.vue';
   import MoveToTrashModal from './common/MoveToTrashModal.vue';
 
@@ -210,6 +216,7 @@
         dataLoading,
         selectedUsers,
         showUsersTable,
+        emptyPlusCloudSvg,
         numAppliedFilters,
         isMoveToTrashModalOpen,
         onUsersChange,
@@ -253,9 +260,14 @@
     text-align: center;
 
     .empty-new-users-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
 
       strong {
+        margin-top: 16px;
         font-size: 16px;
       }
 

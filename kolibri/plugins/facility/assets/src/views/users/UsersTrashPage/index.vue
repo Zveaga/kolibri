@@ -57,6 +57,11 @@
         class="empty-removed-users"
       >
         <div class="empty-removed-users-content">
+          <KImg
+            isDecorative
+            :src="emptyTrashCloudSvg"
+            backgroundColor="transparent"
+          />
           <strong> {{ noRemovedUsersLabel$() }}</strong>
           <p
             :style="{
@@ -101,6 +106,7 @@
   import { PageNames } from '../../../constants';
   import { overrideRoute } from '../../../utils';
   import UsersTable from '../common/UsersTable.vue';
+  import emptyTrashCloudSvg from '../../../images/empty_trash_cloud.svg';
   import PermanentDeleteModal from './PermanentDeleteModal.vue';
 
   export default {
@@ -219,6 +225,7 @@
         usersToDelete,
         selectedUsers,
         showUsersTable,
+        emptyTrashCloudSvg,
         numAppliedFilters,
         userDropdownMenuOptions,
 
@@ -262,9 +269,14 @@
     text-align: center;
 
     .empty-removed-users-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
 
       strong {
+        margin-top: 16px;
         font-size: 16px;
       }
 
