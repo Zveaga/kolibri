@@ -125,13 +125,14 @@
   import { ref, computed, getCurrentInstance } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import KIcon from 'kolibri-design-system/lib/KIcon';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import SelectableList from '../../common/SelectableList.vue';
+  import { _userState } from '../../../modules/mappers';
 
   export default {
     name: 'AssignCoachesSidePanel',
@@ -149,12 +150,9 @@
       const showCloseConfirmationModal = ref(false);
       const createdRoles = ref([]);
       const instance = getCurrentInstance();
+      const facilityUsers = ref([]);
 
       const {
-        defaultErrorMessage$  const ineligibleUsers = computed(() => {
-        if (!props.facilityUsers || props.facilityUsers.length === 0) {
-          return [];
-        },
         undoAssignCoachHeading$,
         undoAssignCoachMessage$,
         coachesAssignedNotice$,
@@ -163,6 +161,7 @@
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
+        defaultErrorMessage$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
@@ -173,7 +172,19 @@
         assignToAllClasses$,
       } = bulkUserManagementStrings;
       const { createSnackbar } = useSnackbar();
-      const { dismissAction$ } = searchAndFilterStrings;
+      const { dismissAction$ } = coreStrings;
+
+      const loadUsers = async () => {
+        isLoading.value = true;
+        const users = await FacilityUserResource.fetchCollection({
+          getParams: {
+            by_ids: Array.from(props.selectedUsers).join(','),
+          },
+        });
+        facilityUsers.value = users.map(_userState);
+        isLoading.value = false;
+      };
+      loadUsers();
 
       // Computed properties
       const formattedClasses = computed(() => {
@@ -192,11 +203,7 @@
 
       // Filter eligible users (coaches, admins, superusers)
       const eligibleUsers = computed(() => {
-        if (!props.facilityUsers || props.facilityUsers.length === 0) {
-          return Array.from(props.selectedUsers);
-        }
-
-        return props.facilityUsers.filter(
+        return facilityUsers.value.filter(
           user =>
             props.selectedUsers.has(user.id) &&
             (user.kind.includes(UserKinds.COACH) ||
@@ -208,20 +215,13 @@
 
       // Filter ineligible users (learners)
       const ineligibleUsers = computed(() => {
-        if (!props.facilityUsers || props.facilityUsers.length === 0) {
-          return [];
-        }
-
-        return props.facilityUsers.filter(
+        return facilityUsers.value.filter(
           user => props.selectedUsers.has(user.id) && user.kind === UserKinds.LEARNER,
         );
       });
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
       const eligibleUsersCount = computed(() => {
-        if (!props.facilityUsers || props.facilityUsers.length === 0) {
-          return props.selectedUsers.size; // fallback
-        }
         return eligibleUsers.value.length;
       });
 
@@ -249,7 +249,6 @@
       async function assignCoachesToClasses() {
         const selectedClasses = getSelectedClassObjects.value;
         const eligibleUserIds = eligibleUsers.value.map(user => user.id);
-
         if (eligibleUserIds.length === 0) {
           return;
         }
@@ -344,10 +343,6 @@
       },
       /* eslint-enable vue/no-unused-properties */
       classes: {
-        type: Array,
-        default: () => [],
-      },
-      facilityUsers: {
         type: Array,
         default: () => [],
       },

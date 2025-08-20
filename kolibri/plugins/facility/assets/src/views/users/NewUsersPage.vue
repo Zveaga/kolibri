@@ -122,7 +122,6 @@
       :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
       :classes="classes"
       :selectedUsers="selectedUsers"
-      :facilityUsers="facilityUsers"
       @change="onUsersChange"
       @hook:beforeDestroy="selectedUsers = new Set()"
     />

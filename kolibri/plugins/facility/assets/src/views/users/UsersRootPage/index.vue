@@ -95,7 +95,6 @@
       <router-view
         :selectedUsers="selectedUsers"
         :classes="classes"
-        :facilityUsers="facilityUsers"
         @change="onUsersChange"
         @clearSelection="clearSelectedUsers"
         @hook:beforeDestroy="selectedUsers = new Set()"
