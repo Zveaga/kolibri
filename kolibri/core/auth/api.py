@@ -529,9 +529,11 @@ class FacilityUserConsolidateMixin(object):
                 reverse = True
         output = sorted(
             output,
-            key=lambda x: x[ordering_param].lower()
-            if isinstance(x[ordering_param], str)
-            else x[ordering_param],
+            key=lambda x: (
+                x[ordering_param].lower()
+                if isinstance(x[ordering_param], str)
+                else x[ordering_param]
+            ),
             reverse=reverse,
         )
         return output
@@ -772,13 +774,17 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
 
 class RoleFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
+    by_ids = CharFilter(method="filter_by_ids")
 
     def filter_user_ids(self, queryset, name, value):
         return queryset.filter(user_id__in=value.split(","))
 
+    def filter_by_ids(self, queryset, name, value):
+        return queryset.filter(id__in=value.split(","))
+
     class Meta:
         model = Role
-        fields = ["user", "collection", "kind", "user_ids"]
+        fields = ["user", "collection", "kind", "user_ids", "by_ids"]
 
 
 class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):

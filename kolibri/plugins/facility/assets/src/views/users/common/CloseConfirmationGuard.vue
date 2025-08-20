@@ -4,15 +4,45 @@
     <KModal
       v-if="isConfirmationModalOpen"
       appendToOverlay
-      :submitText="continueAction$()"
-      :cancelText="cancelAction$()"
-      :title="closeConfirmationTitle$()"
+      :submitText="submitText"
+      :cancelText="cancelText"
+      :title="title"
       @cancel="onCancel"
       @submit="onClose"
     >
-      <span class="fix-line-height">
-        {{ closeConfirmationMessage$() }}
-      </span>
+      <div class="fix-line-height">
+        <slot
+          v-if="$slots.content"
+          name="content"
+        >
+        </slot>
+        <span v-else>
+          {{ closeConfirmationMessage$() }}
+        </span>
+      </div>
+      <template
+        v-if="cancelTextStyle || submitTextStyle"
+        #actions
+      >
+        <KButtonGroup>
+          <KButton
+            v-if="submitTextStyle"
+            :text="submitText"
+            :style="submitTextStyle"
+            :appearance="submitTextStyle.appearance || 'raised-button'"
+            :primary="submitTextStyle.primary || false"
+            @click="onClose"
+          />
+          <KButton
+            v-if="cancelTextStyle"
+            :style="cancelTextStyle"
+            :appearance="cancelTextStyle.appearance || 'raised-button'"
+            :text="cancelText"
+            :primary="cancelTextStyle.primary || false"
+            @click="onCancel"
+          />
+        </KButtonGroup>
+      </template>
     </KModal>
   </div>
 
@@ -48,12 +78,11 @@
         closeConfirmationToRoute.value = null;
       };
 
-      const { continueAction$, cancelAction$, closeConfirmationTitle$, closeConfirmationMessage$ } =
-        coreStrings;
+      const { closeConfirmationMessage$ } = coreStrings;
 
       const beforeUnload = event => {
         if (props.hasUnsavedChanges) {
-          if (!window.confirm(closeConfirmationTitle$())) {
+          if (!window.confirm(props.title)) {
             event.preventDefault();
           }
         }
@@ -81,9 +110,6 @@
         isConfirmationModalOpen,
         onClose,
         onCancel,
-        continueAction$,
-        cancelAction$,
-        closeConfirmationTitle$,
         closeConfirmationMessage$,
 
         /**
@@ -99,6 +125,26 @@
       hasUnsavedChanges: {
         type: Boolean,
         required: true,
+      },
+      title: {
+        type: String,
+        default: coreStrings.closeConfirmationTitle$(),
+      },
+      cancelText: {
+        type: String,
+        default: coreStrings.cancelAction$(),
+      },
+      cancelTextStyle: {
+        type: Object,
+        default: null,
+      },
+      submitText: {
+        type: String,
+        default: coreStrings.continueAction$(),
+      },
+      submitTextStyle: {
+        type: Object,
+        default: null,
       },
     },
   };
