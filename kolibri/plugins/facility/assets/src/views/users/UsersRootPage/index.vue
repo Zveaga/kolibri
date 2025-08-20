@@ -97,6 +97,7 @@
         :classes="classes"
         :facilityUsers="facilityUsers"
         @change="onUsersChange"
+        @clearSelection="clearSelectedUsers"
         @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
@@ -185,6 +186,10 @@
         fetchClasses();
       });
 
+      function clearSelectedUsers() {
+        selectedUsers.value = new Set();
+      }
+
       return {
         PageNames,
         userIsMultiFacilityAdmin,
@@ -206,6 +211,7 @@
         deleteSelection$,
         selectedUsers,
         currentUserId,
+        clearSelectedUsers,
       };
     },
     computed: {

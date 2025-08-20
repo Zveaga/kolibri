@@ -176,12 +176,11 @@
       const { dismissAction$ } = searchAndFilterStrings;
 
       // Computed properties
-      const formattedClasses = computed(() =>
-        props.classes.map(cls => ({
-          id: cls.id,
-          label: cls.name,
-        })),
-      );
+      const formattedClasses = computed(() => {
+        return [...props.classes]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(({ id, name }) => ({ id, label: name }));
+      });
 
       const selectedUsersCount = computed(() => props.selectedUsers.size);
 
@@ -271,6 +270,7 @@
 
       function handleDismissConfirmation() {
         showUndoModal.value = false;
+        instance.proxy.$emit('clearSelection');
         instance.proxy.$router.back();
       }
 
@@ -290,6 +290,7 @@
         } finally {
           showUndoModal.value = false;
           isLoading.value = false;
+          instance.proxy.$emit('clearSelection');
           instance.proxy.$router.back();
         }
       }

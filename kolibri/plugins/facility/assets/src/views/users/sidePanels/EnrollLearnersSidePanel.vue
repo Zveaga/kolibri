@@ -255,6 +255,7 @@
 
       function handleDismissConfirmation() {
         showUndoModal.value = false;
+        instance.proxy.$emit('clearSelection');
         instance.proxy.$router.back();
       }
 
@@ -271,6 +272,7 @@
         } finally {
           showUndoModal.value = false;
           loading.value = false;
+          instance.proxy.$emit('clearSelection');
           instance.proxy.$router.back();
         }
       }
