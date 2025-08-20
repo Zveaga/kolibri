@@ -450,7 +450,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
 
   // Trash page
   removedUsersTitle: {
-    message: 'Removed Users',
+    message: 'Removed users',
     context: 'Title of the page listing users who have been removed from the facility.',
   },
   noRemovedUsersLabel: {

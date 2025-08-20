@@ -14,12 +14,12 @@
       </p>
       <div class="removed-users-page-header">
         <h1>{{ removedUsersTitle$() }}</h1>
-        <p>
+        <p v-if="showUsersTable">
           {{ removedUsersPageDescription$() }}
         </p>
       </div>
       <UsersTable
-        v-if="facilityUsers.length || numAppliedFilters > 0 || dataLoading"
+        v-if="showUsersTable"
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
         :totalPages="totalPages"
@@ -35,7 +35,7 @@
             icon="refresh"
             :disabled="!selectedUsers.size || loading"
             :tooltip="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
-            @click="recoverUsers"
+            @click="recoverUsers(selectedUsers)"
           />
           <KIconButton
             icon="trash"
@@ -88,7 +88,7 @@
 <script>
 
   import store from 'kolibri/store';
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -121,6 +121,7 @@
 
       const {
         facilityUsers,
+        search,
         classes,
         totalPages,
         usersCount,
@@ -135,6 +136,14 @@
       });
 
       const selectedUsers = ref(new Set());
+
+      const showUsersTable = computed(
+        () =>
+          facilityUsers.value.length > 0 ||
+          search.value?.length > 0 ||
+          numAppliedFilters.value > 0 ||
+          dataLoading.value,
+      );
 
       function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
@@ -159,7 +168,7 @@
         try {
           loading.value = true;
           await DeletedFacilityUserResource.restoreCollection({
-            by_ids: Array.from(users || selectedUsers.value).join(','),
+            by_ids: Array.from(users).join(','),
           });
           createSnackbar(usersRecoveredNotice$({ num: users.size }));
           onUsersChange({ resetSelection: true });
@@ -209,6 +218,7 @@
         facilityUsers,
         usersToDelete,
         selectedUsers,
+        showUsersTable,
         numAppliedFilters,
         userDropdownMenuOptions,
 

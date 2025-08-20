@@ -24,7 +24,7 @@
         </div>
       </div>
       <UsersTable
-        v-if="facilityUsers.length || numAppliedFilters > 0 || dataLoading"
+        v-if="showUsersTable"
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
         :totalPages="totalPages"
@@ -118,7 +118,7 @@
 <script>
 
   import store from 'kolibri/store';
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -153,6 +153,7 @@
 
       const {
         facilityUsers,
+        search,
         classes,
         totalPages,
         usersCount,
@@ -167,6 +168,14 @@
       });
 
       const selectedUsers = ref(new Set());
+
+      const showUsersTable = computed(
+        () =>
+          facilityUsers.value.length > 0 ||
+          search.value?.length > 0 ||
+          numAppliedFilters.value > 0 ||
+          dataLoading.value,
+      );
 
       function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
@@ -200,6 +209,7 @@
         usersCount,
         dataLoading,
         selectedUsers,
+        showUsersTable,
         numAppliedFilters,
         isMoveToTrashModalOpen,
         onUsersChange,
