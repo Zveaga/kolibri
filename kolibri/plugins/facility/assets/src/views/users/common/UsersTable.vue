@@ -44,7 +44,10 @@
           :layout12="{ span: 5 }"
           class="move-down"
         >
-          <span v-if="selectedUsers.size > 0">
+          <span
+            v-if="selectedUsers.size > 0"
+            class="mr-8"
+          >
             <span class="selected-count">
               {{ numUsersSelected$({ n: selectedUsers.size }) }}
             </span>
@@ -93,6 +96,7 @@
         </template>
 
         <template #cell="{ content, colIndex, row }">
+          <!-- Column 0: Selection Checkbox -->
           <div v-if="colIndex === 0">
             <KCheckbox
               :label="getTranslatedSelectedArialabel(content)"
@@ -102,6 +106,7 @@
               @change="() => handleUserSelectionToggle(content)"
             />
           </div>
+          <!-- Column 1: User name -->
           <span v-else-if="colIndex === 1">
             <KLabeledIcon
               class="user-type-icon"
@@ -118,18 +123,26 @@
               :class="$computedClass(userRoleBadgeStyle)"
             />
           </span>
+          <!-- Column 3: User identifier -->
           <span v-else-if="colIndex === 3">
             <KOptionalText :text="content ? content : ''" />
           </span>
+          <!-- Column 4: User gender -->
           <span v-else-if="colIndex === 4">
             <GenderDisplayText :gender="content" />
           </span>
+          <!-- Column 5: User birth year -->
           <span v-else-if="colIndex === 5">
             <BirthYearDisplayText :birthYear="content" />
           </span>
+          <!-- Column 6: User creation/deletion date -->
           <span v-else-if="colIndex === 6">
-            <KOptionalText :text="content" />
+            <KOptionalText
+              :text="content.text"
+              :style="content.style"
+            />
           </span>
+          <!-- Column 7: User options -->
           <span v-else-if="colIndex === 7">
             <KIconButton
               icon="optionsVertical"
@@ -174,6 +187,7 @@
 
   import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
+  import useNow from 'kolibri/composables/useNow';
   import { toRefs, ref, computed, onBeforeUnmount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import pickBy from 'lodash/pickBy';
@@ -200,6 +214,11 @@
   const ALL_FILTER = 'all';
   const SELECTION_COLUMN_ID = 'selection';
 
+  // Constant for the number of days until the user is permanently deleted
+  const PERMANENT_DELETION_DAYS = 30;
+  // Threshold to show that a user is going to be permanently deleted soon
+  const DELETION_SOON_THRESHOLD_DAYS = 7;
+
   export default {
     name: 'UsersTable',
     components: {
@@ -216,8 +235,10 @@
       const route = useRoute();
       const router = useRouter();
       const { isSuperuser, currentUserId } = useUser();
-      const $formatDate = getCurrentInstance().proxy.$formatDate;
-
+      const currentInstance = getCurrentInstance();
+      const $formatDate = currentInstance.proxy.$formatDate;
+      const $formatRelative = currentInstance.proxy.$formatRelative;
+      const { now } = useNow();
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
       const userToChange = ref(null);
@@ -236,6 +257,7 @@
         clearFiltersLabel$,
         noSuperAdminsExist$,
         allUsersFilteredOut$,
+        permanentDeletion$,
       } = bulkUserManagementStrings;
 
       // --- Computed Properties ---
@@ -246,6 +268,22 @@
         set(value) {
           emit('update:selectedUsers', value);
         },
+      });
+
+      const isShowingDeletedUsers = computed(() =>
+        facilityUsers.value.some(user => user.date_deleted),
+      );
+
+      const dateColumn = computed(() => {
+        const label = isShowingDeletedUsers.value ? permanentDeletion$() : createdAt$();
+        const columnId = isShowingDeletedUsers.value ? 'date_deleted' : 'date_joined';
+        return {
+          label,
+          dataType: 'date',
+          minWidth: '150px',
+          width: '10%',
+          columnId,
+        };
       });
 
       const tableHeaders = computed(() => {
@@ -291,13 +329,7 @@
             width: '10%',
             columnId: 'birth_year',
           },
-          {
-            label: createdAt$(),
-            dataType: 'date',
-            minWidth: '150px',
-            width: '10%',
-            columnId: 'date_joined',
-          },
+          dateColumn.value,
           {
             label: '',
             dataType: 'undefined',
@@ -306,6 +338,33 @@
           },
         ];
       });
+
+      const getRelativeDeletedDate = date => {
+        const permanentDeletionDate = new Date(date);
+        permanentDeletionDate.setDate(permanentDeletionDate.getDate() + PERMANENT_DELETION_DAYS);
+
+        const style = {};
+        // If permanent deletion will occur in DELETION_SOON_THRESHOLD_DAYS days, set error color
+        const deletionSoon = new Date();
+        deletionSoon.setDate(deletionSoon.getDate() + DELETION_SOON_THRESHOLD_DAYS);
+        if (permanentDeletionDate < deletionSoon) {
+          style.color = themeTokens().error;
+        }
+
+        return {
+          text: $formatRelative(permanentDeletionDate, { now }),
+          style,
+        };
+      };
+
+      const getDateContent = user => {
+        if (isShowingDeletedUsers.value) {
+          return getRelativeDeletedDate(user.date_deleted);
+        }
+        return {
+          text: $formatDate(user.date_joined) || '',
+        };
+      };
 
       const tableRows = computed(() => {
         return facilityUsers.value.map(user => {
@@ -316,7 +375,7 @@
             user.id_number || '',
             user.gender || '',
             user.birth_year || '',
-            $formatDate(user.date_joined),
+            getDateContent(user),
             user,
           ];
         });
@@ -656,6 +715,10 @@
   .filter-button {
     padding-top: 8px;
     margin-left: 1em;
+  }
+
+  .mr-8 {
+    margin-right: 8px;
   }
 
   .screen-reader-only {

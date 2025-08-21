@@ -218,6 +218,7 @@
           {
             label: this.viewTrash$(),
             id: 'view_trash',
+            value: PageNames.USERS_TRASH_PAGE,
           },
         ];
       },

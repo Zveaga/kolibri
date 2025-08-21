@@ -1,18 +1,25 @@
 import pickBy from 'lodash/pickBy';
 import isEqual from 'lodash/isEqual';
+import { useRouter } from 'vue-router/composables';
 import { ref, computed, getCurrentInstance, watch } from 'vue';
-import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 import { _userState } from '../modules/mappers';
 import useUsersFilters from './useUsersFilters';
 
-export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {}) {
+export default function useUserManagement({
+  activeFacilityId,
+  dateJoinedGt,
+  softDeletedUsers = false,
+} = {}) {
   const facilityUsers = ref([]);
   const totalPages = ref(0);
   const usersCount = ref(0);
   const dataLoading = ref(false);
   const classes = ref([]);
   const store = getCurrentInstance().proxy.$store;
+  const router = useRouter();
   const route = computed(() => store.state.route);
   // query params
   const page = computed(() => Number(route.value.query.page) || 1);
@@ -28,7 +35,8 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
   const fetchUsers = async () => {
     dataLoading.value = true;
     try {
-      const resp = await FacilityUserResource.fetchCollection({
+      const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
+      const resp = await fetchResource.fetchCollection({
         getParams: pickBy({
           member_of: activeFacilityId,
           date_joined__gte: dateJoinedGt?.toISOString(),
@@ -43,11 +51,15 @@ export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {
       facilityUsers.value = resp.results.map(_userState);
       totalPages.value = resp.total_pages;
       usersCount.value = resp.count;
-    } catch (error) {
-      store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-    } finally {
       dataLoading.value = false;
       store.dispatch('notLoading');
+    } catch (error) {
+      // In case of 404 error because of stale pagination try loading users of page 1
+      if (error.status === 404 && page.value > 1) {
+        router.push({ ...route.value, query: { ...route.value.query, page: 1 } });
+      } else {
+        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      }
     }
   };
 

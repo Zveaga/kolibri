@@ -16,6 +16,8 @@ import UsersRootPage from './views/users/UsersRootPage';
 import NewUsersPage from './views/users/NewUsersPage.vue';
 import UserEditPage from './views/UserEditPage';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
+import UsersTrashPage from './views/users/UsersTrashPage/index.vue';
+
 import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
 import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
@@ -110,6 +112,17 @@ export default [
       ],
       'NEW_USERS',
     ),
+  },
+  {
+    name: PageNames.USERS_TRASH_PAGE,
+    component: UsersTrashPage,
+    path: '/:facility_id?/users/removed',
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, UsersTrashPage.name)) {
+        return;
+      }
+    },
+    children: getSidePanelRoutes([PageNames.FILTER_USERS_SIDE_PANEL], 'TRASH'),
   },
   {
     name: PageNames.USER_EDIT_PAGE,

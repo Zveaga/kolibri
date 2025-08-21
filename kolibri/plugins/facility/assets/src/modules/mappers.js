@@ -20,5 +20,6 @@ export function _userState(facilityUser) {
     birth_year: facilityUser.birth_year,
     id_number: facilityUser.id_number,
     date_joined: facilityUser.date_joined,
+    date_deleted: facilityUser.date_deleted,
   };
 }

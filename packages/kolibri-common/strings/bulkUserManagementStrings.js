@@ -95,7 +95,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Label for dropdown item that links user to page of recently added users',
   },
   viewTrash: {
-    message: 'View trash',
+    message: 'View removed users',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
   copyClasslabel: {
@@ -465,5 +465,62 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   addNewUserLabel: {
     message: 'Add new user',
     context: 'Label for button that opens the user creation modal',
+  },
+
+  // Trash page
+  removedUsersTitle: {
+    message: 'Removed users',
+    context: 'Title of the page listing users who have been removed from the facility.',
+  },
+  noRemovedUsersLabel: {
+    message: 'No removed users',
+    context: 'Displayed when there are no users who have been removed from the facility.',
+  },
+  removedUsersNotice: {
+    message: 'Removed users are stored here for 30 days before being permanently deleted',
+    context: 'Displayed when there are users who have been removed from the facility.',
+  },
+  removedUsersPageDescription: {
+    message: 'Records will show the days remaining before permanent deletion.',
+    context: 'Description shown on the trash page below the title.',
+  },
+  deletePermanentlyLabel: {
+    message: 'Delete permanently',
+    context: 'Label for the button to permanently delete a user from the facility.',
+  },
+  recoverLabel: {
+    message: 'Recover',
+    context: 'Label for the button to recover a user from the trash.',
+  },
+  recoverSelectionLabel: {
+    message: 'Recover selection',
+    context: 'Label for the button to recover multiple users from the trash.',
+  },
+  permanentDeletion: {
+    message: 'Permanent deletion',
+    context:
+      'Label for the column of the users table indicating when a user will be deleted permanently.',
+  },
+  deleteSelectionLabel: {
+    message: 'Delete selection?',
+    context: 'Label for the confirmation dialog when permanently deleting multiple users.',
+  },
+  deleteSelectionDescription: {
+    message:
+      'This will permanently delete {num, number} {num, plural, one {user} other {users}} from this device. You cannot undo this.',
+    context:
+      'Description shown in the confirmation dialog when permanently deleting multiple users.',
+  },
+  deletingLabel: {
+    message: 'Deleting',
+    context: 'Message to indicate that users are being deleted.',
+  },
+  usersDeletedNotice: {
+    message: 'Selected users have been deleted',
+    context: 'Displayed when users have been successfully deleted.',
+  },
+  usersRecoveredNotice: {
+    message: '{num, number} {num, plural, one {user} other {users}} recovered',
+    context: 'Displayed when users have been successfully recovered.',
   },
 });

@@ -24,7 +24,7 @@
         </div>
       </div>
       <UsersTable
-        v-if="facilityUsers.length || numAppliedFilters > 0 || dataLoading"
+        v-if="showUsersTable"
         :facilityUsers="facilityUsers"
         :usersCount="usersCount"
         :totalPages="totalPages"
@@ -78,6 +78,11 @@
         class="empty-new-users"
       >
         <div class="empty-new-users-content">
+          <KImg
+            isDecorative
+            :src="emptyPlusCloudSvg"
+            backgroundColor="transparent"
+          />
           <strong> {{ noNewUsersLabel$() }}</strong>
           <p
             :style="{
@@ -119,7 +124,7 @@
 <script>
 
   import store from 'kolibri/store';
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -129,6 +134,7 @@
   import { overrideRoute } from '../../utils';
   import { PageNames } from '../../constants';
   import useUserManagement from '../../composables/useUserManagement';
+  import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import UsersTable from './common/UsersTable.vue';
   import MoveToTrashModal from './common/MoveToTrashModal.vue';
 
@@ -154,6 +160,7 @@
 
       const {
         facilityUsers,
+        search,
         classes,
         totalPages,
         usersCount,
@@ -168,6 +175,14 @@
       });
 
       const selectedUsers = ref(new Set());
+
+      const showUsersTable = computed(
+        () =>
+          facilityUsers.value.length > 0 ||
+          search.value?.length > 0 ||
+          numAppliedFilters.value > 0 ||
+          dataLoading.value,
+      );
 
       function onUsersChange({ resetSelection = false } = {}) {
         fetchUsers();
@@ -201,6 +216,8 @@
         usersCount,
         dataLoading,
         selectedUsers,
+        showUsersTable,
+        emptyPlusCloudSvg,
         numAppliedFilters,
         isMoveToTrashModalOpen,
         onUsersChange,
@@ -244,9 +261,14 @@
     text-align: center;
 
     .empty-new-users-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
 
       strong {
+        margin-top: 16px;
         font-size: 16px;
       }
 
