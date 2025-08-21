@@ -134,6 +134,7 @@
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
@@ -269,7 +270,7 @@
           throw new Error('No classes selected');
         }
 
-        const roleData = selectedClassObjects.flatMap(classObj =>
+        const roleData = flatMap(selectedClassObjects, classObj =>
           eligibleUserIds.map(userId => ({
             collection: classObj.id,
             user: userId,
