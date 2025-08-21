@@ -104,7 +104,7 @@
         return null;
       },
       classesLoaded() {
-        return Array.isArray(this.classes);
+        return this.classes.length > 0;
       },
     },
     methods: {
