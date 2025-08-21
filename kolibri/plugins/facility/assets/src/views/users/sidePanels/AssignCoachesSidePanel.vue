@@ -34,7 +34,7 @@
       alignment="right"
       sidePanelWidth="700px"
       :addBottomBorder="false"
-      @closePanel="closeSidePanel(selectedClasses.length > 0)"
+      @closePanel="closeSidePanel"
     >
       <template #header>
         <h1>{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
@@ -76,7 +76,7 @@
             </template>
           </div>
 
-          <h2>{{ selectClassesLabel$() }}</h2>
+          <h2>{{ SelectClassesLabel$() }}</h2>
           <SelectableList
             v-model="selectedClasses"
             :options="formattedClasses"
@@ -92,7 +92,7 @@
             <KButton
               :text="coreString('cancelAction')"
               :disabled="isLoading"
-              @click="closeSidePanel(selectedClasses.length > 0)"
+              @click="closeSidePanel"
             />
             <KButton
               primary
@@ -104,16 +104,17 @@
         </div>
       </template>
 
-      <KModal
-        v-if="showCloseConfirmationModal"
+      <CloseConfirmationGuard
+        ref="closeConfirmationGuardRef"
+        :hasUnsavedChanges="hasUnsavedChanges"
+        :title="disgardChanges$()"
         :submitText="discardAction$()"
         :cancelText="keepEditingAction$()"
-        :title="disgardChanges$()"
-        @cancel="showCloseConfirmationModal = false"
-        @submit="closeSidePanel(false)"
       >
-        <span class="adjust-line-height">{{ discardWarning$() }}</span>
-      </KModal>
+        <template #content>
+          <span class="adjust-line-height">{{ discardWarning$() }}</span>
+        </template>
+      </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
 
@@ -123,14 +124,18 @@
 <script>
 
   import { ref, computed, getCurrentInstance } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import KIcon from 'kolibri-design-system/lib/KIcon';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
+  import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
   import { _userState } from '../../../modules/mappers';
 
@@ -140,6 +145,7 @@
       SidePanelModal,
       KIcon,
       SelectableList,
+      CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
     setup(props) {
@@ -147,10 +153,19 @@
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
       const showUndoModal = ref(false);
-      const showCloseConfirmationModal = ref(false);
       const createdRoles = ref([]);
       const instance = getCurrentInstance();
       const facilityUsers = ref([]);
+      const route = useRoute();
+      const closeConfirmationGuardRef = ref(null);
+
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          return overrideRoute(route, {
+            name: getRootRouteName(route),
+          });
+        },
+      });
 
       const {
         undoAssignCoachHeading$,
@@ -167,7 +182,7 @@
         keepEditingAction$,
         disgardChanges$,
         numUsersNotEligible$,
-        selectClassesLabel$,
+        SelectClassesLabel$,
         assignUsersHeading$,
         assignToAllClasses$,
       } = bulkUserManagementStrings;
@@ -197,27 +212,22 @@
 
       const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
 
-      const getSelectedClassObjects = computed(() =>
-        props.classes.filter(cls => selectedClasses.value.includes(cls.id)),
-      );
+      const hasUnsavedChanges = computed(() => selectedClasses.value.length > 0);
 
       // Filter eligible users (coaches, admins, superusers)
       const eligibleUsers = computed(() => {
         return facilityUsers.value.filter(
           user =>
-            props.selectedUsers.has(user.id) &&
-            (user.kind.includes(UserKinds.COACH) ||
-              user.kind === UserKinds.ADMIN ||
-              user.kind === UserKinds.SUPERUSER ||
-              user.is_superuser),
+            user.kind.includes(UserKinds.COACH) ||
+            user.kind === UserKinds.ADMIN ||
+            user.kind === UserKinds.SUPERUSER ||
+            user.is_superuser,
         );
       });
 
       // Filter ineligible users (learners)
       const ineligibleUsers = computed(() => {
-        return facilityUsers.value.filter(
-          user => props.selectedUsers.has(user.id) && user.kind === UserKinds.LEARNER,
-        );
+        return facilityUsers.value.filter(user => user.kind === UserKinds.LEARNER);
       });
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
@@ -247,28 +257,38 @@
       }
 
       async function assignCoachesToClasses() {
-        const selectedClasses = getSelectedClassObjects.value;
+        const selectedClassObjects = props.classes.filter(cls =>
+          selectedClasses.value.includes(cls.id),
+        );
         const eligibleUserIds = eligibleUsers.value.map(user => user.id);
         if (eligibleUserIds.length === 0) {
           return;
         }
 
-        for (const classObj of selectedClasses) {
-          const newRoles = await RoleResource.saveCollection({
-            data: eligibleUserIds.map(userId => ({
-              collection: classObj.id,
-              user: userId,
-              kind: UserKinds.COACH,
-            })),
-          });
-          // Only add roles that were actually created (have an id)
-          const actuallyCreatedRoles = newRoles.filter(role => role.id);
-          createdRoles.value.push(...actuallyCreatedRoles);
+        if (selectedClassObjects.length === 0) {
+          throw new Error('No classes selected');
         }
+
+        const roleData = selectedClassObjects.flatMap(classObj =>
+          eligibleUserIds.map(userId => ({
+            collection: classObj.id,
+            user: userId,
+            kind: UserKinds.COACH,
+          })),
+        );
+
+        const newRoles = await RoleResource.saveCollection({
+          data: roleData,
+        });
+
+        // Only add roles that were actually created (have an id)
+        const actuallyCreatedRoles = newRoles.filter(role => role.id);
+        createdRoles.value.push(...actuallyCreatedRoles);
       }
 
       function handleDismissConfirmation() {
         showUndoModal.value = false;
+        selectedClasses.value = [];
         instance.proxy.$emit('clearSelection');
         instance.proxy.$router.back();
       }
@@ -277,10 +297,10 @@
         isLoading.value = true;
         try {
           if (createdRoles.value.length > 0) {
-            for (const role of createdRoles.value) {
-              if (role.id) {
-                await RoleResource.deleteModel({ id: role.id });
-              }
+            const roleIds = createdRoles.value.filter(role => role.id).map(role => role.id);
+
+            if (roleIds.length > 0) {
+              await RoleResource.deleteCollection({ by_ids: roleIds });
             }
           }
           createSnackbar(assignCoachUndoneNotice$());
@@ -289,17 +309,14 @@
         } finally {
           showUndoModal.value = false;
           isLoading.value = false;
+          selectedClasses.value = [];
           instance.proxy.$emit('clearSelection');
-          instance.proxy.$router.back();
+          goBack();
         }
       }
 
-      function closeSidePanel(close = true) {
-        if (close) {
-          showCloseConfirmationModal.value = true;
-        } else {
-          instance.proxy.$router.back();
-        }
+      function closeSidePanel() {
+        goBack();
       }
 
       return {
@@ -308,16 +325,16 @@
         formattedClasses,
         selectedUsersCount,
         hasSelectedClasses,
+        hasUnsavedChanges,
         eligibleUsersCount,
         ineligibleUsersCount,
         showErrorWarning,
         showUndoModal,
-        showCloseConfirmationModal,
         defaultErrorMessage$,
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
-        selectClassesLabel$,
+        SelectClassesLabel$,
         handleAssign,
         handleDismissConfirmation,
         handleUndoAssignments,
@@ -333,6 +350,7 @@
         numUsersNotEligible$,
         assignUsersHeading$,
         assignToAllClasses$,
+        closeConfirmationGuardRef,
       };
     },
     props: {
@@ -346,6 +364,9 @@
         type: Array,
         default: () => [],
       },
+    },
+    beforeRouteLeave(to, from, next) {
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
   };
 

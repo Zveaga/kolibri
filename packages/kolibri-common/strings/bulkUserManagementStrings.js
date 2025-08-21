@@ -308,10 +308,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Assign to a class',
     context: 'Label for the classes input field in the create user modal',
   },
-  selectClassesLabel: {
-    message: 'Select classes',
-    context: 'Heading label for selecting classes in side panels',
-  },
   assignToAllClasses: {
     message: 'Assign to all classes',
     context: 'Label for checkbox that allows user to assign selected users to all classes',
