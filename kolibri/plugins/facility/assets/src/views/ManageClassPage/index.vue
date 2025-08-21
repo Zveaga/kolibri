@@ -92,6 +92,7 @@
         @cancel="clearClassToDelete"
         @success="handleDeleteSuccess()"
       />
+
       <ClassCreateModal
         v-if="modalShown === Modals.CREATE_CLASS"
         :classes="classes"
@@ -108,14 +109,11 @@
         @success="handleRenameSuccess()"
       />
 
-      <CopyClassSidePanel
-        v-if="openCopyClassPanel"
-        :coachesIds="classCoachesIds"
-        :classroom="tableRows"
-        :className="copiedClassName"
-        :classCoaches="classCoaches"
+      <ClassCopyModal
+        v-if="openCopyClassModal"
+        :classToCopy="classToCopy"
         :classes="classes"
-        @closeSidePanel="closeModal"
+        @close="closeModal"
       />
     </KPageContainer>
   </FacilityAppBarPage>
@@ -125,20 +123,18 @@
 
 <script>
 
-  import { ref, getCurrentInstance } from 'vue';
+  import { ref } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { UserKinds } from 'kolibri/constants';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
-  import CopyClassSidePanel from './CopyClassSidePanel.vue';
+  import ClassCopyModal from './ClassCopyModal.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -152,7 +148,7 @@
       ClassCreateModal,
       ClassDeleteModal,
       ClassRenameModal,
-      CopyClassSidePanel,
+      ClassCopyModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -160,72 +156,41 @@
         id: '',
         name: '',
       });
-      const classCoachesIds = ref([]);
-      const classCoaches = ref([]);
-      const facilityUsers = ref([]);
-      const copiedClassName = ref(null);
-      const openCopyClassPanel = ref(false);
       const openRenameModal = ref(false);
+      const openCopyClassModal = ref(false);
+      const classToCopy = ref({});
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
 
-      const { $store, $router } = getCurrentInstance().proxy;
-      const activeFacilityId =
-        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
-
-      const { copyClasslabel$, renameClassLabel$, copyOfClass$ } = bulkUserManagementStrings;
-
-      const fetchFacilityUsers = async () => {
-        const resp = await FacilityUserResource.fetchCollection({
-          getParams: {
-            member_of: activeFacilityId,
-            user_type: UserKinds.COACH,
-          },
-          force: true,
-        });
-        facilityUsers.value = resp;
-      };
+      const { copyClass$, renameClassLabel$ } = bulkUserManagementStrings;
 
       const handleOptionSelection = (selection, classroom) => {
-        classDetails.value = classroom;
-        copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
-
-        classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
-        classCoaches.value = facilityUsers.value.map(coach => ({
-          id: coach.id,
-          username: coach.username,
-          full_name: coach.full_name,
-          label: coach.full_name,
-        }));
-
         if (selection.value === Modals.DELETE_CLASS) {
           selectClassToDelete(classroom);
           return;
         }
-
         if (selection.value === Modals.EDIT_CLASS_NAME) {
+          classDetails.value = classroom;
           openRenameModal.value = true;
           return;
         }
-
         if (selection.value === Modals.COPY_CLASS) {
-          openCopyClassPanel.value = true;
+          classToCopy.value = classroom;
+          openCopyClassModal.value = true;
           return;
         }
       };
-      fetchFacilityUsers();
+
       return {
         classToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
         getFacilities,
-        copyClasslabel$,
+        copyClass$,
         renameClassLabel$,
         classDetails,
-        classCoachesIds,
-        openCopyClassPanel,
-        copiedClassName,
-        classCoaches,
+        openCopyClassModal,
+        classToCopy,
         handleOptionSelection,
         openRenameModal,
       };
@@ -233,7 +198,6 @@
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
       ...mapGetters(['facilityPageLinks']),
-
       Modals: () => Modals,
       tableHeaders() {
         return [
@@ -278,7 +242,7 @@
       dropDownOptions() {
         return [
           {
-            label: this.copyClasslabel$(),
+            label: this.copyClass$(),
             value: 'COPY_CLASS',
             id: 'copy',
           },
@@ -299,7 +263,7 @@
       ...mapActions('classManagement', ['displayModal']),
       closeModal() {
         this.openRenameModal = false;
-        this.openCopyClassPanel = false;
+        this.openCopyClassModal = false;
         this.displayModal(false);
       },
       handleCreateSuccess() {
