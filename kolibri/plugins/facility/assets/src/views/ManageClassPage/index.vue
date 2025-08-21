@@ -96,24 +96,24 @@
       <ClassCreateModal
         v-if="modalShown === Modals.CREATE_CLASS"
         :classes="classes"
-        @cancel="closeModal"
+        @cancel="displayModal(false)"
         @success="handleCreateSuccess()"
       />
 
       <ClassRenameModal
-        v-if="openRenameModal"
+        v-if="modalShown === Modals.EDIT_CLASS_NAME"
         :classname="classDetails.name"
         :classid="classDetails.id"
         :classes="classes"
-        @cancel="closeModal"
+        @cancel="displayModal(false)"
         @success="handleRenameSuccess()"
       />
 
       <ClassCopyModal
-        v-if="openCopyClassModal"
+        v-if="modalShown === Modals.COPY_CLASS"
         :classToCopy="classToCopy"
         :classes="classes"
-        @close="closeModal"
+        @close="displayModal(false)"
       />
     </KPageContainer>
   </FacilityAppBarPage>
@@ -123,8 +123,8 @@
 
 <script>
 
-  import { ref } from 'vue';
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { ref, getCurrentInstance } from 'vue';
+  import { mapState, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -156,27 +156,28 @@
         id: '',
         name: '',
       });
-      const openRenameModal = ref(false);
-      const openCopyClassModal = ref(false);
       const classToCopy = ref({});
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const store = getCurrentInstance().proxy.$store;
+      const displayModal = payload => store.dispatch('classManagement/displayModal', payload);
 
       const { copyClass$, renameClassLabel$ } = bulkUserManagementStrings;
 
       const handleOptionSelection = (selection, classroom) => {
         if (selection.value === Modals.DELETE_CLASS) {
           selectClassToDelete(classroom);
+          displayModal(Modals.DELETE_CLASS);
           return;
         }
         if (selection.value === Modals.EDIT_CLASS_NAME) {
           classDetails.value = classroom;
-          openRenameModal.value = true;
+          displayModal(Modals.EDIT_CLASS_NAME);
           return;
         }
         if (selection.value === Modals.COPY_CLASS) {
           classToCopy.value = classroom;
-          openCopyClassModal.value = true;
+          displayModal(Modals.COPY_CLASS);
           return;
         }
       };
@@ -189,10 +190,9 @@
         copyClass$,
         renameClassLabel$,
         classDetails,
-        openCopyClassModal,
         classToCopy,
         handleOptionSelection,
-        openRenameModal,
+        displayModal,
       };
     },
     computed: {
@@ -260,14 +260,8 @@
       },
     },
     methods: {
-      ...mapActions('classManagement', ['displayModal']),
-      closeModal() {
-        this.openRenameModal = false;
-        this.openCopyClassModal = false;
-        this.displayModal(false);
-      },
       handleCreateSuccess() {
-        this.closeModal();
+        this.displayModal(false);
         this.refreshCoreFacilities();
       },
       handleDeleteSuccess() {
@@ -281,7 +275,7 @@
         }
       },
       handleRenameSuccess() {
-        this.openRenameModal = false;
+        this.displayModal(false);
         this.refreshCoreFacilities();
       },
       // Duplicated in class-list-page
