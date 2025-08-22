@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="flex-column">
     <PaginatedListContainerWithBackend
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
@@ -737,6 +737,13 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    // Min height is set to 0 to allow flex items to shrink
+    min-height: 0;
   }
 
 </style>
