@@ -25,7 +25,7 @@
       class="main-wrapper"
       :style="wrapperStyles"
     >
-      <slot></slot>
+      <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
   </div>
 
@@ -91,6 +91,12 @@
             paddingBottom: '72px',
             paddingTop: this.appBarHeight + 16 + 'px',
           };
+      },
+      pageContentHeight() {
+        const paddingTop = parseInt(this.wrapperStyles.paddingTop) || 0;
+        const paddingBottom = parseInt(this.wrapperStyles.paddingBottom) || 0;
+        const height = window.innerHeight - paddingTop - paddingBottom - 1;
+        return height;
       },
     },
     mounted() {
