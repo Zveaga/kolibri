@@ -92,9 +92,10 @@
           }
         },
       });
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowHeight, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return {
+        windowHeight,
         windowIsSmall,
         isAppContext,
         swipeZone,
@@ -163,7 +164,7 @@
         const paddingTop = parseInt(this.paddingTop.paddingTop) || 0;
         const paddingBottom = parseInt(this.wrapperStyles.paddingBottom) || 0;
 
-        let height = window.innerHeight - paddingTop - paddingBottom - 1;
+        let height = this.windowHeight - paddingTop - paddingBottom - 1;
         if (this.isAppContextAndTouchDevice) {
           height -= 56; // Account for the Android bottom navigation bar
         }

@@ -4,135 +4,140 @@
     :appBarTitle="newUsers$()"
     :route="$store.getters.facilityPageLinks.UserPage"
   >
-    <KPageContainer style="max-width: 1000px; margin: 24px auto">
-      <p>
-        <KRouterLink
-          :to="$store.getters.facilityPageLinks.UserPage"
-          icon="back"
-          :text="backToUsers$()"
-        />
-      </p>
-      <div class="new-users-page-header">
-        <h1>{{ newUsers$() }}</h1>
-        <div>
+    <template #default="{ pageContentHeight }">
+      <KPageContainer
+        class="page-container"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
+      >
+        <p>
+          <KRouterLink
+            :to="$store.getters.facilityPageLinks.UserPage"
+            icon="back"
+            :text="backToUsers$()"
+          />
+        </p>
+        <div class="new-users-page-header">
+          <h1>{{ newUsers$() }}</h1>
+          <div>
+            <KRouterLink
+              primary
+              appearance="raised-button"
+              :text="newUser$()"
+              :to="$store.getters.facilityPageLinks.UserCreatePage"
+            />
+          </div>
+        </div>
+        <UsersTable
+          v-if="showUsersTable"
+          :facilityUsers="facilityUsers"
+          :usersCount="usersCount"
+          :totalPages="totalPages"
+          :dataLoading="dataLoading"
+          :selectedUsers.sync="selectedUsers"
+          :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS"
+          :numAppliedFilters="numAppliedFilters"
+          @clearFilters="resetFilters"
+          @change="onUsersChange"
+        >
+          <template #userActions>
+            <router-link
+              :to="
+                overrideRoute($route, {
+                  name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS,
+                })
+              "
+              :class="{ 'disabled-link': !canAssignCoaches }"
+            >
+              <KIconButton
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :tooltip="assignCoach$()"
+                :disabled="!canAssignCoaches"
+              />
+            </router-link>
+            <router-link
+              :to="
+                overrideRoute($route, {
+                  name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS,
+                })
+              "
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+            >
+              <KIconButton
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :tooltip="enrollToClass$()"
+                :disabled="!canEnrollOrRemoveFromClass"
+              />
+            </router-link>
+            <router-link
+              :to="
+                overrideRoute($route, {
+                  name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS,
+                })
+              "
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+            >
+              <KIconButton
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :tooltip="removeFromClass$()"
+                :disabled="!canEnrollOrRemoveFromClass"
+              />
+            </router-link>
+            <KIconButton
+              icon="trash"
+              :ariaLabel="deleteSelection$()"
+              :tooltip="deleteSelection$()"
+              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+              @click="isMoveToTrashModalOpen = true"
+            />
+          </template>
+        </UsersTable>
+        <div
+          v-else
+          class="empty-new-users"
+        >
+          <div class="empty-new-users-content">
+            <KImg
+              isDecorative
+              :src="emptyPlusCloudSvg"
+              backgroundColor="transparent"
+            />
+            <strong> {{ noNewUsersLabel$() }}</strong>
+            <p
+              :style="{
+                color: $themePalette.grey.v_700,
+              }"
+            >
+              {{ noNewUsersDescription$() }}
+            </p>
+          </div>
           <KRouterLink
             primary
             appearance="raised-button"
-            :text="newUser$()"
+            :text="addNewUserLabel$()"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
         </div>
-      </div>
-      <UsersTable
-        v-if="showUsersTable"
-        :facilityUsers="facilityUsers"
-        :usersCount="usersCount"
-        :totalPages="totalPages"
-        :dataLoading="dataLoading"
-        :selectedUsers.sync="selectedUsers"
-        :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS"
-        :numAppliedFilters="numAppliedFilters"
-        @clearFilters="resetFilters"
+      </KPageContainer>
+      <!-- For sidepanels -->
+      <router-view
+        :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
+        :classes="classes"
+        :selectedUsers="selectedUsers"
         @change="onUsersChange"
-      >
-        <template #userActions>
-          <router-link
-            :to="
-              overrideRoute($route, {
-                name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS,
-              })
-            "
-            :class="{ 'disabled-link': !canAssignCoaches }"
-          >
-            <KIconButton
-              icon="assignCoaches"
-              :ariaLabel="assignCoach$()"
-              :tooltip="assignCoach$()"
-              :disabled="!canAssignCoaches"
-            />
-          </router-link>
-          <router-link
-            :to="
-              overrideRoute($route, {
-                name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS,
-              })
-            "
-            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
-          >
-            <KIconButton
-              icon="add"
-              :ariaLabel="enrollToClass$()"
-              :tooltip="enrollToClass$()"
-              :disabled="!canEnrollOrRemoveFromClass"
-            />
-          </router-link>
-          <router-link
-            :to="
-              overrideRoute($route, {
-                name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS,
-              })
-            "
-            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
-          >
-            <KIconButton
-              icon="remove"
-              :ariaLabel="removeFromClass$()"
-              :tooltip="removeFromClass$()"
-              :disabled="!canEnrollOrRemoveFromClass"
-            />
-          </router-link>
-          <KIconButton
-            icon="trash"
-            :ariaLabel="deleteSelection$()"
-            :tooltip="deleteSelection$()"
-            :disabled="!hasSelectedUsers || listContainsLoggedInUser"
-            @click="isMoveToTrashModalOpen = true"
-          />
-        </template>
-      </UsersTable>
-      <div
-        v-else
-        class="empty-new-users"
-      >
-        <div class="empty-new-users-content">
-          <KImg
-            isDecorative
-            :src="emptyPlusCloudSvg"
-            backgroundColor="transparent"
-          />
-          <strong> {{ noNewUsersLabel$() }}</strong>
-          <p
-            :style="{
-              color: $themePalette.grey.v_700,
-            }"
-          >
-            {{ noNewUsersDescription$() }}
-          </p>
-        </div>
-        <KRouterLink
-          primary
-          appearance="raised-button"
-          :text="addNewUserLabel$()"
-          :to="$store.getters.facilityPageLinks.UserCreatePage"
-        />
-      </div>
-    </KPageContainer>
-    <!-- For sidepanels -->
-    <router-view
-      :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
-      :classes="classes"
-      :selectedUsers="selectedUsers"
-      @change="onUsersChange"
-      @hook:beforeDestroy="selectedUsers = new Set()"
-    />
+        @hook:beforeDestroy="selectedUsers = new Set()"
+      />
 
-    <!-- Modals -->
-    <MoveToTrashModal
-      v-if="isMoveToTrashModalOpen"
-      :selectedUsers="selectedUsers"
-      @close="isMoveToTrashModalOpen = false"
-      @change="onUsersChange"
-    />
+      <!-- Modals -->
+      <MoveToTrashModal
+        v-if="isMoveToTrashModalOpen"
+        :selectedUsers="selectedUsers"
+        @close="isMoveToTrashModalOpen = false"
+        @change="onUsersChange"
+      />
+    </template>
   </ImmersivePage>
 
 </template>
@@ -292,6 +297,13 @@
 
 
 <style lang="scss" scoped>
+
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 24px auto;
+  }
 
   .new-users-page-header {
     display: flex;

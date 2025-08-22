@@ -4,87 +4,92 @@
     :appBarTitle="removedUsersTitle$()"
     :route="$store.getters.facilityPageLinks.UserPage"
   >
-    <KPageContainer style="max-width: 1000px; margin: 24px auto">
-      <p>
-        <KRouterLink
-          :to="$store.getters.facilityPageLinks.UserPage"
-          icon="back"
-          :text="backToUsers$()"
-        />
-      </p>
-      <div class="removed-users-page-header">
-        <h1>{{ removedUsersTitle$() }}</h1>
-        <p v-if="showUsersTable">
-          {{ removedUsersPageDescription$() }}
+    <template #default="{ pageContentHeight }">
+      <KPageContainer
+        class="page-container"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
+      >
+        <p>
+          <KRouterLink
+            :to="$store.getters.facilityPageLinks.UserPage"
+            icon="back"
+            :text="backToUsers$()"
+          />
         </p>
-      </div>
-      <UsersTable
-        v-if="showUsersTable"
-        :facilityUsers="facilityUsers"
-        :usersCount="usersCount"
-        :totalPages="totalPages"
-        :dataLoading="dataLoading"
-        :selectedUsers.sync="selectedUsers"
-        :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__TRASH"
-        :numAppliedFilters="numAppliedFilters"
-        @clearFilters="resetFilters"
-        @change="onUsersChange"
-      >
-        <template #userActions>
-          <KIconButton
-            icon="refresh"
-            :disabled="!selectedUsers.size || loading"
-            :tooltip="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
-            @click="recoverUsers(selectedUsers)"
-          />
-          <KIconButton
-            icon="trash"
-            :disabled="!selectedUsers.size || loading"
-            :ariaLabel="deletePermanentlyLabel$()"
-            :tooltip="deletePermanentlyLabel$()"
-            @click="usersToDelete = selectedUsers"
-          />
-        </template>
-        <template #userDropdownMenu="{ user }">
-          <KDropdownMenu
-            :options="userDropdownMenuOptions"
-            @select="handleDropdownSelect($event, user)"
-          />
-        </template>
-      </UsersTable>
-      <div
-        v-else
-        class="empty-removed-users"
-      >
-        <div class="empty-removed-users-content">
-          <KImg
-            isDecorative
-            :src="emptyTrashCloudSvg"
-            backgroundColor="transparent"
-          />
-          <strong> {{ noRemovedUsersLabel$() }}</strong>
-          <p
-            :style="{
-              color: $themePalette.grey.v_700,
-            }"
-          >
-            {{ removedUsersNotice$() }}
+        <div class="removed-users-page-header">
+          <h1>{{ removedUsersTitle$() }}</h1>
+          <p v-if="showUsersTable">
+            {{ removedUsersPageDescription$() }}
           </p>
         </div>
-      </div>
-    </KPageContainer>
-    <router-view
-      :backRoute="overrideRoute($route, { name: PageNames.USERS_TRASH_PAGE })"
-      :classes="classes"
-      :selectedUsers="selectedUsers"
-      @change="onUsersChange"
-    />
-    <PermanentDeleteModal
-      v-if="usersToDelete"
-      :selectedUsers="usersToDelete"
-      @close="usersToDelete = null"
-      @change="onUsersChange"
-    />
+        <UsersTable
+          v-if="showUsersTable"
+          :facilityUsers="facilityUsers"
+          :usersCount="usersCount"
+          :totalPages="totalPages"
+          :dataLoading="dataLoading"
+          :selectedUsers.sync="selectedUsers"
+          :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__TRASH"
+          :numAppliedFilters="numAppliedFilters"
+          @clearFilters="resetFilters"
+          @change="onUsersChange"
+        >
+          <template #userActions>
+            <KIconButton
+              icon="refresh"
+              :disabled="!selectedUsers.size || loading"
+              :tooltip="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+              @click="recoverUsers(selectedUsers)"
+            />
+            <KIconButton
+              icon="trash"
+              :disabled="!selectedUsers.size || loading"
+              :ariaLabel="deletePermanentlyLabel$()"
+              :tooltip="deletePermanentlyLabel$()"
+              @click="usersToDelete = selectedUsers"
+            />
+          </template>
+          <template #userDropdownMenu="{ user }">
+            <KDropdownMenu
+              :options="userDropdownMenuOptions"
+              @select="handleDropdownSelect($event, user)"
+            />
+          </template>
+        </UsersTable>
+        <div
+          v-else
+          class="empty-removed-users"
+        >
+          <div class="empty-removed-users-content">
+            <KImg
+              isDecorative
+              :src="emptyTrashCloudSvg"
+              backgroundColor="transparent"
+            />
+            <strong> {{ noRemovedUsersLabel$() }}</strong>
+            <p
+              :style="{
+                color: $themePalette.grey.v_700,
+              }"
+            >
+              {{ removedUsersNotice$() }}
+            </p>
+          </div>
+        </div>
+      </KPageContainer>
+      <router-view
+        :backRoute="overrideRoute($route, { name: PageNames.USERS_TRASH_PAGE })"
+        :classes="classes"
+        :selectedUsers="selectedUsers"
+        @change="onUsersChange"
+      />
+      <PermanentDeleteModal
+        v-if="usersToDelete"
+        :selectedUsers="usersToDelete"
+        @close="usersToDelete = null"
+        @change="onUsersChange"
+      />
+    </template>
   </ImmersivePage>
 
 </template>
@@ -253,6 +258,13 @@
 
 
 <style lang="scss" scoped>
+
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 24px auto;
+  }
 
   .removed-users-page-header {
     margin-bottom: 16px;
