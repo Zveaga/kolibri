@@ -35,12 +35,24 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import useUser from 'kolibri/composables/useUser';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+
   import ScrollingHeader from '../ScrollingHeader';
   import ImmersiveToolbar from './internal/ImmersiveToolbar';
 
   export default {
     name: 'ImmersivePage',
     components: { ImmersiveToolbar, ScrollingHeader },
+    setup() {
+      const { windowHeight, windowIsSmall } = useKResponsiveWindow();
+      const { isAppContext } = useUser();
+      return {
+        windowHeight,
+        windowIsSmall,
+        isAppContext,
+      };
+    },
     props: {
       appBarTitle: {
         type: String,
@@ -86,16 +98,19 @@
             width: '100%',
             display: 'inline-block',
             backgroundColor: this.$themePalette.grey.v_100,
-            paddingLeft: '32px',
-            paddingRight: '32px',
             paddingBottom: '72px',
+            paddingLeft: this.paddingLeftRight,
+            paddingRight: this.paddingLeftRight,
             paddingTop: this.appBarHeight + 16 + 'px',
           };
+      },
+      paddingLeftRight() {
+        return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
       },
       pageContentHeight() {
         const paddingTop = parseInt(this.wrapperStyles.paddingTop) || 0;
         const paddingBottom = parseInt(this.wrapperStyles.paddingBottom) || 0;
-        const height = window.innerHeight - paddingTop - paddingBottom - 1;
+        const height = this.windowHeight - paddingTop - paddingBottom - 1;
         return height;
       },
     },
