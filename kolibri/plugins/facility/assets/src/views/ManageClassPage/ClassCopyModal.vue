@@ -99,6 +99,16 @@
       });
 
       // methods
+      function closeWithSnackbar(message) {
+        context.emit('close');
+        createSnackbar(message);
+      }
+
+      function handleApiFailure(error) {
+        closeWithSnackbar(defaultErrorMessage$());
+        store.dispatch('handleApiError', { error }, { root: true });
+      }
+
       async function createClass() {
         const classroom = await ClassroomResource.saveModel({
           data: {
@@ -151,12 +161,9 @@
           }
 
           store.commit('classManagement/SET_STATE', { classes: [...classes, createdClass.value] });
-          context.emit('close');
-          createSnackbar(classCopiedSuccessfully$());
+          closeWithSnackbar(classCopiedSuccessfully$());
         } catch (error) {
-          context.emit('close');
-          createSnackbar(defaultErrorMessage$());
-          store.dispatch('handleApiError', { error }, { root: true });
+          handleApiFailure(error);
         } finally {
           loading.value = false;
         }
@@ -176,9 +183,7 @@
           });
           classLearnerIds.value = classLearners.map(learner => learner.id);
         } catch (error) {
-          context.emit('close');
-          createSnackbar(defaultErrorMessage$());
-          store.dispatch('handleApiError', { error }, { root: true });
+          handleApiFailure(error);
         } finally {
           loading.value = false;
         }
