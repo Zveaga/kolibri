@@ -171,12 +171,11 @@
       @close="closeModal"
     />
 
-    <DeleteUserModal
+    <MoveToTrashModal
       v-if="modalShown === Modals.DELETE_USER"
-      :id="userToChange.id"
-      :username="userToChange.username"
+      :selectedUsers="userToChangeSet"
       @close="closeModal"
-      @change="$emit('change')"
+      @change="$emit('change', { resetSelection: true })"
     />
   </div>
 
@@ -208,7 +207,7 @@
 
   import { Modals } from '../../../constants';
   import { overrideRoute } from '../../../utils';
-  import DeleteUserModal from './DeleteUserModal';
+  import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
 
   const ALL_FILTER = 'all';
@@ -225,7 +224,7 @@
       CoreInfoIcon,
       FilterTextbox,
       UserTypeDisplay,
-      DeleteUserModal,
+      MoveToTrashModal,
       GenderDisplayText,
       BirthYearDisplayText,
       ResetUserPasswordModal,
@@ -488,6 +487,12 @@
         },
       });
 
+      const userToChangeSet = computed(() => {
+        return userToChange.value && userToChange.value.id
+          ? new Set([userToChange.value.id])
+          : new Set();
+      });
+
       // --- Methods ---
       const handleSelectAllToggle = () => {
         const visibleUserIds = facilityUsers.value.map(user => user.id);
@@ -618,6 +623,7 @@
         Modals,
         modalShown,
         userToChange,
+        userToChangeSet,
 
         // Methods
         handleSelectAllToggle,
