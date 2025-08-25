@@ -189,16 +189,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Assign coaches to class
-  undoAssignCoachHeading: {
-    message:
-      'You have successfully assigned {numUsers, number} {numUsers, plural, one {user} other {users}} to {numClasses, number} {numClasses, plural, one {class} other {classes}}. If this was a mistake, you can undo it.',
-    context: 'Confirmation heading that allows user to undo their action of assigning coaches',
-  },
-  undoAssignCoachMessage: {
-    message:
-      "You've successfully assigned {numUsers, number} {numUsers, plural, one {user} other {users}} from {numClasses, number} {numClasses, plural, one {class} other {classes}}. If this was a mistake, you can undo it.",
-    context: 'Snackbar notification message indicating success',
-  },
   coachesAssignedNotice: {
     message: 'Selected coaches have been assigned',
     context:
@@ -270,16 +260,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Users already in selected classes will not be affected',
     context: 'Warning message about users already in selected classes',
   },
-  undoUsersEnrolledHeading: {
-    message:
-      '{num, number} {num, plural, one {user has} other {users have}} been enrolled. Undo this?',
-    context: 'Heading for undo confirmation after enrolling users',
-  },
-  undoUsersEnrolledMessage: {
-    message:
-      "You've successfully enrolled {numUsers, number} {numUsers, plural, one {user} other {users}} to {numClasses, number} {numClasses, plural, one {class} other {classes}}. If this was a mistake, you can undo it.",
-    context: 'Detailed message for undo confirmation after enrolling users',
-  },
   usersEnrolledNotice: {
     message: 'Selected users have been enrolled',
     context: 'Confirmation message when users are enrolled in classes',
@@ -335,20 +315,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message:
       'Users will be removed from all classes and immediately deactivated. Deactivated users will be deleted permanently after 30 days.',
     context: 'Warning message about trash deletion timeline',
-  },
-  undoTrashHeading: {
-    message:
-      '{num, number} {num, plural, one {user has} other {users have}} been removed. Undo this?',
-    context: 'Confirmation heading asking if user wants to undo removing multiple users',
-  },
-  undoTrashMessageA: {
-    message:
-      "You've successfully removed {numUsers, number} {numUsers, plural, one {user} other {users}}.",
-    context: 'Success notification after users have been removed',
-  },
-  undoTrashMessageB: {
-    message: 'These users will be deleted in 30 days. If this was a mistake, you can undo it.',
-    context: 'Informational message about trash deletion timeline and undo option',
   },
   usersTrashedNotice: {
     message: 'Selected users have been removed',

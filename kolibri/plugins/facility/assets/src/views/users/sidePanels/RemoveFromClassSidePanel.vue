@@ -109,12 +109,12 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import SelectableList from '../../common/SelectableList.vue';
   import { getRootRouteName, overrideRoute } from '../../../utils';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
 
   export default {
@@ -143,7 +143,6 @@
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
-        undoAction$,
         defaultErrorMessage$,
         removeUsersFromClassesHeading$,
         usersNotInClasses$,
@@ -153,7 +152,7 @@
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
       } = bulkUserManagementStrings;
-      const { createSnackbar, clearSnackbar } = useSnackbar();
+
       const goBack = useGoBack({
         getFallbackRoute: () => {
           return overrideRoute(route, {
@@ -228,34 +227,27 @@
       }
 
       async function undoUserRemoval() {
-        clearSnackbar();
-
-        try {
-          const enrollments = hasRemovedLearners.value
-            ? removedLearnerMemberships.value.map(({ collection, user }) => ({
-              collection,
-              user,
-            }))
-            : [];
-          const assignments = hasRemovedCoaches.value
-            ? removedCoachRoles.value.map(({ collection, user }) => ({
-              collection,
-              user,
-              kind: UserKinds.COACH,
-            }))
-            : [];
-          await Promise.all([
-            enrollments.length
-              ? MembershipResource.saveCollection({ data: enrollments })
-              : Promise.resolve(),
-            assignments.length
-              ? RoleResource.saveCollection({ data: assignments })
-              : Promise.resolve(),
-          ]);
-          createSnackbar(undoUsersRemovedMessage$());
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-        }
+        const enrollments = hasRemovedLearners.value
+          ? removedLearnerMemberships.value.map(({ collection, user }) => ({
+            collection,
+            user,
+          }))
+          : [];
+        const assignments = hasRemovedCoaches.value
+          ? removedCoachRoles.value.map(({ collection, user }) => ({
+            collection,
+            user,
+            kind: UserKinds.COACH,
+          }))
+          : [];
+        await Promise.all([
+          enrollments.length
+            ? MembershipResource.saveCollection({ data: enrollments })
+            : Promise.resolve(),
+          assignments.length
+            ? RoleResource.saveCollection({ data: assignments })
+            : Promise.resolve(),
+        ]);
       }
 
       function getItemsToRemove(byUser, selectedSet) {
@@ -264,7 +256,7 @@
           .filter(item => selectedSet.has(item.collection) && item.id);
       }
 
-      async function removeUsers() {
+      async function _removeUsers() {
         loading.value = true;
         // selected classes to remove users from
         const selectedSet = new Set(selectedOptions.value);
@@ -283,19 +275,19 @@
           removedLearnerMemberships.value = learnerMembershipsToRemove || [];
           removedCoachRoles.value = coachRolesToRemove || [];
           goBack();
-          createSnackbar({
-            text: usersRemovedNotice$(),
-            autoDismiss: true,
-            duration: 6000,
-            actionText: undoAction$(),
-            actionCallback: () => undoUserRemoval(),
-          });
         } catch (error) {
           showErrorWarning.value = true;
         } finally {
           loading.value = false;
         }
       }
+
+      const { performAction: removeUsers } = useActionWithUndo({
+        action: _removeUsers,
+        actionNotice$: usersRemovedNotice$,
+        undoAction: undoUserRemoval,
+        undoActionNotice$: undoUsersRemovedMessage$,
+      });
 
       onMounted(() => {
         setClassUsers();

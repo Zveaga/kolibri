@@ -1,31 +1,7 @@
 <template>
 
   <div>
-    <KModal
-      v-if="showUndoModal"
-      :title="undoUsersEnrolledHeading$({ num: selectedUsers.size })"
-      :submitText="undoAction$()"
-      :cancelText="coreString('dismissAction')"
-      :submitDisabled="loading"
-      :cancelDisabled="loading"
-      @cancel="handleDismissConfirmation"
-      @submit="handleUndoEnrollments"
-    >
-      <KCircularLoader v-if="loading" />
-      <span
-        v-else
-        class="adjust-line-height"
-      >
-        {{
-          undoUsersEnrolledMessage$({
-            numUsers: selectedUsers.size,
-            numClasses: selectedOptions.length,
-          })
-        }}
-      </span>
-    </KModal>
     <SidePanelModal
-      v-else
       alignment="right"
       sidePanelWidth="700px"
       @closePanel="closeSidePanel(false)"
@@ -126,10 +102,10 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
 
   export default {
     name: 'EnrollLearnersSidePanel',
@@ -139,7 +115,6 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const showUndoModal = ref(false);
       const showCloseConfirmationModal = ref(false);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
@@ -157,20 +132,16 @@
         searchForAClass$,
         enrollInAllClasses$,
         enrollInSelectedClasses$,
-        enrollUndoneNotice$,
         numUsersYouHaveSelected$,
-        undoUsersEnrolledHeading$,
-        undoUsersEnrolledMessage$,
+        enrollUndoneNotice$,
         enrollAction$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
-        undoAction$,
         defaultErrorMessage$,
         usersEnrolledNotice$,
       } = bulkUserManagementStrings;
-      const { createSnackbar } = useSnackbar();
 
       // Computed properties
       const classList = computed(() =>
@@ -215,7 +186,7 @@
         }
       }
 
-      async function enrollLearners() {
+      async function _enrollLearners() {
         loading.value = true;
         createdMemberships.value = [];
         const enrollments = selectedOptions.value.flatMap(collection_id => {
@@ -227,23 +198,25 @@
             .map(user => ({ collection: collection_id, user }));
         });
         if (enrollments.length === 0) {
-          createSnackbar(usersEnrolledNotice$());
-          showUndoModal.value = true;
           loading.value = false;
           return;
         }
         try {
           const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
           createdMemberships.value = newMemberships;
-          createSnackbar(usersEnrolledNotice$());
-          showUndoModal.value = true;
         } catch (error) {
-          showUndoModal.value = false;
           showErrorWarning.value = true;
         } finally {
           loading.value = false;
         }
       }
+
+      const { performAction: enrollLearners } = useActionWithUndo({
+        action: _enrollLearners,
+        actionNotice$: usersEnrolledNotice$,
+        undoAction: handleUndoEnrollments,
+        undoActionNotice$: enrollUndoneNotice$,
+      });
 
       function closeSidePanel(close = true) {
         if (close) {
@@ -253,27 +226,10 @@
         }
       }
 
-      function handleDismissConfirmation() {
-        showUndoModal.value = false;
-        instance.proxy.$emit('clearSelection');
-        instance.proxy.$router.back();
-      }
-
       async function handleUndoEnrollments() {
-        loading.value = true;
-        try {
-          if (createdMemberships.value.length > 0) {
-            const ids = createdMemberships.value.map(m => m.id).join(',');
-            await MembershipResource.deleteCollection({ by_ids: ids });
-          }
-          createSnackbar(enrollUndoneNotice$());
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-        } finally {
-          showUndoModal.value = false;
-          loading.value = false;
-          instance.proxy.$emit('clearSelection');
-          instance.proxy.$router.back();
+        if (createdMemberships.value.length > 0) {
+          const ids = createdMemberships.value.map(m => m.id).join(',');
+          await MembershipResource.deleteCollection({ by_ids: ids });
         }
       }
 
@@ -286,16 +242,12 @@
         enrollInAllClasses$,
         enrollInSelectedClasses$,
         numUsersYouHaveSelected$,
-        undoUsersEnrolledHeading$,
-        undoUsersEnrolledMessage$,
         defaultErrorMessage$,
         enrollAction$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
         disgardChanges$,
-        undoAction$,
-        showUndoModal,
         showCloseConfirmationModal,
         showErrorWarning,
         selectedOptions,
@@ -306,8 +258,6 @@
         setClassUsers,
         enrollLearners,
         closeSidePanel,
-        handleDismissConfirmation,
-        handleUndoEnrollments,
       };
     },
     props: {

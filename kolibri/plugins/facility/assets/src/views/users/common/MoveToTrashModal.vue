@@ -1,28 +1,7 @@
 <template>
 
   <div>
-    <KModal
-      v-if="usersRemoved"
-      :title="undoTrashHeading$({ num: usersRemoved.length })"
-      :submitText="undoAction$()"
-      :cancelText="coreStrings.dismissAction$()"
-      :submitDisabled="loading"
-      :cancelDisabled="loading"
-      @cancel="close"
-      @submit="undoMoveToTrash"
-    >
-      <KCircularLoader v-if="loading" />
-      <p>
-        {{ undoTrashMessageA$({ numUsers: usersRemoved.length }) }}
-      </p>
-      <p>
-        {{ undoTrashMessageB$() }}
-      </p>
-    </KModal>
-    <KModal
-      v-else
-      :title="moveToTrashLabel$({ num: selectedUsers.size })"
-    >
+    <KModal :title="moveToTrashLabel$({ num: selectedUsers.size })">
       <KCircularLoader v-if="loading" />
       <div
         v-else
@@ -82,6 +61,7 @@
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
   import { _userState } from '../../../modules/mappers';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
 
   export default {
     name: 'MoveToTrashModal',
@@ -94,13 +74,9 @@
       const usersRemoved = ref(null);
 
       const {
-        undoAction$,
-        undoTrashMessageA$,
-        undoTrashMessageB$,
         trashUndoneNotice$,
         movingToTrash$,
         moveToTrashAction$,
-        undoTrashHeading$,
         moveToTrashLabel$,
         numAdminsSelected$,
         usersTrashedNotice$,
@@ -132,7 +108,7 @@
         emit('close');
       };
 
-      const moveToTrash = async () => {
+      const _moveToTrash = async () => {
         loading.value = true;
         sendPoliteMessage(movingToTrash$());
         try {
@@ -164,6 +140,13 @@
         }
       };
 
+      const { performAction: moveToTrash } = useActionWithUndo({
+        action: _moveToTrash,
+        actionNotice$: usersTrashedNotice$,
+        undoAction: undoMoveToTrash,
+        undoActionNotice$: trashUndoneNotice$,
+      });
+
       const removeButtonStyles = {
         color: themeTokens().textInverted,
         backgroundColor: themePalette().red.v_600,
@@ -180,21 +163,15 @@
         // ref and computed properties
         loading,
         coreStrings,
-        usersRemoved,
         adminUsers,
         removeButtonStyles,
 
         // methods
         close,
         moveToTrash,
-        undoMoveToTrash,
 
         // translation functions
-        undoAction$,
-        undoTrashMessageA$,
-        undoTrashMessageB$,
         moveToTrashAction$,
-        undoTrashHeading$,
         moveToTrashLabel$,
         numAdminsSelected$,
         moveToTrashWarning$,
