@@ -78,7 +78,6 @@
         copyOfClass$,
         copyAllCoaches$,
         copyAllLearners$,
-        defaultErrorMessage$,
         classNameAlreadyExists$,
         classCopiedSuccessfully$,
       } = bulkUserManagementStrings;
@@ -105,7 +104,7 @@
       }
 
       function handleApiFailure(error) {
-        closeWithSnackbar(defaultErrorMessage$());
+        context.emit('close');
         store.dispatch('handleApiError', { error }, { root: true });
       }
 
