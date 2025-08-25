@@ -191,8 +191,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   // Assign coaches to class
   undoAssignCoachHeading: {
     message:
-      '{num, number} {num, plural, one {coach has} other {coaches have}} been removed. Undo this?',
-    context: 'Confirmation heading that allows user to undo their action of removing users',
+      'You have successfully assigned {numUsers, number} {numUsers, plural, one {user} other {users}} to {numClasses, number} {numClasses, plural, one {class} other {classes}}. If this was a mistake, you can undo it.',
+    context: 'Confirmation heading that allows user to undo their action of assigning coaches',
   },
   undoAssignCoachMessage: {
     message:
@@ -212,6 +212,22 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   coachesAssignedToClassLabel: {
     message: 'Coaches assigned to this class',
     context: 'label to indicate coaches assigned to a class in sidepanel',
+  },
+  assignAction: {
+    message: 'Assign',
+    context: 'Label for the button that will assign coaches to classes',
+  },
+  numUsersNotAssigned: {
+    message:
+      '{num, number} {num, plural, one {user is} other {users are}} not assigned to any class',
+    context:
+      'A notice indicating the number of users that are selected which are not assigned to a class as coaches',
+  },
+  numUsersNotEligible: {
+    message:
+      "{num, number} {num, plural, one {learner} other {learners}} can't be assigned as coaches. They won't be added.",
+    context:
+      'A notice indicating the number of learners that are selected which cannot be assigned as coaches and will be skipped',
   },
 
   // Remove from class
@@ -466,7 +482,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Add new user',
     context: 'Label for button that opens the user creation modal',
   },
-
+  assignUsersHeading: {
+    message: 'Assign {num, number} {num, plural, one {user} other {users}}',
+    context: 'Side panel H1 heading showing the number of selected users to assign as coaches',
+  },
   // Trash page
   removedUsersTitle: {
     message: 'Removed users',

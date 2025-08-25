@@ -27,10 +27,27 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 logger = logging.getLogger(__name__)
 
 
+class RoleListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        created_objects = []
+
+        for model_data in validated_data:
+            obj, created = Role.objects.get_or_create(**model_data)
+            if created:
+                created_objects.append(obj)
+
+        return created_objects
+
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = ("id", "kind", "collection", "user")
+        list_serializer_class = RoleListSerializer
+        validators = []
+
+    def validate(self, attrs):
+        return attrs
 
 
 class FacilityUserSerializer(serializers.ModelSerializer):

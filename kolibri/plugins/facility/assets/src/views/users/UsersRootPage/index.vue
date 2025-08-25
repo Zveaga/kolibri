@@ -96,6 +96,7 @@
         :selectedUsers="selectedUsers"
         :classes="classes"
         @change="onUsersChange"
+        @clearSelection="clearSelectedUsers"
         @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
@@ -184,6 +185,10 @@
         fetchClasses();
       });
 
+      function clearSelectedUsers() {
+        selectedUsers.value = new Set();
+      }
+
       return {
         PageNames,
         userIsMultiFacilityAdmin,
@@ -205,6 +210,7 @@
         deleteSelection$,
         selectedUsers,
         currentUserId,
+        clearSelectedUsers,
       };
     },
     computed: {
@@ -232,7 +238,7 @@
         if (!this.hasSelectedUsers) return false;
         return this.facilityUsers
           .filter(user => this.selectedUsers.has(user.id))
-          .every(
+          .some(
             user =>
               user.kind.includes(UserKinds.COACH) ||
               user.kind === UserKinds.ADMIN ||
