@@ -47,6 +47,7 @@
           if (!binding.value) {
             return;
           }
+          // Save blur methods on element, so we can remove them later
           el._onBlurHandler = binding.value;
           el._onKeydownHandler = event => {
             if (event.key === 'Tab') {
