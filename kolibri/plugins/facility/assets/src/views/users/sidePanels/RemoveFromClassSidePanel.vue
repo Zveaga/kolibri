@@ -77,22 +77,19 @@
       </template>
       <CloseConfirmationGuard
         ref="closeConfirmationGuardRef"
-        :hasUnsavedChanges="selectedOptions.length > 0 ? true : false"
-        :title="disgardChanges$()"
+        reverseActionsOrder
+        :hasUnsavedChanges="hasUnsavedChanges"
+        :title="discardChanges$()"
         :submitText="discardAction$()"
-        :submitTextStyle="{ primary: true }"
         :cancelText="keepEditingAction$()"
-        :cancelTextStyle="{ primary: false }"
       >
-        <template #content>
-          <KIcon
-            icon="infoOutline"
-            :color="$themePalette.red.v_600"
-          />
-          <span :style="{ color: $themePalette.red.v_600 }">
-            {{ discardWarning$() }}
-          </span>
-        </template>
+        <KIcon
+          icon="infoOutline"
+          :color="$themePalette.red.v_600"
+        />
+        <span :style="{ color: $themePalette.red.v_600 }">
+          {{ discardWarning$() }}
+        </span>
       </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
@@ -142,7 +139,7 @@
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         defaultErrorMessage$,
         removeUsersFromClassesHeading$,
         usersNotInClasses$,
@@ -193,6 +190,13 @@
 
       const hasRemovedCoaches = computed(() => {
         return removedCoachRoles.value.length > 0;
+      });
+
+      const hasUnsavedChanges = computed(() => {
+        if (hasRemovedLearners.value || hasRemovedCoaches.value) {
+          return false;
+        }
+        return selectedOptions.value.length > 0;
       });
 
       // methods
@@ -296,8 +300,7 @@
       return {
         // ref and computed properties
         closeConfirmationGuardRef,
-        hasRemovedLearners,
-        hasRemovedCoaches,
+        hasUnsavedChanges,
         showErrorWarning,
         selectedOptions,
         classCoaches,
@@ -312,7 +315,7 @@
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         usersNotInClasses$,
         removeFromAllClassesLabel$,
         SelectClassesLabel$,
@@ -334,11 +337,7 @@
       },
     },
     beforeRouteLeave(to, from, next) {
-      if (this.hasRemovedLearners || this.hasRemovedCoaches) {
-        next();
-      } else {
-        this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
-      }
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
   };
 

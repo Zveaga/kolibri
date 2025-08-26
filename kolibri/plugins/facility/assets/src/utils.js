@@ -49,6 +49,9 @@ export function getRootRouteName(route) {
   if (route.name?.endsWith('__NEW_USERS')) {
     return PageNames.NEW_USERS_PAGE;
   }
+  if (route.name?.endsWith('__TRASH')) {
+    return PageNames.USERS_TRASH_PAGE;
+  }
   return PageNames.USER_MGMT_PAGE;
 }
 

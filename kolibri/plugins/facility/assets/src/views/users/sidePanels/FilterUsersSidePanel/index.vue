@@ -80,6 +80,22 @@
           :style="separatorStyles"
         ></div>
       </template>
+      <CloseConfirmationGuard
+        ref="closeConfirmationGuardRef"
+        reverseActionsOrder
+        :hasUnsavedChanges="hasUnsavedChanges"
+        :title="discardChanges$()"
+        :submitText="discardAction$()"
+        :cancelText="keepEditingAction$()"
+      >
+        <KIcon
+          icon="infoOutline"
+          :color="$themePalette.red.v_600"
+        />
+        <span :style="{ color: $themePalette.red.v_600 }">
+          {{ discardWarning$() }}
+        </span>
+      </CloseConfirmationGuard>
     </template>
     <template #bottomNavigation>
       <div class="bottom-nav-container">
@@ -101,7 +117,7 @@
 
 <script>
 
-  import { computed, toRefs } from 'vue';
+  import { computed, nextTick, ref, toRefs } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -114,6 +130,7 @@
   import useUsersFilters from '../../../../composables/useUsersFilters';
   import { PageNames } from '../../../../constants';
   import { getRootRouteName, overrideRoute } from '../../../../utils';
+  import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
   import BirthYearRangeSelect from './BirthYearRangeSelect.vue';
 
   export default {
@@ -122,12 +139,14 @@
       SidePanelModal,
       SelectableList,
       BirthYearRangeSelect,
+      CloseConfirmationGuard,
     },
     setup(props) {
-      const { filterUsersLabel$, allUsersLabel$, applyFiltersLabel$ } = bulkUserManagementStrings;
       const { classes } = toRefs(props);
       const route = useRoute();
       const prevRoute = injectPreviousRoute();
+      const initialFilters = ref(null);
+      const filtersApplied = ref(false);
       const goBack = useGoBack({
         getFallbackRoute: () => {
           return overrideRoute(route, {
@@ -147,6 +166,16 @@
         classes,
       });
 
+      // Stringify so we get rid of the reactive references
+      initialFilters.value = JSON.stringify(workingFilters);
+
+      const hasUnsavedChanges = computed(() => {
+        if (filtersApplied.value) {
+          return false;
+        }
+        return initialFilters.value !== JSON.stringify(workingFilters);
+      });
+
       const hideDateCreatedFilter = computed(() => {
         return route.name === PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS;
       });
@@ -157,10 +186,22 @@
         marginBottom: '24px',
       };
 
-      const applyFilters = () => {
+      const applyFilters = async () => {
+        filtersApplied.value = true;
+        await nextTick();
         const nextRouteName = prevRoute.value?.name || getRootRouteName(route);
         _applyFilters({ nextRouteName });
       };
+
+      const {
+        filterUsersLabel$,
+        allUsersLabel$,
+        applyFiltersLabel$,
+        discardChanges$,
+        keepEditingAction$,
+        discardAction$,
+        discardWarning$,
+      } = bulkUserManagementStrings;
 
       return {
         // ref and computed properties
@@ -169,6 +210,7 @@
         classesOptions,
         separatorStyles,
         userFilterOptions,
+        hasUnsavedChanges,
         creationDateOptions,
         hideDateCreatedFilter,
 
@@ -178,9 +220,13 @@
         applyFilters,
 
         // translation functions
+        discardAction$,
         allUsersLabel$,
+        discardWarning$,
+        discardChanges$,
         filterUsersLabel$,
         applyFiltersLabel$,
+        keepEditingAction$,
       };
     },
     props: {
@@ -188,6 +234,9 @@
         type: Array,
         default: () => [],
       },
+    },
+    beforeRouteLeave(to, from, next) {
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
   };
 

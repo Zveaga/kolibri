@@ -139,7 +139,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Undo',
     context: 'Label for the button that will undo the last action taken on the users',
   },
-  disgardChanges: {
+  discardChanges: {
     message: 'Discard changes?',
     context: 'Heading for the confirmation modal that asks user if they want to discard changes',
   },

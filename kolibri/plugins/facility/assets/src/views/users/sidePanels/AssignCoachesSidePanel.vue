@@ -77,14 +77,19 @@
 
       <CloseConfirmationGuard
         ref="closeConfirmationGuardRef"
+        reverseActionsOrder
         :hasUnsavedChanges="hasUnsavedChanges"
-        :title="disgardChanges$()"
+        :title="discardChanges$()"
         :submitText="discardAction$()"
         :cancelText="keepEditingAction$()"
       >
-        <template #content>
-          <span class="adjust-line-height">{{ discardWarning$() }}</span>
-        </template>
+        <KIcon
+          icon="infoOutline"
+          :color="$themePalette.red.v_600"
+        />
+        <span :style="{ color: $themePalette.red.v_600 }">
+          {{ discardWarning$() }}
+        </span>
       </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
@@ -123,7 +128,7 @@
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
-      const createdRoles = ref([]);
+      const createdRoles = ref(null);
       const facilityUsers = ref([]);
       const route = useRoute();
       const closeConfirmationGuardRef = ref(null);
@@ -146,7 +151,7 @@
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         numUsersNotEligible$,
         SelectClassesLabel$,
         assignUsersHeading$,
@@ -176,7 +181,12 @@
 
       const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
 
-      const hasUnsavedChanges = computed(() => selectedClasses.value.length > 0);
+      const hasUnsavedChanges = computed(() => {
+        if (createdRoles.value) {
+          return false;
+        }
+        return selectedClasses.value.length > 0;
+      });
 
       // Filter eligible users (coaches, admins, superusers)
       const eligibleUsers = computed(() => {
@@ -202,6 +212,7 @@
 
         try {
           await assignCoachesToClasses();
+          closeSidePanel();
         } catch (error) {
           showErrorWarning.value = true;
         } finally {
@@ -277,7 +288,7 @@
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         numUsersNotEligible$,
         assignUsersHeading$,
         assignToAllClasses$,

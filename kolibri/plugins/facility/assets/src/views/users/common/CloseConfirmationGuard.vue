@@ -4,41 +4,31 @@
     <KModal
       v-if="isConfirmationModalOpen"
       appendToOverlay
-      :submitText="submitText"
-      :cancelText="cancelText"
-      :title="title"
+      :submitText="submitText || coreStrings.continueAction$()"
+      :cancelText="cancelText || coreStrings.cancelAction$()"
+      :title="title || coreStrings.closeConfirmationTitle$()"
       @cancel="onCancel"
       @submit="onClose"
     >
       <div class="fix-line-height">
-        <slot
-          v-if="$slots.content"
-          name="content"
-        >
+        <slot>
+          <span>
+            {{ closeConfirmationMessage$() }}
+          </span>
         </slot>
-        <span v-else>
-          {{ closeConfirmationMessage$() }}
-        </span>
       </div>
       <template
-        v-if="cancelTextStyle || submitTextStyle"
+        v-if="reverseActionsOrder"
         #actions
       >
         <KButtonGroup>
           <KButton
-            v-if="submitTextStyle"
+            primary
             :text="submitText"
-            :style="submitTextStyle"
-            :appearance="submitTextStyle.appearance || 'raised-button'"
-            :primary="submitTextStyle.primary || false"
             @click="onClose"
           />
           <KButton
-            v-if="cancelTextStyle"
-            :style="cancelTextStyle"
-            :appearance="cancelTextStyle.appearance || 'raised-button'"
             :text="cancelText"
-            :primary="cancelTextStyle.primary || false"
             @click="onCancel"
           />
         </KButtonGroup>
@@ -107,6 +97,7 @@
       };
 
       return {
+        coreStrings,
         isConfirmationModalOpen,
         onClose,
         onCancel,
@@ -128,23 +119,19 @@
       },
       title: {
         type: String,
-        default: coreStrings.closeConfirmationTitle$(),
+        default: null,
       },
       cancelText: {
         type: String,
-        default: coreStrings.cancelAction$(),
-      },
-      cancelTextStyle: {
-        type: Object,
         default: null,
       },
       submitText: {
         type: String,
-        default: coreStrings.continueAction$(),
-      },
-      submitTextStyle: {
-        type: Object,
         default: null,
+      },
+      reverseActionsOrder: {
+        type: Boolean,
+        default: false,
       },
     },
   };
