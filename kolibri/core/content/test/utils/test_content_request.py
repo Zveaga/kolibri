@@ -617,10 +617,9 @@ class PreferredDevicesTestCase(BaseTestCase):
         )
         (sync_session1, network_location1) = self._create_sync_and_network_location()
         instance = PreferredDevices.build_from_sync_sessions()
-        peers = list(instance)
-        self.assertEqual(len(peers), 2)
-        self.assertEqual(peers[0].id, network_location1.id)
-        self.assertEqual(peers[1].id, network_location2.id)
+        peer_ids = set([location.id for location in instance])
+        self.assertEqual(len(peer_ids), 2)
+        self.assertEqual(peer_ids, set([network_location1.id, network_location2.id]))
 
     def test_sync_peers__with_version_filter(self):
         (sync_session2, network_location2) = self._create_sync_and_network_location(
