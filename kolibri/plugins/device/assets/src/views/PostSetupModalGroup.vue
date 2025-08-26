@@ -2,7 +2,7 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME && isUserLoggedIn && showWelcomeModal"
+      v-if="step === Steps.WELCOME && isUserLoggedIn && (showWelcomeModal || classesLoaded)"
       :importedFacility="importedFacility"
       :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
@@ -134,9 +134,6 @@
           return true;
         }
         if (this.isLearner && !this.classesLoaded) {
-          return true;
-        }
-        if (this.isLearner && this.classesLoaded) {
           return true;
         }
         return false;
