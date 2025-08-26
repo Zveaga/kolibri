@@ -2,7 +2,7 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME && isUserLoggedIn && classesLoaded"
+      v-if="step === Steps.WELCOME && isUserLoggedIn && showWelcomeModal"
       :importedFacility="importedFacility"
       :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
@@ -69,7 +69,16 @@
     },
     mixins: [commonSyncElements],
     setup() {
-      const { isUserLoggedIn } = useUser();
+      const {
+        isUserLoggedIn,
+        isLearner,
+        isCoach,
+        isAdmin,
+        isSuperuser,
+        isClassCoach,
+        isFacilityCoach,
+        isFacilityAdmin,
+      } = useUser();
       const { createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
       const { classes } = useLearnerResources();
@@ -79,6 +88,13 @@
         createSnackbar,
         facilities,
         classes,
+        isLearner,
+        isCoach,
+        isAdmin,
+        isSuperuser,
+        isFacilityAdmin,
+        isClassCoach,
+        isFacilityCoach,
       };
     },
     props: {
@@ -104,7 +120,26 @@
         return null;
       },
       classesLoaded() {
-        return this.classes.length > 0;
+        return Array.isArray(this.classes) && this.classes.length > 0;
+      },
+      showWelcomeModal() {
+        if (
+          this.isSuperuser ||
+          this.isAdmin ||
+          this.isFacilityAdmin ||
+          this.isClassCoach ||
+          this.isFacilityCoach ||
+          this.isCoach
+        ) {
+          return true;
+        }
+        if (this.isLearner && !this.classesLoaded) {
+          return true;
+        }
+        if (this.isLearner && this.classesLoaded) {
+          return true;
+        }
+        return false;
       },
     },
     methods: {

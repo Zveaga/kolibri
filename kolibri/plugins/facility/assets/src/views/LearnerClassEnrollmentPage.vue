@@ -69,7 +69,7 @@
         this.formIsDisabled = true;
         const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
         selectedUsers.forEach(id => {
-          localStorage.setItem(`${welcomeDismissalKey}-${id}`, false);
+          window.localStorage.setItem(`${welcomeDismissalKey}-${id}`, false);
         });
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
           .then(() => {

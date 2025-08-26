@@ -187,7 +187,7 @@
       removeClassLearner(args) {
         const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
         this.$store.dispatch('classEditManagement/removeClassLearner', args).then(() => {
-          localStorage.setItem(`${welcomeDismissalKey}-${args.userId}`, true);
+          window.localStorage.setItem(`${welcomeDismissalKey}-${args.userId}`, true);
           this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
         });
       },
