@@ -6,6 +6,7 @@ export default function useActionWithUndo({
   actionNotice$,
   undoAction,
   undoActionNotice$,
+  onBlur,
 }) {
   const { undoAction$, defaultErrorMessage$ } = bulkUserManagementStrings;
   const { createSnackbar, clearSnackbar } = useSnackbar();
@@ -21,12 +22,18 @@ export default function useActionWithUndo({
   };
 
   const performAction = async () => {
-    await action();
+    const success = await action();
+    if (!success) {
+      return;
+    }
+
     createSnackbar({
       text: actionNotice$(),
+      autofocus: true,
       autoDismiss: true,
       duration: 6000,
       actionText: undoAction$(),
+      onBlur,
       actionCallback: performUndoAction,
     });
   };

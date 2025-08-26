@@ -135,6 +135,12 @@
         this.model = '';
         this.$refs.searchinput.focus();
       },
+      /**
+       * @public
+       */
+      focus() {
+        this.$refs.searchinput.focus();
+      },
     },
   };
 

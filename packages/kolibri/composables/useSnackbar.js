@@ -5,6 +5,8 @@ const snackbarIsVisible = ref(false);
 const snackbarOptions = ref({
   text: '',
   autoDismiss: true,
+  autofocus: false,
+  onBlur: null,
 });
 
 export default function useSnackbar() {

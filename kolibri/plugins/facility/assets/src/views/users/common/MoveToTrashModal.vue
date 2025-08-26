@@ -118,26 +118,22 @@
           createSnackbar(usersTrashedNotice$());
           loading.value = false;
           usersRemoved.value = Array.from(props.selectedUsers);
-          emit('change', { resetSelection: true });
+          props.onUsersChange({ resetSelection: true });
+          close();
+          return true;
         } catch (error) {
           createSnackbar(defaultErrorMessage$());
           loading.value = false;
+          return false;
         }
       };
 
       const undoMoveToTrash = async () => {
-        loading.value = true;
-        try {
-          await DeletedFacilityUserResource.restoreCollection({
-            by_ids: usersRemoved.value.join(','),
-          });
-          createSnackbar(trashUndoneNotice$());
-          emit('change');
-          close();
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-          loading.value = false;
-        }
+        await DeletedFacilityUserResource.restoreCollection({
+          by_ids: usersRemoved.value.join(','),
+        });
+        createSnackbar(trashUndoneNotice$());
+        props.onUsersChange();
       };
 
       const { performAction: moveToTrash } = useActionWithUndo({
@@ -145,6 +141,7 @@
         actionNotice$: usersTrashedNotice$,
         undoAction: undoMoveToTrash,
         undoActionNotice$: trashUndoneNotice$,
+        onBlur: props.onBlur,
       });
 
       const removeButtonStyles = {
@@ -181,6 +178,14 @@
       selectedUsers: {
         type: Set,
         default: () => new Set(),
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
+      },
+      onUsersChange: {
+        type: Function,
+        default: () => {},
       },
     },
   };

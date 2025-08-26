@@ -279,10 +279,11 @@
           removedLearnerMemberships.value = learnerMembershipsToRemove || [];
           removedCoachRoles.value = coachRolesToRemove || [];
           goBack();
+          return true;
         } catch (error) {
           showErrorWarning.value = true;
-        } finally {
           loading.value = false;
+          return false;
         }
       }
 
@@ -291,6 +292,7 @@
         actionNotice$: usersRemovedNotice$,
         undoAction: undoUserRemoval,
         undoActionNotice$: undoUsersRemovedMessage$,
+        onBlur: props.onBlur,
       });
 
       onMounted(() => {
@@ -334,6 +336,10 @@
       classes: {
         type: Array,
         default: () => [],
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
       },
     },
     beforeRouteLeave(to, from, next) {

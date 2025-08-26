@@ -15,6 +15,7 @@
         >
           <div class="search-filter-section">
             <FilterTextbox
+              ref="filterTextboxRef"
               v-model="searchTerm"
               :placeholder="coreStrings.searchForUser$()"
               :aria-label="coreStrings.searchForUser$()"
@@ -230,7 +231,7 @@
       ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
     },
-    setup(props, { emit }) {
+    setup(props, { emit, expose }) {
       const route = useRoute();
       const router = useRouter();
       const { isSuperuser, currentUserId } = useUser();
@@ -241,6 +242,7 @@
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
       const userToChange = ref(null);
+      const filterTextboxRef = ref(null);
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -611,6 +613,14 @@
         }
       });
 
+      const focus = () => {
+        filterTextboxRef.value?.focus();
+      };
+
+      expose({
+        focus,
+      });
+
       return {
         // Computed Properties
         tableHeaders,
@@ -624,6 +634,7 @@
         modalShown,
         userToChange,
         userToChangeSet,
+        filterTextboxRef,
 
         // Methods
         handleSelectAllToggle,

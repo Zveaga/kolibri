@@ -42,6 +42,7 @@
           </div>
         </div>
         <UsersTable
+          ref="usersTableRef"
           :facilityUsers="facilityUsers"
           :usersCount="usersCount"
           :totalPages="totalPages"
@@ -99,7 +100,8 @@
         <router-view
           :selectedUsers="selectedUsers"
           :classes="classes"
-          @change="onUsersChange"
+          :onBlur="onModalBlur"
+          :onUsersChange="onUsersChange"
           @clearSelection="clearSelectedUsers"
           @hook:beforeDestroy="selectedUsers = new Set()"
         />
@@ -108,8 +110,9 @@
         <MoveToTrashModal
           v-if="isMoveToTrashModalOpen"
           :selectedUsers="selectedUsers"
+          :onBlur="onModalBlur"
+          :onUsersChange="onUsersChange"
           @close="isMoveToTrashModalOpen = false"
-          @change="onUsersChange"
         />
       </KPageContainer>
     </template>
@@ -153,6 +156,7 @@
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
       const isMoveToTrashModalOpen = ref(false);
+      const usersTableRef = ref(null);
 
       const {
         newUser$,
@@ -194,6 +198,10 @@
         selectedUsers.value = new Set();
       }
 
+      function onModalBlur() {
+        usersTableRef.value?.focus();
+      }
+
       return {
         PageNames,
         userIsMultiFacilityAdmin,
@@ -202,10 +210,13 @@
         usersCount,
         dataLoading,
         classes,
+        usersTableRef,
         numAppliedFilters,
         isMoveToTrashModalOpen,
+        onModalBlur,
         resetFilters,
         onUsersChange,
+        clearSelectedUsers,
         newUser$,
         viewTrash$,
         assignCoach$,
@@ -215,7 +226,6 @@
         deleteSelection$,
         selectedUsers,
         currentUserId,
-        clearSelectedUsers,
       };
     },
     computed: {

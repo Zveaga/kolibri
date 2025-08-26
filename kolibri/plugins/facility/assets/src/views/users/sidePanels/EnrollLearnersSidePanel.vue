@@ -224,19 +224,22 @@
             )
             .map(user => ({ collection: collection_id, user }));
         });
-        if (enrollments.length === 0) {
-          loading.value = false;
-          return;
+        if (enrollments.length > 0) {
+          try {
+            const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
+            createdMemberships.value = newMemberships;
+          } catch (error) {
+            showErrorWarning.value = true;
+            loading.value = false;
+            return false;
+          }
+        } else {
+          // Setting an empty array to flag that the operation was successful and no users
+          // were enrolled
+          createdMemberships.value = [];
         }
-        try {
-          const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
-          createdMemberships.value = newMemberships;
-          goBack();
-        } catch (error) {
-          showErrorWarning.value = true;
-        } finally {
-          loading.value = false;
-        }
+        goBack();
+        return true;
       }
 
       const { performAction: enrollLearners } = useActionWithUndo({
@@ -244,6 +247,7 @@
         actionNotice$: usersEnrolledNotice$,
         undoAction: handleUndoEnrollments,
         undoActionNotice$: enrollUndoneNotice$,
+        onBlur: props.onBlur,
       });
 
       function closeSidePanel() {
@@ -292,6 +296,10 @@
       classes: {
         type: Array,
         required: true,
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
       },
     },
     beforeRouteLeave(to, from, next) {

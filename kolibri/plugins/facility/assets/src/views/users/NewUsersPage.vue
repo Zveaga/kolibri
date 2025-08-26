@@ -29,6 +29,7 @@
         </div>
         <UsersTable
           v-if="showUsersTable"
+          ref="usersTableRef"
           :facilityUsers="facilityUsers"
           :usersCount="usersCount"
           :totalPages="totalPages"
@@ -126,7 +127,8 @@
         :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
         :classes="classes"
         :selectedUsers="selectedUsers"
-        @change="onUsersChange"
+        :onBlur="onModalBlur"
+        :onUsersChange="onUsersChange"
         @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
@@ -134,8 +136,9 @@
       <MoveToTrashModal
         v-if="isMoveToTrashModalOpen"
         :selectedUsers="selectedUsers"
+        :onBlur="onModalBlur"
+        :onUsersChange="onUsersChange"
         @close="isMoveToTrashModalOpen = false"
-        @change="onUsersChange"
       />
     </template>
   </ImmersivePage>
@@ -174,6 +177,7 @@
     setup() {
       usePreviousRoute();
       const route = useRoute();
+      const usersTableRef = ref(null);
       const isMoveToTrashModalOpen = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
@@ -227,6 +231,10 @@
         noNewUsersDescription$,
       } = bulkUserManagementStrings;
 
+      function onModalBlur() {
+        usersTableRef.value?.focus();
+      }
+
       onMounted(() => {
         fetchClasses();
       });
@@ -238,11 +246,13 @@
         totalPages,
         usersCount,
         dataLoading,
+        usersTableRef,
         selectedUsers,
         showUsersTable,
         emptyPlusCloudSvg,
         numAppliedFilters,
         isMoveToTrashModalOpen,
+        onModalBlur,
         onUsersChange,
         overrideRoute,
         resetFilters,

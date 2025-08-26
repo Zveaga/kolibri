@@ -68,7 +68,7 @@
             <KButton
               primary
               :text="assignAction$()"
-              :disabled="!hasSelectedClasses || isLoading"
+              :disabled="!hasSelectedClasses || isLoading || !selectedUsers.size"
               @click="handleAssign"
             />
           </KButtonGroup>
@@ -213,10 +213,11 @@
         try {
           await assignCoachesToClasses();
           closeSidePanel();
+          return true;
         } catch (error) {
           showErrorWarning.value = true;
-        } finally {
           isLoading.value = false;
+          return false;
         }
       }
 
@@ -225,9 +226,6 @@
           selectedClasses.value.includes(cls.id),
         );
         const eligibleUserIds = eligibleUsers.value.map(user => user.id);
-        if (eligibleUserIds.length === 0) {
-          return;
-        }
 
         if (selectedClassObjects.length === 0) {
           throw new Error('No classes selected');
@@ -262,6 +260,7 @@
         actionNotice$: coachesAssignedNotice$,
         undoAction: handleUndoAssignments,
         undoActionNotice$: assignCoachUndoneNotice$,
+        onBlur: props.onBlur,
       });
 
       function closeSidePanel() {
@@ -305,6 +304,10 @@
       classes: {
         type: Array,
         default: () => [],
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
       },
     },
     beforeRouteLeave(to, from, next) {

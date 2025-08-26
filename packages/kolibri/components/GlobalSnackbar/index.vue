@@ -3,6 +3,8 @@
   <CoreSnackbar
     v-if="snackbarIsVisible"
     :key="key"
+    v-autofocus="snackbarOptions.autofocus"
+    v-blur="snackbarOptions.onBlur"
     :text="snackbarOptions.text"
     :actionText="snackbarOptions.actionText"
     :backdrop="snackbarOptions.backdrop"
@@ -19,12 +21,57 @@
 <script>
 
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { nextTick } from 'vue';
   import CoreSnackbar from './internal/CoreSnackbar';
 
   export default {
     name: 'GlobalSnackbar',
     components: {
       CoreSnackbar,
+    },
+    directives: {
+      autofocus: {
+        async inserted(el, binding) {
+          if (binding.value === false) {
+            return;
+          }
+          const snackbarButton = el.querySelector('button');
+          if (snackbarButton) {
+            await nextTick();
+            snackbarButton.focus();
+          }
+        },
+      },
+      blur: {
+        bind(el, binding) {
+          if (!binding.value) {
+            return;
+          }
+          el._onBlurHandler = binding.value;
+          el._onKeydownHandler = event => {
+            if (event.key === 'Tab') {
+              event.preventDefault();
+              el._onBlurHandler(event);
+            }
+          };
+
+          const snackbarButton = el.querySelector('button');
+          if (snackbarButton) {
+            snackbarButton.addEventListener('blur', el._onBlurHandler);
+            snackbarButton.addEventListener('keydown', el._onKeydownHandler);
+          }
+        },
+        unbind(el) {
+          const snackbarButton = el.querySelector('button');
+          if (snackbarButton) {
+            snackbarButton.removeEventListener('blur', el._onBlurHandler);
+            snackbarButton.removeEventListener('keydown', el._onKeydownHandler);
+          }
+
+          delete el._onBlurHandler;
+          delete el._onKeydownHandler;
+        },
+      },
     },
     setup() {
       const { snackbarIsVisible, snackbarOptions, clearSnackbar } = useSnackbar();
