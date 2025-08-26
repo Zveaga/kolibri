@@ -41,7 +41,8 @@
           @change="onUsersChange"
         >
           <template #userActions>
-            <router-link
+            <component
+              :is="canAssignCoaches ? 'router-link' : 'span'"
               :to="
                 overrideRoute($route, {
                   name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS,
@@ -55,8 +56,9 @@
                 :tooltip="assignCoach$()"
                 :disabled="!canAssignCoaches"
               />
-            </router-link>
-            <router-link
+            </component>
+            <component
+              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="
                 overrideRoute($route, {
                   name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS,
@@ -70,8 +72,9 @@
                 :tooltip="enrollToClass$()"
                 :disabled="!canEnrollOrRemoveFromClass"
               />
-            </router-link>
-            <router-link
+            </component>
+            <component
+              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="
                 overrideRoute($route, {
                   name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS,
@@ -85,7 +88,7 @@
                 :tooltip="removeFromClass$()"
                 :disabled="!canEnrollOrRemoveFromClass"
               />
-            </router-link>
+            </component>
             <KIconButton
               icon="trash"
               :ariaLabel="deleteSelection$()"
