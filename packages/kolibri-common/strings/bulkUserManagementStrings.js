@@ -98,10 +98,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'View removed users',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
-  copyClasslabel: {
-    message: 'Copy class',
-    context: 'Label for dropdown item that duplicates a class',
-  },
   renameClassLabel: {
     message: 'Rename class',
     context: 'Label for dropdown item that allows user to modify the name of a class',
@@ -362,23 +358,27 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   // Copy a class
   copyClass: {
     message: 'Copy class',
-    context: 'Page heading and label for confirmation button',
-  },
-  coachesAssignedToClass: {
-    message: 'Coaches assigned to this class',
-    context: 'Heading for table listing coaches',
-  },
-  numCoachesSelected: {
-    message: '{n, number} {n, plural, one {coach} other {coaches}} selected',
-    context: "Label showing the user how many coaches they've selected",
+    context: 'Page heading and button label',
   },
   classCopiedSuccessfully: {
     message: 'Class copied successfully',
     context: 'Message shown when class copying succeeds',
   },
   classNameAlreadyExists: {
-    message: 'Class name already exists',
+    message: "Class name '{class}' already exists",
     context: 'Error message shown when trying to copy a class with a name that already exists',
+  },
+  makeACopy: {
+    message: 'Make a copy',
+    context: 'Button label for copying a class',
+  },
+  copyAllLearners: {
+    message: 'Copy all learners ({n, number})',
+    context: 'Label for checkbox that allows user to copy all learners from the class',
+  },
+  copyAllCoaches: {
+    message: 'Copy all coaches ({n, number})',
+    context: 'Label for checkbox that allows user to copy all coaches from the class',
   },
 
   // User Creation
