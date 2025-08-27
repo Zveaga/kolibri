@@ -2,7 +2,7 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME && isUserLoggedIn && (showWelcomeModal || classesLoaded)"
+      v-if="step === Steps.WELCOME && isUserLoggedIn"
       :importedFacility="importedFacility"
       :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
@@ -45,7 +45,6 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import useLearnerResources from '../../../../learn/assets/src/composables/useLearnerResources';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -69,32 +68,14 @@
     },
     mixins: [commonSyncElements],
     setup() {
-      const {
-        isUserLoggedIn,
-        isLearner,
-        isCoach,
-        isAdmin,
-        isSuperuser,
-        isClassCoach,
-        isFacilityCoach,
-        isFacilityAdmin,
-      } = useUser();
+      const { isUserLoggedIn } = useUser();
       const { createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
-      const { classes } = useLearnerResources();
 
       return {
         isUserLoggedIn,
         createSnackbar,
         facilities,
-        classes,
-        isLearner,
-        isCoach,
-        isAdmin,
-        isSuperuser,
-        isFacilityAdmin,
-        isClassCoach,
-        isFacilityCoach,
       };
     },
     props: {
@@ -118,25 +99,6 @@
           return facility;
         }
         return null;
-      },
-      classesLoaded() {
-        return Array.isArray(this.classes) && this.classes.length > 0;
-      },
-      showWelcomeModal() {
-        if (
-          this.isSuperuser ||
-          this.isAdmin ||
-          this.isFacilityAdmin ||
-          this.isClassCoach ||
-          this.isFacilityCoach ||
-          this.isCoach
-        ) {
-          return true;
-        }
-        if (this.isLearner && !this.classesLoaded) {
-          return true;
-        }
-        return false;
       },
     },
     methods: {
