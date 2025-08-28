@@ -30,6 +30,14 @@
       CoreSnackbar,
     },
     directives: {
+      /**
+       * Using directives here to have a cleaner control over DOM elements and the
+       * snackbar button element, if rendered.
+       *
+       * TODO: This could be managed directly with vue event handlers and KDS
+       * properties, but `CoreSnackbar` uses a keen component, and the snackbar
+       * handling should probably be refactored before extending more functionalities.
+       */
       autofocus: {
         async inserted(el, binding) {
           if (binding.value === false) {
