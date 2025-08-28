@@ -65,7 +65,6 @@
   const frameTopbarHeight = '37px';
   export default {
     name: 'BloomPubRendererIndex',
-    __usesContentViewerComposable: true,
     components: {
       CoreFullscreen,
     },

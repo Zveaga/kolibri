@@ -99,7 +99,6 @@
 
   export default {
     name: 'SlideshowRendererComponent',
-    __usesContentViewerComposable: true,
     components: {
       UiIconButton,
       CoreFullscreen,

@@ -29,7 +29,6 @@
 
   export default {
     name: 'SafeHtml5RendererIndex',
-    __usesContentViewerComposable: true,
     components: {
       SafeHTML,
     },
