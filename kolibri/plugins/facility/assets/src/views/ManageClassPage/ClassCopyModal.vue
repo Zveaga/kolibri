@@ -87,10 +87,11 @@
 
       const classNameInvalidText = computed(() => {
         if (!loading.value) {
-          const name = (copiedClassName.value || '').trim();
+          const normalize = str => str.replace(/\s+/g, ' ').toLowerCase();
+          const name = (normalize(copiedClassName.value) || '').trim();
           if (!name) {
             return coreString('requiredFieldError');
-          } else if (classes.some(row => row.name === name)) {
+          } else if (classes.some(row => normalize(row.name) === name)) {
             return classNameAlreadyExists$({ class: name });
           }
         }
