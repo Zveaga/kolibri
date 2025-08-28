@@ -296,14 +296,14 @@ class DeviceNameTestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:devicename"))
         self.assertEqual(
             response.data["name"],
-            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+            InstanceIDModel.get_or_create_current_instance()[0].hostname[:50],
         )
 
     def test_patch(self):
         device_settings = DeviceSettings.objects.get()
         self.assertEqual(
             device_settings.name,
-            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+            InstanceIDModel.get_or_create_current_instance()[0].hostname[:50],
         )
 
         response = self.client.patch(
@@ -315,7 +315,7 @@ class DeviceNameTestCase(APITestCase):
         self.assertEqual(device_settings.name, self.device_name["name"])
         self.assertNotEqual(
             device_settings.name,
-            InstanceIDModel.get_or_create_current_instance()[0].hostname,
+            InstanceIDModel.get_or_create_current_instance()[0].hostname[:50],
         )
 
     def test_device_name_max_length(self):
