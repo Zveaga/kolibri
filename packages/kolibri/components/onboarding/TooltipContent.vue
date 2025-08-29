@@ -36,7 +36,7 @@
       </div>
 
       <div class="onboarding-tooltip-body">
-        <p id="tooltip-title">{{ steps[currentStepIndex].content }}</p>
+        <p id="tooltip-title">{{ steps[currentStepIndex].content() }}</p>
       </div>
 
       <div class="onboarding-tooltip-footer">
@@ -72,7 +72,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri/uiText/kolibriOnboardingGuideStrings';
 
   export default {
     name: 'TooltipContent',

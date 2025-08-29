@@ -83,6 +83,7 @@
       const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
+
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'right' && !navShown.value && !isRtl.value) {

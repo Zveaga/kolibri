@@ -185,9 +185,9 @@
         />
       </SidePanelModal>
       <TooltipTour
-        v-if="tourActive"
+        v-if="tourActive && isTourActive('LibraryPage')"
         page="LibraryPage"
-        @tourEnded="endTour()"
+        @tourEnded="endTour('LibraryPage')"
       />
     </LearnAppBarPage>
   </div>
@@ -213,8 +213,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
-  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
-  import useTour from 'kolibri-common/composables/useTour';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
+  import useTour from 'kolibri/composables/useTour';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -266,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -437,6 +437,7 @@
         canManageContent,
         isLearnerOnlyImport,
         tourActive,
+        isTourActive,
         startTour,
         endTour,
       };
@@ -569,9 +570,7 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-        setTimeout(() => {
-          this.startTour();
-        }, 800);
+        this.startTour('LibraryPage');
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();

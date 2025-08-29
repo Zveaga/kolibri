@@ -51,7 +51,6 @@
       CardList,
       ResourceCard,
     },
-
     setup() {
       const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } =
         useContentLink();

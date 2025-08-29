@@ -22,7 +22,7 @@
 
   import tippy from 'tippy.js';
   import Vue from 'vue';
-  import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js';
+  import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import TooltipContent from './TooltipContent.vue';
 
   export default {
@@ -31,6 +31,14 @@
       page: {
         type: String,
         required: true,
+      },
+      /**
+       * Controls how transparent the spotlight overlay appears;
+       * default opacity of 0.5 may appear too dark on some pages
+       */
+      spotlightOpacity: {
+        type: Number,
+        default: 0.5,
       },
     },
     data() {
@@ -56,7 +64,7 @@
           width: `${this.rect.width}px`,
           height: `${this.rect.height}px`,
           borderRadius: '4px',
-          boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
+          boxShadow: `0 0 0 10000px rgba(0, 0, 0, ${this.spotlightOpacity})`,
           pointerEvents: 'none',
           zIndex: 998,
         };
@@ -138,7 +146,6 @@
         const currentStep = this.steps[this.currentStepIndex];
         const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
         if (!target) return;
-
         const rect = target.getBoundingClientRect();
         this.rect = rect;
       },
