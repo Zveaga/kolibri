@@ -1,34 +1,10 @@
 <template>
 
   <div>
-    <KModal
-      v-if="showUndoModal"
-      :title="undoUsersEnrolledHeading$({ num: selectedUsers.size })"
-      :submitText="undoAction$()"
-      :cancelText="coreString('dismissAction')"
-      :submitDisabled="loading"
-      :cancelDisabled="loading"
-      @cancel="handleDismissConfirmation"
-      @submit="handleUndoEnrollments"
-    >
-      <KCircularLoader v-if="loading" />
-      <span
-        v-else
-        class="adjust-line-height"
-      >
-        {{
-          undoUsersEnrolledMessage$({
-            numUsers: selectedUsers.size,
-            numClasses: selectedOptions.length,
-          })
-        }}
-      </span>
-    </KModal>
     <SidePanelModal
-      v-else
       alignment="right"
       sidePanelWidth="700px"
-      @closePanel="closeSidePanel(false)"
+      @closePanel="closeSidePanel"
     >
       <template #header>
         <h1>{{ enrollToClass$() }}</h1>
@@ -91,7 +67,7 @@
             <KButton
               :text="coreString('cancelAction')"
               :disabled="loading"
-              @click="closeSidePanel(selectedOptions.length > 0 ? true : false)"
+              @click="closeSidePanel"
             />
             <KButton
               primary
@@ -102,16 +78,22 @@
           </KButtonGroup>
         </div>
       </template>
-      <KModal
-        v-if="showCloseConfirmationModal"
+      <CloseConfirmationGuard
+        ref="closeConfirmationGuardRef"
+        reverseActionsOrder
+        :hasUnsavedChanges="hasUnsavedChanges"
+        :title="discardChanges$()"
         :submitText="discardAction$()"
         :cancelText="keepEditingAction$()"
-        :title="disgardChanges$()"
-        @cancel="showCloseConfirmationModal = false"
-        @submit="closeSidePanel(false)"
       >
-        <span class="adjust-line-height">{{ discardWarning$() }}</span>
-      </KModal>
+        <KIcon
+          icon="infoOutline"
+          :color="$themePalette.red.v_600"
+        />
+        <span :style="{ color: $themePalette.red.v_600 }">
+          {{ discardWarning$() }}
+        </span>
+      </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
 
@@ -120,35 +102,38 @@
 
 <script>
 
-  import { ref, computed, getCurrentInstance } from 'vue';
+  import { useRoute } from 'vue-router/composables';
+  import { ref, computed } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
+  import { getRootRouteName, overrideRoute } from '../../../utils';
+  import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
 
   export default {
     name: 'EnrollLearnersSidePanel',
     components: {
       SidePanelModal,
       SelectableList,
+      CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const showUndoModal = ref(false);
-      const showCloseConfirmationModal = ref(false);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
       const classCoaches = ref([]);
       const classLearners = ref([]);
       const loading = ref(false);
       const membershipsByUser = ref({});
-      const createdMemberships = ref([]);
-      const instance = getCurrentInstance();
+      const createdMemberships = ref(null);
+
       const {
         enrollToClass$,
         numUsersNotEnrolled$,
@@ -157,32 +142,46 @@
         searchForAClass$,
         enrollInAllClasses$,
         enrollInSelectedClasses$,
-        enrollUndoneNotice$,
         numUsersYouHaveSelected$,
-        undoUsersEnrolledHeading$,
-        undoUsersEnrolledMessage$,
+        enrollUndoneNotice$,
         enrollAction$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
-        undoAction$,
+        discardChanges$,
         defaultErrorMessage$,
         usersEnrolledNotice$,
       } = bulkUserManagementStrings;
-      const { createSnackbar } = useSnackbar();
+
+      const route = useRoute();
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          return overrideRoute(route, {
+            name: getRootRouteName(route),
+          });
+        },
+      });
 
       // Computed properties
       const classList = computed(() =>
-        props.classes.map(classObj => ({
-          label: classObj.name,
-          id: classObj.id,
-        })),
+        props.classes
+          .map(classObj => ({
+            label: classObj.name,
+            id: classObj.id,
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label)),
       );
 
       const usersNotEnrolled = computed(() => {
         const enrolledUsers = new Set(classLearners.value);
         return [...props.selectedUsers].filter(userId => !enrolledUsers.has(userId)).length;
+      });
+
+      const hasUnsavedChanges = computed(() => {
+        if (createdMemberships.value) {
+          return false;
+        }
+        return selectedOptions.value.length > 0;
       });
 
       // Methods
@@ -215,9 +214,8 @@
         }
       }
 
-      async function enrollLearners() {
+      async function _enrollLearners() {
         loading.value = true;
-        createdMemberships.value = [];
         const enrollments = selectedOptions.value.flatMap(collection_id => {
           const alreadyEnrolled = membershipsByUser.value;
           return Array.from(props.selectedUsers)
@@ -226,54 +224,40 @@
             )
             .map(user => ({ collection: collection_id, user }));
         });
-        if (enrollments.length === 0) {
-          createSnackbar(usersEnrolledNotice$());
-          showUndoModal.value = true;
-          loading.value = false;
-          return;
-        }
-        try {
-          const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
-          createdMemberships.value = newMemberships;
-          createSnackbar(usersEnrolledNotice$());
-          showUndoModal.value = true;
-        } catch (error) {
-          showUndoModal.value = false;
-          showErrorWarning.value = true;
-        } finally {
-          loading.value = false;
-        }
-      }
-
-      function closeSidePanel(close = true) {
-        if (close) {
-          showCloseConfirmationModal.value = true;
+        if (enrollments.length > 0) {
+          try {
+            const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
+            createdMemberships.value = newMemberships;
+          } catch (error) {
+            showErrorWarning.value = true;
+            loading.value = false;
+            return false;
+          }
         } else {
-          instance.proxy.$router.back();
+          // Setting an empty array to flag that the operation was successful and no users
+          // were enrolled
+          createdMemberships.value = [];
         }
+        goBack();
+        return true;
       }
 
-      function handleDismissConfirmation() {
-        showUndoModal.value = false;
-        instance.proxy.$emit('clearSelection');
-        instance.proxy.$router.back();
+      const { performAction: enrollLearners } = useActionWithUndo({
+        action: _enrollLearners,
+        actionNotice$: usersEnrolledNotice$,
+        undoAction: handleUndoEnrollments,
+        undoActionNotice$: enrollUndoneNotice$,
+        onBlur: props.onBlur,
+      });
+
+      function closeSidePanel() {
+        goBack();
       }
 
       async function handleUndoEnrollments() {
-        loading.value = true;
-        try {
-          if (createdMemberships.value.length > 0) {
-            const ids = createdMemberships.value.map(m => m.id).join(',');
-            await MembershipResource.deleteCollection({ by_ids: ids });
-          }
-          createSnackbar(enrollUndoneNotice$());
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-        } finally {
-          showUndoModal.value = false;
-          loading.value = false;
-          instance.proxy.$emit('clearSelection');
-          instance.proxy.$router.back();
+        if (createdMemberships.value?.length > 0) {
+          const ids = createdMemberships.value.map(m => m.id).join(',');
+          await MembershipResource.deleteCollection({ by_ids: ids });
         }
       }
 
@@ -286,28 +270,22 @@
         enrollInAllClasses$,
         enrollInSelectedClasses$,
         numUsersYouHaveSelected$,
-        undoUsersEnrolledHeading$,
-        undoUsersEnrolledMessage$,
         defaultErrorMessage$,
         enrollAction$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
-        undoAction$,
-        showUndoModal,
-        showCloseConfirmationModal,
+        discardChanges$,
         showErrorWarning,
         selectedOptions,
         classCoaches,
         loading,
         classList,
         usersNotEnrolled,
+        hasUnsavedChanges,
         setClassUsers,
         enrollLearners,
         closeSidePanel,
-        handleDismissConfirmation,
-        handleUndoEnrollments,
       };
     },
     props: {
@@ -319,6 +297,13 @@
         type: Array,
         required: true,
       },
+      onBlur: {
+        type: Function,
+        default: () => {},
+      },
+    },
+    beforeRouteLeave(to, from, next) {
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
     created() {
       this.setClassUsers();

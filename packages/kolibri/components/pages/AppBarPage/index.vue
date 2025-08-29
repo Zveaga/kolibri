@@ -38,7 +38,7 @@
       class="main-wrapper"
       :style="[wrapperStyles, paddingTop]"
     >
-      <slot></slot>
+      <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
 
     <transition mode="out-in">
@@ -93,9 +93,10 @@
           }
         },
       });
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowHeight, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return {
+        windowHeight,
         windowIsSmall,
         isAppContext,
         swipeZone,
@@ -159,6 +160,17 @@
         return {
           paddingTop: `${totalPadding}px`,
         };
+      },
+      pageContentHeight() {
+        const paddingTop = parseInt(this.paddingTop.paddingTop) || 0;
+        const paddingBottom = parseInt(this.wrapperStyles.paddingBottom) || 0;
+
+        let height = this.windowHeight - paddingTop - paddingBottom - 1;
+        if (this.isAppContextAndTouchDevice) {
+          height -= 56; // Account for the Android bottom navigation bar
+        }
+
+        return height;
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';

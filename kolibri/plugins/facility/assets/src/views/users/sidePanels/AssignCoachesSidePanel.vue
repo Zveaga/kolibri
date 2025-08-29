@@ -1,36 +1,7 @@
 <template>
 
   <div>
-    <KModal
-      v-if="showUndoModal"
-      :title="
-        undoAssignCoachHeading$({
-          numUsers: eligibleUsersCount,
-          numClasses: selectedClasses.length,
-        })
-      "
-      :submitText="undoAction$()"
-      :cancelText="dismissAction$()"
-      :submitDisabled="isLoading"
-      :cancelDisabled="isLoading"
-      @cancel="handleDismissConfirmation"
-      @submit="handleUndoAssignments"
-    >
-      <KCircularLoader v-if="isLoading" />
-      <span
-        v-else
-        class="adjust-line-height"
-      >
-        {{
-          undoAssignCoachMessage$({
-            numUsers: eligibleUsersCount,
-            numClasses: selectedClasses.length,
-          })
-        }}
-      </span>
-    </KModal>
     <SidePanelModal
-      v-else
       alignment="right"
       sidePanelWidth="700px"
       :addBottomBorder="false"
@@ -90,14 +61,14 @@
         <div class="bottom-nav-container">
           <KButtonGroup>
             <KButton
-              :text="coreString('cancelAction')"
+              :text="coreStrings.cancelAction$()"
               :disabled="isLoading"
               @click="closeSidePanel"
             />
             <KButton
               primary
               :text="assignAction$()"
-              :disabled="!hasSelectedClasses || isLoading"
+              :disabled="!hasSelectedClasses || isLoading || !selectedUsers.size"
               @click="handleAssign"
             />
           </KButtonGroup>
@@ -106,14 +77,19 @@
 
       <CloseConfirmationGuard
         ref="closeConfirmationGuardRef"
+        reverseActionsOrder
         :hasUnsavedChanges="hasUnsavedChanges"
-        :title="disgardChanges$()"
+        :title="discardChanges$()"
         :submitText="discardAction$()"
         :cancelText="keepEditingAction$()"
       >
-        <template #content>
-          <span class="adjust-line-height">{{ discardWarning$() }}</span>
-        </template>
+        <KIcon
+          icon="infoOutline"
+          :color="$themePalette.red.v_600"
+        />
+        <span :style="{ color: $themePalette.red.v_600 }">
+          {{ discardWarning$() }}
+        </span>
       </CloseConfirmationGuard>
     </SidePanelModal>
   </div>
@@ -123,22 +99,22 @@
 
 <script>
 
-  import { ref, computed, getCurrentInstance } from 'vue';
+  import { ref, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import KIcon from 'kolibri-design-system/lib/KIcon';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
-  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
   import { _userState } from '../../../modules/mappers';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
 
   export default {
     name: 'AssignCoachesSidePanel',
@@ -148,14 +124,11 @@
       SelectableList,
       CloseConfirmationGuard,
     },
-    mixins: [commonCoreStrings],
     setup(props) {
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
-      const showUndoModal = ref(false);
-      const createdRoles = ref([]);
-      const instance = getCurrentInstance();
+      const createdRoles = ref(null);
       const facilityUsers = ref([]);
       const route = useRoute();
       const closeConfirmationGuardRef = ref(null);
@@ -169,11 +142,8 @@
       });
 
       const {
-        undoAssignCoachHeading$,
-        undoAssignCoachMessage$,
         coachesAssignedNotice$,
         assignCoachUndoneNotice$,
-        undoAction$,
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
@@ -181,14 +151,12 @@
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         numUsersNotEligible$,
         SelectClassesLabel$,
         assignUsersHeading$,
         assignToAllClasses$,
       } = bulkUserManagementStrings;
-      const { createSnackbar } = useSnackbar();
-      const { dismissAction$ } = coreStrings;
 
       const loadUsers = async () => {
         isLoading.value = true;
@@ -213,7 +181,12 @@
 
       const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
 
-      const hasUnsavedChanges = computed(() => selectedClasses.value.length > 0);
+      const hasUnsavedChanges = computed(() => {
+        if (createdRoles.value) {
+          return false;
+        }
+        return selectedClasses.value.length > 0;
+      });
 
       // Filter eligible users (coaches, admins, superusers)
       const eligibleUsers = computed(() => {
@@ -232,28 +205,19 @@
       });
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
 
-      const eligibleUsersCount = computed(() => {
-        return eligibleUsers.value.length;
-      });
-
       // Methods
-      async function handleAssign() {
-        if (!hasSelectedClasses.value) {
-          return;
-        }
-
+      async function _handleAssign() {
         isLoading.value = true;
         showErrorWarning.value = false;
-        createdRoles.value = [];
 
         try {
           await assignCoachesToClasses();
-          createSnackbar(coachesAssignedNotice$());
-          showUndoModal.value = true;
+          closeSidePanel();
+          return true;
         } catch (error) {
           showErrorWarning.value = true;
-        } finally {
           isLoading.value = false;
+          return false;
         }
       }
 
@@ -262,9 +226,6 @@
           selectedClasses.value.includes(cls.id),
         );
         const eligibleUserIds = eligibleUsers.value.map(user => user.id);
-        if (eligibleUserIds.length === 0) {
-          return;
-        }
 
         if (selectedClassObjects.length === 0) {
           throw new Error('No classes selected');
@@ -284,70 +245,49 @@
 
         // Only add roles that were actually created (have an id)
         const actuallyCreatedRoles = newRoles.filter(role => role.id);
-        createdRoles.value.push(...actuallyCreatedRoles);
-      }
-
-      function handleDismissConfirmation() {
-        showUndoModal.value = false;
-        selectedClasses.value = [];
-        instance.proxy.$emit('clearSelection');
-        instance.proxy.$router.back();
+        createdRoles.value = actuallyCreatedRoles;
       }
 
       async function handleUndoAssignments() {
-        isLoading.value = true;
-        try {
-          if (createdRoles.value.length > 0) {
-            const roleIds = createdRoles.value.filter(role => role.id).map(role => role.id);
-
-            if (roleIds.length > 0) {
-              await RoleResource.deleteCollection({ by_ids: roleIds });
-            }
-          }
-          createSnackbar(assignCoachUndoneNotice$());
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-        } finally {
-          showUndoModal.value = false;
-          isLoading.value = false;
-          selectedClasses.value = [];
-          instance.proxy.$emit('clearSelection');
-          goBack();
+        if (createdRoles.value.length > 0) {
+          const roleIds = createdRoles.value.map(role => role.id);
+          await RoleResource.deleteCollection({ by_ids: roleIds });
         }
       }
+
+      const { performAction: handleAssign } = useActionWithUndo({
+        action: _handleAssign,
+        actionNotice$: coachesAssignedNotice$,
+        undoAction: handleUndoAssignments,
+        undoActionNotice$: assignCoachUndoneNotice$,
+        onBlur: props.onBlur,
+      });
 
       function closeSidePanel() {
         goBack();
       }
 
       return {
+        coreStrings,
         selectedClasses,
         isLoading,
         formattedClasses,
         selectedUsersCount,
         hasSelectedClasses,
         hasUnsavedChanges,
-        eligibleUsersCount,
         ineligibleUsersCount,
         showErrorWarning,
-        showUndoModal,
         defaultErrorMessage$,
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
         SelectClassesLabel$,
         handleAssign,
-        handleDismissConfirmation,
-        handleUndoAssignments,
-        undoAction$,
-        dismissAction$,
-        undoAssignCoachHeading$,
-        undoAssignCoachMessage$,
         closeSidePanel,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
-        disgardChanges$,
+        discardChanges$,
         numUsersNotEligible$,
         assignUsersHeading$,
         assignToAllClasses$,
@@ -364,6 +304,10 @@
       classes: {
         type: Array,
         default: () => [],
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
       },
     },
     beforeRouteLeave(to, from, next) {

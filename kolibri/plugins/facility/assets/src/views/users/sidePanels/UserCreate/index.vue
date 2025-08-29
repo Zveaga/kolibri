@@ -183,7 +183,7 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props, { emit }) {
+    setup(props) {
       const formId = 'create-user-form';
       const route = useRoute();
       const router = useRouter();
@@ -318,7 +318,7 @@
 
       const handleSubmitSuccess = () => {
         createSnackbar(notificationStrings.userCreated$());
-        emit('change');
+        props.onUsersChange();
       };
 
       const handleSubmitFailure = error => {
@@ -488,6 +488,10 @@
       classes: {
         type: Array,
         default: () => [],
+      },
+      onUsersChange: {
+        type: Function,
+        default: () => {},
       },
     },
     beforeRouteLeave(to, from, next) {

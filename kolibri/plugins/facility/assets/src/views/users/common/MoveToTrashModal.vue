@@ -1,28 +1,7 @@
 <template>
 
   <div>
-    <KModal
-      v-if="usersRemoved"
-      :title="undoTrashHeading$({ num: usersRemoved.length })"
-      :submitText="undoAction$()"
-      :cancelText="coreStrings.dismissAction$()"
-      :submitDisabled="loading"
-      :cancelDisabled="loading"
-      @cancel="close"
-      @submit="undoMoveToTrash"
-    >
-      <KCircularLoader v-if="loading" />
-      <p>
-        {{ undoTrashMessageA$({ numUsers: usersRemoved.length }) }}
-      </p>
-      <p>
-        {{ undoTrashMessageB$() }}
-      </p>
-    </KModal>
-    <KModal
-      v-else
-      :title="moveToTrashLabel$({ num: selectedUsers.size })"
-    >
+    <KModal :title="moveToTrashLabel$({ num: selectedUsers.size })">
       <KCircularLoader v-if="loading" />
       <div
         v-else
@@ -82,6 +61,7 @@
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
   import { _userState } from '../../../modules/mappers';
+  import useActionWithUndo from '../../../composables/useActionWithUndo';
 
   export default {
     name: 'MoveToTrashModal',
@@ -94,13 +74,9 @@
       const usersRemoved = ref(null);
 
       const {
-        undoAction$,
-        undoTrashMessageA$,
-        undoTrashMessageB$,
         trashUndoneNotice$,
         movingToTrash$,
         moveToTrashAction$,
-        undoTrashHeading$,
         moveToTrashLabel$,
         numAdminsSelected$,
         usersTrashedNotice$,
@@ -132,7 +108,7 @@
         emit('close');
       };
 
-      const moveToTrash = async () => {
+      const _moveToTrash = async () => {
         loading.value = true;
         sendPoliteMessage(movingToTrash$());
         try {
@@ -142,27 +118,31 @@
           createSnackbar(usersTrashedNotice$());
           loading.value = false;
           usersRemoved.value = Array.from(props.selectedUsers);
-          emit('change', { resetSelection: true });
+          props.onUsersChange({ resetSelection: true });
+          close();
+          return true;
         } catch (error) {
           createSnackbar(defaultErrorMessage$());
           loading.value = false;
+          return false;
         }
       };
 
       const undoMoveToTrash = async () => {
-        loading.value = true;
-        try {
-          await DeletedFacilityUserResource.restoreCollection({
-            by_ids: usersRemoved.value.join(','),
-          });
-          createSnackbar(trashUndoneNotice$());
-          emit('change');
-          close();
-        } catch (error) {
-          createSnackbar(defaultErrorMessage$());
-          loading.value = false;
-        }
+        await DeletedFacilityUserResource.restoreCollection({
+          by_ids: usersRemoved.value.join(','),
+        });
+        createSnackbar(trashUndoneNotice$());
+        props.onUsersChange();
       };
+
+      const { performAction: moveToTrash } = useActionWithUndo({
+        action: _moveToTrash,
+        actionNotice$: usersTrashedNotice$,
+        undoAction: undoMoveToTrash,
+        undoActionNotice$: trashUndoneNotice$,
+        onBlur: props.onBlur,
+      });
 
       const removeButtonStyles = {
         color: themeTokens().textInverted,
@@ -180,21 +160,15 @@
         // ref and computed properties
         loading,
         coreStrings,
-        usersRemoved,
         adminUsers,
         removeButtonStyles,
 
         // methods
         close,
         moveToTrash,
-        undoMoveToTrash,
 
         // translation functions
-        undoAction$,
-        undoTrashMessageA$,
-        undoTrashMessageB$,
         moveToTrashAction$,
-        undoTrashHeading$,
         moveToTrashLabel$,
         numAdminsSelected$,
         moveToTrashWarning$,
@@ -204,6 +178,14 @@
       selectedUsers: {
         type: Set,
         default: () => new Set(),
+      },
+      onBlur: {
+        type: Function,
+        default: () => {},
+      },
+      onUsersChange: {
+        type: Function,
+        default: () => {},
       },
     },
   };

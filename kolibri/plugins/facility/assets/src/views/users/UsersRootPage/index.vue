@@ -1,113 +1,124 @@
 <template>
 
   <FacilityAppBarPage>
-    <KPageContainer>
-      <p>
-        <KRouterLink
-          v-if="userIsMultiFacilityAdmin"
-          :to="{
-            name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'UserPage' },
-          }"
-          icon="back"
-          :text="coreString('changeLearningFacility')"
-        />
-      </p>
-      <div class="users-page-header">
-        <h1>{{ coreString('usersLabel') }}</h1>
-        <div class="users-page-header-actions">
-          <KButton
-            hasDropdown
-            :primary="false"
-            :text="coreString('optionsLabel')"
-          >
-            <template #menu>
-              <KDropdownMenu
-                :options="pageDropdownOptions"
-                @select="handlePageDropdownSelection"
-              />
-            </template>
-          </KButton>
-          <KRouterLink
-            primary
-            appearance="raised-button"
-            :text="newUser$()"
-            :to="$store.getters.facilityPageLinks.UserCreatePage"
-          />
-        </div>
-      </div>
-
-      <UsersTable
-        :facilityUsers="facilityUsers"
-        :usersCount="usersCount"
-        :totalPages="totalPages"
-        :dataLoading="dataLoading"
-        :selectedUsers.sync="selectedUsers"
-        :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
-        :numAppliedFilters="numAppliedFilters"
-        @clearFilters="resetFilters"
-        @change="onUsersChange"
+    <template #default="{ pageContentHeight }">
+      <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
+      <KPageContainer
+        class="flex-column"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
       >
-        <template #userActions>
-          <router-link
-            :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
-            :class="{ 'disabled-link': !canAssignCoaches }"
-          >
-            <KIconButton
-              icon="assignCoaches"
-              :ariaLabel="assignCoach$()"
-              :tooltip="assignCoach$()"
-              :disabled="!canAssignCoaches"
-            />
-          </router-link>
-          <router-link
-            :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
-            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
-          >
-            <KIconButton
-              icon="add"
-              :ariaLabel="enrollToClass$()"
-              :tooltip="enrollToClass$()"
-              :disabled="!canEnrollOrRemoveFromClass"
-            />
-          </router-link>
-          <router-link
-            :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
-            :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
-          >
-            <KIconButton
-              icon="remove"
-              :ariaLabel="removeFromClass$()"
-              :tooltip="removeFromClass$()"
-              :disabled="!canEnrollOrRemoveFromClass"
-            />
-          </router-link>
-          <KIconButton
-            icon="trash"
-            :ariaLabel="deleteSelection$()"
-            :tooltip="deleteSelection$()"
-            :disabled="!hasSelectedUsers || listContainsLoggedInUser"
-            @click="isMoveToTrashModalOpen = true"
+        <p>
+          <KRouterLink
+            v-if="userIsMultiFacilityAdmin"
+            :to="{
+              name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
+              params: { subtopicName: 'UserPage' },
+            }"
+            icon="back"
+            :text="coreString('changeLearningFacility')"
           />
-        </template>
-      </UsersTable>
-      <!-- For sidepanels -->
-      <router-view
-        :selectedUsers="selectedUsers"
-        :classes="classes"
-        @change="onUsersChange"
-        @clearSelection="clearSelectedUsers"
-        @hook:beforeDestroy="selectedUsers = new Set()"
-      />
+        </p>
+        <div class="users-page-header">
+          <h1>{{ coreString('usersLabel') }}</h1>
+          <div class="users-page-header-actions">
+            <KButton
+              hasDropdown
+              :primary="false"
+              :text="coreString('optionsLabel')"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :options="pageDropdownOptions"
+                  @select="handlePageDropdownSelection"
+                />
+              </template>
+            </KButton>
+            <KRouterLink
+              primary
+              appearance="raised-button"
+              :text="newUser$()"
+              :to="$store.getters.facilityPageLinks.UserCreatePage"
+            />
+          </div>
+        </div>
+        <UsersTable
+          ref="usersTableRef"
+          :facilityUsers="facilityUsers"
+          :usersCount="usersCount"
+          :totalPages="totalPages"
+          :dataLoading="dataLoading"
+          :selectedUsers.sync="selectedUsers"
+          :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
+          :numAppliedFilters="numAppliedFilters"
+          @clearFilters="resetFilters"
+          @change="onUsersChange"
+        >
+          <template #userActions>
+            <component
+              :is="canAssignCoaches ? 'router-link' : 'span'"
+              :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
+              :class="{ 'disabled-link': !canAssignCoaches }"
+            >
+              <KIconButton
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :tooltip="assignCoach$()"
+                :disabled="!canAssignCoaches"
+              />
+            </component>
+            <component
+              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
+              :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+            >
+              <KIconButton
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :tooltip="enrollToClass$()"
+                :disabled="!canEnrollOrRemoveFromClass"
+              />
+            </component>
+            <component
+              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
+              :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+            >
+              <KIconButton
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :tooltip="removeFromClass$()"
+                :disabled="!canEnrollOrRemoveFromClass"
+              />
+            </component>
+            <KIconButton
+              icon="trash"
+              :ariaLabel="deleteSelection$()"
+              :tooltip="deleteSelection$()"
+              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+              @click="isMoveToTrashModalOpen = true"
+            />
+          </template>
+        </UsersTable>
+        <!-- For sidepanels -->
+        <router-view
+          :selectedUsers="selectedUsers"
+          :classes="classes"
+          :onBlur="onModalBlur"
+          :onUsersChange="onUsersChange"
+          @clearSelection="clearSelectedUsers"
+          @hook:beforeDestroy="selectedUsers = new Set()"
+        />
 
-      <!-- Modals -->
-      <MoveToTrashModal
-        v-if="isMoveToTrashModalOpen"
-        :selectedUsers="selectedUsers"
-        @close="isMoveToTrashModalOpen = false"
-        @change="onUsersChange"
-      />
-    </KPageContainer>
+        <!-- Modals -->
+        <MoveToTrashModal
+          v-if="isMoveToTrashModalOpen"
+          :selectedUsers="selectedUsers"
+          :onBlur="onModalBlur"
+          :onUsersChange="onUsersChange"
+          @close="isMoveToTrashModalOpen = false"
+        />
+      </KPageContainer>
+    </template>
   </FacilityAppBarPage>
 
 </template>
@@ -148,6 +159,7 @@
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
       const isMoveToTrashModalOpen = ref(false);
+      const usersTableRef = ref(null);
 
       const {
         newUser$,
@@ -189,6 +201,10 @@
         selectedUsers.value = new Set();
       }
 
+      function onModalBlur() {
+        usersTableRef.value?.focus();
+      }
+
       return {
         PageNames,
         userIsMultiFacilityAdmin,
@@ -197,10 +213,13 @@
         usersCount,
         dataLoading,
         classes,
+        usersTableRef,
         numAppliedFilters,
         isMoveToTrashModalOpen,
+        onModalBlur,
         resetFilters,
         onUsersChange,
+        clearSelectedUsers,
         newUser$,
         viewTrash$,
         assignCoach$,
@@ -210,7 +229,6 @@
         deleteSelection$,
         selectedUsers,
         currentUserId,
-        clearSelectedUsers,
       };
     },
     computed: {
@@ -301,6 +319,11 @@
   .disabled-link {
     pointer-events: none;
     cursor: not-allowed;
+  }
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
   }
 
 </style>

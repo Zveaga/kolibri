@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="flex-column">
     <PaginatedListContainerWithBackend
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
@@ -15,6 +15,7 @@
         >
           <div class="search-filter-section">
             <FilterTextbox
+              ref="filterTextboxRef"
               v-model="searchTerm"
               :placeholder="coreStrings.searchForUser$()"
               :aria-label="coreStrings.searchForUser$()"
@@ -230,7 +231,7 @@
       ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
     },
-    setup(props, { emit }) {
+    setup(props, { emit, expose }) {
       const route = useRoute();
       const router = useRouter();
       const { isSuperuser, currentUserId } = useUser();
@@ -241,6 +242,7 @@
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
       const userToChange = ref(null);
+      const filterTextboxRef = ref(null);
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -611,6 +613,14 @@
         }
       });
 
+      const focus = () => {
+        filterTextboxRef.value?.focus();
+      };
+
+      expose({
+        focus,
+      });
+
       return {
         // Computed Properties
         tableHeaders,
@@ -624,6 +634,7 @@
         modalShown,
         userToChange,
         userToChangeSet,
+        filterTextboxRef,
 
         // Methods
         handleSelectAllToggle,
@@ -737,6 +748,13 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    // Min height is set to 0 to allow flex items to shrink
+    min-height: 0;
   }
 
 </style>
