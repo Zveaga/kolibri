@@ -66,8 +66,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { login, setUnspecifiedPassword } = useUser();
-      return { login, setUnspecifiedPassword };
+      const { login } = useUser();
+      return { login };
     },
     props: {
       username: {
@@ -101,7 +101,7 @@
         if (this.passwordIsValid) {
           this.busy = true;
           try {
-            await this.setUnspecifiedPassword(this.credentials);
+            await this.$store.dispatch('kolibriSetUnspecifiedPassword', this.credentials);
             await this.signIn();
           } catch {
             // In case user has already set password or user does not exist,

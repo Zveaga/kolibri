@@ -92,7 +92,7 @@
       const userIdToRemove = ref(null);
       const showSelectDevice = ref(false);
 
-      const { user_id: currentUserId } = useUser();
+      const { currentUserId } = useUser();
       const {
         users,
         loading,

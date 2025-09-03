@@ -34,15 +34,10 @@ import { computed } from 'vue';
 import { UserKinds } from 'kolibri/constants';
 
 const session = {
-  app_context: false,
-  can_manage_content: false,
-  facility_id: undefined,
   full_name: '',
-  id: undefined,
+  sessionId: undefined,
   kind: [UserKinds.ANONYMOUS],
-  user_id: undefined,
   username: '',
-  full_facility_import: true,
 };
 
 const MOCK_DEFAULTS = {
@@ -74,7 +69,11 @@ export function useUserMock(overrides = {}) {
   };
   const computedMocks = {};
   for (const key in mocks) {
-    computedMocks[key] = computed(() => mocks[key]);
+    if (typeof mocks[key] !== 'function') {
+      computedMocks[key] = computed(() => mocks[key]);
+    } else {
+      computedMocks[key] = mocks[key];
+    }
   }
   return computedMocks;
 }

@@ -180,6 +180,7 @@
       const { getFacilityConfig, facilityConfig } = useFacilities();
 
       return {
+        logout,
         createSnackbar,
         currentUserId,
         getFacilityConfig,

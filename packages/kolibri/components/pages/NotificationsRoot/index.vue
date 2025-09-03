@@ -65,12 +65,12 @@
       UpdateNotification,
     },
     setup() {
-      const { isAdmin, isSuperuser, user_id } = useUser();
+      const { isAdmin, isSuperuser, currentUserId } = useUser();
 
       return {
         isAdmin,
         isSuperuser,
-        user_id,
+        currentUserId,
       };
     },
     props: {
@@ -173,7 +173,7 @@
         try {
           await PingbackNotificationDismissedResource.saveModel({
             data: {
-              user: this.user_id,
+              user: this.currentUserId,
               notification: notificationId,
             },
           });

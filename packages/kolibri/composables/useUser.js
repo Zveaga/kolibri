@@ -1,18 +1,14 @@
 import { computed, ref } from 'vue';
 import client from 'kolibri/client';
-import heartbeat from 'kolibri/heartbeat';
 import { browser, os } from 'kolibri/utils/browserInfo';
 import { setServerTime } from 'kolibri/utils/serverClock';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import CatchErrors from 'kolibri/utils/CatchErrors';
 import Lockr from 'lockr';
 import urls from 'kolibri/urls';
-import {
-  DisconnectionErrorCodes,
-  LoginErrors,
-  ERROR_CONSTANTS,
-  UPDATE_MODAL_DISMISSED,
- UserKinds } from 'kolibri/constants';
+import store from 'kolibri/store';
+import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED, UserKinds } from 'kolibri/constants';
+import { pick } from 'lodash';
 
 // Base session state (migrated from session module)
 const baseSessionState = {
@@ -33,39 +29,36 @@ const sessionState = ref({ ...baseSessionState });
 export default function useUser() {
   // Session state
   const session = computed(() => sessionState.value);
-  const app_context = computed(() => sessionState.value.app_context);
-  const can_manage_content = computed(() => sessionState.value.can_manage_content);
-  const facility_id = computed(() => sessionState.value.facility_id);
   const full_name = computed(() => sessionState.value.full_name);
-  const id = computed(() => sessionState.value.id);
+  const sessionId = computed(() => sessionState.value.id);
   const kind = computed(() => sessionState.value.kind);
-  const user_id = computed(() => sessionState.value.user_id);
-  const full_facility_import = computed(() => sessionState.value.full_facility_import);
   const username = computed(() => sessionState.value.username);
 
   // Derived state
-  const isUserLoggedIn = computed(() => !kind.value.includes('anonymous'));
-  const currentUserId = computed(() => user_id.value);
-  const isLearnerOnlyImport = computed(() => !full_facility_import.value);
+  const isUserLoggedIn = computed(() => !kind.value.includes(UserKinds.ANONYMOUS));
+  const currentUserId = computed(() => sessionState.value.user_id);
+  const isLearnerOnlyImport = computed(() => !sessionState.value.full_facility_import);
   const isCoach = computed(
-    () => kind.value.includes('coach') || kind.value.includes('assignablecoach'),
+    () => kind.value.includes(UserKinds.COACH) || kind.value.includes(UserKinds.ASSIGNABLE_COACH),
   );
-  const isAdmin = computed(() => kind.value.includes('admin') || kind.value.includes('superuser'));
-  const isSuperuser = computed(() => kind.value.includes('superuser'));
-  const canManageContent = computed(() => can_manage_content.value);
-  const isAppContext = computed(() => app_context.value);
-  const isClassCoach = computed(() => kind.value.includes('assignablecoach'));
-  const isFacilityCoach = computed(() => kind.value.includes('coach'));
-  const isLearner = computed(() => kind.value.includes('learner'));
-  const isFacilityAdmin = computed(() => kind.value.includes('admin'));
-  const getUserPermissions = computed(() => ({ can_manage_content: can_manage_content.value }));
-  const userFacilityId = computed(() => facility_id.value);
+  const isAdmin = computed(
+    () => kind.value.includes(UserKinds.ADMIN) || kind.value.includes(UserKinds.SUPERUSER),
+  );
+  const isSuperuser = computed(() => kind.value.includes(UserKinds.SUPERUSER));
+  const canManageContent = computed(() => sessionState.value.can_manage_content);
+  const isAppContext = computed(() => sessionState.value.app_context);
+  const isClassCoach = computed(() => kind.value.includes(UserKinds.ASSIGNABLE_COACH));
+  const isFacilityCoach = computed(() => kind.value.includes(UserKinds.COACH));
+  const isLearner = computed(() => kind.value.includes(UserKinds.LEARNER));
+  const isFacilityAdmin = computed(() => kind.value.includes(UserKinds.ADMIN));
+  const getUserPermissions = computed(() => ({ can_manage_content: canManageContent.value }));
+  const userFacilityId = computed(() => sessionState.value.facility_id);
   const getUserKind = computed(() => {
-    if (isSuperuser.value) return 'SUPERUSER';
-    if (isAdmin.value) return 'ADMIN';
-    if (isCoach.value) return 'COACH';
-    if (isLearner.value) return 'LEARNER';
-    return 'ANONYMOUS';
+    if (isSuperuser.value) return UserKinds.SUPERUSER;
+    if (isAdmin.value) return UserKinds.ADMIN;
+    if (isCoach.value) return UserKinds.COACH;
+    if (isLearner.value) return UserKinds.LEARNER;
+    return UserKinds.ANONYMOUS;
   });
   const userHasPermissions = computed(() => Object.values(getUserPermissions.value).some(Boolean));
 
@@ -112,7 +105,7 @@ export default function useUser() {
           return LoginErrors.USER_NOT_FOUND;
         }
       } else {
-        throw error;
+        store.dispatch('handleApiError', { error });
       }
     }
   }
@@ -121,36 +114,22 @@ export default function useUser() {
     redirectBrowser(urls['kolibri:core:logout']());
   }
 
-  async function setUnspecifiedPassword({ username, password, facility }) {
-    return client({
-      url: urls['kolibri:core:setnonspecifiedpassword'](),
-      data: { username, password, facility },
-      method: 'post',
-    });
-  }
-
   function setSession({ session: newSession, clientNow }) {
     const serverTime = newSession.server_time;
     if (clientNow) {
       setServerTime(serverTime, clientNow);
     }
 
-    // Update module-level state with session data that matches baseSessionState shape
-    Object.assign(sessionState.value, {
-      app_context: newSession.app_context,
-      can_manage_content: newSession.can_manage_content,
-      facility_id: newSession.facility_id,
-      full_name: newSession.full_name,
-      id: newSession.id,
-      kind: newSession.kind,
-      user_id: newSession.user_id,
-      full_facility_import: newSession.full_facility_import,
-      username: newSession.username,
-    });
+    sessionState.value = {
+      ...sessionState.value,
+      // Ensure only base session state keys are present
+      ...pick(newSession, Object.keys(baseSessionState)),
+    };
   }
 
   return {
     // Getters
+    session,
     isLearnerOnlyImport,
     isUserLoggedIn,
     currentUserId,
@@ -167,23 +146,16 @@ export default function useUser() {
     userFacilityId,
     getUserKind,
     userHasPermissions,
-    session,
 
     // State
-    app_context,
-    can_manage_content,
-    facility_id,
     full_name,
-    id,
+    sessionId,
     kind,
-    user_id,
     username,
-    full_facility_import,
 
     // Actions
     login,
     logout,
-    setUnspecifiedPassword,
     setSession,
   };
 }

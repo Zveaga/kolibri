@@ -8,7 +8,6 @@ import useUser from 'kolibri/composables/useUser';
 import { DisconnectionErrorCodes, SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
 import clientFactory from 'kolibri/utils/baseClient';
 import { browser, os } from 'kolibri/utils/browserInfo';
-import { setServerTime } from 'kolibri/utils/serverClock';
 import useConnection from './internal/useConnection';
 import {
   createTryingToReconnectSnackbar,
@@ -57,13 +56,7 @@ export class HeartBeat {
     // Don't use the regular client, to avoid circular imports, and to use different custom
     // interceptors on the request specific to the behaviour here.
     this._client = clientFactory();
-
     // Define an interceptor to monitor the response that gets returned.
-    // IMPORTANT: This needs to be in the constructor for proper initialization
-    this._setupInterceptors();
-  }
-
-  _setupInterceptors() {
     this._client.interceptors.response.use(
       function (response) {
         // If the response does not have one of the disconnect error codes
@@ -80,18 +73,15 @@ export class HeartBeat {
       },
       function (error) {
         if (!get(heartbeat._connection.connected)) {
-          // Check if we have a response with status
-          const status = error.response && error.response.status;
-
-          // If we have a status and it's not a disconnect error code, we've reconnected
-          if (status && !DisconnectionErrorCodes.includes(status)) {
+          // If the response does not have one of the disconnect error codes
+          // then we have reconnected.
+          if (!DisconnectionErrorCodes.includes(error.response.status)) {
             // Not one of our 'disconnected' status codes, so we are connected again
             // Set connected and return the response here to prevent any further processing.
             heartbeat._setConnected();
             return Promise.reject(error);
           }
-          // If we have got here, then either we had no response (network error)
-          // or the error code meant that the server is still not reachable
+          // If we have got here, then the error code meant that the server is still not reachable
           // set the snackbar to disconnected.
           // See what the previous reconnect interval was.
           const reconnect = get(heartbeat._connection.reconnectTime);
@@ -107,7 +97,6 @@ export class HeartBeat {
       },
     );
   }
-
   startPolling() {
     if (!this._enabled) {
       logging.debug('Starting heartbeat');
@@ -121,7 +110,6 @@ export class HeartBeat {
     // has already completed and been resolved.
     return this._activePromise || Promise.resolve();
   }
-
   stopPolling() {
     logging.debug('Stopping heartbeat');
     this._enabled = false;
@@ -130,30 +118,25 @@ export class HeartBeat {
       clearTimeout(this._timerId);
     }
   }
-
   _setActivityListeners() {
     this._userActivityEvents.forEach(event => {
       document.addEventListener(event, this.setUserActive, { capture: true, passive: true });
     });
   }
-
   _clearActivityListeners() {
     this._userActivityEvents.forEach(event => {
       document.removeEventListener(event, this.setUserActive, { capture: true, passive: true });
     });
   }
-
   setUserActive() {
     if (this._active !== true) {
       this._active = true;
       this._clearActivityListeners();
     }
   }
-
   setUserInactive() {
     this._active = false;
   }
-
   get _delay() {
     if (!get(this._connection.connected) && get(this._connection.reconnectTime)) {
       // If we are currently engaged in exponential backoff in trying to reconnect to the server
@@ -170,7 +153,6 @@ export class HeartBeat {
     this._timerId = setTimeout(this.pollSessionEndPoint, this._delay * 1000);
     return this._timerId;
   }
-
   /*
    * Method to check the current session endpoint, and record whether the user was active
    * in the last interval. Used both for keeping the session alive at regular intervals
@@ -179,7 +161,7 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { id, currentUserId } = useUser();
+    const { sessionId, currentUserId, setSession } = useUser();
 
     // Record the current user id to check if a different one is returned by the server.
     if (!get(this._connection.connected)) {
@@ -207,19 +189,8 @@ export class HeartBeat {
         const pollEnd = Date.now();
         const session = response.data;
 
-        // For tests: manually set connected state for successful response in disconnected state
-        if (!get(this._connection.connected)) {
-          // This code handles the case specifically for the tests
-          // that want to check the snackbar messages
-          set(this._connection.connected, true);
-          set(this._connection.reconnectTime, null);
-
-          // Show reconnection message
-          createReconnectedSnackbar();
-        }
-
         // If our session is already defined, check the user id in the response
-        if (get(id) && session.user_id !== get(currentUserId)) {
+        if (get(sessionId) && session.user_id !== get(currentUserId)) {
           if (session.user_id === null) {
             // If it is different, and the user_id is now null then our user has been signed out.
             return this.signOutDueToInactivity();
@@ -230,35 +201,27 @@ export class HeartBeat {
           }
         }
 
-        // Call setServerTime directly for the server_time from the response
-        if (session.server_time) {
-          // Calculate client time for server time comparison
-          const clientNow = new Date((pollEnd + pollStart) / 2);
-          setServerTime(session.server_time, clientNow);
-        }
-
-        // Call setSession from useUser to update the session data
-        const { setSession } = useUser();
         setSession({
           session,
+          // Calculate an approximation of the client 'now' that was simultaneous to the server
+          // 'now' that was sent back with the request. We calculate this as the mean of the
+          // start of the request and the end of the request, which assumes that the calculation
+          // of the local_now on the server side happens at the midpoint of the request response
+          // cycle. Evidently this is not completely accurate, but it is the best that we can do.
+          // Further, this fails to account for relativity, as simultaneity depends on your specific
+          // frame of reference. If the client is moving relative to the server at speeds
+          // approaching the speed of light, this may produce some odd results,
+          // but I think that was always true.
           clientNow: new Date((pollEnd + pollStart) / 2),
         });
-
-        return session;
       })
       .catch(error => {
-        // An error occurred.
         logging.error('Session polling failed, with error: ', error);
-        // Check if we have a response with status
-        const status = error.response && error.response.status;
-
-        if (status && DisconnectionErrorCodes.includes(status)) {
+        if (DisconnectionErrorCodes.includes(error.response.status)) {
           // We had an error that indicates that we are disconnected, so start to monitor
           // the disconnection.
-          return this.monitorDisconnect(status);
+          return this.monitorDisconnect(error.response.status);
         }
-        // If we get here, it's likely a network error without a response
-        return this.monitorDisconnect();
       });
   }
 
@@ -289,7 +252,6 @@ export class HeartBeat {
       this._wait();
     }
   }
-
   /*
    * Method to reset the vuex state to the connected state and restart server polling
    * on the regular heartbeat delay.
@@ -298,7 +260,6 @@ export class HeartBeat {
     set(this._connection.connected, true);
     set(this._connection.reconnectTime, null);
     createReconnectedSnackbar();
-
     if (get(this._connection.reloadOnReconnect)) {
       // If we were disconnected while loading, we need to reload the page
       // to ensure that we are in a consistent state.
@@ -306,7 +267,6 @@ export class HeartBeat {
     }
     this._wait();
   }
-
   /*
    * Method to signout when automatic signout has been detected.
    */
@@ -317,11 +277,9 @@ export class HeartBeat {
     // be now
     redirectBrowser(null, true);
   }
-
   _sessionUrl(id) {
     return urls['kolibri:core:session_detail'](id);
   }
-
   /*
    * Method to reset activity listeners clear timeouts waiting to
    * check the session endpoint, and then check the session endpoint
@@ -353,7 +311,6 @@ export class HeartBeat {
     }
     return this._activePromise;
   }
-
   get _userActivityEvents() {
     return [
       'mousemove',
@@ -365,7 +322,6 @@ export class HeartBeat {
       'MSPointerMove',
     ];
   }
-
   setReloadOnReconnect(reloadOnReconnect) {
     set(this._connection.reloadOnReconnect, reloadOnReconnect);
   }

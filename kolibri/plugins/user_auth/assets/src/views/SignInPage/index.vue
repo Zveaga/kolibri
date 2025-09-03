@@ -195,7 +195,7 @@
     setup() {
       const { isAppContext, login } = useUser();
       const { selectedFacility } = useFacilities();
-      return { isAppContext, selectedFacility };
+      return { login, isAppContext, selectedFacility };
     },
     data() {
       return {
@@ -472,7 +472,7 @@
         }
 
         try {
-          const err = await login(sessionPayload);
+          const err = await this.login(sessionPayload);
           // If we don't have a password, we submitted without a username
           if (err) {
             if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {

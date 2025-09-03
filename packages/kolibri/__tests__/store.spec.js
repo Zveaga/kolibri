@@ -55,15 +55,6 @@ describe('Vuex store/actions for core module', () => {
           redirectBrowser();
           return Promise.resolve();
         }),
-        setUnspecifiedPassword: jest.fn().mockImplementation(credentials => {
-          // This should match the implementation in useUser.js
-          client({
-            method: 'post',
-            url: '/user/setpassword',
-            data: credentials,
-          });
-          return Promise.resolve();
-        }),
       }));
       redirectBrowser.mockReset();
       client.mockReset();
@@ -115,24 +106,6 @@ describe('Vuex store/actions for core module', () => {
       const { logout } = useUserModule.default();
       await logout();
       expect(redirectBrowser).toHaveBeenCalled();
-    });
-
-    it('setUnspecifiedPassword updates user password', async () => {
-      const credentials = {
-        username: 'testuser',
-        password: 'newpassword',
-        facility: { id: 'facility_1' },
-      };
-      client.__setPayload({ success: true });
-
-      const { setUnspecifiedPassword } = useUserModule.default();
-      await setUnspecifiedPassword(credentials);
-
-      expect(client).toHaveBeenCalledWith({
-        method: 'post',
-        url: '/user/setpassword',
-        data: credentials,
-      });
     });
   });
 });

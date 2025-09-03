@@ -1,6 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import useUser from 'kolibri/composables/useUser';
+import { coreStoreFactory } from 'kolibri/store';
 import NewPasswordPage from '../NewPasswordPage.vue';
 
 jest.mock('kolibri/composables/useUser');
@@ -36,12 +37,16 @@ describe('NewPasswordPage', () => {
     // Mock useUser composable
     useUser.mockImplementation(() => ({
       login: mockLogin,
-      setUnspecifiedPassword: mockSetUnspecifiedPassword,
     }));
 
     wrapper = mount(NewPasswordPage, {
       localVue,
       router,
+      store: coreStoreFactory({
+        actions: {
+          kolibriSetUnspecifiedPassword: mockSetUnspecifiedPassword,
+        },
+      }),
       propsData: {
         username: 'testuser',
         facilityId: 'facility_1',
@@ -69,7 +74,7 @@ describe('NewPasswordPage', () => {
     // Submit the form
     await wrapper.vm.updatePassword();
 
-    expect(mockSetUnspecifiedPassword).toHaveBeenCalledWith({
+    expect(mockSetUnspecifiedPassword.mock.calls[0][1]).toEqual({
       username: 'testuser',
       facility: 'facility_1',
       password: 'validpassword',
