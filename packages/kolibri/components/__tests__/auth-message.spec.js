@@ -92,6 +92,7 @@ describe('auth message component', () => {
     });
 
     it('shows correct link text if there is a user plugin', () => {
+      window.location.href = 'http://kolibri.time/#/';
       const wrapper = makeWrapper();
       const link = wrapper.find('[data-test=signinlink]');
       expect(link.attributes()).toMatchObject({
