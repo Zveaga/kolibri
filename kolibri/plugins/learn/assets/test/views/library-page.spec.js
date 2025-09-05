@@ -56,12 +56,6 @@ async function makeWrapper({ options, fullMount = false } = {}) {
     state: { core: { loading: false } },
     getters: {
       isUserLoggedIn: jest.fn(),
-      isLearner: jest.fn(),
-      isSuperuser: jest.fn(),
-      isAdmin: jest.fn(),
-      isCoach: jest.fn(),
-      isAppContext: jest.fn(),
-      getUserKind: jest.fn(),
       isPageLoading: jest.fn(),
       pageSessionId: jest.fn(() => 0),
     },

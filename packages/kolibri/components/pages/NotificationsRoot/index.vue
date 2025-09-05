@@ -159,8 +159,7 @@
 
     methods: {
       async getNotifications() {
-        const { isAdmin, isSuperuser } = useUser();
-        if (isAdmin || isSuperuser) {
+        if (this.isAdmin || this.isSuperuser) {
           try {
             const notifications = await PingbackNotificationResource.fetchCollection();
             this.notifications = _notificationListState(notifications);
