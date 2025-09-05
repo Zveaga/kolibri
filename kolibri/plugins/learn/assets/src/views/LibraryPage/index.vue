@@ -266,12 +266,13 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, isTourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
         isAdmin,
         isSuperuser,
+        user_id,
         canManageContent,
         isLearnerOnlyImport,
       } = useUser();
@@ -440,6 +441,8 @@
         isTourActive,
         startTour,
         endTour,
+        resumeTour,
+        userId: user_id,
       };
     },
     props: {
@@ -523,6 +526,9 @@
       studioId() {
         return KolibriStudioId;
       },
+      loading() {
+        return this.$store.state.core.loading;
+      },
     },
     watch: {
       rootNodes(newNodes) {
@@ -545,6 +551,16 @@
           return;
         }
         document.documentElement.style.position = '';
+      },
+      loading(newVal, oldVal) {
+        if (oldVal && !newVal) {
+          const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
+          if (isTourStarted) {
+            setTimeout(() => {
+              this.startTour('LibraryPage');
+            }, 3000);
+          }
+        }
       },
     },
     created() {

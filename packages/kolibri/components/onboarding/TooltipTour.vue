@@ -23,10 +23,22 @@
   import tippy from 'tippy.js';
   import Vue from 'vue';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
+  import useTour from 'kolibri/composables/useTour';
+  import useUser from '../../../kolibri/composables/useUser';
   import TooltipContent from './TooltipContent.vue';
 
   export default {
     name: 'TooltipTour',
+    setup() {
+      const { saveTourProgress, completeTour, currentStepIndex } = useTour();
+      const { user_id } = useUser();
+      return {
+        saveTourProgress,
+        completeTour,
+        currentStepIndex,
+        userId: user_id,
+      };
+    },
     props: {
       page: {
         type: String,
@@ -43,7 +55,6 @@
     },
     data() {
       return {
-        currentStepIndex: 0,
         tippyInstance: null,
         showOverlay: false,
         rect: {},
@@ -71,7 +82,9 @@
       },
     },
     mounted() {
-      this.showTooltip();
+      this.$nextTick(() => {
+        this.showTooltip();
+      });
       window.document.documentElement.style['overflow'] = 'hidden';
     },
     destroyed() {
@@ -87,7 +100,6 @@
         this.$nextTick(() => {
           const currentStep = this.steps[this.currentStepIndex];
           if (!currentStep) return;
-
           const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
 
           if (!target) {
@@ -152,14 +164,23 @@
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
           this.currentStepIndex++;
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         } else {
-          this.endTour();
+          // Check if current page is the last key in onboardingSteps
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, false);
+          const pageKeys = Object.keys(onboardingSteps);
+          const isLastPage = this.page === pageKeys[pageKeys.length - 1];
+          if (isLastPage) {
+            this.completeTour(); // only mark complete on last page and last step
+          }
+          this.endTour(); // end tour in all cases when last step of page is done
         }
       },
       prevStep() {
         if (this.currentStepIndex > 0) {
           this.currentStepIndex--;
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         }
       },
