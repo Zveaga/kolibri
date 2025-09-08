@@ -51,16 +51,16 @@ export default function useUser() {
   const isFacilityCoach = computed(() => kind.value.includes(UserKinds.COACH));
   const isLearner = computed(() => kind.value.includes(UserKinds.LEARNER));
   const isFacilityAdmin = computed(() => kind.value.includes(UserKinds.ADMIN));
-  const getUserPermissions = computed(() => ({ can_manage_content: canManageContent.value }));
+  const userPermissions = computed(() => ({ can_manage_content: canManageContent.value }));
   const userFacilityId = computed(() => sessionState.value.facility_id);
-  const getUserKind = computed(() => {
+  const userKind = computed(() => {
     if (isSuperuser.value) return UserKinds.SUPERUSER;
     if (isAdmin.value) return UserKinds.ADMIN;
     if (isCoach.value) return UserKinds.COACH;
     if (isLearner.value) return UserKinds.LEARNER;
     return UserKinds.ANONYMOUS;
   });
-  const userHasPermissions = computed(() => Object.values(getUserPermissions.value).some(Boolean));
+  const userHasPermissions = computed(() => Object.values(userPermissions.value).some(Boolean));
 
   // Login/Logout Functions
   async function login(sessionPayload) {
@@ -142,9 +142,9 @@ export default function useUser() {
     isFacilityCoach,
     isLearner,
     isFacilityAdmin,
-    getUserPermissions,
+    userPermissions,
     userFacilityId,
-    getUserKind,
+    userKind,
     userHasPermissions,
 
     // State

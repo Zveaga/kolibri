@@ -55,7 +55,6 @@ async function makeWrapper({ options, fullMount = false } = {}) {
   const store = new Store({
     state: { core: { loading: false } },
     getters: {
-      isUserLoggedIn: jest.fn(),
       isPageLoading: jest.fn(),
       pageSessionId: jest.fn(() => 0),
     },
