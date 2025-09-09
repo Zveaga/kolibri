@@ -248,7 +248,7 @@
       @cancel="languageModalShown = false"
     />
     <TooltipTour
-      v-if="tourActive && isTourActive('SideNavigation')"
+      v-if="tourActive && isTourActive('SideNavigation') && !isLearner"
       page="SideNavigation"
       @tourEnded="endTour('SideNavigation')"
     />

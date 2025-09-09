@@ -91,7 +91,7 @@
       <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
     </KModal>
     <TooltipTour
-      v-if="tourActive && isTourActive('ViewAndDownloadResources')"
+      v-if="tourActive && isTourActive('ViewAndDownloadResources') && !isLearner"
       page="ViewAndDownloadResources"
       :spotlightOpacity="0.12"
       @tourEnded="endTour('ViewAndDownloadResources')"

@@ -67,12 +67,17 @@ export const kolibriOnboardingGuideStrings = createTranslator('kolibriOnboarding
   onMyOwnWelcomeMessage: {
     message: 'The first thing you should do is add learning resources to your library.',
   },
+  HomePageWelcomeMessage: {
+    message:
+      'Welcome to your learning facility. Your class materials can be found on the home page.',
+  },
   onboardingStepDescription: {
     message: '{pageTitle} - Onboarding - step {currentStep} of {totalSteps}',
     context:
       'Provides screen reader users with information about where they are in the onboarding process',
   },
 });
+
 export function onboardingGuideString(...args) {
   return kolibriOnboardingGuideStrings.$tr(...args);
 }

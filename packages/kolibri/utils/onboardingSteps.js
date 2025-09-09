@@ -36,6 +36,16 @@ export const onboardingSteps = {
       },
     ],
   },
+  LearningActivityBarPage: {
+    label: 'contentActionsLabel',
+    steps: [
+      {
+        key: 'contentPageTopBar',
+        content: () => onboardingGuideString('contentPageTopBarDescription'),
+        stepIndex: 0,
+      },
+    ],
+  },
   ExploreLibraries: {
     label: 'exploreGlobalLibrary',
     steps: [
