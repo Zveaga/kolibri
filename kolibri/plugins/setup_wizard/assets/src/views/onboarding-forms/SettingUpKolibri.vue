@@ -36,9 +36,9 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
+  import useUser from 'kolibri/composables/useUser';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { checkCapability } from 'kolibri/utils/appCapabilities';
@@ -58,6 +58,10 @@
     components: { AppError, KolibriLoadingSnippet },
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
+    setup() {
+      const { login } = useUser();
+      return { login };
+    },
     computed: {
       coreError() {
         if (this.$store) {
@@ -189,7 +193,6 @@
       this.startProvisionDeviceTask();
     },
     methods: {
-      ...mapActions(['kolibriLogin']),
       startOver() {
         this.$store.dispatch('clearError');
         this.wizardService.send('START_OVER');
@@ -225,7 +228,7 @@
             this.wrapOnboarding();
             if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
               const { password } = this.deviceProvisioningData.superuser || {};
-              return this.kolibriLogin({
+              return this.login({
                 facilityId,
                 username,
                 password,
