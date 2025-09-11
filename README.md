@@ -20,7 +20,7 @@ This repository is for software developers wishing to contribute to Kolibri. If 
 Developed with and for the community by [Learning Equality](https://learningequality.org/).
 
 ## How can I use it?
-
+ 
 Kolibri is [available for download](https://learningequality.org/download/) from our website.
 
 ## How do I get help or give feedback?
