@@ -10,7 +10,7 @@
 [![User docs](https://img.shields.io/badge/docs-user-blue.svg)](http://kolibri.readthedocs.org/en/latest/)
 [![Discourse topics](https://img.shields.io/discourse/https/community.learningequality.org/topics.svg?color=blue)](https://community.learningequality.org/)
 
-This repository is for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri, please refer to the [User Guide](https://kolibri.readthedocs.io/).
+This repository is for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri, please refer to the [User Guide](https://kolibri.readthedocs.io/). 
 
 
 ## What is Kolibri?
