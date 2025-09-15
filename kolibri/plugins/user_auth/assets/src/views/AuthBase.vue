@@ -118,7 +118,7 @@
           class="footer-cell table-cell"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <LanguageSwitcherFooter />
+          <!-- <LanguageSwitcherFooter /> -->
           <div class="small-text">
             <span class="version-string">
               {{ versionMsg }}
@@ -188,13 +188,14 @@
   import plugin_data from 'kolibri-plugin-data';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { ComponentMap } from '../constants';
-  import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+//   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
   import getUrlParameter from './getUrlParameter';
 
   export default {
     name: 'AuthBase',
-    components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
+    // components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
+    components: { CoreLogo, PrivacyInfoModal },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const { facilityConfig } = useFacilities();
