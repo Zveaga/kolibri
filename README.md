@@ -13,7 +13,7 @@
 This repository is for software developers wishing to contribute to Kolibri. If you are looking for help installing, configuring and using Kolibri, please refer to the [User Guide](https://kolibri.readthedocs.io/).
 
 
-## What is Kolibri ?
+## What is Kolibri?
 
 [Kolibri Learning Platform](https://learningequality.org/kolibri/): the offline-first platform for teaching and learning with technology without requiring the Internet.
 
