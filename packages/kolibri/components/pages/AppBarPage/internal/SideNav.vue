@@ -445,7 +445,7 @@
         this.$nextTick(() => {
           if (isShown) {
             this.focusFirstEl();
-            this.startTour('SideNavigation');
+            // this.startTour('SideNavigation');
           }
         });
       },
@@ -466,7 +466,7 @@
       filterByRole(navItem) {
         if (!navItem.role) {
           // No role defined, so always show
-          return true;
+          return true;8
         }
         if (navItem.role === UserKinds.COACH) {
           return this.isCoach || this.isAdmin || this.isSuperuser;
