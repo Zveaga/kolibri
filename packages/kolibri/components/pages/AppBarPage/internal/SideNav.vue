@@ -124,13 +124,13 @@
                   :link="logoutUrl"
                   icon="logout"
                 />
-                <CoreMenuOption
+                <!-- <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
                   class="pointer"
                   @select="handleShowLanguageModal"
                   @toggleMenu="toggleNav"
-                />
+                /> -->
                 <SideNavDivider />
               </template>
             </CoreMenu>
@@ -241,12 +241,12 @@
       @submit="privacyModalVisible = false"
     />
 
-    <LanguageSwitcherModal
+    <!-- <LanguageSwitcherModal
       v-if="languageModalShown"
       ref="languageSwitcherModal"
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
-    />
+    /> -->
     <TooltipTour
       v-if="tourActive && isTourActive('SideNavigation') && !isLearner"
       page="SideNavigation"
@@ -268,7 +268,7 @@
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import themeConfig from 'kolibri/styles/themeConfig';
   import Backdrop from 'kolibri/components/Backdrop';
-  import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
+//   import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
   import urls from 'kolibri/urls';
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
@@ -305,7 +305,7 @@
       SideNavDivider,
       PrivacyInfoModal,
       TotalPoints,
-      LanguageSwitcherModal,
+    //   LanguageSwitcherModal,
       BottomNavigationBar,
       TooltipTour,
     },
@@ -379,7 +379,7 @@
         // __copyrightYear is injected by Webpack DefinePlugin
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
-        languageModalShown: false,
+        // languageModalShown: false,
       };
     },
     computed: {
@@ -445,7 +445,7 @@
         this.$nextTick(() => {
           if (isShown) {
             this.focusFirstEl();
-            this.startTour('SideNavigation');
+            // this.startTour('SideNavigation');
           }
         });
       },
@@ -466,7 +466,7 @@
       filterByRole(navItem) {
         if (!navItem.role) {
           // No role defined, so always show
-          return true;
+          return true;8
         }
         if (navItem.role === UserKinds.COACH) {
           return this.isCoach || this.isAdmin || this.isSuperuser;
@@ -490,9 +490,9 @@
       toggleNav() {
         this.$emit('toggleSideNav');
       },
-      handleShowLanguageModal() {
-        this.languageModalShown = true;
-      },
+    //   handleShowLanguageModal() {
+    //     this.languageModalShown = true;
+    //   },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;
         this.toggleNav();
