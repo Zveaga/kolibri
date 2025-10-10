@@ -32,6 +32,19 @@
             class="move-down"
             @click="displayModal(Modals.CREATE_CLASS)"
           />
+		  
+		  <KButton
+            :text="$tr('addNew')"
+            :primary="true"
+            class="move-down"
+            @click="displayModal(Modals.CREATE_CLASS)"
+          />
+		   <KButton
+            :text="$tr('addNew')"
+            :primary="true"
+            class="move-down"
+            @click="displayModal(Modals.CREATE_CLASS)"
+          />
         </KGridItem>
       </KGrid>
       <KTable
