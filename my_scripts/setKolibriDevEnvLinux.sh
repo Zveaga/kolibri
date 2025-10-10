@@ -2,12 +2,13 @@
 
 set -e  # stop if any command fails
 
+# Define green color
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 green_echo() {
   echo -e "${GREEN}$1${NC}"
 }
-
-green_echo "🔹 Changing directory to project root..."
-cd ../
 
 green_echo "🔹 Initialize Git Large File Storage..."
 git lfs install
