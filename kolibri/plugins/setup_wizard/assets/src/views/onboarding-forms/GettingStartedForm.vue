@@ -5,12 +5,12 @@
     @submit="handleSubmit"
   >
     <KRadioButtonGroup>
-      <!-- <KRadioButton
+      <KRadioButton
         v-model="selected"
         :buttonValue="Options.PERSONAL"
         :label="$tr('quickStartLabel')"
         :description="getCommonSyncString('onMyOwn')"
-      /> -->
+      />
       <KRadioButton
         v-model="selected"
         :buttonValue="Options.PUBLIC"
