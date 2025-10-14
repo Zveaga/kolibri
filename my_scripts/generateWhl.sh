@@ -13,6 +13,9 @@ green_echo() {
 green_echo "🔹 Activating Virtual Environment..."
 source venv/bin/activate
 
+green_echo "🔹 Stopping Kolibri..."
+kolibri stop || true
+
 green_echo "🔹 Installing Python dependencies..."
 pip install beautifulsoup4
 
@@ -27,4 +30,4 @@ fi
 green_echo "🔹 Generating .whl file..."
 make dist SKIP_PY_CHECK=1
 
-green_echo "✅ Done!"
+green_echo "✅ .whl file generated!"
