@@ -57,8 +57,9 @@
               :shouldValidate="formSubmitted"
             />
           </template>
+		  <!-- Added by me  -->
           <div
-            v-if="learnerIsSelected && !generatedCredentials"
+            v-if="learnerIsSelected && !generatedCredentials" 
             class="info-text"
           >
             <p>{{ $tr('autoGenerateCredentialsInfo') }}</p>
@@ -72,6 +73,7 @@
             <p><strong>{{ $tr('password') }}:</strong> {{ generatedCredentials.password }}</p>
             <p class="warning-text">{{ $tr('saveCredentialsWarning') }}</p>
           </div>
+		  <!----------------->
           <KSelect
             v-model="kind"
             class="select"
