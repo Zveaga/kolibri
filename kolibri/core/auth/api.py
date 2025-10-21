@@ -106,6 +106,7 @@ from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
+from kolibri.utils.nas_api import create_ad_student
 from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
@@ -587,6 +588,52 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override create to handle NAS AD account generation for learners.
+        """
+        # Check if this is a learner and roles indicate LEARNER type
+        # Learners have no roles, so we check if roles are being created
+        roles_data = request.data.get('roles', [])
+        is_learner = len(roles_data) == 0 or all(
+            role.get('kind') == user_kinds.LEARNER for role in roles_data
+        )
+        
+        # Check if username/password are placeholder values for NAS generation
+        username = request.data.get('username', '')
+        password = request.data.get('password', '')
+        needs_ad_generation = (
+            is_learner and 
+            username == 'GENERATE_CREDENTIALS' and 
+            password == 'GENERATE_CREDENTIALS'
+        )
+        
+        if needs_ad_generation:
+            # Call NAS API to generate credentials
+            ad_credentials = create_ad_student()
+            
+            if ad_credentials is None:
+                return Response(
+                    {'detail': 'Failed to generate AD credentials from NAS'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            # Replace placeholder with generated credentials
+            request.data['username'] = ad_credentials['username']
+            request.data['password'] = ad_credentials['password']
+        
+        # Call the parent create method
+        response = super(FacilityUserViewSet, self).create(request, *args, **kwargs)
+        
+        # If this was an AD-generated user and successful, add credentials to response
+        if needs_ad_generation and response.status_code == status.HTTP_201_CREATED:
+            response.data['generated_credentials'] = {
+                'username': ad_credentials['username'],
+                'password': ad_credentials['password']
+            }
+        
+        return response
 
     def destroy(self, request, *args, **kwargs):
         if kwargs.get("pk"):
