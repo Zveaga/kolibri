@@ -139,6 +139,7 @@ export class Model {
               // Otherwise, must POST to the Collection endpoint to create the Model
               url = this.resource.collectionUrl();
               clientObj = { url: url, method: 'post', data: payload, params: this.getParams };
+			  console.log('CLIENT_OBJ (save()):', clientObj);
             }
             // Do a save on the URL.
             this.resource.client(clientObj).then(
@@ -731,7 +732,7 @@ export class Resource {
 
   /**
    * Fetch a model from a resource
-   * @param  {string} options.id               id of the model to fetch
+   * @param  {string} Modeloptions.id               id of the model to fetch
    * @param  {Object} [options.getParams={}]   any getParams to use when fetching the model
    * @param  {Boolean} [force=false]           whether to respect the cache when fetching
    * @return {Promise}                         Promise that resolves on fetch with the model data

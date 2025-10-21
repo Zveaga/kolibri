@@ -92,6 +92,8 @@ const client = options => {
       'passing the URL as the only argument is deprecated, please use url option instead',
     );
   }
+  
+  console.log('CLIENT OPTIONS', options);
 
   const headers = { ...(options.headers || {}), 'X-Requested-With': 'XMLHttpRequest' };
   if (options.multipart) {

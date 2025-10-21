@@ -26,7 +26,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import requests  # Added by me
 
 from .. import error_constants
 from kolibri.core.api import BaseValuesViewset
@@ -389,42 +388,3 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
         return FacilityUser.objects.filter(roles=None).filter(
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
         )
-
-
-# Added by me
-
-class NasStudentProxy(APIView):
-    """
-    Proxy GET requests to the NAS stub at http://localhost:5000/api/student/<action>
-    Supported actions: create, delete, update-password
-    """
-
-    def get(self, request, action, format=None):
-        # Build remote URL
-        remote_url = f"http://localhost:5000/api/student/{action}"
-        params = request.query_params.dict()
-
-        try:
-            resp = requests.get(remote_url, params=params, timeout=5)
-        except requests.RequestException:
-            return Response({"error": "upstream_unreachable"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
-        # If NAS returned JSON pass it through
-        content_type = resp.headers.get("Content-Type", "")
-        if resp.status_code >= 400:
-            try:
-                return Response(resp.json(), status=resp.status_code)
-            except ValueError:
-                return Response({"error": resp.text}, status=resp.status_code)
-
-        try:
-            return Response(resp.json(), status=resp.status_code)
-        except ValueError:
-            return Response({"data": resp.text}, status=resp.status_code)
-
-
-
-
-
-
-

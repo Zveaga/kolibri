@@ -27,7 +27,6 @@ from .api import PublicChannelMetadataViewSet
 from .api import PublicContentNodeTreeViewSet
 from .api import PublicContentNodeViewSet
 from .api import SyncQueueAPIView
-from .api import NasStudentProxy # Added by me
 from kolibri.core.content.public_api import ImportMetadataViewset
 
 
@@ -80,14 +79,5 @@ urlpatterns = [
         r"syncqueue/",
         SyncQueueAPIView.as_view(),
         name="syncqueue",
-    ),
-]
-
-# Added by me
-urlpatterns += [
-    re_path(
-        r"^nas/student/(?P<action>create|delete|update-password)$",
-        NasStudentProxy.as_view(),
-        name="nas_student_proxy",
     ),
 ]
