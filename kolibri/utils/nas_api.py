@@ -1,3 +1,4 @@
+# Added by me
 """
 Helper module for NAS Active Directory API integration.
 """

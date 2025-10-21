@@ -588,7 +588,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
-	#----------Added by me----------#
+	# Added by me
     def create(self, request, *args, **kwargs):
         """
         Override create to handle NAS AD account generation for learners.
