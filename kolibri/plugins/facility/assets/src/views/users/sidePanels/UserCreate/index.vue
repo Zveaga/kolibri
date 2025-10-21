@@ -372,7 +372,11 @@
 
       const handleSubmitSuccess = () => {
         createSnackbar(notificationStrings.userCreated$());
-        props.onChange();
+        // Don't call props.onChange() immediately if we have generated credentials
+        // This prevents the form from being reset before credentials can be displayed
+        if (!generatedCredentials.value) {
+          props.onChange();
+        }
       };
 
       const handleSubmitFailure = error => {
@@ -497,7 +501,7 @@
       const saveAndClose = async () => {
         const success = await submitForm();
         if (success) {
-          // Reset form to reset the hasUnsavedChanges state and
+		  // Reset form to reset the hasUnsavedChanges state and
           // prevent the close confirmation modal from showing
           resetForm();
           await nextTick();
@@ -508,7 +512,16 @@
       const saveAndAddAnother = async () => {
         const success = await submitForm();
         if (success) {
+          // Preserve generated credentials so they stay visible
+          const savedCredentials = generatedCredentials.value;
+          
+          // Call onChange to refresh the parent list
+          props.onChange();
+          
+          // Reset form but keep credentials visible
           resetForm();
+          generatedCredentials.value = savedCredentials;
+          
           await nextTick();
           $refs.fullNameTextbox.focus();
         }
