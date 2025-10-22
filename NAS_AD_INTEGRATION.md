@@ -12,7 +12,7 @@ This integration allows Kolibri to automatically generate student credentials th
    - Functions:
      - `create_ad_student()` - Calls `http://localhost:5000/api/student/create` to generate credentials
      - `delete_ad_student(username)` - Calls `http://localhost:5000/api/student/delete?username=<username>`
-     - `update_ad_student_password(username, new_password)` - Calls `http://localhost:5000/api/student/update-password?username=<username>&new_password=<password>`
+     - `update_ad_student_password(username, new_password)` - Calls `http://localhost:5000/api/student/password-set?username=<username>&new_password=<password>`
    - All functions use GET requests as requested
    - Returns generated credentials or handles errors appropriately
 
@@ -101,7 +101,7 @@ Response: {"status": "success"}
 
 ### Update Password
 ```
-GET http://localhost:5000/api/student/update-password?username=125-00001&new_password=5678
+GET http://localhost:5000/api/student/password-set?username=125-00001&new_password=5678
 Response: {"status": "success"}
 ```
 

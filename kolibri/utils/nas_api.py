@@ -26,6 +26,7 @@ def create_ad_student():
         response.raise_for_status()
         
         data = response.json()
+        print('CREATING STUDENT...', 'data: ', data)
         if 'username' in data and 'password' in data:
             logger.info(f"Successfully created AD account: {data['username']}")
             return {
@@ -77,7 +78,7 @@ def update_ad_student_password(username, new_password):
         bool: True if successful, False otherwise
     """
     try:
-        url = f"{NAS_API_BASE_URL}/update-password"
+        url = f"{NAS_API_BASE_URL}/password-set"
         params = {
             'username': username,
             'new_password': new_password
