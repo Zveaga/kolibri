@@ -26,7 +26,7 @@ def create_ad_student():
         response.raise_for_status()
         
         data = response.json()
-        print('CREATING STUDENT...', 'data: ', data)
+        # print('CREATING STUDENT...', 'data: ', data)
         if 'username' in data and 'password' in data:
             logger.info(f"Successfully created AD account: {data['username']}")
             return {
@@ -40,7 +40,6 @@ def create_ad_student():
     except RequestException as e:
         logger.error(f"Failed to create AD student account: {str(e)}")
         return None
-
 
 def delete_ad_student(username):
     """
