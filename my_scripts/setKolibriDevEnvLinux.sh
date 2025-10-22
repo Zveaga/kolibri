@@ -30,6 +30,9 @@ nodeenv -p --node=20.19.3
 green_echo "🔹 Installing yarn..."
 npm install -g yarn
 
+green_echo "🔹 Installing build-essential package..."
+sudo apt install build-essential
+
 green_echo "🔹 Installing other project dependencies..."
 yarn install
 
