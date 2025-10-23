@@ -644,8 +644,15 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         	# Added by me
             # Check if user is a learner (has no roles) and delete from AD
             if not user.roles.exists():
-                logger.info(f"Deleting AD account for learner: {user.username}")
-                delete_ad_student(user.username)
+                logger.info(f"++++++Deleting AD account for learner: {user.username}")
+                ad_deletion_success = delete_ad_student(user.username)
+                if not ad_deletion_success:
+                    logger.error(f"++++++Failed to delete AD account for {user.username}, aborting Kolibri deletion")
+                    return Response(
+                        {'detail': f'++++++Failed to delete AD account for user {user.username}'},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+                logger.info(f"++++++Successfully deleted AD account for {user.username}")
             # ----------------
             
             user.date_deleted = now()
@@ -676,11 +683,23 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         removed_users = list(objects)
         # Added by me
         # Delete AD accounts for learners before soft-deleting them
+        failed_deletions = []
         for user in removed_users:
             # Check if user is a learner (has no roles)
             if not user.roles.exists():
-                logger.info(f"Deleting AD account for learner: {user.username}")
-                delete_ad_student(user.username)
+                logger.info(f"-----Deleting AD account for learner: {user.username}")
+                ad_deletion_success = delete_ad_student(user.username)
+                if not ad_deletion_success:
+                    logger.error(f"-----Failed to delete AD account for {user.username}")
+                    failed_deletions.append(user.username)
+                else:
+                    logger.info(f"-----Successfully deleted AD account for {user.username}")
+        
+        # If any AD deletions failed, abort the entire operation
+        if failed_deletions:
+            raise RestValidationError(
+                detail=f"-----Failed to delete AD accounts for: {', '.join(failed_deletions)}. No users were deleted from Kolibri."
+            )
         # ----------------
         objects.update(date_deleted=now())
         self._invalidate_removed_users_session(removed_users)
