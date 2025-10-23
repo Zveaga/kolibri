@@ -65,7 +65,7 @@
             <p>{{ $tr('autoGenerateCredentialsInfo') }}</p>
           </div>
           <div
-            v-if="generatedCredentials"
+            v-if="generatedCredentials && learnerIsSelected"
             class="credentials-box"
           >
             <h3>{{ $tr('generatedCredentialsTitle') }}</h3>
