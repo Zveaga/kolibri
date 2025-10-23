@@ -107,6 +107,7 @@ from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.nas_api import create_ad_student # Added by me
+from kolibri.utils.nas_api import delete_ad_student # Added by me
 from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
@@ -640,6 +641,13 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         if kwargs.get("pk"):
             # Single object deletion
             user = self.get_object()
+        	# Added by me
+            # Check if user is a learner (has no roles) and delete from AD
+            if not user.roles.exists():
+                logger.info(f"Deleting AD account for learner: {user.username}")
+                delete_ad_student(user.username)
+            # ----------------
+            
             user.date_deleted = now()
             user.save()
             self._invalidate_removed_users_session([user])
@@ -666,6 +674,14 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         if objects.filter(id=self.request.user.id).exists():
             raise PermissionDenied("Super user cannot delete self")
         removed_users = list(objects)
+        # Added by me
+        # Delete AD accounts for learners before soft-deleting them
+        for user in removed_users:
+            # Check if user is a learner (has no roles)
+            if not user.roles.exists():
+                logger.info(f"Deleting AD account for learner: {user.username}")
+                delete_ad_student(user.username)
+        # ----------------
         objects.update(date_deleted=now())
         self._invalidate_removed_users_session(removed_users)
 

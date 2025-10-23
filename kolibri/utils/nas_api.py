@@ -52,9 +52,8 @@ def delete_ad_student(username):
         bool: True if successful, False otherwise
     """
     try:
-        url = f"{NAS_API_BASE_URL}/delete"
-        params = {'username': username}
-        response = requests.get(url, params=params, timeout=10)
+        url = f"{NAS_API_BASE_URL}/delete/{username}"
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         
         logger.info(f"Successfully deleted AD account: {username}")
